@@ -1,3 +1,10 @@
+.DS_Store
+.settings
+target
+.project
+.classpath
+xwiki.log
+
 *.class
 
 # Mobile Tools for Java (J2ME)
