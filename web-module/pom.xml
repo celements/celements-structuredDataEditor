@@ -29,7 +29,7 @@
     <version>2.12</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>calendar-web</artifactId>
+  <artifactId>structuredDataEditor-web</artifactId>
   <packaging>war</packaging>
   <name>Celements Structured Data Editor Web-Module</name>
   <version>1.1-SNAPSHOT</version>
