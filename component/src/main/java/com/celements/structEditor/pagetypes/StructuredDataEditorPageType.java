@@ -34,7 +34,11 @@ public class StructuredDataEditorPageType extends AbstractJavaPageType {
 
   @Override
   public String getRenderTemplateForRenderMode(String renderMode) {
-    return "Templates.StructuredDataEditor";
+    if ("edit".equals(renderMode)) {
+      return "Templates.PresentationEdit";
+    } else {
+      return "Templates.StructuredDataEditor";
+    }
   }
 
   @Override
