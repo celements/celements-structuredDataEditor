@@ -14,6 +14,9 @@ public class StructuredDataEditorPageType extends AbstractJavaPageType {
 
   public static final String STRUCURED_DATA_EDITOR_PAGETYPE_NAME = "StrucuredDataEditor";
 
+  static final String VIEW_TEMPLATE_NAME = "Templates.StructuredDataEditor";
+  static final String EDIT_TEMPLATE_NAME = "Templates.PresentationEdit";
+
   @Requirement
   private IPageTypeCategoryRole pageTypeCategory;
 
@@ -35,9 +38,9 @@ public class StructuredDataEditorPageType extends AbstractJavaPageType {
   @Override
   public String getRenderTemplateForRenderMode(String renderMode) {
     if ("edit".equals(renderMode)) {
-      return "Templates.PresentationEdit";
+      return EDIT_TEMPLATE_NAME;
     } else {
-      return "Templates.StructuredDataEditor";
+      return VIEW_TEMPLATE_NAME;
     }
   }
 
