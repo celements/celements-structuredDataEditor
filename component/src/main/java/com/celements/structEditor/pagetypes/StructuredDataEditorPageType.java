@@ -12,7 +12,7 @@ import com.google.common.collect.Sets;
 @Component(StructuredDataEditorPageType.STRUCURED_DATA_EDITOR_PAGETYPE_NAME)
 public class StructuredDataEditorPageType extends AbstractJavaPageType {
 
-  public static final String STRUCURED_DATA_EDITOR_PAGETYPE_NAME = "StrucuredDataEditor";
+  public static final String STRUCURED_DATA_EDITOR_PAGETYPE_NAME = "StructuredDataEditor";
 
   static final String VIEW_TEMPLATE_NAME = "Templates.StructuredDataEditor";
   static final String EDIT_TEMPLATE_NAME = "Templates.PresentationEdit";
