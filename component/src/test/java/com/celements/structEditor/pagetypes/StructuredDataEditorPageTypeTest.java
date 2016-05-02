@@ -83,7 +83,7 @@ public class StructuredDataEditorPageTypeTest extends AbstractComponentTest {
   @Test
   public void test_isVisible() {
     replayDefault();
-    assertTrue(structDataEditPT.isVisible());
+    assertFalse(structDataEditPT.isVisible());
     verifyDefault();
   }
 

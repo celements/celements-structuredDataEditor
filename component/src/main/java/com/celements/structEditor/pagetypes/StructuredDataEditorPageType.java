@@ -14,7 +14,7 @@ public class StructuredDataEditorPageType extends AbstractJavaPageType {
 
   public static final String STRUCURED_DATA_EDITOR_PAGETYPE_NAME = "StructuredDataEditor";
 
-  static final String VIEW_TEMPLATE_NAME = "Templates.StructuredDataEditor";
+  static final String VIEW_TEMPLATE_NAME = "Templates.StructuredDataEditorView";
   static final String EDIT_TEMPLATE_NAME = "Templates.PresentationEdit";
 
   @Requirement
@@ -56,7 +56,7 @@ public class StructuredDataEditorPageType extends AbstractJavaPageType {
 
   @Override
   public boolean isVisible() {
-    return true;
+    return false;
   }
 
 }

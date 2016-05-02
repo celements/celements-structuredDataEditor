@@ -1,0 +1,28 @@
+##TODO get navigation config from pageType document
+
+#if("$!celldoc" != '')
+#set($contentDoc = $celldoc)
+#else   
+#set($contentDoc = $tdoc)
+#end
+#set($ptConfig = $services.pageType.getPageTypeConfig("$page_type"))
+#if("$!page_type" != 'StructuredDataEditor')
+  #set($overwritePresCmCssClass = '')
+  #set($overwriteNavCMcssClass = 'cel_cm_strucured_data_editor_element')
+  #set($emptyDictKeySuffix = '_strucured_data_editor')
+  #if("$!structDataEditorPresentationCount" == '')
+    #set($structDataEditorPresentationCount = 0)
+  #end
+  <p>DEBUG: $ptConfig.name</p>
+  #set($structDataEditorNav = $celementsweb.createNavigation())
+  $structDataEditorNav.loadConfigFromDoc($celldoc.documentReference)
+  #set($structDataEditorSpace = $structDataEditorNav.getNodeSpaceRef().getName())
+  #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
+  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:" class="structDataEditor cel_cm_strucured_data_editor">
+    #parse('celTemplates/PresentationView.vm')
+  </div>
+#else
+  <p>
+    Please create a page-type with View-Template: '$ptConfig.getRenderTemplateForRenderMode('view')'
+  </p>
+#end
