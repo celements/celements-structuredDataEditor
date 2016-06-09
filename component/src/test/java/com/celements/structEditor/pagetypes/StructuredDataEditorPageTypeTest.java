@@ -12,15 +12,13 @@ import com.celements.pagetype.category.IPageTypeCategoryRole;
 import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.xpn.xwiki.web.Utils;
 
-
 public class StructuredDataEditorPageTypeTest extends AbstractComponentTest {
 
   private StructuredDataEditorPageType structDataEditPT;
 
   @Before
   public void setUp_StructuredDataEditorPageTypeTest() throws Exception {
-    structDataEditPT = (StructuredDataEditorPageType) Utils.getComponent(
-        IJavaPageTypeRole.class,
+    structDataEditPT = (StructuredDataEditorPageType) Utils.getComponent(IJavaPageTypeRole.class,
         StructuredDataEditorPageType.STRUCURED_DATA_EDITOR_PAGETYPE_NAME);
   }
 
