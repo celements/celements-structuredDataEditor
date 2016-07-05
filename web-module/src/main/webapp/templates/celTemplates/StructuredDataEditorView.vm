@@ -14,11 +14,11 @@
     #set($structDataEditorPresentationCount = 0)
   #end
   <p>DEBUG: $ptConfig.name</p>
-  #set($structDataEditorNav = $celementsweb.createNavigation())
-  $structDataEditorNav.loadConfigFromDoc($celldoc.documentReference)
+  #set($structDataEditorNav = $services.treeNode.getJavaNavigation("StructuredDataEditor"))
   #set($structDataEditorSpace = $structDataEditorNav.getNodeSpaceRef().getName())
   #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
   <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:" class="structDataEditor cel_cm_strucured_data_editor">
+    #set($injectedNavigationObject = $structDataEditorNav)
     #parse('celTemplates/PresentationView.vm')
   </div>
 #else
