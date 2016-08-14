@@ -8,7 +8,7 @@
 #set($ptConfig = $services.pageType.getPageTypeConfig("$page_type"))
 #if("$!page_type" != 'StructuredDataEditor')
   #set($overwritePresCmCssClass = '')
-  #set($overwriteNavCMcssClass = 'cel_cm_strucured_data_editor_element')
+  #set($overwriteNavCMcssClass = 'cel_cm_structured_data_editor_element')
   #set($emptyDictKeySuffix = '_strucured_data_editor')
   #if("$!structDataEditorPresentationCount" == '')
     #set($structDataEditorPresentationCount = 0)
@@ -17,7 +17,7 @@
   #set($structDataEditorNav = $services.treeNode.getJavaNavigation("StructuredDataEditor"))
   #set($structDataEditorSpace = $structDataEditorNav.getNodeSpaceRef().getName())
   #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
-  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:" class="structDataEditor cel_cm_strucured_data_editor">
+  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:" class="structDataEditor cel_cm_structured_data_editor">
     #set($injectedNavigationObject = $structDataEditorNav)
     #parse('celTemplates/PresentationView.vm')
   </div>
