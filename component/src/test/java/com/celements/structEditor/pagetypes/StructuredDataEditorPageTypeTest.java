@@ -1,5 +1,6 @@
 package com.celements.structEditor.pagetypes;
 
+import static com.celements.common.test.CelementsTestUtils.*;
 import static org.junit.Assert.*;
 
 import java.util.Set;
