@@ -15,11 +15,21 @@
   #end
   <p>DEBUG: $ptConfig.name</p>
   #set($structDataEditorNav = $services.treeNode.getJavaNavigation("StructuredDataEditor"))
-  #set($structDataEditorSpace = $structDataEditorNav.getNodeSpaceRef().getName())
+  #set($structDataEditorSpaceRef = $structDataEditorNav.getNodeSpaceRef())
+  #set($structDataEditorSpace = $structDataEditorSpaceRef.getName())
+  #set($structCmCssClass = $structDataEditorNav.getCssClass())
+  <p>DEBUG structDataEditorNav: ${structDataEditorNav}</p>
+  <p>DEBUG structCmCssClass: ${structCmCssClass}</p>
+  <p>DEBUG structDataEditorSpace: ${structDataEditorSpace} , $structDataEditorSpace.getClass()</p>
   #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
-  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:" class="structDataEditor cel_cm_structured_data_editor">
-    #set($injectedNavigationObject = $structDataEditorNav)
-    #parse('celTemplates/PresentationView.vm')
+  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:" class="structDataEditor $!{structCmCssClass}">
+##    #set($injectedNavigationObject = $structDataEditorNav)
+##    #parse('celTemplates/PresentationView.vm')
+#if($services.layout.canRenderLayout($structDataEditorSpaceRef)
+$services.layout.renderPageLayout($structDataEditorSpaceRef)
+#else
+<p>Editor Layout for '${structDataEditorSpace}' is missing!</p>
+#end
   </div>
 #else
   <p>

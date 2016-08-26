@@ -2,19 +2,24 @@ package com.celements.structEditor.pagetypes;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.SpaceReference;
 
+import com.celements.model.context.ModelContext;
 import com.celements.navigation.NavigationConfig;
 import com.celements.navigation.NavigationConfig.Builder;
 import com.celements.navigation.factories.JavaNavigationConfigurator;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
-import com.celements.web.service.IWebUtilsService;
 
 @Component(StructuredDataEditorNavigationConfigurator.CONFIGURATOR_NAME)
 public class StructuredDataEditorNavigationConfigurator implements JavaNavigationConfigurator {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(
+      StructuredDataEditorNavigationConfigurator.class);
 
   public static final String CONFIGURATOR_NAME = "StructuredDataEditor";
 
@@ -31,13 +36,15 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
   IPageTypeResolverRole pageTypeResolver;
 
   @Requirement
-  IWebUtilsService webUtilsService;
+  ModelContext modelContext;
 
   @Override
   @NotNull
   public NavigationConfig getNavigationConfig(@NotNull PageTypeReference configReference) {
+    LOGGER.debug("getNavigationConfig: for pageTypeRef '{}'", configReference.getConfigName());
     String spaceName = pageTypeResolver.getPageTypeRefForCurrentDoc().getConfigName();
-    SpaceReference editorConfigSpace = new SpaceReference(spaceName, webUtilsService.getWikiRef());
+    SpaceReference editorConfigSpace = new SpaceReference(spaceName + "-EditFields",
+        modelContext.getWikiRef());
     Builder b = new NavigationConfig.Builder();
     b.nodeSpaceRef(editorConfigSpace);
     return defNavConfig.overlay(b.build());

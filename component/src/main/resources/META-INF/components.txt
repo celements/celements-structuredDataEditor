@@ -1,1 +1,2 @@
 com.celements.structEditor.pagetypes.StructuredDataEditorPageType
+com.celements.structEditor.pagetypes.StructuredDataEditorNavigationConfigurator
