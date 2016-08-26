@@ -25,7 +25,7 @@
   <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:" class="structDataEditor $!{structCmCssClass}">
 ##    #set($injectedNavigationObject = $structDataEditorNav)
 ##    #parse('celTemplates/PresentationView.vm')
-#if($services.layout.canRenderLayout($structDataEditorSpaceRef)
+#if($services.layout.canRenderLayout($structDataEditorSpaceRef))
 $services.layout.renderPageLayout($structDataEditorSpaceRef)
 #else
 <p>Editor Layout for '${structDataEditorSpace}' is missing!</p>
