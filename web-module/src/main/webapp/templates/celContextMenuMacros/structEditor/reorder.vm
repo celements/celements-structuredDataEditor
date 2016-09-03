@@ -1,0 +1,7 @@
+#if("$!elemId" != '')
+#set($menuItemDoc = $xwiki.getDocument($elemId))
+#set($menuItemObj = $menuItemDoc.getObject('Celements2.MenuItem'))
+#if("$!menuItemObj" != '')
+layoutEditor_reorder();##
+#end
+#end
