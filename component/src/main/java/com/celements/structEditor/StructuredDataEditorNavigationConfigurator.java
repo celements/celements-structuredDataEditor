@@ -1,4 +1,4 @@
-package com.celements.structEditor.pagetypes;
+package com.celements.structEditor;
 
 import javax.validation.constraints.NotNull;
 

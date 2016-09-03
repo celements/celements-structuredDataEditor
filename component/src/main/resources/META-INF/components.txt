@@ -1,2 +1,3 @@
-com.celements.structEditor.pagetypes.StructuredDataEditorPageType
-com.celements.structEditor.pagetypes.StructuredDataEditorNavigationConfigurator
+com.celements.structEditor.fields.StructEditFieldTypeCategory
+com.celements.structEditor.StructuredDataEditorPageType
+com.celements.structEditor.StructuredDataEditorNavigationConfigurator

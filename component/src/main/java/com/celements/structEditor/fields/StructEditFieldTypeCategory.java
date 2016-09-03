@@ -1,4 +1,4 @@
-package com.celements.structEditor.pagetypes;
+package com.celements.structEditor.fields;
 
 import org.xwiki.component.annotation.Component;
 

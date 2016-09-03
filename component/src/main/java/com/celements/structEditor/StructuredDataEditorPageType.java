@@ -1,4 +1,4 @@
-package com.celements.structEditor.pagetypes;
+package com.celements.structEditor;
 
 import java.util.Set;
 
