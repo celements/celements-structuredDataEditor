@@ -14,8 +14,8 @@ public class InputFieldPageType extends AbstractJavaPageType {
 
   public static final String INPUT_FIELD_PAGETYPE_NAME = "InputField";
 
-  static final String VIEW_TEMPLATE_NAME = "Templates.InputFieldView";
-  static final String EDIT_TEMPLATE_NAME = "Templates.StructDataFieldEdit";
+  static final String VIEW_TEMPLATE_NAME = "InputFieldView";
+  static final String EDIT_TEMPLATE_NAME = "StructDataFieldEdit";
 
   @Requirement("structEditFieldTypeCategory")
   private IPageTypeCategoryRole pageTypeCategory;

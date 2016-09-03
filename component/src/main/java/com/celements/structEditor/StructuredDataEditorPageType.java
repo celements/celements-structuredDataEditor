@@ -14,8 +14,8 @@ public class StructuredDataEditorPageType extends AbstractJavaPageType {
 
   public static final String STRUCURED_DATA_EDITOR_PAGETYPE_NAME = "StructuredDataEditor";
 
-  static final String VIEW_TEMPLATE_NAME = "Templates.StructuredDataEditorView";
-  static final String EDIT_TEMPLATE_NAME = "Templates.PresentationEdit";
+  static final String VIEW_TEMPLATE_NAME = "StructuredDataEditorView";
+  static final String EDIT_TEMPLATE_NAME = "PresentationEdit";
 
   @Requirement
   private IPageTypeCategoryRole pageTypeCategory;
