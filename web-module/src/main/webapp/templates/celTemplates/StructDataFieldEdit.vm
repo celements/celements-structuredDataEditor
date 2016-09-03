@@ -8,6 +8,8 @@
 #set($cellObj = $celldoc.getObject('Celements.StructEditFieldClass', false))
 #if("$!cellObj" == '')
 #set($cellObj = $celldoc.newObject("Celements.StructEditFieldClass"))
+$celldoc.save()
+$response.sendRedirect($doc.getURL('edit', $redirectStr))
 #end
 <div id="structEditFieldEdit">
 <h1>Struct Edit Field</h1>
