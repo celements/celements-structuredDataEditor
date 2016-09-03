@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class entity-name="Celements.StructEditFieldClass" table="cel_struct_edit_fields">
+		<id name="id" type="integer" unsaved-value="undefined">
+			<column name="SEF_ID" not-null="true" />
+			<generator class="assigned" />
+		</id>
+		<property name="edit_field_class_fullname" type="string">
+			<column name="SEF_EDIT_FIELD_CLASS_FN" length="128"/>
+		</property>
+		<property name="edit_field_name" type="string">
+			<column name="SEF_EDIT_FIELD_NAME" length="64" />
+		</property>
+	</class>
+</hibernate-mapping>

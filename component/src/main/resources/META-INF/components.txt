@@ -2,3 +2,5 @@ com.celements.structEditor.fields.StructEditFieldTypeCategory
 com.celements.structEditor.StructuredDataEditorPageType
 com.celements.structEditor.StructuredDataEditorNavigationConfigurator
 com.celements.structEditor.fields.InputFieldPageType
+com.celements.structEditor.classes.StructuredDataEditorClasses
+com.celements.structEditor.classes.StructEditorClassPackage
