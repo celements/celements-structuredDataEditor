@@ -1,4 +1,4 @@
-package com.celements.structEditor.pagetypes;
+package com.celements.structEditor;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 import static org.junit.Assert.*;
@@ -11,7 +11,6 @@ import org.junit.Test;
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.pagetype.category.IPageTypeCategoryRole;
 import com.celements.pagetype.java.IJavaPageTypeRole;
-import com.celements.structEditor.StructuredDataEditorPageType;
 import com.xpn.xwiki.web.Utils;
 
 public class StructuredDataEditorPageTypeTest extends AbstractComponentTest {
