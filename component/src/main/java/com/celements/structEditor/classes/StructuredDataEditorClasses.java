@@ -21,9 +21,9 @@ public class StructuredDataEditorClasses extends AbstractClassDefinition impleme
   public static final String CLASS_DEF_HINT = CLASS_FN;
 
   public static final ClassField<String> FIELD_EDIT_FIELD_CLASS_NAME = new StringField.Builder(
-      CLASS_DEF_HINT, "edit_field_class_fullname").build();
+      CLASS_DEF_HINT, "edit_field_class_fullname").prettyName("Class FullName").build();
   public static final ClassField<String> FIELD_EDIT_FIELD_NAME = new StringField.Builder(
-      CLASS_DEF_HINT, "edit_field_name").build();
+      CLASS_DEF_HINT, "edit_field_name").prettyName("Property Name").build();
 
   @Override
   public String getName() {
