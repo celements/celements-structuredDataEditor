@@ -1,1 +1,2 @@
 InputFieldView is here
+    <input type="text" name="template" value="$!doc.getTemplate()" />
