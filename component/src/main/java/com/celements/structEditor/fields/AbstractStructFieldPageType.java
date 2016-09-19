@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.xwiki.component.annotation.Requirement;
 
+import com.celements.model.access.IModelAccessFacade;
 import com.celements.pagetype.category.IPageTypeCategoryRole;
 import com.celements.pagetype.java.AbstractJavaPageType;
 import com.google.common.collect.Sets;
@@ -14,6 +15,9 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
   @Requirement("structEditFieldTypeCategory")
   protected IPageTypeCategoryRole pageTypeCategory;
+
+  @Requirement
+  protected IModelAccessFacade modelAccess;
 
   @Override
   public Set<IPageTypeCategoryRole> getCategories() {
