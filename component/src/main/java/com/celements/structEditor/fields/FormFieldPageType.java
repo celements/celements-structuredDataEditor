@@ -34,7 +34,7 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public void getAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
+  public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     attrBuilder.addNonEmptyAttribute("method", "post");
     attrBuilder.addNonEmptyAttribute("action", "?");
   }
