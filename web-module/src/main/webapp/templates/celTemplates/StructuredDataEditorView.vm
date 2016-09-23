@@ -19,25 +19,25 @@
   #set($structDataEditorSpace = $structDataEditorSpaceRef.getName())
   #set($structCmCssClass = $structDataEditorNav.getCssClass())
   <!--
-DEBUG: $ptConfig.name
-DEBUG structDataEditorNav: ${structDataEditorNav}
-DEBUG structCmCssClass: ${structCmCssClass}
-DEBUG structDataEditorSpace: ${structDataEditorSpace} , $structDataEditorSpace.getClass()
--->
+    DEBUG: $ptConfig.name
+    DEBUG structDataEditorNav: ${structDataEditorNav}
+    DEBUG structCmCssClass: ${structCmCssClass}
+    DEBUG structDataEditorSpace: ${structDataEditorSpace} , $structDataEditorSpace.getClass()
+  -->
   #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
   <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:" class="structDataEditor $!{structCmCssClass}">
-##    #set($injectedNavigationObject = $structDataEditorNav)
-##    #parse('celTemplates/PresentationView.vm')
-#if($services.layout.canRenderLayout($structDataEditorSpaceRef))
-#set($layoutApi = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
-#if($layoutApi.isEditorLayoutType())
-$services.layout.renderPageLayout($structDataEditorSpaceRef)
-#else
-<p>Wrong Editor Layout Type (${layoutApi.getLayoutType()}) for '${structDataEditorSpace}'!</p>
-#end
-#else
-<p>Editor Layout for '${structDataEditorSpace}' is missing!</p>
-#end
+  ##    #set($injectedNavigationObject = $structDataEditorNav)
+  ##    #parse('celTemplates/PresentationView.vm')
+  #if($services.layout.canRenderLayout($structDataEditorSpaceRef))
+    #set($layoutApi = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
+    #if($layoutApi.isEditorLayoutType())
+      $services.layout.renderPageLayout($structDataEditorSpaceRef)
+    #else
+      <p>Wrong Editor Layout Type (${layoutApi.getLayoutType()}) for '${structDataEditorSpace}'!</p>
+    #end
+  #else
+    <p>Editor Layout for '${structDataEditorSpace}' is missing!</p>
+  #end
   </div>
 #else
   <p>

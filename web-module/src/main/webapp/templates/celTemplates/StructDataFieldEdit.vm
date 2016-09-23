@@ -1,39 +1,36 @@
 #if("$!request.get('xredirect')" != '')
-#set($xredirect = $!request.getParameter('xredirect'))
+  #set($xredirect = $!request.getParameter('xredirect'))
 #else
-#set($xredirect = "$doc.getURL('view')")
+  #set($xredirect = "$doc.getURL('view')")
 #end
 #set($redirectStr = "xredirect=$xredirect")
-#set($cellObj = "")
-#set($cellObj = $celldoc.getObject('Celements.StructEditFieldClass', false))
-#if("$!cellObj" == '')
-#set($cellObj = $celldoc.newObject("Celements.StructEditFieldClass"))
-$celldoc.save()
-$response.sendRedirect($doc.getURL('edit', $redirectStr))
-#end
 <div id="structEditFieldEdit">
-<h1>Struct Edit Field</h1>
-<form id="structEditFieldEditForm" method="post" action="?">
+  <h1>Struct Edit Field</h1>
+  <form id="structEditFieldEditForm" method="post" action="?">
     <input type="hidden" name="template" value="$!doc.getTemplate()" />
     <input type="hidden" name="xredirect" value="$!xredirect" />
     <input type="hidden" name="language" value="$!tdoc.language" />
     <input type="hidden" name="xpage" value="celements_ajax" />
     <input type="hidden" name="ajax_mode" value="saveDocumentWithValidation" />
     <input type="hidden" name="createIfNotExists" value="true" />
-  #if($celementsweb.getSubMenuItemsForParent($doc.getFullName(), $doc.getSpace()).size() == 0)
-    <div id="editablecode_container">
-#set($cel_editobj_dict_prefix = 'cel_structEditor_edit_' )
-#set($cel_embedded_editobj = true)
-#set($cel_editobj_classname = "Celements.StructEditFieldClass")
-#set($cel_editobj_nb = $cellObj.getNumber())
-#set($cel_editobj_hasObjRemoveLink = false)
-#set($cel_editobj_externalForm = true)
-#set($cel_editobj_properties = 'edit_field_class_fullname,edit_field_name')
-#set($cel_editobj_readonly_properties = '')
-#parse("celTemplates/ObjectEdit.vm")
-    </div>
-  #else
-  <p>Group-Feld: Inhalt wird nur bei Felder ohne weitere Unter-Felder berechnet.</p>
-  #end
-</form>
+    #if($celementsweb.getSubMenuItemsForParent($doc.getFullName(), $doc.getSpace()).size() == 0)
+      <div id="editablecode_container">
+        #set($structFieldObj = "")
+        #set($structFieldObj = $celldoc.getObject('Celements.StructEditFieldClass', true))
+        #set($cel_editobj_dict_prefix = 'cel_structEditor_edit_' )
+        #set($cel_embedded_editobj = true)
+        #set($cel_editobj_classname = "Celements.StructEditFieldClass")
+        #set($createIfNotExists = true)
+        #set($cel_editobj_nb = $structFieldObj.getNumber())
+        #set($cel_editobj_hasObjRemoveLink = false)
+        #set($cel_editobj_externalForm = true)
+        #set($cel_editobj_properties = 'edit_field_class_fullname,edit_field_name')
+        #set($cel_editobj_readonly_properties = '')
+        #parse("celTemplates/ObjectEdit.vm")
+      </div>
+     $xwiki.parseTemplate("celTemplates/fieldTypeEdit/${page_type}.vm")
+    #else
+      <p>Group-Feld: Inhalt wird nur bei Felder ohne weitere Unter-Felder berechnet.</p>
+    #end
+  </form>
 </div>
