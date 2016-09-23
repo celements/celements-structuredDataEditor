@@ -1,0 +1,16 @@
+#set($selectTagObj = "")
+#set($selectTagObj = $celldoc.getObject('Celements.SelectTagEditorClass', true))
+
+<p>selectTagObj: $selectTagObj</p>
+<p>selectTagObj.getNumber(): $selectTagObj.getNumber()</p>
+
+#set($cel_editobj_dict_prefix = 'cel_selectTagEditor_edit_' )
+#set($cel_embedded_editobj = true)
+#set($cel_editobj_classname = "Celements.SelectTagEditorClass")
+#set($createIfNotExists = true)
+##set($cel_editobj_nb = $selectTagObj.getNumber())
+#set($cel_editobj_hasObjRemoveLink = false)
+#set($cel_editobj_externalForm = true)
+#set($cel_editobj_properties = 'select_tag_separator,select_tag_is_bootstrap,select_tag_is_multiselect')
+#set($cel_editobj_readonly_properties = '')
+#parse("celTemplates/ObjectEdit.vm")
