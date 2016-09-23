@@ -2,8 +2,8 @@ package com.celements.structEditor.fields;
 
 import org.xwiki.component.annotation.Component;
 
-@Component(InputFieldPageType.INPUT_FIELD_PAGETYPE_NAME)
-public class InputFieldPageType extends AbstractStructFieldPageType {
+@Component(TextFieldPageType.INPUT_FIELD_PAGETYPE_NAME)
+public class TextFieldPageType extends AbstractStructFieldPageType {
 
   public static final String INPUT_FIELD_PAGETYPE_NAME = "InputField";
 

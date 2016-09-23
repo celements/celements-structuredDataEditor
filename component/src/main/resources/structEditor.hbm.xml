@@ -14,4 +14,19 @@
 			<column name="SEF_EDIT_FIELD_NAME" length="64" />
 		</property>
 	</class>
+  <class entity-name="Celements.SelectTagEditorClass" table="cel_select_tag_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="STE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="select_tag_separator" type="string">
+      <column name="STE_SELECT_TAG_SEPARATOR" length="5"/>
+    </property>
+    <property name="select_tag_is_bootstrap" type="integer">
+      <column name="STE_SELECT_TAG_IS_BOOTSTRAP" />
+    </property>
+    <property name="select_tag_is_multiselect" type="integer">
+      <column name="STE_SELECT_TAG_IS_MULTISELECT" />
+    </property>
+  </class>
 </hibernate-mapping>
