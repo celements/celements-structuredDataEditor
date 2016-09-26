@@ -3,17 +3,17 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 	<class entity-name="Celements.StructEditFieldClass" table="cel_struct_edit_fields">
-		<id name="id" type="integer" unsaved-value="undefined">
-			<column name="SEF_ID" not-null="true" />
-			<generator class="assigned" />
-		</id>
-		<property name="edit_field_class_fullname" type="string">
-			<column name="SEF_EDIT_FIELD_CLASS_FN" length="128"/>
-		</property>
-		<property name="edit_field_name" type="string">
-			<column name="SEF_EDIT_FIELD_NAME" length="64" />
-		</property>
-	</class>
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="SEF_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="edit_field_class_fullname" type="string">
+      <column name="SEF_EDIT_FIELD_CLASS_FN" length="128"/>
+    </property>
+    <property name="edit_field_name" type="string">
+      <column name="SEF_EDIT_FIELD_NAME" length="64" />
+    </property>
+  </class>
   <class entity-name="Celements.SelectTagEditorClass" table="cel_select_tag_edit_field">
     <id name="id" type="integer" unsaved-value="undefined">
       <column name="STE_ID" not-null="true" />
@@ -27,6 +27,18 @@
     </property>
     <property name="select_tag_is_multiselect" type="integer">
       <column name="STE_SELECT_TAG_IS_MULTISELECT" />
+    </property>
+  </class>
+  <class entity-name="Celements.HiddenTagEditorClass" table="cel_hidden_tag_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="HTE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="hidden_tag_name" type="string">
+      <column name="HTE_HIDDEN_TAG_NAME" length="64"/>
+    </property>
+    <property name="hidden_tag_value" type="string">
+      <column name="HTE_HIDDEN_TAG_VALUE" length="64" />
     </property>
   </class>
 </hibernate-mapping>
