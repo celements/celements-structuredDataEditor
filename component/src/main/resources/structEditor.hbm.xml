@@ -14,6 +14,21 @@
       <column name="SEF_EDIT_FIELD_NAME" length="64" />
     </property>
   </class>
+  <class entity-name="FormFieldEditorClass" table="cel_form_field_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="FFE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="form_field_action" type="string">
+      <column name="FFE_FORM_FIELD_ACTION" length="5"/>
+    </property>
+    <property name="form_field_method" type="string">
+      <column name="FFE_FORM_FIELD_METHOD" length="5"/>
+    </property>
+    <property name="form_field_send_data_encoded" type="integer">
+      <column name="FFE_FORM_FIELD_SEND_DATA_ENCODED" />
+    </property>
+  </class>
   <class entity-name="Celements.SelectTagEditorClass" table="cel_select_tag_edit_field">
     <id name="id" type="integer" unsaved-value="undefined">
       <column name="STE_ID" not-null="true" />
@@ -39,6 +54,21 @@
     </property>
     <property name="hidden_tag_value" type="string">
       <column name="HTE_HIDDEN_TAG_VALUE" length="64" />
+    </property>
+  </class>
+  <class entity-name="Celements.DateTimePickerEditorClass" table="cel_date_time_picker_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="DTPEF_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="datetimepicker_type" type="string">
+      <column name="DTPEF_TYPE" length="64"/>
+    </property>
+    <property name="datetimepicker_format" type="string">
+      <column name="DTPEF_FORMAT" length="64" />
+    </property>
+    <property name="datetimepicker_attributes" type="string">
+      <column name="DTPEF_ATTRIBUTES" length="256"/>
     </property>
   </class>
 </hibernate-mapping>
