@@ -53,7 +53,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         prettyName = dictKey;
       }
     }
-    LOGGER.info("resolved prettyName '{}' for cell '{}'", prettyName, cellDoc);
+    LOGGER.info("getPrettyName: '{}' for cell '{}'", prettyName, cellDoc);
     return prettyName;
   }
 
@@ -63,12 +63,13 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     keyParts.add(Strings.emptyToNull(getCellClassName(cellDoc)));
     keyParts.add(Strings.emptyToNull(getCellFieldName(cellDoc)));
     String dictKey = Joiner.on('_').skipNulls().join(keyParts);
-    LOGGER.info("resolved dictKey '{}' for cell '{}'", dictKey, cellDoc);
+    LOGGER.debug("getDictionaryKey: '{}' for cell '{}'", dictKey, cellDoc);
     return dictKey;
   }
 
-  String resolveFormPrefix(XWikiDocument doc) {
+  String resolveFormPrefix(XWikiDocument cellDoc) {
     String prefix = null;
+    XWikiDocument doc = cellDoc;
     try {
       while ((prefix == null) && (doc.getParentReference() != null)) {
         doc = modelAccess.getDocument(doc.getParentReference());
@@ -77,6 +78,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
           prefix = modelAccess.getProperty(doc, FormFieldEditorClass.FORM_FIELD_PREFIX);
         }
       }
+      LOGGER.debug("resolveFormPrefix: '{}' for cell '{}'", prefix, cellDoc);
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("parent '{}' on doc '{}' doesn't exist", doc.getParentReference(), doc, exc);
     }
@@ -85,14 +87,15 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   String getXClassPrettyName(XWikiDocument cellDoc) {
     String prettyName = "";
-    DocumentReference classRef = modelUtils.resolveRef(getCellClassName(cellDoc),
-        DocumentReference.class, cellDoc.getDocumentReference());
     try {
+      DocumentReference classRef = modelUtils.resolveRef(getCellClassName(cellDoc),
+          DocumentReference.class, cellDoc.getDocumentReference());
       PropertyInterface property = modelAccess.getDocument(classRef).getXClass().get(
           getCellFieldName(cellDoc));
       if ((property != null) && (property instanceof PropertyClass)) {
         prettyName = ((PropertyClass) property).getPrettyName();
       }
+      LOGGER.debug("getXClassPrettyName: '{}' for cell '{}'", prettyName, cellDoc);
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("configured class on cell '{}' doesn't exist", cellDoc, exc);
     }
