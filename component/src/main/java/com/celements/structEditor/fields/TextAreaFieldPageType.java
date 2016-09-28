@@ -5,9 +5,9 @@ import org.xwiki.component.annotation.Component;
 @Component(TextAreaFieldPageType.INPUT_FIELD_PAGETYPE_NAME)
 public class TextAreaFieldPageType extends AbstractStructFieldPageType {
 
-  public static final String INPUT_FIELD_PAGETYPE_NAME = "InputField";
+  public static final String INPUT_FIELD_PAGETYPE_NAME = "TextAreaField";
 
-  static final String VIEW_TEMPLATE_NAME = "InputFieldView";
+  static final String VIEW_TEMPLATE_NAME = "TextAreaFieldView";
 
   @Override
   public String getName() {
