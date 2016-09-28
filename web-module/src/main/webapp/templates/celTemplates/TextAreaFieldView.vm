@@ -3,5 +3,5 @@
 #set($rowsColsMap = $services.structuredDataEditor.getRowsAndColsFromTextarea($cellDocRef))
 <label class="structuredDataEditorLabel">$msg.get($dictionaryKey)</label>
 <textarea rows="$rowsColsMap.rows" cols="$rowsColsMap.cols">
-At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies.
+$!services.structuredDataEditor.getValueFromTextArea($cellDocRef)
 </textarea> 
