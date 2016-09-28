@@ -29,7 +29,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.api.PropertyClass;
 import com.xpn.xwiki.doc.XWikiDocument;
-import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.PropertyInterface;
 
 @Component("structuredDataEditor")
@@ -129,16 +128,24 @@ public class StructuredDataEditorScriptService implements ScriptService {
 
   public Map<String, Integer> getRowsAndColsFromTextarea(DocumentReference cellDocRef) {
     Map<String, Integer> retMap = new HashMap<>();
-    BaseObject textAreaFieldConfig;
-    DocumentReference textAreaFieldClassRef = textAreaFieldEditorClass.getClassRef(
-        cellDocRef.getWikiReference());
     try {
-      textAreaFieldConfig = modelAccess.getXObject(cellDocRef, textAreaFieldClassRef);
-      retMap.put("rows", textAreaFieldConfig.getIntValue("textarea_field_rows"));
-      retMap.put("cols", textAreaFieldConfig.getIntValue("textarea_field_cols"));
+      retMap.put("rows", modelAccess.getProperty(cellDocRef,
+          TextAreaFieldEditorClass.TEXTAREA_FIELD_ROWS));
+      retMap.put("cols", modelAccess.getProperty(cellDocRef,
+          TextAreaFieldEditorClass.TEXTAREA_FIELD_COLS));
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("Document {} or Document {} does not exist {}", textAreaFieldClassRef, exc);
+      LOGGER.error("Properties for docRef {} does not exist {}", cellDocRef, exc);
     }
     return retMap;
+  }
+
+  public String getValueFromTextArea(DocumentReference cellDocRef) {
+    String retVal = new String();
+    try {
+      retVal = modelAccess.getProperty(cellDocRef, TextAreaFieldEditorClass.TEXTAREA_FIELD_VALUE);
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.error("Properties for docRef {} does not exist {}", cellDocRef, exc);
+    }
+    return retVal;
   }
 }
