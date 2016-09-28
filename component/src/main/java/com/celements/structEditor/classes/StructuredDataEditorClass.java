@@ -11,8 +11,8 @@ import com.celements.model.classes.fields.ClassField;
 import com.celements.model.classes.fields.StringField;
 
 @Singleton
-@Component(StructuredDataEditorClasses.CLASS_DEF_HINT)
-public class StructuredDataEditorClasses extends AbstractClassDefinition implements
+@Component(StructuredDataEditorClass.CLASS_DEF_HINT)
+public class StructuredDataEditorClass extends AbstractClassDefinition implements
     StructEditorClass {
 
   public static final String SPACE_NAME = "Celements";

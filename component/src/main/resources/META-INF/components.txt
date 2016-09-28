@@ -3,7 +3,7 @@ com.celements.structEditor.StructuredDataEditorPageType
 com.celements.structEditor.StructuredDataEditorNavigationConfigurator
 com.celements.structEditor.StructuredDataEditorScriptService
 com.celements.structEditor.classes.FormFieldEditorClass
-com.celements.structEditor.classes.StructuredDataEditorClasses
+com.celements.structEditor.classes.StructuredDataEditorClass
 com.celements.structEditor.classes.StructEditorClassPackage
 com.celements.structEditor.classes.SelectTagEditorClass
 com.celements.structEditor.classes.HiddenTagEditorClass

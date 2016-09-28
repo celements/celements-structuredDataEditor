@@ -15,7 +15,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.objects.BaseObject;
 
-@Component(FormFieldPageType.FORM_FIELD_PAGETYPE_NAME)
+@Component(FormFieldPageType.PAGETYPE_NAME)
 public class FormFieldPageType extends AbstractStructFieldPageType {
 
   private static Logger LOGGER = LoggerFactory.getLogger(SelectTagPageType.class);
@@ -26,13 +26,13 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
   @Requirement
   private ModelContext modelContext;
 
-  public static final String FORM_FIELD_PAGETYPE_NAME = "FormField";
+  public static final String PAGETYPE_NAME = "FormField";
 
   static final String VIEW_TEMPLATE_NAME = "FormFieldView";
 
   @Override
   public String getName() {
-    return FORM_FIELD_PAGETYPE_NAME;
+    return PAGETYPE_NAME;
   }
 
   @Override

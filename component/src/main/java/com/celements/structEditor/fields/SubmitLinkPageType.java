@@ -9,25 +9,25 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.structEditor.classes.StructEditorClass;
-import com.celements.structEditor.classes.StructuredDataEditorClasses;
+import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.objects.BaseObject;
 
-@Component(SubmitLinkPageType.INPUT_FIELD_PAGETYPE_NAME)
+@Component(SubmitLinkPageType.PAGETYPE_NAME)
 public class SubmitLinkPageType extends AbstractStructFieldPageType {
 
   private static Logger LOGGER = LoggerFactory.getLogger(SubmitLinkPageType.class);
 
-  public static final String INPUT_FIELD_PAGETYPE_NAME = "SubmitLink";
+  public static final String PAGETYPE_NAME = "SubmitLink";
 
   static final String VIEW_TEMPLATE_NAME = "SubmitLinkView";
 
-  @Requirement(StructuredDataEditorClasses.CLASS_DEF_HINT)
+  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
   private StructEditorClass structuredDataEditorClasses;
 
   @Override
   public String getName() {
-    return INPUT_FIELD_PAGETYPE_NAME;
+    return PAGETYPE_NAME;
   }
 
   @Override
