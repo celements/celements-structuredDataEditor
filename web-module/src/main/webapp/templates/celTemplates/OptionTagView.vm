@@ -1,0 +1,3 @@
+#set($cellDocRef = $celldoc.getDocumentReference())
+#set($dictionaryKey = $services.structuredDataEditor.getDictionaryKey($cellDocRef))
+$dictionaryKey
