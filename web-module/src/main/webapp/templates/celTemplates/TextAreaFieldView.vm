@@ -1,0 +1,6 @@
+#set($cellDocRef = $celldoc.getDocumentReference())
+#set($dictionaryKey = $services.structuredDataEditor.getDictionaryKey($cellDocRef))
+<label class="structuredDataEditorLabel">$msg.get($dictionaryKey)</label>
+<textarea rows="4" cols="50">
+At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies.
+</textarea> 
