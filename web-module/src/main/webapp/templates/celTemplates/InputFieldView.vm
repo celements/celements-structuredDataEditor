@@ -1,2 +1,4 @@
-InputFieldView is here
-    <input type="text" name="template" value="$!doc.getTemplate()" />
+#set($cellDocRef = $celldoc.getDocumentReference())
+#set($dictionaryKey = $services.structuredDataEditor.getDictionaryKey($cellDocRef))
+<label class="structuredDataEditorLabel">$msg.get($dictionaryKey)</label>
+<input type="text" name="dictionaryKey" value="$!doc.getTemplate()" />
