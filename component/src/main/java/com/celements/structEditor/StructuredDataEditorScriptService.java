@@ -59,65 +59,71 @@ public class StructuredDataEditorScriptService implements ScriptService {
     String prettyName = "";
     try {
       if (cellDocRef != null) {
-        String dictKey = getDictionaryKey(cellDocRef);
+        XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+        String dictKey = getDictionaryKey(cellDoc);
         prettyName = webUtils.getAdminMessageTool().get(dictKey);
         if (dictKey.equals(prettyName)) {
-          prettyName = getXClassPrettyName(cellDocRef);
+          prettyName = getXClassPrettyName(cellDoc);
         }
       }
       LOGGER.info("resolved prettyName '{}' for cell '{}'", prettyName, cellDocRef);
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("Document not exists '{}'", cellDocRef, exc);
+      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
     return prettyName;
   }
 
-  String getDictionaryKey(DocumentReference cellDocRef) throws DocumentNotExistsException {
+  String getDictionaryKey(XWikiDocument cellDoc) {
     String ret = new String();
     List<String> keyParts = new ArrayList<>();
-    keyParts.add(resolveFormPrefix(cellDocRef));
-    keyParts.add(getCellClassName(cellDocRef));
-    keyParts.add(getCellFieldName(cellDocRef));
+    keyParts.add(resolveFormPrefix(cellDoc));
+    keyParts.add(getCellClassName(cellDoc));
+    keyParts.add(getCellFieldName(cellDoc));
     ret = Joiner.on('_').skipNulls().join(keyParts);
     return ret;
   }
 
-  String resolveFormPrefix(DocumentReference cellDocRef) throws DocumentNotExistsException {
+  String resolveFormPrefix(XWikiDocument doc) {
     String prefix = null;
-    XWikiDocument doc;
-    do {
-      doc = modelAccess.getDocument(cellDocRef);
-      PageTypeReference ptRef = ptResolver.getPageTypeRefForDoc(doc);
-      if ((ptRef != null) && ptRef.getConfigName().equals(FormFieldPageType.PAGETYPE_NAME)) {
-        prefix = modelAccess.getProperty(doc, FormFieldEditorClass.FORM_FIELD_PREFIX);
+    try {
+      while ((prefix == null) && (doc.getParentReference() != null)) {
+        doc = modelAccess.getDocument(doc.getParentReference());
+        PageTypeReference ptRef = ptResolver.getPageTypeRefForDoc(doc);
+        if ((ptRef != null) && ptRef.getConfigName().equals(FormFieldPageType.PAGETYPE_NAME)) {
+          prefix = modelAccess.getProperty(doc, FormFieldEditorClass.FORM_FIELD_PREFIX);
+        }
       }
-    } while ((prefix == null) && (doc.getParentReference() != null));
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.warn("parent '{}' on doc '{}' doesn't exist", doc.getParentReference(), doc, exc);
+    }
     return prefix;
   }
 
-  private String getXClassPrettyName(DocumentReference cellDocRef)
-      throws DocumentNotExistsException {
+  private String getXClassPrettyName(XWikiDocument cellDoc) {
     String prettyName = "";
-    WikiReference wikiRef = References.extractRef(cellDocRef, WikiReference.class).get();
-    DocumentReference classRef = modelUtils.resolveRef(getCellClassName(cellDocRef),
+    WikiReference wikiRef = References.extractRef(cellDoc.getDocumentReference(),
+        WikiReference.class).get();
+    DocumentReference classRef = modelUtils.resolveRef(getCellClassName(cellDoc),
         DocumentReference.class, wikiRef);
-    if (modelAccess.exists(classRef)) {
+    try {
       PropertyInterface property = modelAccess.getDocument(classRef).getXClass().get(
-          getCellFieldName(cellDocRef));
+          getCellFieldName(cellDoc));
       if ((property != null) && (property instanceof PropertyClass)) {
         prettyName = ((PropertyClass) property).getPrettyName();
       }
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.warn("configured class on cell '{}' doesn't exist", cellDoc, exc);
     }
     return prettyName;
   }
 
-  private String getCellClassName(DocumentReference cellDocRef) throws DocumentNotExistsException {
-    return Strings.emptyToNull(modelAccess.getProperty(cellDocRef,
+  private String getCellClassName(XWikiDocument cellDoc) {
+    return Strings.emptyToNull(modelAccess.getProperty(cellDoc,
         StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS_NAME));
   }
 
-  private String getCellFieldName(DocumentReference cellDocRef) throws DocumentNotExistsException {
-    return Strings.emptyToNull(modelAccess.getProperty(cellDocRef,
+  private String getCellFieldName(XWikiDocument cellDoc) {
+    return Strings.emptyToNull(modelAccess.getProperty(cellDoc,
         StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME));
   }
 
