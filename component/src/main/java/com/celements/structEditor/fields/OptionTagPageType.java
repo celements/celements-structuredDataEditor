@@ -8,7 +8,6 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.model.context.ModelContext;
 import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.celements.structEditor.classes.StructEditorClass;
 import com.google.common.base.Optional;
@@ -21,9 +20,6 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
 
   @Requirement(OptionTagEditorClass.CLASS_DEF_HINT)
   private StructEditorClass optionTagEditorClass;
-
-  @Requirement
-  private ModelContext modelContext;
 
   public static final String INPUT_FIELD_PAGETYPE_NAME = "OptionTag";
 
