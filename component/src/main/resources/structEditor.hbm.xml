@@ -65,6 +65,21 @@
       <column name="OTE_OPTION_TAG_IS_DISABLED" />
     </property>
   </class>
+  <class entity-name="Celements.TextAreaFieldEditorClass" table="cel_textarea_field_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="TAFE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="textarea_field_rows" type="integer">
+      <column name="TAFE_TEXTAREA_FIELD_ROWS"/>
+    </property>
+    <property name="textarea_field_cols" type="integer">
+      <column name="TAFE_TEXTAREA_FIELD_COLS" />
+    </property>
+    <property name="textarea_field_value" type="text">
+      <column name="TAFE_TEXTAREA_FIELD_VALUE" />
+    </property>
+  </class>
   <class entity-name="Celements.HiddenTagEditorClass" table="cel_hidden_tag_edit_field">
     <id name="id" type="integer" unsaved-value="undefined">
       <column name="HTE_ID" not-null="true" />
