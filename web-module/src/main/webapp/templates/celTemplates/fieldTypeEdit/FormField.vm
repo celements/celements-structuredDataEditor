@@ -1,0 +1,16 @@
+#set($formFieldObj = "")
+#set($formFieldObj = $celldoc.getObject('Celements.FormFieldEditorClass', true))
+
+<p>formFieldObj: $formFieldObj</p>
+<p>formFieldObj.getNumber(): $formFieldObj.getNumber()</p>
+
+#set($cel_editobj_dict_prefix = 'cel_formFieldEditor_edit_' )
+#set($cel_embedded_editobj = true)
+#set($cel_editobj_classname = "Celements.FormFieldEditorClass")
+#set($createIfNotExists = true)
+##set($cel_editobj_nb = $formFieldObj.getNumber())
+#set($cel_editobj_hasObjRemoveLink = false)
+#set($cel_editobj_externalForm = true)
+#set($cel_editobj_properties = 'form_field_action,form_field_method,form_field_send_data_encoded')
+#set($cel_editobj_readonly_properties = '')
+#parse("celTemplates/ObjectEdit.vm")

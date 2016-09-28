@@ -1,0 +1,16 @@
+#set($hiddenTagObj = "")
+#set($hiddenTagObj = $celldoc.getObject('Celements.HiddenTagEditorClass', true))
+
+<p>hiddenTagObj: $hiddenTagObj</p>
+<p>hiddenTagObj.getNumber(): $hiddenTagObj.getNumber()</p>
+
+#set($cel_editobj_dict_prefix = 'cel_hiddenTagEditor_edit_' )
+#set($cel_embedded_editobj = true)
+#set($cel_editobj_classname = "Celements.HiddenTagEditorClass")
+#set($createIfNotExists = true)
+##set($cel_editobj_nb = $hiddenTagObj.getNumber())
+#set($cel_editobj_hasObjRemoveLink = false)
+#set($cel_editobj_externalForm = true)
+#set($cel_editobj_properties = 'hidden_tag_name,hidden_tag_value')
+#set($cel_editobj_readonly_properties = '')
+#parse("celTemplates/ObjectEdit.vm")
