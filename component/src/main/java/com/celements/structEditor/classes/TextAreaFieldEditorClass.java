@@ -12,20 +12,20 @@ import com.celements.model.classes.fields.LargeStringField;
 import com.celements.model.classes.fields.number.IntField;
 
 @Singleton
-@Component(TextAreaEditorClass.CLASS_DEF_HINT)
-public class TextAreaEditorClass extends AbstractClassDefinition implements StructEditorClass {
+@Component(TextAreaFieldEditorClass.CLASS_DEF_HINT)
+public class TextAreaFieldEditorClass extends AbstractClassDefinition implements StructEditorClass {
 
   public static final String SPACE_NAME = "Celements";
-  public static final String DOC_NAME = "FormFieldEditorClass";
+  public static final String DOC_NAME = "TextAreaFieldEditorClass";
   public static final String CLASS_FN = SPACE_NAME + "." + DOC_NAME;
   public static final String CLASS_DEF_HINT = CLASS_FN;
 
   public static final ClassField<Integer> TEXTAREA_ROWS = new IntField.Builder(CLASS_DEF_HINT,
-      "textarea_rows").prettyName("Rows").build();
+      "textarea_field_rows").prettyName("Rows").build();
   public static final ClassField<Integer> TEXTAREA_COLS = new IntField.Builder(CLASS_DEF_HINT,
-      "textarea_cols").prettyName("Columns").build();
+      "textarea_field_cols").prettyName("Columns").build();
   public static final ClassField<String> TEXTAREA_VALUE = new LargeStringField.Builder(
-      CLASS_DEF_HINT, "textarea_value").rows(7).prettyName("Executional Code").build();
+      CLASS_DEF_HINT, "textarea_field_value").rows(7).prettyName("Executional Code").build();
 
   @Override
   public String getName() {
