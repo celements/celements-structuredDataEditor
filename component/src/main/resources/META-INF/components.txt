@@ -9,7 +9,7 @@ com.celements.structEditor.classes.SelectTagEditorClass
 com.celements.structEditor.classes.HiddenTagEditorClass
 com.celements.structEditor.classes.DateTimePickerEditorClass
 com.celements.structEditor.classes.OptionTagEditorClass
-com.celements.structEditor.classes.TextAreaEditorClass
+com.celements.structEditor.classes.TextAreaFieldEditorClass
 com.celements.structEditor.fields.TextFieldPageType
 com.celements.structEditor.fields.FormFieldPageType
 com.celements.structEditor.fields.SelectTagPageType
