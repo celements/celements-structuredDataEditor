@@ -14,7 +14,7 @@
       <column name="SEF_EDIT_FIELD_NAME" length="64" />
     </property>
   </class>
-  <class entity-name="FormFieldEditorClass" table="cel_form_field_edit_field">
+  <class entity-name="Celements.FormFieldEditorClass" table="cel_form_field_edit_field">
     <id name="id" type="integer" unsaved-value="undefined">
       <column name="FFE_ID" not-null="true" />
       <generator class="assigned" />
@@ -42,6 +42,24 @@
     </property>
     <property name="select_tag_is_multiselect" type="integer">
       <column name="STE_SELECT_TAG_IS_MULTISELECT" />
+    </property>
+  </class>
+  <class entity-name="Celements.OptionTagEditorClass" table="cel_option_tag_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="OTE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="option_tag_value" type="string">
+      <column name="OTE_OPTION_TAG_VALUE" length="64"/>
+    </property>
+    <property name="option_tag_label" type="string">
+      <column name="OTE_OPTION_TAG_LABEL" length="64"/>
+    </property>
+    <property name="option_tag_is_selected" type="integer">
+      <column name="OTE_OPTION_TAG_IS_SELECTED" />
+    </property>
+    <property name="option_tag_is_disabled" type="integer">
+      <column name="OTE_OPTION_TAG_IS_DISABLED" />
     </property>
   </class>
   <class entity-name="Celements.HiddenTagEditorClass" table="cel_hidden_tag_edit_field">
