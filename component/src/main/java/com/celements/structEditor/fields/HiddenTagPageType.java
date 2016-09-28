@@ -14,12 +14,12 @@ import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.objects.BaseObject;
 
-@Component(HiddenTagPageType.INPUT_FIELD_PAGETYPE_NAME)
+@Component(HiddenTagPageType.PAGETYPE_NAME)
 public class HiddenTagPageType extends AbstractStructFieldPageType {
 
   private static Logger LOGGER = LoggerFactory.getLogger(HiddenTagPageType.class);
 
-  public static final String INPUT_FIELD_PAGETYPE_NAME = "HiddenTag";
+  public static final String PAGETYPE_NAME = "HiddenTag";
 
   static final String VIEW_TEMPLATE_NAME = "HiddenTagView";
 
@@ -31,7 +31,7 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
 
   @Override
   public String getName() {
-    return INPUT_FIELD_PAGETYPE_NAME;
+    return PAGETYPE_NAME;
   }
 
   @Override

@@ -13,12 +13,12 @@ import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.objects.BaseObject;
 
-@Component(SubmitLinkPageType.INPUT_FIELD_PAGETYPE_NAME)
+@Component(SubmitLinkPageType.PAGETYPE_NAME)
 public class SubmitLinkPageType extends AbstractStructFieldPageType {
 
   private static Logger LOGGER = LoggerFactory.getLogger(SubmitLinkPageType.class);
 
-  public static final String INPUT_FIELD_PAGETYPE_NAME = "SubmitLink";
+  public static final String PAGETYPE_NAME = "SubmitLink";
 
   static final String VIEW_TEMPLATE_NAME = "SubmitLinkView";
 
@@ -27,7 +27,7 @@ public class SubmitLinkPageType extends AbstractStructFieldPageType {
 
   @Override
   public String getName() {
-    return INPUT_FIELD_PAGETYPE_NAME;
+    return PAGETYPE_NAME;
   }
 
   @Override

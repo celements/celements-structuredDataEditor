@@ -17,12 +17,12 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.objects.BaseObject;
 
-@Component(DateTimePickerPageType.INPUT_FIELD_PAGETYPE_NAME)
+@Component(DateTimePickerPageType.PAGETYPE_NAME)
 public class DateTimePickerPageType extends AbstractStructFieldPageType {
 
   private static Logger LOGGER = LoggerFactory.getLogger(DateTimePickerPageType.class);
 
-  public static final String INPUT_FIELD_PAGETYPE_NAME = "DateTimePicker";
+  public static final String PAGETYPE_NAME = "DateTimePicker";
 
   static final String VIEW_TEMPLATE_NAME = "DateTimePickerView";
 
@@ -34,7 +34,7 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
 
   @Override
   public String getName() {
-    return INPUT_FIELD_PAGETYPE_NAME;
+    return PAGETYPE_NAME;
   }
 
   @Override

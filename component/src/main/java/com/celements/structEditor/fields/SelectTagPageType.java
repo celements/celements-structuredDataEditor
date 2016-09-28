@@ -15,7 +15,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.objects.BaseObject;
 
-@Component(SelectTagPageType.SELECT_TAG_PAGETYPE_NAME)
+@Component(SelectTagPageType.PAGETYPE_NAME)
 public class SelectTagPageType extends AbstractStructFieldPageType {
 
   private static Logger LOGGER = LoggerFactory.getLogger(SelectTagPageType.class);
@@ -26,13 +26,13 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
   @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
   private StructEditorClass structuredDataEditorClass;
 
-  public static final String SELECT_TAG_PAGETYPE_NAME = "SelectTag";
+  public static final String PAGETYPE_NAME = "SelectTag";
 
   static final String VIEW_TEMPLATE_NAME = "SelectTagView";
 
   @Override
   public String getName() {
-    return SELECT_TAG_PAGETYPE_NAME;
+    return PAGETYPE_NAME;
   }
 
   @Override

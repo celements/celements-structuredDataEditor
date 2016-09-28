@@ -13,7 +13,7 @@ import com.celements.structEditor.classes.StructEditorClass;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.objects.BaseObject;
 
-@Component(OptionTagPageType.INPUT_FIELD_PAGETYPE_NAME)
+@Component(OptionTagPageType.PAGETYPE_NAME)
 public class OptionTagPageType extends AbstractStructFieldPageType {
 
   private static Logger LOGGER = LoggerFactory.getLogger(OptionTagPageType.class);
@@ -21,13 +21,13 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
   @Requirement(OptionTagEditorClass.CLASS_DEF_HINT)
   private StructEditorClass optionTagEditorClass;
 
-  public static final String INPUT_FIELD_PAGETYPE_NAME = "OptionTag";
+  public static final String PAGETYPE_NAME = "OptionTag";
 
   static final String VIEW_TEMPLATE_NAME = "OptionTagView";
 
   @Override
   public String getName() {
-    return INPUT_FIELD_PAGETYPE_NAME;
+    return PAGETYPE_NAME;
   }
 
   @Override
