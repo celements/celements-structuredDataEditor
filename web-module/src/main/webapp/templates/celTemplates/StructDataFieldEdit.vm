@@ -13,24 +13,20 @@
     <input type="hidden" name="xpage" value="celements_ajax" />
     <input type="hidden" name="ajax_mode" value="saveDocumentWithValidation" />
     <input type="hidden" name="createIfNotExists" value="true" />
-    #if($celementsweb.getSubMenuItemsForParent($doc.getFullName(), $doc.getSpace()).size() == 0)
-      <div id="editablecode_container">
-        #set($structFieldObj = "")
-        #set($structFieldObj = $celldoc.getObject('Celements.StructEditFieldClass', true))
-        #set($cel_editobj_dict_prefix = 'cel_structEditor_edit_' )
-        #set($cel_embedded_editobj = true)
-        #set($cel_editobj_classname = "Celements.StructEditFieldClass")
-        #set($createIfNotExists = true)
-        #set($cel_editobj_nb = $structFieldObj.getNumber())
-        #set($cel_editobj_hasObjRemoveLink = false)
-        #set($cel_editobj_externalForm = true)
-        #set($cel_editobj_properties = 'edit_field_class_fullname,edit_field_name')
-        #set($cel_editobj_readonly_properties = '')
-        #parse("celTemplates/ObjectEdit.vm")
-      </div>
-     $xwiki.parseTemplate("celTemplates/fieldTypeEdit/${page_type}.vm")
-    #else
-      <p>Group-Feld: Inhalt wird nur bei Felder ohne weitere Unter-Felder berechnet.</p>
-    #end
+    <div id="editablecode_container">
+      #set($structFieldObj = "")
+      #set($structFieldObj = $celldoc.getObject('Celements.StructEditFieldClass', true))
+      #set($cel_editobj_dict_prefix = 'cel_structEditor_edit_' )
+      #set($cel_embedded_editobj = true)
+      #set($cel_editobj_classname = "Celements.StructEditFieldClass")
+      #set($createIfNotExists = true)
+      #set($cel_editobj_nb = $structFieldObj.getNumber())
+      #set($cel_editobj_hasObjRemoveLink = false)
+      #set($cel_editobj_externalForm = true)
+      #set($cel_editobj_properties = 'edit_field_class_fullname,edit_field_name')
+      #set($cel_editobj_readonly_properties = '')
+      #parse("celTemplates/ObjectEdit.vm")
+    </div>
+    $xwiki.parseTemplate("celTemplates/fieldTypeEdit/${page_type}.vm")
   </form>
 </div>
