@@ -26,6 +26,8 @@ public class FormFieldEditorClass extends AbstractClassDefinition implements Str
       "form_field_method").prettyName("Method").build();
   public static final ClassField<Boolean> FORM_FIELD_SEND_DATA_ENCODED = new BooleanField.Builder(
       CLASS_DEF_HINT, "form_field_send_data_encoded").prettyName("Send Data Encoded").build();
+  public static final ClassField<String> FORM_FIELD_PREFIX = new StringField.Builder(CLASS_DEF_HINT,
+      "form_field_PREFIX").prettyName("Prefix").build();
 
   @Override
   public String getName() {

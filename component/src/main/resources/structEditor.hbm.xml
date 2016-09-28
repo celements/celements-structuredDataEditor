@@ -28,6 +28,9 @@
     <property name="form_field_send_data_encoded" type="integer">
       <column name="FFE_FORM_FIELD_SEND_DATA_ENCODED" />
     </property>
+    <property name="form_field_prefix" type="string">
+      <column name="FFE_FORM_FIELD_PREFIX" length="64"/>
+    </property>
   </class>
   <class entity-name="Celements.SelectTagEditorClass" table="cel_select_tag_edit_field">
     <id name="id" type="integer" unsaved-value="undefined">
