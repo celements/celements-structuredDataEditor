@@ -10,7 +10,7 @@ import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.structEditor.classes.SelectTagEditorClass;
 import com.celements.structEditor.classes.StructEditorClass;
-import com.celements.structEditor.classes.StructuredDataEditorClasses;
+import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.objects.BaseObject;
@@ -23,7 +23,7 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
   @Requirement(SelectTagEditorClass.CLASS_DEF_HINT)
   private StructEditorClass selectTagEditorClass;
 
-  @Requirement(StructuredDataEditorClasses.CLASS_DEF_HINT)
+  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
   private StructEditorClass structuredDataEditorClass;
 
   public static final String SELECT_TAG_PAGETYPE_NAME = "SelectTag";

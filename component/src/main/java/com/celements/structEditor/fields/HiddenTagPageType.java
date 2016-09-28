@@ -10,7 +10,7 @@ import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.structEditor.classes.HiddenTagEditorClass;
 import com.celements.structEditor.classes.StructEditorClass;
-import com.celements.structEditor.classes.StructuredDataEditorClasses;
+import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -26,7 +26,7 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
   @Requirement(HiddenTagEditorClass.CLASS_DEF_HINT)
   private StructEditorClass hiddenTagEditorClass;
 
-  @Requirement(StructuredDataEditorClasses.CLASS_DEF_HINT)
+  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
   private StructEditorClass structuredDataEditorClasses;
 
   @Override

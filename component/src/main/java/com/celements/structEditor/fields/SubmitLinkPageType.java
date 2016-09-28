@@ -9,7 +9,7 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.structEditor.classes.StructEditorClass;
-import com.celements.structEditor.classes.StructuredDataEditorClasses;
+import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -22,7 +22,7 @@ public class SubmitLinkPageType extends AbstractStructFieldPageType {
 
   static final String VIEW_TEMPLATE_NAME = "SubmitLinkView";
 
-  @Requirement(StructuredDataEditorClasses.CLASS_DEF_HINT)
+  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
   private StructEditorClass structuredDataEditorClasses;
 
   @Override

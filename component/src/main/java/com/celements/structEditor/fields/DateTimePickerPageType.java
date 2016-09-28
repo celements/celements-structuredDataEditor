@@ -12,7 +12,7 @@ import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.structEditor.classes.DateTimePickerEditorClass;
 import com.celements.structEditor.classes.StructEditorClass;
-import com.celements.structEditor.classes.StructuredDataEditorClasses;
+import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.objects.BaseObject;
@@ -29,7 +29,7 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
   @Requirement(DateTimePickerEditorClass.CLASS_DEF_HINT)
   private StructEditorClass dateTimePickerClass;
 
-  @Requirement(StructuredDataEditorClasses.CLASS_DEF_HINT)
+  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
   private StructEditorClass structuredDataEditorClasses;
 
   @Override
