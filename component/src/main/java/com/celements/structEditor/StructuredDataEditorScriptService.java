@@ -1,7 +1,9 @@
 package com.celements.structEditor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +22,14 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.StructEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
+import com.celements.structEditor.classes.TextAreaFieldEditorClass;
 import com.celements.structEditor.fields.FormFieldPageType;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.api.PropertyClass;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.PropertyInterface;
 
 @Component("structuredDataEditor")
@@ -34,7 +38,10 @@ public class StructuredDataEditorScriptService implements ScriptService {
   private static Logger LOGGER = LoggerFactory.getLogger(StructuredDataEditorScriptService.class);
 
   @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
-  StructEditorClass classDef;
+  StructEditorClass structuredDataEditorClass;
+
+  @Requirement(TextAreaFieldEditorClass.CLASS_DEF_HINT)
+  StructEditorClass textAreaFieldEditorClass;
 
   @Requirement
   IPageTypeResolverRole ptResolver;
@@ -112,5 +119,20 @@ public class StructuredDataEditorScriptService implements ScriptService {
   private String getCellFieldName(DocumentReference cellDocRef) throws DocumentNotExistsException {
     return Strings.emptyToNull(modelAccess.getProperty(cellDocRef,
         StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME));
+  }
+
+  public Map<String, Integer> getRowsAndColsFromTextarea(DocumentReference cellDocRef) {
+    Map<String, Integer> retMap = new HashMap<>();
+    BaseObject textAreaFieldConfig;
+    DocumentReference textAreaFieldClassRef = textAreaFieldEditorClass.getClassRef(
+        cellDocRef.getWikiReference());
+    try {
+      textAreaFieldConfig = modelAccess.getXObject(cellDocRef, textAreaFieldClassRef);
+      retMap.put("rows", textAreaFieldConfig.getIntValue("textarea_field_rows"));
+      retMap.put("cols", textAreaFieldConfig.getIntValue("textarea_field_cols"));
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.error("Document {} or Document {} does not exist {}", textAreaFieldClassRef, exc);
+    }
+    return retMap;
   }
 }
