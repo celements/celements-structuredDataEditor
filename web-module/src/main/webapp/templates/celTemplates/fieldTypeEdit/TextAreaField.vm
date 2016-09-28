@@ -1,0 +1,16 @@
+#set($textAreaObj = "")
+#set($textAreaObj = $celldoc.getObject('Celements.TextAreaEditorClass', true))
+
+<p>textAreaObj: $textAreaObj</p>
+<p>textAreaObj.getNumber(): $textAreaObj.getNumber()</p>
+
+#set($cel_editobj_dict_prefix = 'cel_textAreaEditor_edit_' )
+#set($cel_embedded_editobj = true)
+#set($cel_editobj_classname = "Celements.TextAreaEditorClass")
+#set($createIfNotExists = true)
+##set($cel_editobj_nb = $textAreaObj.getNumber())
+#set($cel_editobj_hasObjRemoveLink = false)
+#set($cel_editobj_externalForm = true)
+#set($cel_editobj_properties = 'textarea_field_rows,textarea_field_cols,textarea_field_value')
+#set($cel_editobj_readonly_properties = '')
+#parse("celTemplates/ObjectEdit.vm")
