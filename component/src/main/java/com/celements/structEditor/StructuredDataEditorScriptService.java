@@ -13,7 +13,7 @@ import org.xwiki.script.service.ScriptService;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.structEditor.classes.StructEditorClass;
-import com.celements.structEditor.classes.StructuredDataEditorClasses;
+import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -22,7 +22,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
 
   private static Logger LOGGER = LoggerFactory.getLogger(StructuredDataEditorScriptService.class);
 
-  @Requirement(StructuredDataEditorClasses.CLASS_DEF_HINT)
+  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
   private StructEditorClass structuredDataEditorClass;
 
   @Requirement(TextAreaFieldEditorClass.CLASS_DEF_HINT)
@@ -48,7 +48,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   }
 
   public Map<String, Integer> getRowsAndColsFromTextarea(DocumentReference cellDocRef) {
-    Map<String, Integer> retMap = new HashMap<String, Integer>();
+    Map<String, Integer> retMap = new HashMap<>();
     BaseObject textAreaFieldConfig;
     DocumentReference textAreaFieldClassRef = textAreaFieldEditorClass.getClassRef(
         cellDocRef.getWikiReference());
