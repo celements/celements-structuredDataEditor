@@ -61,4 +61,18 @@ public class StructuredDataEditorScriptService implements ScriptService {
     }
     return retMap;
   }
+
+  public String getValueFromTextArea(DocumentReference cellDocRef) {
+    String retVal = new String();
+    BaseObject textAreaFieldConfig;
+    DocumentReference textAreaFieldClassRef = textAreaFieldEditorClass.getClassRef(
+        cellDocRef.getWikiReference());
+    try {
+      textAreaFieldConfig = modelAccess.getXObject(cellDocRef, textAreaFieldClassRef);
+      retVal = textAreaFieldConfig.getStringValue("textarea_field_value");
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.error("Document {} does not exist {}", textAreaFieldClassRef, exc);
+    }
+    return retVal;
+  }
 }
