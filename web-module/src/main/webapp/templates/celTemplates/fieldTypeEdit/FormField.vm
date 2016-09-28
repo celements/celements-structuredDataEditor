@@ -11,6 +11,6 @@
 ##set($cel_editobj_nb = $formFieldObj.getNumber())
 #set($cel_editobj_hasObjRemoveLink = false)
 #set($cel_editobj_externalForm = true)
-#set($cel_editobj_properties = 'form_field_action,form_field_method,form_field_send_data_encoded')
+#set($cel_editobj_properties = 'form_field_action,form_field_method,form_field_send_data_encoded,form_field_prefix')
 #set($cel_editobj_readonly_properties = '')
 #parse("celTemplates/ObjectEdit.vm")
