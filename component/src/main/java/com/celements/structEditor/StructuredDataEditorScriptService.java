@@ -41,9 +41,9 @@ public class StructuredDataEditorScriptService implements ScriptService {
     Map<String, Integer> retMap = new HashMap<>();
     try {
       retMap.put("rows", modelAccess.getProperty(cellDocRef,
-          TextAreaFieldEditorClass.TEXTAREA_FIELD_ROWS));
+          TextAreaFieldEditorClass.FIELD_ROWS));
       retMap.put("cols", modelAccess.getProperty(cellDocRef,
-          TextAreaFieldEditorClass.TEXTAREA_FIELD_COLS));
+          TextAreaFieldEditorClass.FIELD_COLS));
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("Properties for docRef {} does not exist {}", cellDocRef, exc);
     }
@@ -53,7 +53,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   public String getValueFromTextArea(DocumentReference cellDocRef) {
     String retVal = new String();
     try {
-      retVal = modelAccess.getProperty(cellDocRef, TextAreaFieldEditorClass.TEXTAREA_FIELD_VALUE);
+      retVal = modelAccess.getProperty(cellDocRef, TextAreaFieldEditorClass.FIELD_VALUE);
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("Properties for docRef {} does not exist {}", cellDocRef, exc);
     }
