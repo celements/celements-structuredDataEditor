@@ -5,12 +5,10 @@ import static com.celements.structEditor.classes.FormFieldEditorClass.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.model.context.ModelContext;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -19,9 +17,6 @@ import com.xpn.xwiki.doc.XWikiDocument;
 public class FormFieldPageType extends AbstractStructFieldPageType {
 
   private static Logger LOGGER = LoggerFactory.getLogger(SelectTagPageType.class);
-
-  @Requirement
-  private ModelContext modelContext;
 
   public static final String PAGETYPE_NAME = "FormField";
 
