@@ -17,16 +17,15 @@ public class FormFieldEditorClass extends AbstractClassDefinition implements Str
 
   public static final String SPACE_NAME = "Celements";
   public static final String DOC_NAME = "FormFieldEditorClass";
-  public static final String CLASS_FN = SPACE_NAME + "." + DOC_NAME;
-  public static final String CLASS_DEF_HINT = CLASS_FN;
+  public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
 
-  public static final ClassField<String> FORM_FIELD_ACTION = new StringField.Builder(CLASS_DEF_HINT,
+  public static final ClassField<String> FIELD_ACTION = new StringField.Builder(CLASS_DEF_HINT,
       "form_field_action").prettyName("Action").build();
-  public static final ClassField<String> FORM_FIELD_METHOD = new StringField.Builder(CLASS_DEF_HINT,
+  public static final ClassField<String> FIELD_METHOD = new StringField.Builder(CLASS_DEF_HINT,
       "form_field_method").prettyName("Method").build();
-  public static final ClassField<Boolean> FORM_FIELD_SEND_DATA_ENCODED = new BooleanField.Builder(
+  public static final ClassField<Boolean> FIELD_SEND_DATA_ENCODED = new BooleanField.Builder(
       CLASS_DEF_HINT, "form_field_send_data_encoded").prettyName("Send Data Encoded").build();
-  public static final ClassField<String> FORM_FIELD_PREFIX = new StringField.Builder(CLASS_DEF_HINT,
+  public static final ClassField<String> FIELD_PREFIX = new StringField.Builder(CLASS_DEF_HINT,
       "form_field_prefix").prettyName("Prefix").build();
 
   @Override

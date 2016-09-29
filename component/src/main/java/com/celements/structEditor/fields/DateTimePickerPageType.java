@@ -1,21 +1,24 @@
 package com.celements.structEditor.fields;
 
-import java.util.Objects;
+import static com.celements.structEditor.classes.DateTimePickerEditorClass.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.structEditor.classes.DateTimePickerEditorClass;
-import com.celements.structEditor.classes.StructEditorClass;
-import com.celements.structEditor.classes.StructuredDataEditorClass;
+import com.celements.structEditor.classes.DateTimePickerEditorClass.Type;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.xpn.xwiki.objects.BaseObject;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(DateTimePickerPageType.PAGETYPE_NAME)
 public class DateTimePickerPageType extends AbstractStructFieldPageType {
@@ -25,12 +28,6 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
   public static final String PAGETYPE_NAME = "DateTimePicker";
 
   static final String VIEW_TEMPLATE_NAME = "DateTimePickerView";
-
-  @Requirement(DateTimePickerEditorClass.CLASS_DEF_HINT)
-  private StructEditorClass dateTimePickerClass;
-
-  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
-  private StructEditorClass structuredDataEditorClasses;
 
   @Override
   public String getName() {
@@ -47,45 +44,29 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
     return Optional.of("input");
   }
 
+  private static final Map<Type, String> PICKER_TYPE_CSS_CLASS_MAP = ImmutableMap.of(
+      Type.DATE_PICKER, "cel_datePicker", Type.TIME_PICKER, "cel_timePicker", Type.DATE_TIME_PICKER,
+      "cel_dateTimePicker");
+
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
-    BaseObject dateTimePickerConfig;
-    DocumentReference structuredDataEditorClasseRef = structuredDataEditorClasses.getClassRef(
-        cellDocRef.getWikiReference());
-    DocumentReference hiddenClassRef = dateTimePickerClass.getClassRef(
-        cellDocRef.getWikiReference());
     try {
-      dateTimePickerConfig = modelAccess.getXObject(cellDocRef, hiddenClassRef);
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       attrBuilder.addNonEmptyAttribute("type", "text");
-      String pickerType = dateTimePickerConfig.getStringValue("datetimepicker_type");
-      if (Objects.equals(pickerType, "Date Time Picker")) {
-        attrBuilder.addCssClasses("cel_dateTimePicker");
-      } else if (Objects.equals(pickerType, "Time Picker")) {
-        attrBuilder.addCssClasses("cel_timePicker");
-      } else {
-        attrBuilder.addCssClasses("cel_datePicker");
+      Type pickerType = Iterables.getFirst(modelAccess.getProperty(cellDoc, FIELD_TYPE), null);
+      attrBuilder.addCssClasses(PICKER_TYPE_CSS_CLASS_MAP.get(pickerType));
+      String attributes = Strings.emptyToNull(modelAccess.getProperty(cellDoc, FIELD_ATTRIBUTES));
+      String format = Strings.emptyToNull(modelAccess.getProperty(cellDoc, FIELD_FORMAT));
+      if (format != null) {
+        format = new StringBuilder("\"format\" : \"").append(format).append("\"").toString();
       }
-      String dataAttributes = new String();
-      if (!Strings.isNullOrEmpty(dateTimePickerConfig.getStringValue("datetimepicker_format"))) {
-        dataAttributes += "{\"format\" : \"" + dateTimePickerConfig.getStringValue(
-            "datetimepicker_format") + "\"";
-      }
-      if (!Strings.isNullOrEmpty(dateTimePickerConfig.getStringValue(
-          "datetimepicker_attributes"))) {
-        if (Strings.isNullOrEmpty(dataAttributes)) {
-          dataAttributes += "{";
-        } else {
-          dataAttributes += ",";
-        }
-        dataAttributes += dateTimePickerConfig.getStringValue("datetimepicker_attributes");
-      }
-      if (!Strings.isNullOrEmpty(dataAttributes)) {
-        dataAttributes += "}";
-        attrBuilder.addNonEmptyAttribute("data-pickerAttr", dataAttributes);
+      String dataAttr = Joiner.on(',').skipNulls().join(Arrays.asList(format, attributes));
+      if (!dataAttr.isEmpty()) {
+        attrBuilder.addNonEmptyAttribute("data-pickerAttr", new StringBuilder("{").append(
+            dataAttr).append("}").toString());
       }
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("Document {} or Document {} does not exist {}", structuredDataEditorClasseRef,
-          hiddenClassRef, exc);
+      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
   }
 

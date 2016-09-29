@@ -1,18 +1,16 @@
 package com.celements.structEditor.fields;
 
+import static com.celements.structEditor.classes.HiddenTagEditorClass.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.structEditor.classes.HiddenTagEditorClass;
-import com.celements.structEditor.classes.StructEditorClass;
-import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
-import com.xpn.xwiki.objects.BaseObject;
+import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(HiddenTagPageType.PAGETYPE_NAME)
 public class HiddenTagPageType extends AbstractStructFieldPageType {
@@ -22,12 +20,6 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
   public static final String PAGETYPE_NAME = "HiddenTag";
 
   static final String VIEW_TEMPLATE_NAME = "HiddenTagView";
-
-  @Requirement(HiddenTagEditorClass.CLASS_DEF_HINT)
-  private StructEditorClass hiddenTagEditorClass;
-
-  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
-  private StructEditorClass structuredDataEditorClasses;
 
   @Override
   public String getName() {
@@ -46,19 +38,13 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
 
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
-    BaseObject hiddenConfig;
-    DocumentReference structuredDataEditorClasseRef = structuredDataEditorClasses.getClassRef(
-        cellDocRef.getWikiReference());
-    DocumentReference hiddenClassRef = hiddenTagEditorClass.getClassRef(
-        cellDocRef.getWikiReference());
     try {
-      hiddenConfig = modelAccess.getXObject(cellDocRef, hiddenClassRef);
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       attrBuilder.addNonEmptyAttribute("type", "hidden");
-      attrBuilder.addNonEmptyAttribute("name", hiddenConfig.getStringValue("hidden_tag_name"));
-      attrBuilder.addNonEmptyAttribute("value", hiddenConfig.getStringValue("hidden_tag_value"));
+      attrBuilder.addNonEmptyAttribute("name", modelAccess.getProperty(cellDoc, FIELD_NAME));
+      attrBuilder.addNonEmptyAttribute("value", modelAccess.getProperty(cellDoc, FIELD_VALUE));
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("Document {} or Document {} does not exist {}", structuredDataEditorClasseRef,
-          hiddenClassRef, exc);
+      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
   }
 
