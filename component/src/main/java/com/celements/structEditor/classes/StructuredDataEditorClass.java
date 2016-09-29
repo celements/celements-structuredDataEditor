@@ -17,8 +17,7 @@ public class StructuredDataEditorClass extends AbstractClassDefinition implement
 
   public static final String SPACE_NAME = "Celements";
   public static final String DOC_NAME = "StructEditFieldClass";
-  public static final String CLASS_FN = SPACE_NAME + "." + DOC_NAME;
-  public static final String CLASS_DEF_HINT = CLASS_FN;
+  public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
 
   public static final ClassField<String> FIELD_EDIT_FIELD_CLASS_NAME = new StringField.Builder(
       CLASS_DEF_HINT, "edit_field_class_fullname").prettyName("Class FullName").build();
