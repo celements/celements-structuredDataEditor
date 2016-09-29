@@ -1,15 +1,14 @@
 package com.celements.structEditor.fields;
 
+import static com.celements.structEditor.classes.TextAreaFieldEditorClass.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.structEditor.classes.StructEditorClass;
-import com.celements.structEditor.classes.TextAreaFieldEditorClass;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 
@@ -21,9 +20,6 @@ public class TextAreaFieldPageType extends AbstractStructFieldPageType {
   public static final String INPUT_FIELD_PAGETYPE_NAME = "TextAreaField";
 
   static final String VIEW_TEMPLATE_NAME = "TextAreaFieldView";
-
-  @Requirement(TextAreaFieldEditorClass.CLASS_DEF_HINT)
-  private StructEditorClass textAreaFieldEditorClass;
 
   @Override
   public String getName() {
@@ -45,6 +41,10 @@ public class TextAreaFieldPageType extends AbstractStructFieldPageType {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       addNameAttribute(attrBuilder, cellDoc);
+      attrBuilder.addNonEmptyAttribute("cols", modelAccess.getProperty(cellDoc,
+          FIELD_COLS).toString());
+      attrBuilder.addNonEmptyAttribute("rows", modelAccess.getProperty(cellDoc,
+          FIELD_ROWS).toString());
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
