@@ -75,7 +75,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         doc = modelAccess.getDocument(doc.getParentReference());
         PageTypeReference ptRef = ptResolver.getPageTypeRefForDoc(doc);
         if ((ptRef != null) && ptRef.getConfigName().equals(FormFieldPageType.PAGETYPE_NAME)) {
-          prefix = modelAccess.getProperty(doc, FormFieldEditorClass.FORM_FIELD_PREFIX);
+          prefix = modelAccess.getProperty(doc, FormFieldEditorClass.FIELD_PREFIX);
         }
       }
       LOGGER.debug("resolveFormPrefix: '{}' for cell '{}'", prefix, cellDoc);

@@ -16,12 +16,11 @@ public class HiddenTagEditorClass extends AbstractClassDefinition implements Str
 
   public static final String SPACE_NAME = "Celements";
   public static final String DOC_NAME = "HiddenTagEditorClass";
-  public static final String CLASS_FN = SPACE_NAME + "." + DOC_NAME;
-  public static final String CLASS_DEF_HINT = CLASS_FN;
+  public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
 
-  public static final ClassField<String> HIDDEN_TAG_NAME = new StringField.Builder(CLASS_DEF_HINT,
+  public static final ClassField<String> FIELD_NAME = new StringField.Builder(CLASS_DEF_HINT,
       "hidden_tag_name").prettyName("name").build();
-  public static final ClassField<String> HIDDEN_TAG_VALUE = new StringField.Builder(CLASS_DEF_HINT,
+  public static final ClassField<String> FIELD_VALUE = new StringField.Builder(CLASS_DEF_HINT,
       "hidden_tag_value").prettyName("value").build();
 
   @Override
