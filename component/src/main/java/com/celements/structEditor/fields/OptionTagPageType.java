@@ -10,7 +10,6 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.google.common.base.Optional;
-import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(OptionTagPageType.PAGETYPE_NAME)
 public class OptionTagPageType extends AbstractStructFieldPageType {
@@ -39,15 +38,14 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
-      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      if (modelAccess.getProperty(cellDoc, FIELD_SELECTED)) {
+      if (getFieldValue(cellDocRef, FIELD_SELECTED).or(false)) {
         attrBuilder.addEmptyAttribute("selected");
       }
-      if (modelAccess.getProperty(cellDoc, FIELD_DISABLED)) {
+      if (getFieldValue(cellDocRef, FIELD_DISABLED).or(false)) {
         attrBuilder.addEmptyAttribute("disabled");
       }
-      attrBuilder.addNonEmptyAttribute("value", modelAccess.getProperty(cellDoc, FIELD_VALUE));
-      attrBuilder.addNonEmptyAttribute("label", modelAccess.getProperty(cellDoc, FIELD_LABEL));
+      attrBuilder.addNonEmptyAttribute("value", getNotEmptyString(cellDocRef, FIELD_VALUE).or(""));
+      attrBuilder.addNonEmptyAttribute("label", getNotEmptyString(cellDocRef, FIELD_LABEL).or(""));
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
