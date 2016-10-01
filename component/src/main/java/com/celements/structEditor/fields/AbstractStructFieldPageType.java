@@ -3,11 +3,17 @@ package com.celements.structEditor.fields;
 import java.util.Set;
 
 import org.xwiki.component.annotation.Requirement;
+import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.IModelAccessFacade;
+import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.classes.fields.ClassField;
 import com.celements.pagetype.category.IPageTypeCategoryRole;
 import com.celements.pagetype.java.AbstractJavaPageType;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import com.xpn.xwiki.doc.XWikiDocument;
 
 public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
@@ -57,6 +63,26 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
     } else {
       return getViewTemplateName();
     }
+  }
+
+  protected <T> Optional<T> getFieldValue(DocumentReference cellDocRef, ClassField<T> classField)
+      throws DocumentNotExistsException {
+    return Optional.fromNullable(modelAccess.getProperty(cellDocRef, classField));
+  }
+
+  protected Optional<String> getNotEmptyString(DocumentReference cellDocRef,
+      ClassField<String> classField) throws DocumentNotExistsException {
+    return Optional.fromNullable(Strings.emptyToNull(modelAccess.getProperty(cellDocRef,
+        classField)));
+  }
+
+  protected <T> Optional<T> getFieldValue(XWikiDocument cellDoc, ClassField<T> classField) {
+    return Optional.fromNullable(modelAccess.getProperty(cellDoc, classField));
+  }
+
+  protected Optional<String> getNotEmptyString(XWikiDocument cellDoc,
+      ClassField<String> classField) {
+    return Optional.fromNullable(Strings.emptyToNull(modelAccess.getProperty(cellDoc, classField)));
   }
 
 }
