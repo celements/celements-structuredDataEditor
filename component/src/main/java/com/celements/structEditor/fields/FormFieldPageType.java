@@ -9,6 +9,7 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.classes.fields.ClassField;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -42,18 +43,21 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
     attrBuilder.addCssClasses("celAddValidationToForm inactive");
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      if (modelAccess.getProperty(cellDoc, FIELD_SEND_DATA_ENCODED)) {
+      Optional<Boolean> sendEncodedData = Optional.fromNullable(modelAccess.getProperty(cellDoc,
+          FIELD_SEND_DATA_ENCODED));
+      if (sendEncodedData.or(true)) {
         attrBuilder.addNonEmptyAttribute("enctype", "multipart/form-data");
       }
-      attrBuilder.addNonEmptyAttribute("action", modelAccess.getProperty(cellDoc, FIELD_ACTION));
-      String method = modelAccess.getProperty(cellDoc, FIELD_METHOD);
-      if (Strings.isNullOrEmpty(method)) {
-        method = "post";
-      }
-      attrBuilder.addNonEmptyAttribute("method", method);
+      attrBuilder.addNonEmptyAttribute("action", getNotEmptyString(cellDoc, FIELD_ACTION).or("?"));
+      attrBuilder.addNonEmptyAttribute("method", getNotEmptyString(cellDoc, FIELD_METHOD).or(
+          "post"));
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
+  }
+
+  Optional<String> getNotEmptyString(XWikiDocument cellDoc, ClassField<String> classField) {
+    return Optional.fromNullable(Strings.emptyToNull(modelAccess.getProperty(cellDoc, classField)));
   }
 
 }
