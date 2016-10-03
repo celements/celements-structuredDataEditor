@@ -49,7 +49,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private String getAttributeName(XWikiDocument cellDoc, boolean withObjNb) {
     List<String> nameParts = new ArrayList<>();
     String className = getCellClassName(cellDoc);
-    if (!className.isEmpty()) {
+    if (!Strings.isNullOrEmpty(className)) {
       nameParts.add(className);
       if (withObjNb) {
         nameParts.add(Integer.toString(getObjNumber(cellDoc, className)));
