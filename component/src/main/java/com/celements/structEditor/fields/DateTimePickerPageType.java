@@ -2,7 +2,9 @@ package com.celements.structEditor.fields;
 
 import static com.celements.structEditor.classes.DateTimePickerEditorClass.*;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -15,7 +17,6 @@ import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.structEditor.classes.DateTimePickerEditorClass.Type;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -50,18 +51,26 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
 
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
+    attrBuilder.addNonEmptyAttribute("type", "text");
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       attrBuilder.addNonEmptyAttribute("type", "text");
       addNameAttribute(attrBuilder, cellDoc);
-      Type pickerType = Iterables.getFirst(modelAccess.getProperty(cellDoc, FIELD_TYPE), null);
+      List<Type> typeList = getFieldValue(cellDocRef, FIELD_TYPE).or(Collections.<Type>emptyList());
+      Type pickerType = Iterables.getFirst(typeList, Type.DATE_PICKER);
       attrBuilder.addCssClasses(PICKER_TYPE_CSS_CLASS_MAP.get(pickerType));
-      String attributes = Strings.emptyToNull(modelAccess.getProperty(cellDoc, FIELD_ATTRIBUTES));
-      String format = Strings.emptyToNull(modelAccess.getProperty(cellDoc, FIELD_FORMAT));
-      if (format != null) {
-        format = new StringBuilder("\"format\" : \"").append(format).append("\"").toString();
+      Optional<String> format = getNotEmptyString(cellDocRef, FIELD_FORMAT);
+      List<String> dataValueList = new ArrayList<>();
+      if (format.isPresent()) {
+        String formatStr = new StringBuilder("\"format\" : \"").append(format.get()).append(
+            "\"").toString();
+        dataValueList.add(formatStr);
       }
-      String dataAttr = Joiner.on(',').skipNulls().join(Arrays.asList(format, attributes));
+      Optional<String> attributes = getNotEmptyString(cellDocRef, FIELD_ATTRIBUTES);
+      if (attributes.isPresent()) {
+        dataValueList.add(attributes.get());
+      }
+      String dataAttr = Joiner.on(',').skipNulls().join(dataValueList);
       if (!dataAttr.isEmpty()) {
         attrBuilder.addNonEmptyAttribute("data-pickerAttr", new StringBuilder("{").append(
             dataAttr).append("}").toString());

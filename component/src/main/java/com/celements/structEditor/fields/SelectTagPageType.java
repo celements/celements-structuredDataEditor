@@ -10,7 +10,6 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(SelectTagPageType.PAGETYPE_NAME)
@@ -42,15 +41,11 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       addNameAttribute(attrBuilder, cellDoc);
-      if (modelAccess.getProperty(cellDoc, FIELD_IS_MULTISELECT)) {
+      if (getFieldValue(cellDocRef, FIELD_IS_MULTISELECT).or(false)) {
         attrBuilder.addCssClasses("celMultiselect");
       }
-      if (modelAccess.getProperty(cellDoc, FIELD_IS_BOOTSTRAP)) {
+      if (getFieldValue(cellDocRef, FIELD_IS_BOOTSTRAP).or(false)) {
         attrBuilder.addCssClasses("celBootstrap");
-      }
-      String separator = modelAccess.getProperty(cellDoc, FIELD_SEPARATOR);
-      if (!Strings.isNullOrEmpty(separator)) {
-        // TODO ?
       }
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);

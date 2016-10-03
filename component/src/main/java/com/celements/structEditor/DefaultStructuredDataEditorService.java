@@ -20,9 +20,8 @@ import com.celements.structEditor.fields.FormFieldPageType;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.xpn.xwiki.api.PropertyClass;
 import com.xpn.xwiki.doc.XWikiDocument;
-import com.xpn.xwiki.objects.PropertyInterface;
+import com.xpn.xwiki.objects.classes.PropertyClass;
 
 @Component
 public class DefaultStructuredDataEditorService implements StructuredDataEditorService {
@@ -88,18 +87,26 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   String getXClassPrettyName(XWikiDocument cellDoc) {
     String prettyName = "";
     try {
-      DocumentReference classRef = modelUtils.resolveRef(getCellClassName(cellDoc),
-          DocumentReference.class, cellDoc.getDocumentReference());
-      PropertyInterface property = modelAccess.getDocument(classRef).getXClass().get(
+      DocumentReference classRef = getCellClassDocRef(cellDoc.getDocumentReference());
+      PropertyClass property = (PropertyClass) modelAccess.getDocument(classRef).getXClass().get(
           getCellFieldName(cellDoc));
-      if ((property != null) && (property instanceof PropertyClass)) {
-        prettyName = ((PropertyClass) property).getPrettyName();
+      if (property != null) {
+        prettyName = property.getPrettyName();
       }
-      LOGGER.debug("getXClassPrettyName: '{}' for cell '{}'", prettyName, cellDoc);
+      LOGGER.debug("getXClassPrettyName: '{}' for cell '{}' and class '{}'", prettyName, cellDoc,
+          classRef);
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("configured class on cell '{}' doesn't exist", cellDoc, exc);
     }
     return prettyName;
+  }
+
+  @Override
+  public DocumentReference getCellClassDocRef(DocumentReference cellDocRef)
+      throws DocumentNotExistsException {
+    XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+    return modelUtils.resolveRef(getCellClassName(cellDoc), DocumentReference.class,
+        cellDoc.getDocumentReference());
   }
 
   private String getCellClassName(XWikiDocument cellDoc) {

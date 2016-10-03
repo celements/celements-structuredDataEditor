@@ -14,4 +14,7 @@ public interface StructuredDataEditorService {
   public String getPrettyName(@NotNull DocumentReference cellDocRef)
       throws DocumentNotExistsException;
 
+  public DocumentReference getCellClassDocRef(DocumentReference cellDocRef)
+      throws DocumentNotExistsException;
+
 }
