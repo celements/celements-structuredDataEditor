@@ -138,9 +138,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public String getCellValueAsString(DocumentReference cellDocRef)
+  public Optional<String> getCellValueAsString(DocumentReference cellDocRef)
       throws DocumentNotExistsException {
-    String retVal = new String();
     XWikiDocument doc = modelContext.getDoc();
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
     DocumentReference docRef = doc.getDocumentReference();
@@ -149,9 +148,10 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<String> celFieldName = getCellFieldName(cellDoc);
     if (cellClassDocRef.isPresent() && celFieldName.isPresent()) {
       BaseObject baseObj = modelAccess.getXObject(docRef, cellClassDocRef.get());
-      retVal = baseObj.getStringValue(getCellFieldName(cellDoc).get());
+      return Optional.of(baseObj.getStringValue(getCellFieldName(cellDoc).get()));
+    } else {
+      return Optional.absent();
     }
-    return retVal;
   }
 
   private Optional<DocumentReference> getCellClassDocRef(XWikiDocument cellDoc) {

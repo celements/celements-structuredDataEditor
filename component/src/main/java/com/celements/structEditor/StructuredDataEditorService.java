@@ -23,7 +23,7 @@ public interface StructuredDataEditorService {
   public Optional<DocumentReference> getCellClassDocRef(@NotNull DocumentReference cellDocRef)
       throws DocumentNotExistsException;
 
-  public String getCellValueAsString(DocumentReference cellDocRef)
+  public Optional<String> getCellValueAsString(DocumentReference cellDocRef)
       throws DocumentNotExistsException;
 
 }
