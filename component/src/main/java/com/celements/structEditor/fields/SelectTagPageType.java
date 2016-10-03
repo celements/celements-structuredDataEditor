@@ -10,6 +10,7 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.google.common.base.Optional;
+import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(SelectTagPageType.PAGETYPE_NAME)
 public class SelectTagPageType extends AbstractStructFieldPageType {
@@ -38,6 +39,9 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
+          cellDoc));
       if (getFieldValue(cellDocRef, FIELD_IS_MULTISELECT).or(false)) {
         attrBuilder.addCssClasses("celMultiselect");
       }

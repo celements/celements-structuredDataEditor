@@ -9,6 +9,7 @@ import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
+import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.category.IPageTypeCategoryRole;
 import com.celements.pagetype.java.AbstractJavaPageType;
 import com.celements.structEditor.StructuredDataEditorService;
@@ -27,6 +28,9 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
   @Requirement
   protected IModelAccessFacade modelAccess;
+
+  @Requirement
+  protected ModelUtils modelUtils;
 
   @Requirement
   protected ModelContext modelContext;

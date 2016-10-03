@@ -19,6 +19,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(DateTimePickerPageType.PAGETYPE_NAME)
 public class DateTimePickerPageType extends AbstractStructFieldPageType {
@@ -52,6 +53,10 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     attrBuilder.addNonEmptyAttribute("type", "text");
     try {
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      attrBuilder.addNonEmptyAttribute("type", "text");
+      attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
+          cellDoc));
       List<Type> typeList = getFieldValue(cellDocRef, FIELD_TYPE).or(Collections.<Type>emptyList());
       Type pickerType = Iterables.getFirst(typeList, Type.DATE_PICKER);
       attrBuilder.addCssClasses(PICKER_TYPE_CSS_CLASS_MAP.get(pickerType));
