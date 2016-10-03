@@ -56,7 +56,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       }
     }
     nameParts.add(Strings.emptyToNull(getCellFieldName(cellDoc)));
-    return Joiner.on('_').skipNulls().join(nameParts);
+    String name = Joiner.on('_').skipNulls().join(nameParts);
+    LOGGER.info("getAttributeName: '{}' for cell '{}' withObjNb '{}'", name, cellDoc, withObjNb);
+    return name;
   }
 
   private int getObjNumber(XWikiDocument cellDoc, String className) {
