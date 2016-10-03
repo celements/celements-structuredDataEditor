@@ -11,6 +11,7 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
@@ -23,6 +24,7 @@ import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.PropertyClass;
+import com.xpn.xwiki.web.Utils;
 
 @Component
 public class DefaultStructuredDataEditorService implements StructuredDataEditorService {
@@ -40,6 +42,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Requirement
   IModelAccessFacade modelAccess;
+
+  @Requirement
+  ModelContext modelContext;
 
   @Override
   public String getAttributeName(XWikiDocument cellDoc) {
@@ -127,6 +132,17 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return getCellClassDocRef(modelAccess.getDocument(cellDocRef));
   }
 
+  @Override
+  public String getCellValueAsString(DocumentReference cellDocRef)
+      throws DocumentNotExistsException {
+    XWikiDocument doc = modelContext.getDoc();
+    XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+    DocumentReference docRef = doc.getDocumentReference();
+    BaseObject baseObj = modelAccess.getXObject(docRef,
+        getStructDataEditorService().getCellClassDocRef(cellDocRef));
+    return baseObj.getStringValue(getCellFieldName(cellDoc));
+  }
+
   private DocumentReference getCellClassDocRef(XWikiDocument cellDoc) {
     return modelUtils.resolveRef(getCellClassName(cellDoc), DocumentReference.class,
         cellDoc.getDocumentReference());
@@ -138,6 +154,10 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private String getCellFieldName(XWikiDocument cellDoc) {
     return modelAccess.getProperty(cellDoc, StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME);
+  }
+
+  private StructuredDataEditorService getStructDataEditorService() {
+    return Utils.getComponent(StructuredDataEditorService.class);
   }
 
 }
