@@ -87,8 +87,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   String getXClassPrettyName(XWikiDocument cellDoc) {
     String prettyName = "";
     try {
-      DocumentReference classRef = modelUtils.resolveRef(getCellClassName(cellDoc),
-          DocumentReference.class, cellDoc.getDocumentReference());
+      DocumentReference classRef = getCellClassDocRef(cellDoc.getDocumentReference());
       PropertyClass property = (PropertyClass) modelAccess.getDocument(classRef).getXClass().get(
           getCellFieldName(cellDoc));
       if (property != null) {
@@ -100,6 +99,14 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       LOGGER.warn("configured class on cell '{}' doesn't exist", cellDoc, exc);
     }
     return prettyName;
+  }
+
+  @Override
+  public DocumentReference getCellClassDocRef(DocumentReference cellDocRef)
+      throws DocumentNotExistsException {
+    XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+    return modelUtils.resolveRef(getCellClassName(cellDoc), DocumentReference.class,
+        cellDoc.getDocumentReference());
   }
 
   private String getCellClassName(XWikiDocument cellDoc) {
