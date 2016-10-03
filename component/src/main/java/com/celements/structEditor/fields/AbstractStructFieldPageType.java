@@ -16,6 +16,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.web.Utils;
 
 public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
@@ -26,9 +27,6 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
   @Requirement
   protected IModelAccessFacade modelAccess;
-
-  @Requirement
-  protected StructuredDataEditorService service;
 
   @Requirement
   protected ModelContext modelContext;
@@ -91,6 +89,10 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
   protected Optional<String> getNotEmptyString(XWikiDocument cellDoc,
       ClassField<String> classField) {
     return Optional.fromNullable(Strings.emptyToNull(modelAccess.getProperty(cellDoc, classField)));
+  }
+
+  protected StructuredDataEditorService getStructDataEditorService() {
+    return Utils.getComponent(StructuredDataEditorService.class);
   }
 
 }
