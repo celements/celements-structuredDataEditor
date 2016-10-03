@@ -85,7 +85,7 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     String thePrettyFieldName = "the Pretty Field Name";
     xClass.addTextField(editFieldName, thePrettyFieldName, 30);
     replayDefault();
-    String ret = service.getXClassPrettyName(cellDoc);
+    String ret = service.getXClassPrettyName(cellDoc).get();
     verifyDefault();
     assertEquals(thePrettyFieldName, ret);
   }

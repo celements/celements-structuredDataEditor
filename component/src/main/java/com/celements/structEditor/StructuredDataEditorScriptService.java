@@ -15,6 +15,7 @@ import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
+import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component("structuredDataEditor")
@@ -35,7 +36,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     String prettyName = "";
     if (cellDocRef != null) {
       try {
-        prettyName = service.getPrettyName(cellDocRef);
+        prettyName = service.getPrettyName(cellDocRef).or("");
       } catch (DocumentNotExistsException exc) {
         LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
       }
@@ -48,7 +49,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       retMap.put("type", "text");
-      retMap.put("name", service.getAttributeName(cellDoc));
+      addNameAttributeToMap(retMap, cellDoc);
       retMap.put("value", context.getDoc().getTemplate());
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("Properties for docRef {} does not exist {}", cellDocRef, exc);
@@ -60,7 +61,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     Map<String, String> retMap = new LinkedHashMap<>();
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      retMap.put("name", service.getAttributeName(cellDoc));
+      addNameAttributeToMap(retMap, cellDoc);
       addAttributeToMap(retMap, "rows", cellDoc, TextAreaFieldEditorClass.FIELD_ROWS);
       addAttributeToMap(retMap, "cols", cellDoc, TextAreaFieldEditorClass.FIELD_COLS);
     } catch (DocumentNotExistsException exc) {
@@ -84,6 +85,13 @@ public class StructuredDataEditorScriptService implements ScriptService {
     Object val = modelAccess.getProperty(cellDoc, field);
     if (val != null) {
       map.put(attrName, val.toString());
+    }
+  }
+
+  private void addNameAttributeToMap(Map<String, String> map, XWikiDocument cellDoc) {
+    Optional<String> val = service.getAttributeName(cellDoc);
+    if (val.isPresent()) {
+      map.put("name", val.toString());
     }
   }
 }
