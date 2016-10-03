@@ -40,7 +40,8 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      addNameAttribute(attrBuilder, cellDoc);
+      attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
+          cellDoc));
       if (getFieldValue(cellDocRef, FIELD_IS_MULTISELECT).or(false)) {
         attrBuilder.addCssClasses("celMultiselect");
       }

@@ -6,9 +6,13 @@ import org.xwiki.component.annotation.ComponentRole;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.xpn.xwiki.doc.XWikiDocument;
 
 @ComponentRole
 public interface StructuredDataEditorService {
+
+  @NotNull
+  public String getAttributeName(@NotNull XWikiDocument cellDoc);
 
   @NotNull
   public String getPrettyName(@NotNull DocumentReference cellDocRef)
