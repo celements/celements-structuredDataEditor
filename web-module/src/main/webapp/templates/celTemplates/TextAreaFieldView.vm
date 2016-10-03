@@ -1,7 +1,11 @@
 #set($cellDocRef = $celldoc.getDocumentReference())
-#set($dictionaryKey = $services.structuredDataEditor.getPrettyName($cellDocRef))
-#set($rowsColsMap = $services.structuredDataEditor.getRowsAndColsFromTextarea($cellDocRef))
-<label class="structuredDataEditorLabel">$msg.get($dictionaryKey)</label>
-<textarea rows="$rowsColsMap.rows" cols="$rowsColsMap.cols">##
-$!services.structuredDataEditor.getValueFromTextArea($cellDocRef)##
+#set($prettyName = $services.structuredDataEditor.getPrettyName($cellDocRef))
+#set($attrMap = $services.structuredDataEditor.getTextAreaAttributes($cellDocRef))
+<label class="structuredDataEditorLabel">$!prettyName</label>
+<textarea##
+#foreach($attrEntry in $attrMap.entrySet())##
+ ${attrEntry.key}="$!{attrEntry.value}"##
+#end##
+>
+$!services.structuredDataEditor.getTextAreaContent($cellDocRef)
 </textarea>

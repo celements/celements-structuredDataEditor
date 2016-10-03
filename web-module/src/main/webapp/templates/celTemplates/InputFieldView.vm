@@ -1,4 +1,9 @@
 #set($cellDocRef = $celldoc.getDocumentReference())
-#set($dictionaryKey = $services.structuredDataEditor.getPrettyName($cellDocRef))
-<label class="structuredDataEditorLabel">$msg.get($dictionaryKey)</label>
-<input type="text" name="dictionaryKey" value="$!doc.getTemplate()" />
+#set($prettyName = $services.structuredDataEditor.getPrettyName($cellDocRef))
+#set($attrMap = $services.structuredDataEditor.getTextAttributes($cellDocRef))
+<label class="structuredDataEditorLabel">$!prettyName</label>
+<input##
+#foreach($attrEntry in $attrMap.entrySet())##
+ ${attrEntry.key}="$!{attrEntry.value}"##
+#end##
+>
