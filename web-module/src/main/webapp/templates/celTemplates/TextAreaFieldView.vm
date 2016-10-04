@@ -7,5 +7,5 @@
  ${attrEntry.key}="$!{attrEntry.value}"##
 #end##
 >
-$!services.structuredDataEditor.getTextAreaContent($cellDocRef)
+$!services.structuredDataEditor.getCellValueAsString($cellDocRef)
 </textarea>
