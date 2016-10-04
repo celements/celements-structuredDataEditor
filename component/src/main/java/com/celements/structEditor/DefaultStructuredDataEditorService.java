@@ -148,10 +148,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<String> celFieldName = getCellFieldName(cellDoc);
     if (cellClassDocRef.isPresent() && celFieldName.isPresent()) {
       BaseObject baseObj = modelAccess.getXObject(docRef, cellClassDocRef.get());
-      return Optional.of(baseObj.getStringValue(getCellFieldName(cellDoc).get()));
-    } else {
-      return Optional.absent();
+      if (baseObj != null) {
+        return Optional.of(baseObj.getStringValue(getCellFieldName(cellDoc).get()));
+      }
     }
+    return Optional.absent();
   }
 
   private Optional<DocumentReference> getCellClassDocRef(XWikiDocument cellDoc) {
