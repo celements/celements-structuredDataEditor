@@ -6,4 +6,4 @@
 #foreach($attrEntry in $attrMap.entrySet())##
  ${attrEntry.key}="$!{attrEntry.value}"##
 #end##
->
+value="$!services.structuredDataEditor.getCellValueAsString($cellDocRef)">
