@@ -10,6 +10,7 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 @Component(OptionTagPageType.PAGETYPE_NAME)
 public class OptionTagPageType extends AbstractStructFieldPageType {
@@ -38,7 +39,12 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
-      if (getFieldValue(cellDocRef, FIELD_SELECTED).or(false)) {
+      String cellValueStr = getStructDataEditorService().getCellValueAsString(cellDocRef).or("");
+      if (!Strings.isNullOrEmpty(cellValueStr) && (cellValueStr.equals(getNotEmptyString(cellDocRef,
+          FIELD_VALUE).or("")))) {
+        attrBuilder.addEmptyAttribute("selected");
+      } else if (Strings.isNullOrEmpty(cellValueStr) && getFieldValue(cellDocRef,
+          FIELD_SELECTED).or(false)) {
         attrBuilder.addEmptyAttribute("selected");
       }
       if (getFieldValue(cellDocRef, FIELD_DISABLED).or(false)) {
