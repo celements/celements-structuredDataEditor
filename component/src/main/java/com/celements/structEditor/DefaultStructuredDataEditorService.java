@@ -18,6 +18,7 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.structEditor.fields.FormFieldPageType;
+import com.celements.structEditor.fields.SelectTagPageType;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -107,6 +108,29 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       LOGGER.warn("parent '{}' on doc '{}' doesn't exist", doc.getParentReference(), doc, exc);
     }
     return prefix;
+  }
+
+  @Override
+  public Optional<DocumentReference> getSelectTagDocumentReference(DocumentReference cellDocRef) {
+    Optional<DocumentReference> selectTagDocRef = null;
+    try {
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      while ((selectTagDocRef == null) && (cellDoc.getParentReference() != null)) {
+        cellDoc = modelAccess.getDocument(cellDoc.getParentReference());
+        PageTypeReference ptRef = ptResolver.getPageTypeRefForDoc(cellDoc);
+        if ((ptRef != null) && ptRef.getConfigName().equals(SelectTagPageType.PAGETYPE_NAME)) {
+          selectTagDocRef = Optional.fromNullable(cellDoc.getDocumentReference());
+        }
+      }
+      LOGGER.debug("resolveFormPrefix: '{}' for cell '{}'", selectTagDocRef, cellDoc);
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.warn("doc for docRef '{}' doesn't exists", cellDocRef, exc);
+    }
+    if (selectTagDocRef.isPresent()) {
+      return selectTagDocRef;
+    } else {
+      return Optional.absent();
+    }
   }
 
   Optional<String> getXClassPrettyName(XWikiDocument cellDoc) {
