@@ -91,7 +91,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   private void addNameAttributeToMap(Map<String, String> map, XWikiDocument cellDoc) {
     Optional<String> val = service.getAttributeName(cellDoc);
     if (val.isPresent()) {
-      map.put("name", val.toString());
+      map.put("name", val.get());
     }
   }
 
