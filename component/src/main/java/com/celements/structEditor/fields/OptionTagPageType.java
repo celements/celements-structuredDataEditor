@@ -9,8 +9,8 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 
 @Component(OptionTagPageType.PAGETYPE_NAME)
 public class OptionTagPageType extends AbstractStructFieldPageType {
@@ -39,13 +39,29 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
-      String cellValueStr = getStructDataEditorService().getCellValueAsString(cellDocRef).or("");
-      if (!Strings.isNullOrEmpty(cellValueStr) && (cellValueStr.equals(getNotEmptyString(cellDocRef,
-          FIELD_VALUE).or("")))) {
-        attrBuilder.addEmptyAttribute("selected");
-      } else if (Strings.isNullOrEmpty(cellValueStr) && getFieldValue(cellDocRef,
-          FIELD_SELECTED).or(false)) {
-        attrBuilder.addEmptyAttribute("selected");
+      // String cellValueStr = getStructDataEditorService().getCellValueAsString(cellDocRef).or("");
+      // if (!Strings.isNullOrEmpty(cellValueStr) &&
+      // (cellValueStr.equals(getNotEmptyString(cellDocRef,
+      // FIELD_VALUE).or("")))) {
+      // attrBuilder.addEmptyAttribute("selected");
+      // } else if (Strings.isNullOrEmpty(cellValueStr) && getFieldValue(cellDocRef,
+      // FIELD_SELECTED).or(false)) {
+      // attrBuilder.addEmptyAttribute("selected");
+      // }
+      Optional<DocumentReference> selectTagDocRef = getStructDataEditorService().getSelectTagDocumentReference(
+          cellDocRef);
+      System.out.println("\nOptionTagPageType getSelectTagName selectTagDocRef: "
+          + selectTagDocRef);
+      if (selectTagDocRef.isPresent()) {
+        Optional<String> selectValue = getNotEmptyString(selectTagDocRef.get(),
+            StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME);
+        System.out.println("OptionTagPageType getSelectTagName selectValue: " + selectValue);
+        System.out.println("OptionTagPageType getSelectTagName cellValue: "
+            + getStructDataEditorService().getCellValueAsString(cellDocRef).get());
+        if (selectValue.equals(getStructDataEditorService().getCellValueAsString(
+            cellDocRef).get())) {
+          attrBuilder.addEmptyAttribute("selected");
+        }
       }
       if (getFieldValue(cellDocRef, FIELD_DISABLED).or(false)) {
         attrBuilder.addEmptyAttribute("disabled");
