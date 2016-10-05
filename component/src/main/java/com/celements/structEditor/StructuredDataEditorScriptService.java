@@ -98,7 +98,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   public String getCellValueAsString(DocumentReference cellDocRef) {
     String retVal = new String();
     try {
-      retVal = service.getCellValueAsString(cellDocRef).or("");
+      retVal = service.getCellValueAsString(cellDocRef, context.getDoc()).or("");
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }

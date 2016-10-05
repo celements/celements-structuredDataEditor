@@ -57,9 +57,10 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
             StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME);
         System.out.println("OptionTagPageType getSelectTagName selectValue: " + selectValue);
         System.out.println("OptionTagPageType getSelectTagName cellValue: "
-            + getStructDataEditorService().getCellValueAsString(cellDocRef).get());
-        if (selectValue.equals(getStructDataEditorService().getCellValueAsString(
-            cellDocRef).get())) {
+            + getStructDataEditorService().getCellValueAsString(cellDocRef,
+                modelContext.getDoc()).get());
+        if (selectValue.equals(getStructDataEditorService().getCellValueAsString(cellDocRef,
+            modelContext.getDoc()).get())) {
           attrBuilder.addEmptyAttribute("selected");
         }
       }
