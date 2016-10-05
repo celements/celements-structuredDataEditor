@@ -167,6 +167,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (value != null) {
         return Optional.of(value.toString());
       }
+    } else if (!cellClassDocRef.isPresent() && cellFieldName.isPresent()
+        && (cellFieldName.get().equals("title"))) {
+      return Optional.of(onDoc.getTitle());
+    } else if (!cellClassDocRef.isPresent() && cellFieldName.isPresent()
+        && (cellFieldName.get().equals("content"))) {
+      return Optional.of(onDoc.getContent());
     }
     return Optional.absent();
   }
