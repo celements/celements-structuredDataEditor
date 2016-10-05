@@ -3,7 +3,6 @@ package com.celements.structEditor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
@@ -140,9 +139,10 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<DocumentReference> cellClassDocRef = getCellClassDocRef(cellDoc);
     Optional<String> cellFieldName = getCellFieldName(cellDoc);
     if (cellClassDocRef.isPresent() && cellFieldName.isPresent()) {
-      String value = ObjectUtils.toString(modelAccess.getProperty(onDoc, cellClassDocRef.get(),
-          cellFieldName.get()));
-      return Optional.fromNullable(Strings.emptyToNull(value));
+      Object value = modelAccess.getProperty(onDoc, cellClassDocRef.get(), cellFieldName.get());
+      if (value != null) {
+        return Optional.of(value.toString());
+      }
     }
     return Optional.absent();
   }
