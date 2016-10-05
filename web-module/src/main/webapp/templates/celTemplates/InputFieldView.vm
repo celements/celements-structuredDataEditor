@@ -2,8 +2,8 @@
 #set($prettyName = $services.structuredDataEditor.getPrettyName($cellDocRef))
 #set($attrMap = $services.structuredDataEditor.getTextAttributes($cellDocRef))
 <label class="structuredDataEditorLabel">$!prettyName</label>
-<input##
-#foreach($attrEntry in $attrMap.entrySet())##
- ${attrEntry.key}="$!{attrEntry.value}"##
-#end##
-value="$!services.structuredDataEditor.getCellValueAsString($cellDocRef)">
+<input ##value="$!services.structuredDataEditor.getCellValueAsString($cellDocRef)"##
+#foreach($attrEntry in $attrMap.entrySet())
+  ${attrEntry.key}="$!{attrEntry.value}"
+#end
+>
