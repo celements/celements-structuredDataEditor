@@ -23,7 +23,8 @@ public interface StructuredDataEditorService {
   public Optional<DocumentReference> getCellClassDocRef(@NotNull DocumentReference cellDocRef)
       throws DocumentNotExistsException;
 
-  public Optional<String> getCellValueAsString(DocumentReference cellDocRef)
-      throws DocumentNotExistsException;
+  @NotNull
+  public Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,
+      @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
 
 }

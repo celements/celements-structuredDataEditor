@@ -53,7 +53,8 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     attrBuilder.addNonEmptyAttribute("type", "text");
     try {
-      Optional<String> cellValue = getStructDataEditorService().getCellValueAsString(cellDocRef);
+      Optional<String> cellValue = getStructDataEditorService().getCellValueAsString(cellDocRef,
+          modelContext.getDoc());
       if (cellValue.isPresent()) {
         attrBuilder.addNonEmptyAttribute("value", cellValue.get());
       }

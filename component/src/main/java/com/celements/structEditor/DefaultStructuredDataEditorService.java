@@ -3,6 +3,7 @@ package com.celements.structEditor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
@@ -11,7 +12,6 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
@@ -25,7 +25,6 @@ import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.PropertyClass;
-import com.xpn.xwiki.web.Utils;
 
 @Component
 public class DefaultStructuredDataEditorService implements StructuredDataEditorService {
@@ -43,9 +42,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Requirement
   IModelAccessFacade modelAccess;
-
-  @Requirement
-  ModelContext modelContext;
 
   @Override
   public Optional<String> getAttributeName(XWikiDocument cellDoc) {
@@ -138,19 +134,15 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public Optional<String> getCellValueAsString(DocumentReference cellDocRef)
+  public Optional<String> getCellValueAsString(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
-    XWikiDocument doc = modelContext.getDoc();
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-    DocumentReference docRef = doc.getDocumentReference();
-    Optional<DocumentReference> cellClassDocRef = getStructDataEditorService().getCellClassDocRef(
-        cellDocRef);
-    Optional<String> celFieldName = getCellFieldName(cellDoc);
-    if (cellClassDocRef.isPresent() && celFieldName.isPresent()) {
-      BaseObject baseObj = modelAccess.getXObject(docRef, cellClassDocRef.get());
-      if (baseObj != null) {
-        return Optional.of(baseObj.getStringValue(getCellFieldName(cellDoc).get()));
-      }
+    Optional<DocumentReference> cellClassDocRef = getCellClassDocRef(cellDoc);
+    Optional<String> cellFieldName = getCellFieldName(cellDoc);
+    if (cellClassDocRef.isPresent() && cellFieldName.isPresent()) {
+      String value = ObjectUtils.toString(modelAccess.getProperty(onDoc, cellClassDocRef.get(),
+          cellFieldName.get()));
+      return Optional.fromNullable(Strings.emptyToNull(value));
     }
     return Optional.absent();
   }
@@ -169,10 +161,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     String fieldName = Strings.emptyToNull(modelAccess.getProperty(cellDoc,
         StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME));
     return Optional.fromNullable(fieldName);
-  }
-
-  private StructuredDataEditorService getStructDataEditorService() {
-    return Utils.getComponent(StructuredDataEditorService.class);
   }
 
 }

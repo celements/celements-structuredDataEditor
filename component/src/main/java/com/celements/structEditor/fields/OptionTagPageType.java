@@ -39,7 +39,8 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
-      String cellValueStr = getStructDataEditorService().getCellValueAsString(cellDocRef).or("");
+      String cellValueStr = getStructDataEditorService().getCellValueAsString(cellDocRef,
+          modelContext.getDoc()).or("");
       if (!Strings.isNullOrEmpty(cellValueStr) && (cellValueStr.equals(getNotEmptyString(cellDocRef,
           FIELD_VALUE).or("")))) {
         attrBuilder.addEmptyAttribute("selected");
