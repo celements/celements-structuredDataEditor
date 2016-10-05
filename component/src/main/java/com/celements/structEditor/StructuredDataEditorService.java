@@ -26,4 +26,6 @@ public interface StructuredDataEditorService {
   public Optional<String> getCellValueAsString(DocumentReference cellDocRef)
       throws DocumentNotExistsException;
 
+  public Optional<DocumentReference> getSelectTagDocumentReference(DocumentReference cellDocRef);
+
 }
