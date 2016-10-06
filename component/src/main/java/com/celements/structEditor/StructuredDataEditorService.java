@@ -1,5 +1,6 @@
 package com.celements.structEditor;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.xwiki.component.annotation.ComponentRole;
@@ -13,14 +14,11 @@ import com.xpn.xwiki.doc.XWikiDocument;
 public interface StructuredDataEditorService {
 
   @NotNull
-  public Optional<String> getAttributeName(@NotNull XWikiDocument cellDoc);
+  public Optional<String> getAttributeName(@NotNull XWikiDocument cellDoc,
+      @Nullable XWikiDocument onDoc);
 
   @NotNull
   public Optional<String> getPrettyName(@NotNull DocumentReference cellDocRef)
-      throws DocumentNotExistsException;
-
-  @NotNull
-  public Optional<DocumentReference> getCellClassDocRef(@NotNull DocumentReference cellDocRef)
       throws DocumentNotExistsException;
 
   @NotNull
