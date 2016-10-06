@@ -25,6 +25,6 @@ public interface StructuredDataEditorService {
   public Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,
       @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
 
-  public Optional<DocumentReference> getSelectTagDocumentReference(DocumentReference cellDocRef);
+  public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef);
 
 }

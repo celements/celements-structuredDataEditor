@@ -88,19 +88,15 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   String resolveFormPrefix(XWikiDocument cellDoc) {
     String prefix = null;
-    XWikiDocument doc = cellDoc;
     try {
-      while ((prefix == null) && (doc.getParentReference() != null)) {
-        doc = modelAccess.getDocument(doc.getParentReference());
-        PageTypeReference ptRef = ptResolver.getPageTypeRefForDoc(doc);
-        if ((ptRef != null) && ptRef.getConfigName().equals(FormFieldPageType.PAGETYPE_NAME)) {
-          prefix = Strings.emptyToNull(modelAccess.getProperty(doc,
-              FormFieldEditorClass.FIELD_PREFIX));
-        }
+      Optional<XWikiDocument> formDoc = findParentCell(cellDoc, FormFieldPageType.PAGETYPE_NAME);
+      if (formDoc.isPresent()) {
+        prefix = Strings.emptyToNull(modelAccess.getProperty(formDoc.get(),
+            FormFieldEditorClass.FIELD_PREFIX));
       }
       LOGGER.debug("resolveFormPrefix: '{}' for cell '{}'", prefix, cellDoc);
     } catch (DocumentNotExistsException exc) {
-      LOGGER.warn("parent '{}' on doc '{}' doesn't exist", doc.getParentReference(), doc, exc);
+      LOGGER.warn("parent on doc '{}' doesn't exist", cellDoc, exc);
     }
     return prefix;
   }
@@ -150,26 +146,32 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public Optional<DocumentReference> getSelectTagDocumentReference(DocumentReference cellDocRef) {
-    Optional<DocumentReference> selectTagDocRef = null;
+  public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef) {
+    DocumentReference selectCellDocRef = null;
     try {
-      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      while ((selectTagDocRef == null) && (cellDoc.getParentReference() != null)) {
-        cellDoc = modelAccess.getDocument(cellDoc.getParentReference());
-        PageTypeReference ptRef = ptResolver.getPageTypeRefForDoc(cellDoc);
-        if ((ptRef != null) && ptRef.getConfigName().equals(SelectTagPageType.PAGETYPE_NAME)) {
-          selectTagDocRef = Optional.fromNullable(cellDoc.getDocumentReference());
-        }
+      Optional<XWikiDocument> selectCellDoc = findParentCell(modelAccess.getDocument(cellDocRef),
+          SelectTagPageType.PAGETYPE_NAME);
+      if (selectCellDoc.isPresent()) {
+        selectCellDocRef = selectCellDoc.get().getDocumentReference();
       }
-      LOGGER.debug("resolveFormPrefix: '{}' for cell '{}'", selectTagDocRef, cellDoc);
+      LOGGER.debug("getSelectCellDocRef: '{}' for cell '{}'", selectCellDocRef, cellDocRef);
     } catch (DocumentNotExistsException exc) {
-      LOGGER.warn("doc for docRef '{}' doesn't exists", cellDocRef, exc);
+      LOGGER.warn("parent on doc '{}' doesn't exist", cellDocRef, exc);
     }
-    if (selectTagDocRef.isPresent()) {
-      return selectTagDocRef;
-    } else {
-      return Optional.absent();
+    return Optional.fromNullable(selectCellDocRef);
+  }
+
+  // TODO this method can be considered utility, move to another service
+  private Optional<XWikiDocument> findParentCell(XWikiDocument cellDoc, String ptName)
+      throws DocumentNotExistsException {
+    while (cellDoc.getParentReference() != null) {
+      cellDoc = modelAccess.getDocument(cellDoc.getParentReference());
+      PageTypeReference ptRef = ptResolver.getPageTypeRefForDoc(cellDoc);
+      if ((ptRef != null) && ptRef.getConfigName().equals(ptName)) {
+        return Optional.of(cellDoc);
+      }
     }
+    return Optional.absent();
   }
 
   private Optional<DocumentReference> getCellClassRef(XWikiDocument cellDoc) {
