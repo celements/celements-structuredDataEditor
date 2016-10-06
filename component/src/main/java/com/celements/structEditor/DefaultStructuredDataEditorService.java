@@ -177,8 +177,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private Optional<DocumentReference> getCellClassRef(XWikiDocument cellDoc) {
     String className = modelAccess.getProperty(cellDoc,
         StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS_NAME);
-    return Optional.fromNullable(modelUtils.resolveRef(className, DocumentReference.class,
-        cellDoc.getDocumentReference()));
+    if (className != null) {
+      return Optional.of(modelUtils.resolveRef(className, DocumentReference.class,
+          cellDoc.getDocumentReference()));
+    }
+    return Optional.absent();
   }
 
   private Optional<String> getCellFieldName(XWikiDocument cellDoc) {
