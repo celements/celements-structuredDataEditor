@@ -103,24 +103,28 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   Optional<String> getXClassPrettyName(XWikiDocument cellDoc) {
     String prettyName = null;
+    Optional<PropertyClass> property = getPropertyClass(cellDoc);
+    if (property.isPresent()) {
+      prettyName = Strings.emptyToNull(property.get().getPrettyName());
+    }
+    LOGGER.debug("getXClassPrettyName: '{}' for cell '{}'", prettyName, cellDoc);
+    return Optional.fromNullable(prettyName);
+  }
+
+  private Optional<PropertyClass> getPropertyClass(XWikiDocument cellDoc) {
     Optional<DocumentReference> classRef = getCellClassRef(cellDoc);
     Optional<String> fieldName = getCellFieldName(cellDoc);
     if (classRef.isPresent() && fieldName.isPresent()) {
       try {
-        PropertyClass property = (PropertyClass) modelAccess.getDocument(
-            classRef.get()).getXClass().get(fieldName.get());
-        if (property != null) {
-          prettyName = Strings.emptyToNull(property.getPrettyName());
-        }
-        LOGGER.debug("getXClassPrettyName: '{}' for cell '{}' and class '{}'", prettyName, cellDoc,
-            classRef);
+        return Optional.fromNullable((PropertyClass) modelAccess.getDocument(
+            classRef.get()).getXClass().get(fieldName.get()));
       } catch (DocumentNotExistsException exc) {
         LOGGER.warn("configured class '{}' on cell '{}' doesn't exist", classRef, cellDoc, exc);
       }
     } else {
       LOGGER.debug("class and field not configured for cell '{}'", cellDoc);
     }
-    return Optional.fromNullable(prettyName);
+    return Optional.absent();
   }
 
   @Override
