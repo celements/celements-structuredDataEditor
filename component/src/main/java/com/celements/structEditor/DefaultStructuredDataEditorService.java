@@ -1,6 +1,7 @@
 package com.celements.structEditor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xpn.xwiki.objects.classes.DateClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 
 @Component
@@ -86,6 +88,18 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return Optional.fromNullable(prettyName);
   }
 
+  @Override
+  public Optional<String> getDateFormatFromField(DocumentReference cellDocRef)
+      throws DocumentNotExistsException {
+    XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+    Optional<PropertyClass> field = getPropertyClass(cellDoc);
+    if (field.isPresent() && field.get().getClass().equals(DateClass.class)) {
+      DateClass dateField = (DateClass) field.get();
+      return Optional.fromNullable(dateField.getDateFormat());
+    }
+    return Optional.absent();
+  }
+
   String resolveFormPrefix(XWikiDocument cellDoc) {
     String prefix = null;
     try {
@@ -130,10 +144,29 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Override
   public Optional<String> getCellValueAsString(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
+    Object value = getCellValue(cellDocRef, onDoc);
+    if (value != null) {
+      return Optional.of(value.toString());
+    }
+    return Optional.absent();
+  }
+
+  @Override
+  public Optional<Date> getCellDateValue(DocumentReference cellDocRef, XWikiDocument onDoc)
+      throws DocumentNotExistsException {
+    Object value = getCellValue(cellDocRef, onDoc);
+    if ((value != null) && value.getClass().equals(Date.class)) {
+      return Optional.of((Date) value);
+    }
+    return Optional.absent();
+  }
+
+  private Object getCellValue(DocumentReference cellDocRef, XWikiDocument onDoc)
+      throws DocumentNotExistsException {
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
     Optional<String> cellFieldName = getCellFieldName(cellDoc);
+    Object value = null;
     if (cellFieldName.isPresent()) {
-      Object value = null;
       Optional<DocumentReference> cellClassDocRef = getCellClassRef(cellDoc);
       if (cellClassDocRef.isPresent()) {
         value = modelAccess.getProperty(onDoc, cellClassDocRef.get(), cellFieldName.get());
@@ -142,11 +175,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       } else if (cellFieldName.get().equals("content")) {
         value = Strings.emptyToNull(onDoc.getContent().trim());
       }
-      if (value != null) {
-        return Optional.of(value.toString());
-      }
     }
-    return Optional.absent();
+    return value;
   }
 
   @Override

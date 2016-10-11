@@ -2,8 +2,10 @@ package com.celements.structEditor.fields;
 
 import static com.celements.structEditor.classes.DateTimePickerEditorClass.*;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -53,10 +55,16 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     attrBuilder.addNonEmptyAttribute("type", "text");
     try {
-      Optional<String> cellValue = getStructDataEditorService().getCellValueAsString(cellDocRef,
+      Optional<Date> cellValue = getStructDataEditorService().getCellDateValue(cellDocRef,
           modelContext.getDoc());
       if (cellValue.isPresent()) {
-        attrBuilder.addNonEmptyAttribute("value", cellValue.get());
+        Optional<String> dateFormat = getStructDataEditorService().getDateFormatFromField(
+            cellDocRef);
+        String value = null;
+        if (dateFormat.isPresent()) {
+          value = new SimpleDateFormat(dateFormat.get()).format(cellValue.get());
+        }
+        attrBuilder.addNonEmptyAttribute("value", value);
       }
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       attrBuilder.addNonEmptyAttribute("type", "text");
