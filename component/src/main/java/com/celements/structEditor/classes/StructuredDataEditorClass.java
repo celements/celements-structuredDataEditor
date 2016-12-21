@@ -3,8 +3,6 @@ package com.celements.structEditor.classes;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
-import org.xwiki.model.EntityType;
-import org.xwiki.model.reference.EntityReference;
 
 import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.ClassField;
@@ -35,9 +33,13 @@ public class StructuredDataEditorClass extends AbstractClassDefinition implement
   }
 
   @Override
-  protected EntityReference getRelativeClassRef() {
-    return new EntityReference(DOC_NAME, EntityType.DOCUMENT, new EntityReference(SPACE_NAME,
-        EntityType.SPACE));
+  protected String getClassSpaceName() {
+    return SPACE_NAME;
+  }
+
+  @Override
+  protected String getClassDocName() {
+    return DOC_NAME;
   }
 
 }
