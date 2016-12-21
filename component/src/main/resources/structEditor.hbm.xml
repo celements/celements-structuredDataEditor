@@ -3,15 +3,108 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 	<class entity-name="Celements.StructEditFieldClass" table="cel_struct_edit_fields">
-		<id name="id" type="integer" unsaved-value="undefined">
-			<column name="SEF_ID" not-null="true" />
-			<generator class="assigned" />
-		</id>
-		<property name="edit_field_class_fullname" type="string">
-			<column name="SEF_EDIT_FIELD_CLASS_FN" length="128"/>
-		</property>
-		<property name="edit_field_name" type="string">
-			<column name="SEF_EDIT_FIELD_NAME" length="64" />
-		</property>
-	</class>
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="SEF_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="edit_field_class_fullname" type="string">
+      <column name="SEF_EDIT_FIELD_CLASS_FN" length="128"/>
+    </property>
+    <property name="edit_field_name" type="string">
+      <column name="SEF_EDIT_FIELD_NAME" length="64" />
+    </property>
+  </class>
+  <class entity-name="Celements.FormFieldEditorClass" table="cel_form_field_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="FFE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="form_field_action" type="string">
+      <column name="FFE_FORM_FIELD_ACTION" length="5"/>
+    </property>
+    <property name="form_field_method" type="string">
+      <column name="FFE_FORM_FIELD_METHOD" length="5"/>
+    </property>
+    <property name="form_field_send_data_encoded" type="integer">
+      <column name="FFE_FORM_FIELD_SEND_DATA_ENCODED" />
+    </property>
+    <property name="form_field_prefix" type="string">
+      <column name="FFE_FORM_FIELD_PREFIX" length="64"/>
+    </property>
+  </class>
+  <class entity-name="Celements.SelectTagEditorClass" table="cel_select_tag_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="STE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="select_tag_separator" type="string">
+      <column name="STE_SELECT_TAG_SEPARATOR" length="5"/>
+    </property>
+    <property name="select_tag_is_bootstrap" type="integer">
+      <column name="STE_SELECT_TAG_IS_BOOTSTRAP" />
+    </property>
+    <property name="select_tag_is_multiselect" type="integer">
+      <column name="STE_SELECT_TAG_IS_MULTISELECT" />
+    </property>
+  </class>
+  <class entity-name="Celements.OptionTagEditorClass" table="cel_option_tag_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="OTE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="option_tag_value" type="string">
+      <column name="OTE_OPTION_TAG_VALUE" length="64"/>
+    </property>
+    <property name="option_tag_label" type="string">
+      <column name="OTE_OPTION_TAG_LABEL" length="64"/>
+    </property>
+    <property name="option_tag_is_selected" type="integer">
+      <column name="OTE_OPTION_TAG_IS_SELECTED" />
+    </property>
+    <property name="option_tag_is_disabled" type="integer">
+      <column name="OTE_OPTION_TAG_IS_DISABLED" />
+    </property>
+  </class>
+  <class entity-name="Celements.TextAreaFieldEditorClass" table="cel_textarea_field_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="TAFE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="textarea_field_rows" type="integer">
+      <column name="TAFE_TEXTAREA_FIELD_ROWS"/>
+    </property>
+    <property name="textarea_field_cols" type="integer">
+      <column name="TAFE_TEXTAREA_FIELD_COLS" />
+    </property>
+    <property name="textarea_field_value" type="text">
+      <column name="TAFE_TEXTAREA_FIELD_VALUE" />
+    </property>
+  </class>
+  <class entity-name="Celements.HiddenTagEditorClass" table="cel_hidden_tag_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="HTE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="hidden_tag_name" type="string">
+      <column name="HTE_HIDDEN_TAG_NAME" length="64"/>
+    </property>
+    <property name="hidden_tag_value" type="string">
+      <column name="HTE_HIDDEN_TAG_VALUE" length="64" />
+    </property>
+  </class>
+  <class entity-name="Celements.DateTimePickerEditorClass" table="cel_date_time_picker_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="DTPEF_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="datetimepicker_type" type="string">
+      <column name="DTPEF_TYPE" length="64"/>
+    </property>
+    <property name="datetimepicker_format" type="string">
+      <column name="DTPEF_FORMAT" length="64" />
+    </property>
+    <property name="datetimepicker_attributes" type="string">
+      <column name="DTPEF_ATTRIBUTES" length="256"/>
+    </property>
+  </class>
 </hibernate-mapping>

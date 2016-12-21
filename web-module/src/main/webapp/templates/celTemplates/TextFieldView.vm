@@ -1,0 +1,2 @@
+InputFieldView is here 2
+    <input type="text" name="template" value="$!celldoc.getTemplate()" />

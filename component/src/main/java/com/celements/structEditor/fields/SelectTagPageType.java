@@ -1,6 +1,6 @@
 package com.celements.structEditor.fields;
 
-import static com.celements.structEditor.classes.FormFieldEditorClass.*;
+import static com.celements.structEditor.classes.SelectTagEditorClass.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,15 +10,16 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.google.common.base.Optional;
+import com.xpn.xwiki.doc.XWikiDocument;
 
-@Component(FormFieldPageType.PAGETYPE_NAME)
-public class FormFieldPageType extends AbstractStructFieldPageType {
+@Component(SelectTagPageType.PAGETYPE_NAME)
+public class SelectTagPageType extends AbstractStructFieldPageType {
 
   private static Logger LOGGER = LoggerFactory.getLogger(SelectTagPageType.class);
 
-  public static final String PAGETYPE_NAME = "FormField";
+  public static final String PAGETYPE_NAME = "SelectTag";
 
-  static final String VIEW_TEMPLATE_NAME = "FormFieldView";
+  static final String VIEW_TEMPLATE_NAME = "SelectTagView";
 
   @Override
   public String getName() {
@@ -32,20 +33,21 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
 
   @Override
   public Optional<String> defaultTagName() {
-    return Optional.of("form");
+    return Optional.of("select");
   }
 
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
-    attrBuilder.addCssClasses("celAddValidationToForm inactive");
     try {
-      if (getFieldValue(cellDocRef, FIELD_SEND_DATA_ENCODED).or(true)) {
-        attrBuilder.addNonEmptyAttribute("enctype", "multipart/form-data");
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
+          cellDoc, modelContext.getDoc()).or(""));
+      if (getFieldValue(cellDocRef, FIELD_IS_MULTISELECT).or(false)) {
+        attrBuilder.addCssClasses("celMultiselect");
       }
-      attrBuilder.addNonEmptyAttribute("action", getNotEmptyString(cellDocRef, FIELD_ACTION).or(
-          "?"));
-      attrBuilder.addNonEmptyAttribute("method", getNotEmptyString(cellDocRef, FIELD_METHOD).or(
-          "post"));
+      if (getFieldValue(cellDocRef, FIELD_IS_BOOTSTRAP).or(false)) {
+        attrBuilder.addCssClasses("celBootstrap");
+      }
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
