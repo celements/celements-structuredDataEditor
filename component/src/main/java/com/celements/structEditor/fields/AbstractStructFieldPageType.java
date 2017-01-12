@@ -1,9 +1,12 @@
 package com.celements.structEditor.fields;
 
+import java.io.StringWriter;
 import java.util.Set;
 
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.velocity.VelocityManager;
+import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
@@ -14,7 +17,6 @@ import com.celements.pagetype.category.IPageTypeCategoryRole;
 import com.celements.pagetype.java.AbstractJavaPageType;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
@@ -34,6 +36,9 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
   @Requirement
   protected ModelContext modelContext;
+
+  @Requirement
+  protected VelocityManager velocityManager;
 
   @Override
   public Set<IPageTypeCategoryRole> getCategories() {
@@ -75,24 +80,51 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
     }
   }
 
+  /**
+   * @deprecated use {@link IModelAccessFacade#getFieldValue()} directly
+   */
+  @Deprecated
   protected <T> Optional<T> getFieldValue(DocumentReference cellDocRef, ClassField<T> classField)
       throws DocumentNotExistsException {
-    return Optional.fromNullable(modelAccess.getProperty(cellDocRef, classField));
+    return modelAccess.getFieldValue(cellDocRef, classField);
   }
 
+  /**
+   * @deprecated use {@link IModelAccessFacade#getFieldValue()} directly
+   */
+  @Deprecated
   protected Optional<String> getNotEmptyString(DocumentReference cellDocRef,
       ClassField<String> classField) throws DocumentNotExistsException {
-    return Optional.fromNullable(Strings.emptyToNull(modelAccess.getProperty(cellDocRef,
-        classField)));
+    return modelAccess.getFieldValue(cellDocRef, classField);
   }
 
+  /**
+   * @deprecated use {@link IModelAccessFacade#getFieldValue()} directly
+   */
+  @Deprecated
   protected <T> Optional<T> getFieldValue(XWikiDocument cellDoc, ClassField<T> classField) {
-    return Optional.fromNullable(modelAccess.getProperty(cellDoc, classField));
+    return modelAccess.getFieldValue(cellDoc, classField);
   }
 
+  /**
+   * @deprecated use {@link IModelAccessFacade#getFieldValue()} directly
+   */
+  @Deprecated
   protected Optional<String> getNotEmptyString(XWikiDocument cellDoc,
       ClassField<String> classField) {
-    return Optional.fromNullable(Strings.emptyToNull(modelAccess.getProperty(cellDoc, classField)));
+    return modelAccess.getFieldValue(cellDoc, classField);
+  }
+
+  protected Optional<String> getVelocityFieldValue(XWikiDocument cellDoc,
+      ClassField<String> classField) throws XWikiVelocityException {
+    Optional<String> text = modelAccess.getFieldValue(cellDoc, classField);
+    if (text.isPresent()) {
+      StringWriter writer = new StringWriter();
+      velocityManager.getVelocityEngine().evaluate(velocityManager.getVelocityContext(), writer,
+          modelUtils.serializeRef(cellDoc.getDocumentReference()), text.get());
+      text = Optional.of(writer.toString());
+    }
+    return text;
   }
 
   protected StructuredDataEditorService getStructDataEditorService() {
