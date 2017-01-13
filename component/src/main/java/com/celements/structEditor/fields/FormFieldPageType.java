@@ -6,15 +6,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.google.common.base.Optional;
+import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(FormFieldPageType.PAGETYPE_NAME)
 public class FormFieldPageType extends AbstractStructFieldPageType {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(SelectTagPageType.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(FormFieldPageType.class);
 
   public static final String PAGETYPE_NAME = "FormField";
 
@@ -39,15 +41,16 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     attrBuilder.addCssClasses("celAddValidationToForm inactive");
     try {
-      if (getFieldValue(cellDocRef, FIELD_SEND_DATA_ENCODED).or(true)) {
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      if (modelAccess.getFieldValue(cellDoc, FIELD_SEND_DATA_ENCODED).or(true)) {
         attrBuilder.addNonEmptyAttribute("enctype", "multipart/form-data");
       }
-      attrBuilder.addNonEmptyAttribute("action", getNotEmptyString(cellDocRef, FIELD_ACTION).or(
+      attrBuilder.addNonEmptyAttribute("action", getVelocityFieldValue(cellDoc, FIELD_ACTION).or(
           "?"));
-      attrBuilder.addNonEmptyAttribute("method", getNotEmptyString(cellDocRef, FIELD_METHOD).or(
-          "post"));
-    } catch (DocumentNotExistsException exc) {
-      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      attrBuilder.addNonEmptyAttribute("method", modelAccess.getFieldValue(cellDoc,
+          FIELD_METHOD).or("post"));
+    } catch (DocumentNotExistsException | XWikiVelocityException exc) {
+      LOGGER.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }
   }
 
