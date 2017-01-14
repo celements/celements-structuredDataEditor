@@ -20,7 +20,7 @@
       <generator class="assigned" />
     </id>
     <property name="form_field_action" type="string">
-      <column name="FFE_FORM_FIELD_ACTION" length="5"/>
+      <column name="FFE_FORM_FIELD_ACTION" length="256"/>
     </property>
     <property name="form_field_method" type="string">
       <column name="FFE_FORM_FIELD_METHOD" length="5"/>
