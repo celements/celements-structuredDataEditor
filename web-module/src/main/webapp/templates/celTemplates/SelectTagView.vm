@@ -1,2 +1,19 @@
-<option value="erstes">Erstes</option>
-<option value="zweites">zweites</option>
+## tries to render option-tags from XWiki ListClass
+## NOTE we cannot simply use XWiki's displayEdit here because it also renders the select-tag around it
+#set($cellDocRef = $celldoc.getDocumentReference())
+#set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
+#if(!$propClass.isPresent())
+  <!-- WARN SelectTagView: no edit field defined on cell: $!celldoc -->
+#elseif(!$propClass.get().getType().contains('ListClass'))
+  ## TODO: support for Groups/Users/LevelsClass
+  <!-- WARN SelectTagView: doesn't support edit field type: $!propClass.get().getType() -->
+#elseif($propClass.get().getProperty('displayType').getValue() != 'select')
+  <!-- WARN SelectTagView: only supports 'select' display type -->
+#elseif($propClass.get().getProperty('multiSelect').getValue() != 0)
+  <!-- WARN SelectTagView:  doesn't support multiSelect -->
+#else
+  ## TODO: support for DBLists with different store and display value
+  #foreach($value in $propClass.get().getListValues())
+  <option value="$!value">$!value</option>
+  #end
+#end
