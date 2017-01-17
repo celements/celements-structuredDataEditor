@@ -10,9 +10,10 @@
 #elseif($propClass.get().getProperty('displayType').getValue() != 'select')
   <!-- WARN SelectTagView: only supports 'select' display type -->
 #elseif($propClass.get().getProperty('multiSelect').getValue() != 0)
+  ## TODO: CELDEV-417 SelectTag from ListClass: multiSelect
   <!-- WARN SelectTagView:  doesn't support multiSelect -->
 #else
-  ## TODO: support for DBLists with different store and display value
+  ## TODO: CELDEV-418 SelectTag from ListClass: DBList store/display value
   #set($setValue = $services.structuredDataEditor.getCellValueAsString($cellDocRef))
   #foreach($value in $propClass.get().getListValues())
   <option value="$!value" #if($value.equals($setValue)) selected #end>$!value</option>
