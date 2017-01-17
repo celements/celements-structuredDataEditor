@@ -92,7 +92,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   public Optional<String> getDateFormatFromField(DocumentReference cellDocRef)
       throws DocumentNotExistsException {
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-    Optional<PropertyClass> field = getPropertyClass(cellDoc);
+    Optional<PropertyClass> field = getCellPropertyClass(cellDoc);
     if (field.isPresent() && field.get().getClass().equals(DateClass.class)) {
       DateClass dateField = (DateClass) field.get();
       return Optional.fromNullable(dateField.getDateFormat());
@@ -117,7 +117,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   Optional<String> getXClassPrettyName(XWikiDocument cellDoc) {
     String prettyName = null;
-    Optional<PropertyClass> property = getPropertyClass(cellDoc);
+    Optional<PropertyClass> property = getCellPropertyClass(cellDoc);
     if (property.isPresent()) {
       prettyName = Strings.emptyToNull(property.get().getPrettyName());
     }
@@ -125,7 +125,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return Optional.fromNullable(prettyName);
   }
 
-  private Optional<PropertyClass> getPropertyClass(XWikiDocument cellDoc) {
+  @Override
+  public Optional<PropertyClass> getCellPropertyClass(XWikiDocument cellDoc) {
     Optional<DocumentReference> classRef = getCellClassRef(cellDoc);
     Optional<String> fieldName = getCellFieldName(cellDoc);
     if (classRef.isPresent() && fieldName.isPresent()) {

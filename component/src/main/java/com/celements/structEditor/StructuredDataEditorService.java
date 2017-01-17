@@ -11,6 +11,7 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.objects.classes.PropertyClass;
 
 @ComponentRole
 public interface StructuredDataEditorService {
@@ -22,6 +23,9 @@ public interface StructuredDataEditorService {
   @NotNull
   public Optional<String> getPrettyName(@NotNull DocumentReference cellDocRef)
       throws DocumentNotExistsException;
+
+  @NotNull
+  public Optional<PropertyClass> getCellPropertyClass(@NotNull XWikiDocument cellDoc);
 
   @NotNull
   public Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,

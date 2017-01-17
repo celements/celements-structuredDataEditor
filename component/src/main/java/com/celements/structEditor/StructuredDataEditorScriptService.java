@@ -15,8 +15,10 @@ import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.objects.classes.PropertyClass;
 
 @Component("structuredDataEditor")
 public class StructuredDataEditorScriptService implements ScriptService {
@@ -30,7 +32,15 @@ public class StructuredDataEditorScriptService implements ScriptService {
   IModelAccessFacade modelAccess;
 
   @Requirement
-  ModelContext context;
+  static ModelContext context;
+
+  private static final Function<PropertyClass, com.xpn.xwiki.api.PropertyClass> PROPCLASS_TO_API = new Function<PropertyClass, com.xpn.xwiki.api.PropertyClass>() {
+
+    @Override
+    public com.xpn.xwiki.api.PropertyClass apply(PropertyClass propClass) {
+      return new com.xpn.xwiki.api.PropertyClass(propClass, context.getXWikiContext());
+    }
+  };
 
   public String getPrettyName(DocumentReference cellDocRef) {
     String prettyName = "";
@@ -104,4 +114,18 @@ public class StructuredDataEditorScriptService implements ScriptService {
     }
     return retVal;
   }
+
+  public Optional<com.xpn.xwiki.api.PropertyClass> getCellPropertyClass(
+      DocumentReference cellDocRef) {
+    Optional<PropertyClass> propClass;
+    try {
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      propClass = service.getCellPropertyClass(cellDoc);
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      propClass = Optional.absent();
+    }
+    return propClass.transform(PROPCLASS_TO_API);
+  }
+
 }
