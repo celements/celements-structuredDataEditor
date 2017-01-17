@@ -1,14 +1,15 @@
 ## tries to render option-tags from XWiki ListClass
 ## NOTE we cannot simply use XWiki's displayEdit here because it also renders the select-tag around it
 #set($cellDocRef = $celldoc.getDocumentReference())
-#set($allowedClasses = ['ListClass','StaticListClass','DBListClass','DBTreeListClass','UsersClass','GroupsClass','LevelsClass'])
+#set($supportedClasses = ['ListClass','StaticListClass','DBListClass','DBTreeListClass','UsersClass','GroupsClass','LevelsClass'])
+#set($supportedDisplayTypes = ['select'])
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
 #if(!$propClass.isPresent())
   <!-- WARN SelectTagView: no edit field defined on cell: $!celldoc -->
-#elseif(!$allowedClasses.contains($propClass.get().getType()))
-  <!-- WARN SelectTagView: doesn't support edit field type: $!propClass.get().getType() -->
-#elseif($propClass.get().getProperty('displayType').getValue() != 'select')
-  <!-- WARN SelectTagView: only supports 'select' display type -->
+#elseif(!$supportedClasses.contains($propClass.get().getType()))
+  <!-- WARN SelectTagView: doesn't support edit field class: $!propClass.get().getType() -->
+#elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
+  <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
 #elseif($propClass.get().getProperty('multiSelect').getValue() != 0)
   ## TODO: CELDEV-417 SelectTag from ListClass: multiSelect
   <!-- WARN SelectTagView:  doesn't support multiSelect -->
