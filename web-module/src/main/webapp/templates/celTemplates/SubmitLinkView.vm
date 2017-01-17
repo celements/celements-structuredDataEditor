@@ -1,1 +1,1 @@
-$!msg.get('cel_save')
+$!adminMsg.cel_save
