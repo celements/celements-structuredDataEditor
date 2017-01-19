@@ -1,3 +1,4 @@
+<!-- StructuredDataEditorView -->
 ##TODO get navigation config from pageType document
 
 #if("$!celldoc" != '')

@@ -1,3 +1,4 @@
+<!-- OptionTagView -->
 #set($cellDocRef = $celldoc.getDocumentReference())
 #set($dictionaryKey = $services.structuredDataEditor.getPrettyName($cellDocRef))
 $msg.get($dictionaryKey)

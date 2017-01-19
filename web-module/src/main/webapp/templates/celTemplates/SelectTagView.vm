@@ -1,3 +1,4 @@
+<!-- SelectTagView -->
 ## tries to render option-tags from XWiki ListClass
 ## NOTE we cannot simply use XWiki's displayEdit here because it also renders the select-tag around it
 #set($cellDocRef = $celldoc.getDocumentReference())

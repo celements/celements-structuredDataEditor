@@ -1,3 +1,4 @@
+<!-- InputFieldView -->
 #set($cellDocRef = $celldoc.getDocumentReference())
 #set($prettyName = $services.structuredDataEditor.getPrettyName($cellDocRef))
 #set($attrMap = $services.structuredDataEditor.getTextAttributes($cellDocRef))
