@@ -4,9 +4,9 @@
 #set($attrMap = $services.structuredDataEditor.getTextAreaAttributes($cellDocRef))
 <label class="structuredDataEditorLabel">$!prettyName</label>
 <textarea##
-#foreach($attrEntry in $attrMap.entrySet())
-  ${attrEntry.key}="$!{attrEntry.value}"
-#end
->
-$!services.structuredDataEditor.getCellValueAsString($cellDocRef)
+#foreach($attrEntry in $attrMap.entrySet())##
+  ${attrEntry.key}="$!{attrEntry.value}"##
+#end##
+>##
+$!services.structuredDataEditor.getCellValueAsString($cellDocRef)##
 </textarea>
