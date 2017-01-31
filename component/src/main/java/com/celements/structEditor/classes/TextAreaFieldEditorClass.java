@@ -19,8 +19,10 @@ public class TextAreaFieldEditorClass extends AbstractClassDefinition implements
 
   public static final ClassField<Integer> FIELD_ROWS = new IntField.Builder(CLASS_DEF_HINT,
       "textarea_field_rows").prettyName("Rows").build();
+
   public static final ClassField<Integer> FIELD_COLS = new IntField.Builder(CLASS_DEF_HINT,
       "textarea_field_cols").prettyName("Columns").build();
+
   public static final ClassField<String> FIELD_VALUE = new LargeStringField.Builder(CLASS_DEF_HINT,
       "textarea_field_value").rows(7).prettyName("Executional Code").build();
 

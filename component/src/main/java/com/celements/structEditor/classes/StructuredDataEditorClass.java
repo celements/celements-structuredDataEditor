@@ -21,6 +21,7 @@ public class StructuredDataEditorClass extends AbstractClassDefinition implement
 
   public static final ClassField<DocumentReference> FIELD_EDIT_FIELD_CLASS = new DocumentReferenceField.Builder(
       CLASS_DEF_HINT, "edit_field_class_fullname").prettyName("Class Reference").build();
+
   public static final ClassField<String> FIELD_EDIT_FIELD_NAME = new StringField.Builder(
       CLASS_DEF_HINT, "edit_field_name").prettyName("Property Name").build();
 

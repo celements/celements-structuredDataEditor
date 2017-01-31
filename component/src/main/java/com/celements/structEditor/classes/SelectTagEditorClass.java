@@ -19,8 +19,10 @@ public class SelectTagEditorClass extends AbstractClassDefinition implements Str
 
   public static final ClassField<String> FIELD_SEPARATOR = new StringField.Builder(CLASS_DEF_HINT,
       "select_tag_separator").prettyName("Separator").build();
+
   public static final ClassField<Boolean> FIELD_IS_BOOTSTRAP = new BooleanField.Builder(
       CLASS_DEF_HINT, "select_tag_is_bootstrap").prettyName("Is Bootstrap").build();
+
   public static final ClassField<Boolean> FIELD_IS_MULTISELECT = new BooleanField.Builder(
       CLASS_DEF_HINT, "select_tag_is_multiselect").prettyName("Is Multiselect").build();
 
