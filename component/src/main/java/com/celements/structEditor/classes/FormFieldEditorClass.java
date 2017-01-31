@@ -21,7 +21,7 @@ public class FormFieldEditorClass extends AbstractClassDefinition implements Str
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
 
   public enum Method {
-    GET, POST;
+    POST, GET;
   }
 
   public static final ClassField<String> FIELD_ACTION = new StringField.Builder(CLASS_DEF_HINT,
