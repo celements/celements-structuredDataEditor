@@ -12,6 +12,7 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
@@ -34,16 +35,19 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private static Logger LOGGER = LoggerFactory.getLogger(DefaultStructuredDataEditorService.class);
 
   @Requirement
-  IPageTypeResolverRole ptResolver;
+  private IPageTypeResolverRole ptResolver;
 
   @Requirement
-  IWebUtilsService webUtils;
+  private IWebUtilsService webUtils;
 
   @Requirement
-  ModelUtils modelUtils;
+  private ModelUtils modelUtils;
 
   @Requirement
-  IModelAccessFacade modelAccess;
+  private IModelAccessFacade modelAccess;
+
+  @Requirement
+  private ModelContext context;
 
   @Override
   public Optional<String> getAttributeName(XWikiDocument cellDoc, XWikiDocument onDoc) {
@@ -58,8 +62,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRefLocal(classRef.get()));
         if (onDoc != null) {
-          BaseObject obj = modelAccess.getXObject(onDoc, classRef.get());
-          nameParts.add(Integer.toString(obj != null ? obj.getNumber() : -1));
+          int objNb = getObjNbFromRequest(onDoc, classRef.get()).or(getFirstObjNb(onDoc,
+              classRef.get())).or(-1);
+          nameParts.add(Integer.toString(objNb));
         }
       }
       nameParts.add(getCellFieldName(cellDoc).get());
@@ -67,6 +72,39 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     String name = Joiner.on('_').join(nameParts);
     LOGGER.info("getAttributeName: '{}' for cell '{}', onDoc '{}'", name, cellDoc, onDoc);
     return Optional.fromNullable(Strings.emptyToNull(name));
+  }
+
+  /**
+   * tries to get the first object number from doc
+   */
+  private Optional<Integer> getFirstObjNb(XWikiDocument onDoc, DocumentReference classRef) {
+    Optional<Integer> ret = Optional.absent();
+    BaseObject obj = modelAccess.getXObject(onDoc, classRef);
+    if (obj != null) {
+      ret = Optional.of(obj.getNumber());
+    }
+    return ret;
+  }
+
+  /**
+   * tries to parse an existing object number from the request
+   */
+  private Optional<Integer> getObjNbFromRequest(XWikiDocument onDoc, DocumentReference classRef) {
+    Optional<Integer> ret = Optional.absent();
+    if (context.getRequest().isPresent()) {
+      try {
+        int objNb = Integer.parseInt(context.getRequest().get().get("objNb"));
+        if (modelAccess.getXObject(onDoc, classRef, objNb).isPresent()) {
+          ret = Optional.of(objNb);
+        } else {
+          LOGGER.debug("getObjNbFromRequest - objNb {} of class '{}' not on doc '{}'", objNb);
+        }
+      } catch (NumberFormatException nfe) {
+        LOGGER.trace("unable to parse objNb from request", nfe);
+      }
+    }
+    LOGGER.info("getObjNbFromRequest - for doc '{}' and class '{}': {}", onDoc, classRef, ret);
+    return ret;
   }
 
   @Override
