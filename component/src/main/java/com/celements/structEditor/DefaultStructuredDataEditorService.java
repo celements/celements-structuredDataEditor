@@ -56,15 +56,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private Optional<String> getAttributeNameInternal(XWikiDocument cellDoc, XWikiDocument onDoc) {
     List<String> nameParts = new ArrayList<>();
-    Optional<DocumentReference> classRef = getCellClassRef(cellDoc);
-    Optional<String> fieldName = getCellFieldName(cellDoc);
-    if (fieldName.isPresent()) {
-      if (classRef.isPresent()) {
-        nameParts.add(modelUtils.serializeRefLocal(classRef.get()));
+    if (getCellFieldName(cellDoc).isPresent()) {
+      if (getCellClassRef(cellDoc).isPresent()) {
+        nameParts.add(modelUtils.serializeRefLocal(getCellClassRef(cellDoc).get()));
         if (onDoc != null) {
-          int objNb = getObjNbFromRequest(onDoc, classRef.get()).or(getFirstObjNb(onDoc,
-              classRef.get())).or(-1);
-          nameParts.add(Integer.toString(objNb));
+          Optional<BaseObject> obj = getCellXObject(cellDoc, onDoc);
+          nameParts.add(Integer.toString(obj.isPresent() ? obj.get().getNumber() : -1));
         }
       }
       nameParts.add(getCellFieldName(cellDoc).get());
@@ -72,39 +69,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     String name = Joiner.on('_').join(nameParts);
     LOGGER.info("getAttributeName: '{}' for cell '{}', onDoc '{}'", name, cellDoc, onDoc);
     return Optional.fromNullable(Strings.emptyToNull(name));
-  }
-
-  /**
-   * tries to get the first object number from doc
-   */
-  private Optional<Integer> getFirstObjNb(XWikiDocument onDoc, DocumentReference classRef) {
-    Optional<Integer> ret = Optional.absent();
-    BaseObject obj = modelAccess.getXObject(onDoc, classRef);
-    if (obj != null) {
-      ret = Optional.of(obj.getNumber());
-    }
-    return ret;
-  }
-
-  /**
-   * tries to parse an existing object number from the request
-   */
-  private Optional<Integer> getObjNbFromRequest(XWikiDocument onDoc, DocumentReference classRef) {
-    Optional<Integer> ret = Optional.absent();
-    if (context.getRequest().isPresent()) {
-      try {
-        int objNb = Integer.parseInt(context.getRequest().get().get("objNb"));
-        if (modelAccess.getXObject(onDoc, classRef, objNb).isPresent()) {
-          ret = Optional.of(objNb);
-        } else {
-          LOGGER.debug("getObjNbFromRequest - objNb {} of class '{}' not on doc '{}'", objNb);
-        }
-      } catch (NumberFormatException nfe) {
-        LOGGER.trace("unable to parse objNb from request", nfe);
-      }
-    }
-    LOGGER.info("getObjNbFromRequest - for doc '{}' and class '{}': {}", onDoc, classRef, ret);
-    return ret;
   }
 
   @Override
@@ -202,15 +166,15 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private Object getCellValue(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-    Optional<String> cellFieldName = getCellFieldName(cellDoc);
+    Optional<String> fieldName = getCellFieldName(cellDoc);
     Object value = null;
-    if (cellFieldName.isPresent()) {
-      Optional<DocumentReference> cellClassDocRef = getCellClassRef(cellDoc);
-      if (cellClassDocRef.isPresent()) {
-        value = modelAccess.getProperty(onDoc, cellClassDocRef.get(), cellFieldName.get());
-      } else if (cellFieldName.get().equals("title")) {
+    if (fieldName.isPresent()) {
+      Optional<BaseObject> obj = getCellXObject(cellDoc, onDoc);
+      if (obj.isPresent()) {
+        value = modelAccess.getProperty(obj.get(), fieldName.get());
+      } else if (fieldName.get().equals("title")) {
         value = Strings.emptyToNull(onDoc.getTitle().trim());
-      } else if (cellFieldName.get().equals("content")) {
+      } else if (fieldName.get().equals("content")) {
         value = Strings.emptyToNull(onDoc.getContent().trim());
       }
     }
@@ -244,6 +208,25 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       }
     }
     return Optional.absent();
+  }
+
+  Optional<BaseObject> getCellXObject(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    Optional<BaseObject> ret = Optional.absent();
+    Optional<DocumentReference> classRef = getCellClassRef(cellDoc);
+    if (classRef.isPresent()) {
+      if (context.getRequest().isPresent()) {
+        try {
+          int objNb = Integer.parseInt(context.getRequest().get().get("objNb"));
+          ret = modelAccess.getXObject(onDoc, classRef.get(), objNb);
+        } catch (NumberFormatException nfe) {
+          LOGGER.trace("unable to parse objNb from request: {}", nfe.getMessage());
+        }
+      }
+      ret = ret.or(Optional.fromNullable(modelAccess.getXObject(onDoc, classRef.get())));
+    }
+    LOGGER.info("getCellXObject - for cellDoc '{}', onDoc '{}', class '{}': {}", cellDoc, onDoc,
+        classRef, ret);
+    return ret;
   }
 
   private Optional<DocumentReference> getCellClassRef(XWikiDocument cellDoc) {
