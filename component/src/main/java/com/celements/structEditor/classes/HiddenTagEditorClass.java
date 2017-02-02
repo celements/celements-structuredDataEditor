@@ -18,6 +18,7 @@ public class HiddenTagEditorClass extends AbstractClassDefinition implements Str
 
   public static final ClassField<String> FIELD_NAME = new StringField.Builder(CLASS_DEF_HINT,
       "hidden_tag_name").prettyName("name").build();
+
   public static final ClassField<String> FIELD_VALUE = new StringField.Builder(CLASS_DEF_HINT,
       "hidden_tag_value").prettyName("value").build();
 

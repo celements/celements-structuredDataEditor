@@ -27,8 +27,10 @@ public class DateTimePickerEditorClass extends AbstractClassDefinition implement
   public static final ClassField<List<Type>> FIELD_TYPE = new EnumListField.Builder<>(
       CLASS_DEF_HINT, "datetimepicker_type", Type.class).prettyName("type").multiSelect(
           false).build();
+
   public static final ClassField<String> FIELD_FORMAT = new StringField.Builder(CLASS_DEF_HINT,
       "datetimepicker_format").prettyName("format").build();
+
   public static final ClassField<String> FIELD_ATTRIBUTES = new StringField.Builder(CLASS_DEF_HINT,
       "datetimepicker_attributes").prettyName("Picker Attributes").build();
 

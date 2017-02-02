@@ -2,6 +2,8 @@ package com.celements.structEditor.fields;
 
 import static com.celements.structEditor.classes.FormFieldEditorClass.*;
 
+import java.util.Collections;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
@@ -10,7 +12,9 @@ import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.structEditor.classes.FormFieldEditorClass.Method;
 import com.google.common.base.Optional;
+import com.google.common.collect.Iterables;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(FormFieldPageType.PAGETYPE_NAME)
@@ -47,8 +51,8 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
       }
       attrBuilder.addNonEmptyAttribute("action", getVelocityFieldValue(cellDoc, FIELD_ACTION).or(
           "?"));
-      attrBuilder.addNonEmptyAttribute("method", modelAccess.getFieldValue(cellDoc,
-          FIELD_METHOD).or("post"));
+      attrBuilder.addNonEmptyAttribute("method", Iterables.getFirst(modelAccess.getFieldValue(
+          cellDoc, FIELD_METHOD).or(Collections.<Method>emptyList()), Method.POST).name());
     } catch (DocumentNotExistsException | XWikiVelocityException exc) {
       LOGGER.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }
