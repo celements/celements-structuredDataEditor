@@ -12,6 +12,7 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
@@ -34,16 +35,19 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private static Logger LOGGER = LoggerFactory.getLogger(DefaultStructuredDataEditorService.class);
 
   @Requirement
-  IPageTypeResolverRole ptResolver;
+  private IPageTypeResolverRole ptResolver;
 
   @Requirement
-  IWebUtilsService webUtils;
+  private IWebUtilsService webUtils;
 
   @Requirement
-  ModelUtils modelUtils;
+  private ModelUtils modelUtils;
 
   @Requirement
-  IModelAccessFacade modelAccess;
+  private IModelAccessFacade modelAccess;
+
+  @Requirement
+  private ModelContext context;
 
   @Override
   public Optional<String> getAttributeName(XWikiDocument cellDoc, XWikiDocument onDoc) {
@@ -58,11 +62,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRefLocal(classRef.get()));
         if (onDoc != null) {
-          BaseObject obj = modelAccess.getXObject(onDoc, classRef.get());
-          nameParts.add(Integer.toString(obj != null ? obj.getNumber() : -1));
+          Optional<BaseObject> obj = getCellXObject(cellDoc, onDoc);
+          nameParts.add(Integer.toString(obj.isPresent() ? obj.get().getNumber() : -1));
         }
       }
-      nameParts.add(getCellFieldName(cellDoc).get());
+      nameParts.add(fieldName.get());
     }
     String name = Joiner.on('_').join(nameParts);
     LOGGER.info("getAttributeName: '{}' for cell '{}', onDoc '{}'", name, cellDoc, onDoc);
@@ -164,15 +168,15 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private Object getCellValue(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-    Optional<String> cellFieldName = getCellFieldName(cellDoc);
+    Optional<String> fieldName = getCellFieldName(cellDoc);
     Object value = null;
-    if (cellFieldName.isPresent()) {
-      Optional<DocumentReference> cellClassDocRef = getCellClassRef(cellDoc);
-      if (cellClassDocRef.isPresent()) {
-        value = modelAccess.getProperty(onDoc, cellClassDocRef.get(), cellFieldName.get());
-      } else if (cellFieldName.get().equals("title")) {
+    if (fieldName.isPresent()) {
+      Optional<BaseObject> obj = getCellXObject(cellDoc, onDoc);
+      if (obj.isPresent()) {
+        value = modelAccess.getProperty(obj.get(), fieldName.get());
+      } else if (fieldName.get().equals("title")) {
         value = Strings.emptyToNull(onDoc.getTitle().trim());
-      } else if (cellFieldName.get().equals("content")) {
+      } else if (fieldName.get().equals("content")) {
         value = Strings.emptyToNull(onDoc.getContent().trim());
       }
     }
@@ -206,6 +210,25 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       }
     }
     return Optional.absent();
+  }
+
+  Optional<BaseObject> getCellXObject(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    Optional<BaseObject> ret = Optional.absent();
+    Optional<DocumentReference> classRef = getCellClassRef(cellDoc);
+    if (classRef.isPresent()) {
+      if (context.getRequest().isPresent()) {
+        try {
+          int objNb = Integer.parseInt(context.getRequest().get().get("objNb"));
+          ret = modelAccess.getXObject(onDoc, classRef.get(), objNb);
+        } catch (NumberFormatException nfe) {
+          LOGGER.trace("unable to parse objNb from request: {}", nfe.getMessage());
+        }
+      }
+      ret = ret.or(Optional.fromNullable(modelAccess.getXObject(onDoc, classRef.get())));
+    }
+    LOGGER.info("getCellXObject - for cellDoc '{}', onDoc '{}', class '{}': {}", cellDoc, onDoc,
+        classRef, ret);
+    return ret;
   }
 
   private Optional<DocumentReference> getCellClassRef(XWikiDocument cellDoc) {
