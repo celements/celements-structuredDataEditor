@@ -56,15 +56,17 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private Optional<String> getAttributeNameInternal(XWikiDocument cellDoc, XWikiDocument onDoc) {
     List<String> nameParts = new ArrayList<>();
-    if (getCellFieldName(cellDoc).isPresent()) {
-      if (getCellClassRef(cellDoc).isPresent()) {
-        nameParts.add(modelUtils.serializeRefLocal(getCellClassRef(cellDoc).get()));
+    Optional<DocumentReference> classRef = getCellClassRef(cellDoc);
+    Optional<String> fieldName = getCellFieldName(cellDoc);
+    if (fieldName.isPresent()) {
+      if (classRef.isPresent()) {
+        nameParts.add(modelUtils.serializeRefLocal(classRef.get()));
         if (onDoc != null) {
           Optional<BaseObject> obj = getCellXObject(cellDoc, onDoc);
           nameParts.add(Integer.toString(obj.isPresent() ? obj.get().getNumber() : -1));
         }
       }
-      nameParts.add(getCellFieldName(cellDoc).get());
+      nameParts.add(fieldName.get());
     }
     String name = Joiner.on('_').join(nameParts);
     LOGGER.info("getAttributeName: '{}' for cell '{}', onDoc '{}'", name, cellDoc, onDoc);
