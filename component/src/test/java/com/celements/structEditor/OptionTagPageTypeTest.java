@@ -57,10 +57,11 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
   @Test
   public void test_collectAttributes_DocumentNotExistsException() throws Exception {
     DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
-    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
-        OptionTagEditorClass.FIELD_DISABLED))).andThrow(new DocumentNotExistsException(docRef));
     expect(strucDataEdSrvMock.getSelectCellDocRef(docRef)).andReturn(
         Optional.<DocumentReference>absent());
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_DISABLED))).andThrow(new DocumentNotExistsException(docRef));
+
     replayDefault();
     optionTagPageType.collectAttributes(attrBuilder, docRef);
     verifyDefault();
@@ -69,15 +70,17 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
 
   @Test
   public void test_collectAttributes_none() throws Exception {
+
     DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+    expect(strucDataEdSrvMock.getSelectCellDocRef(docRef)).andReturn(
+        Optional.<DocumentReference>absent());
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
         OptionTagEditorClass.FIELD_DISABLED))).andReturn(Optional.of(false));
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
         OptionTagEditorClass.FIELD_VALUE))).andReturn(Optional.<String>absent());
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
         OptionTagEditorClass.FIELD_LABEL))).andReturn(Optional.<String>absent());
-    expect(strucDataEdSrvMock.getSelectCellDocRef(docRef)).andReturn(
-        Optional.<DocumentReference>absent());
+
     replayDefault();
     optionTagPageType.collectAttributes(attrBuilder, docRef);
     verifyDefault();
@@ -86,7 +89,7 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
   }
 
   @Test
-  public void test_collectAttributes_field_selected_true() throws Exception {
+  public void test_collectAttributes_notCellValue_field_selected_true() throws Exception {
     DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
     DocumentReference docRef2 = new DocumentReference("wikiName", "Celements", "gfrt");
     expect(strucDataEdSrvMock.getSelectCellDocRef(eq(docRef))).andReturn(
@@ -94,7 +97,7 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
         OptionTagEditorClass.FIELD_VALUE))).andReturn(Optional.<String>absent());
     expect(strucDataEdSrvMock.getCellValueAsString(eq(docRef2), eq(
-        getContext()).getDoc())).andReturn(Optional.<String>absent());
+        getContext().getDoc()))).andReturn(Optional.<String>absent());
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
         OptionTagEditorClass.FIELD_SELECTED))).andReturn(Optional.of(true));
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
@@ -108,7 +111,75 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
     verifyDefault();
     List<CellAttribute> cellAttrList = attrBuilder.build();
     assertEquals(1, cellAttrList.size());
-    assertEquals("selected", cellAttrList.get(0).getValue().get());
+    assertEquals("selected", cellAttrList.get(0).getName());
+  }
+
+  @Test
+  public void test_collectAttributes_cellValue_field_selected_true() throws Exception {
+
+    DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+    DocumentReference docRef2 = new DocumentReference("wikiName", "Celements", "gfrt");
+
+    expect(strucDataEdSrvMock.getSelectCellDocRef(eq(docRef))).andReturn(
+        Optional.<DocumentReference>of(docRef2));
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_VALUE))).andReturn(Optional.<String>of("Test"));
+    expect(strucDataEdSrvMock.getCellValueAsString(eq(docRef2), eq(
+        getContext().getDoc()))).andReturn(Optional.<String>of("Test"));
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_DISABLED))).andReturn(Optional.of(false));
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_VALUE))).andReturn(Optional.<String>absent());
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_LABEL))).andReturn(Optional.<String>absent());
+    replayDefault();
+    optionTagPageType.collectAttributes(attrBuilder, docRef);
+    verifyDefault();
+    List<CellAttribute> cellAttrList = attrBuilder.build();
+    assertEquals(1, cellAttrList.size());
+    assertEquals("selected", cellAttrList.get(0).getName());
+  }
+
+  @Test
+  public void test_collectAttributes_field_disabled() throws Exception {
+
+    DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+
+    expect(strucDataEdSrvMock.getSelectCellDocRef(docRef)).andReturn(
+        Optional.<DocumentReference>absent());
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_DISABLED))).andReturn(Optional.of(true));
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_VALUE))).andReturn(Optional.<String>absent());
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_LABEL))).andReturn(Optional.<String>absent());
+
+    replayDefault();
+    optionTagPageType.collectAttributes(attrBuilder, docRef);
+    verifyDefault();
+    List<CellAttribute> cellAttrList = attrBuilder.build();
+    assertEquals(1, cellAttrList.size());
+    assertEquals("disabled", cellAttrList.get(0).getName());
+  }
+
+  @Test
+  public void test_collectAttributes_addNonEmptyAttribute_value_label() throws Exception {
+    DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+    expect(strucDataEdSrvMock.getSelectCellDocRef(docRef)).andReturn(
+        Optional.<DocumentReference>absent());
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_DISABLED))).andReturn(Optional.of(false));
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_VALUE))).andReturn(Optional.<String>of("value"));
+    expect(modelAccessMock.getFieldValue(eq(docRef), eq(
+        OptionTagEditorClass.FIELD_LABEL))).andReturn(Optional.<String>of("label"));
+    replayDefault();
+    optionTagPageType.collectAttributes(attrBuilder, docRef);
+    verifyDefault();
+    List<CellAttribute> cellAttrList = attrBuilder.build();
+    assertEquals(2, cellAttrList.size());
+    assertEquals("value", cellAttrList.get(0).getName());
+    assertEquals("label", cellAttrList.get(1).getName());
   }
 
 }
