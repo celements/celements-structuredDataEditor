@@ -1,4 +1,4 @@
-package com.celements.structEditor;
+package com.celements.structEditor.fields;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 import static org.easymock.EasyMock.*;
@@ -16,8 +16,8 @@ import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.pagetype.java.IJavaPageTypeRole;
+import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.structEditor.classes.SelectTagEditorClass;
-import com.celements.structEditor.fields.SelectTagPageType;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
@@ -31,7 +31,6 @@ public class SelectTagPageTypeTest extends AbstractComponentTest {
 
   @Before
   public void prepare_Test() throws Exception {
-
     modelAccessMock = registerComponentMock(IModelAccessFacade.class);
     strucDataEdSrvMock = registerComponentMock(StructuredDataEditorService.class);
     selectTagPageType = (SelectTagPageType) Utils.getComponent(IJavaPageTypeRole.class,
@@ -41,13 +40,13 @@ public class SelectTagPageTypeTest extends AbstractComponentTest {
 
   @Test
   public void testGetName() {
-    String expectedStr = "SelectTag";
+    String expectedStr = SelectTagPageType.PAGETYPE_NAME;
     assertEquals(expectedStr, selectTagPageType.getName());
   }
 
   @Test
   public void test_GetViewTemplateName() {
-    String expectedStr = "SelectTagView";
+    String expectedStr = SelectTagPageType.VIEW_TEMPLATE_NAME;
     assertEquals(expectedStr, selectTagPageType.getViewTemplateName());
   }
 
@@ -61,6 +60,7 @@ public class SelectTagPageTypeTest extends AbstractComponentTest {
     DocumentReference cellDocRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andThrow(new DocumentNotExistsException(
         cellDocRef));
+
     replayDefault();
     selectTagPageType.collectAttributes(attrBuilder, cellDocRef);
     verifyDefault();
@@ -79,6 +79,7 @@ public class SelectTagPageTypeTest extends AbstractComponentTest {
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(XWikiDoc);
     expect(strucDataEdSrvMock.getAttributeName(eq(XWikiDoc), eq(getContext().getDoc()))).andReturn(
         Optional.<String>absent());
+
     replayDefault();
     selectTagPageType.collectAttributes(attrBuilder, cellDocRef);
     verifyDefault();
@@ -100,6 +101,7 @@ public class SelectTagPageTypeTest extends AbstractComponentTest {
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(XWikiDoc);
     expect(strucDataEdSrvMock.getAttributeName(eq(XWikiDoc), eq(getContext().getDoc()))).andReturn(
         Optional.<String>absent());
+
     replayDefault();
     selectTagPageType.collectAttributes(attrBuilder, cellDocRef);
     verifyDefault();
@@ -121,6 +123,7 @@ public class SelectTagPageTypeTest extends AbstractComponentTest {
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(XWikiDoc);
     expect(strucDataEdSrvMock.getAttributeName(eq(XWikiDoc), eq(getContext().getDoc()))).andReturn(
         Optional.<String>absent());
+
     replayDefault();
     selectTagPageType.collectAttributes(attrBuilder, cellDocRef);
     verifyDefault();
@@ -140,6 +143,7 @@ public class SelectTagPageTypeTest extends AbstractComponentTest {
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(XWikiDoc);
     expect(strucDataEdSrvMock.getAttributeName(eq(XWikiDoc), eq(getContext().getDoc()))).andReturn(
         Optional.<String>of("name"));
+
     replayDefault();
     selectTagPageType.collectAttributes(attrBuilder, cellDocRef);
     verifyDefault();
@@ -162,6 +166,7 @@ public class SelectTagPageTypeTest extends AbstractComponentTest {
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(XWikiDoc);
     expect(strucDataEdSrvMock.getAttributeName(eq(XWikiDoc), eq(getContext().getDoc()))).andReturn(
         Optional.<String>of("name"));
+
     replayDefault();
     selectTagPageType.collectAttributes(attrBuilder, cellDocRef);
     verifyDefault();

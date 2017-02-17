@@ -1,4 +1,4 @@
-package com.celements.structEditor;
+package com.celements.structEditor.fields;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 import static org.easymock.EasyMock.*;
@@ -16,8 +16,8 @@ import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.pagetype.java.IJavaPageTypeRole;
+import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.structEditor.classes.OptionTagEditorClass;
-import com.celements.structEditor.fields.OptionTagPageType;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.web.Utils;
 
@@ -45,7 +45,7 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
 
   @Test
   public void test_GetViewTemplateName() {
-    String expectedStr = "OptionTagView";
+    String expectedStr = OptionTagPageType.VIEW_TEMPLATE_NAME;
     assertEquals(expectedStr, optionTagPageType.getViewTemplateName());
   }
 
@@ -70,7 +70,6 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
 
   @Test
   public void test_collectAttributes_none() throws Exception {
-
     DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
     expect(strucDataEdSrvMock.getSelectCellDocRef(docRef)).andReturn(
         Optional.<DocumentReference>absent());
@@ -106,6 +105,7 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
         OptionTagEditorClass.FIELD_VALUE))).andReturn(Optional.<String>absent());
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
         OptionTagEditorClass.FIELD_LABEL))).andReturn(Optional.<String>absent());
+
     replayDefault();
     optionTagPageType.collectAttributes(attrBuilder, docRef);
     verifyDefault();
@@ -116,10 +116,8 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
 
   @Test
   public void test_collectAttributes_cellValue_field_selected_true() throws Exception {
-
     DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
     DocumentReference docRef2 = new DocumentReference("wikiName", "Celements", "gfrt");
-
     expect(strucDataEdSrvMock.getSelectCellDocRef(eq(docRef))).andReturn(
         Optional.<DocumentReference>of(docRef2));
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
@@ -132,6 +130,7 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
         OptionTagEditorClass.FIELD_VALUE))).andReturn(Optional.<String>absent());
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
         OptionTagEditorClass.FIELD_LABEL))).andReturn(Optional.<String>absent());
+
     replayDefault();
     optionTagPageType.collectAttributes(attrBuilder, docRef);
     verifyDefault();
@@ -142,9 +141,7 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
 
   @Test
   public void test_collectAttributes_field_disabled() throws Exception {
-
     DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
-
     expect(strucDataEdSrvMock.getSelectCellDocRef(docRef)).andReturn(
         Optional.<DocumentReference>absent());
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
@@ -173,6 +170,7 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
         OptionTagEditorClass.FIELD_VALUE))).andReturn(Optional.<String>of("value"));
     expect(modelAccessMock.getFieldValue(eq(docRef), eq(
         OptionTagEditorClass.FIELD_LABEL))).andReturn(Optional.<String>of("label"));
+
     replayDefault();
     optionTagPageType.collectAttributes(attrBuilder, docRef);
     verifyDefault();

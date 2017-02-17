@@ -27,7 +27,7 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public String getViewTemplateName() {
+  protected String getViewTemplateName() {
     return VIEW_TEMPLATE_NAME;
   }
 
