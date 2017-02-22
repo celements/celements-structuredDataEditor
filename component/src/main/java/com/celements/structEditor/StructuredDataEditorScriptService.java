@@ -90,7 +90,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     return retVal;
   }
 
-  private void addAttributeToMap(Map<String, String> map, String attrName, XWikiDocument cellDoc,
+  void addAttributeToMap(Map<String, String> map, String attrName, XWikiDocument cellDoc,
       ClassField<?> field) {
     Object val = modelAccess.getProperty(cellDoc, field);
     if (val != null) {
@@ -118,12 +118,12 @@ public class StructuredDataEditorScriptService implements ScriptService {
   public Optional<com.xpn.xwiki.api.PropertyClass> getCellPropertyClass(
       DocumentReference cellDocRef) {
     Optional<PropertyClass> propClass;
+    propClass = Optional.absent();
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       propClass = service.getCellPropertyClass(cellDoc);
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
-      propClass = Optional.absent();
     }
     return propClass.transform(PROPCLASS_TO_API);
   }
