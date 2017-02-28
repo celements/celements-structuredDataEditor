@@ -50,7 +50,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return getAttributeNameInternal(cellDoc, onDoc);
   }
 
-  private Optional<String> getAttributeNameInternal(XWikiDocument cellDoc, XWikiDocument onDoc) {
+  Optional<String> getAttributeNameInternal(XWikiDocument cellDoc, XWikiDocument onDoc) {
     List<String> nameParts = new ArrayList<>();
     Optional<DocumentReference> classRef = getCellClassRef(cellDoc);
     Optional<String> fieldName = getCellFieldName(cellDoc);
