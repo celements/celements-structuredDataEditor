@@ -288,21 +288,24 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getCellValueAsString_valueNotNull() throws Exception {
-
     DocumentReference celldocRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
-    XWikiDocument indoc = new XWikiDocument(new DocumentReference("wikiName", "Celements", "cell"));
-    XWikiDocument ondoc = new XWikiDocument(new DocumentReference("wikiName1", "Celements1",
+    DocumentReference cellClassRef = new DocumentReference("wikiName", "Celements",
+        "TestXClassName");
+    XWikiDocument cellDoc = new XWikiDocument(celldocRef);
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference("wikiName1", "Celements1",
         "cell1"));
-    expect(modelAccessMock.getDocument(celldocRef)).andReturn(indoc);
-    expect(modelAccessMock.getProperty(eq(indoc), eq(
+    expect(modelAccessMock.getDocument(celldocRef)).andReturn(cellDoc);
+    expect(modelAccessMock.getProperty(eq(cellDoc), eq(
         StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME))).andReturn("fieldName");
-    expect(modelAccessMock.getProperty(eq(indoc), eq(
-        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS_NAME))).andReturn("fieldname");
-    expect(modelAccessMock.getProperty(ondoc, classRef, name))
-    replayDefault();
-    Optional<String> name = service.getCellValueAsString(celldocRef, ondoc);
-    verifyDefault();
-    assertEquals(Optional.of("val"), name);
+    expect(modelAccessMock.getProperty(eq(cellDoc), eq(
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS_NAME))).andReturn(modelutils.serializeRef(
+            cellClassRef));
+    expect(modelAccessMock.getProperty(eq(onDoc), eq(celldocRef), eq("fieldName"))).andReturn(
+        "12/12/2012");
 
+    replayDefault();
+    Optional<String> name = service.getCellValueAsString(celldocRef, onDoc);
+    verifyDefault();
+    assertEquals(Optional.of("12/12/2012"), name);
   }
 }
