@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -308,4 +309,36 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     verifyDefault();
     assertEquals(Optional.of("12/12/2012"), name);
   }
+
+  @Test
+  public void test_getCellDateValue_nullValue() throws Exception {
+    DocumentReference celldocRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference("wikiName1", "Celements1",
+        "cell1"));
+    XWikiDocument cellDoc = new XWikiDocument(celldocRef);
+    expect(modelAccessMock.getDocument(celldocRef)).andReturn(cellDoc);
+    expect(modelAccessMock.getProperty(eq(cellDoc), eq(
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME))).andReturn(null);
+    Optional<String> expectedValue = Optional.<String>absent();
+
+    replayDefault();
+    Optional<Date> value = service.getCellDateValue(celldocRef, onDoc);
+    verifyDefault();
+    assertEquals(expectedValue, value);
+
+  }
+
+  // @Test
+  // public void test_getTextAttributes_throwException() throws Exception {
+  // Map<String, String> retMap = new LinkedHashMap<>();
+  // DocumentReference docRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+  // expect(modelAccessMock.getDocument(eq(docRef))).andThrow(new DocumentNotExistsException(
+  // docRef));
+  //
+  // replayDefault();
+  // retMap = structuredDataEditorScriptService.getTextAttributes(docRef);
+  // verifyDefault();
+  // assertEquals(0, retMap.size());
+  // }
+
 }
