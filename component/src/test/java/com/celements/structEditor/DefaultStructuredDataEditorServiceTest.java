@@ -325,7 +325,46 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     Optional<Date> value = service.getCellDateValue(celldocRef, onDoc);
     verifyDefault();
     assertEquals(expectedValue, value);
+  }
 
+  @Test
+  public void test_getCellDateValue_NullValue_ifTitle() throws Exception {
+    DocumentReference classRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+    DocumentReference celldocRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference("wikiName1", "Celements1",
+        "cell1"));
+    XWikiDocument cellDoc = new XWikiDocument(celldocRef);
+    expect(modelAccessMock.getDocument(celldocRef)).andReturn(cellDoc);
+    expect(modelAccessMock.getProperty(eq(cellDoc), eq(
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME))).andReturn("title");
+    expect(modelAccessMock.getProperty(eq(cellDoc), eq(
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS_NAME))).andReturn(null);
+    Optional<String> expectedValue = Optional.<String>absent();
+
+    replayDefault();
+    Optional<Date> value = service.getCellDateValue(celldocRef, onDoc);
+    verifyDefault();
+    assertEquals(expectedValue, value);
+  }
+
+  @Test
+  public void test_getCellDateValue_NullValue_ifContent() throws Exception {
+    DocumentReference classRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+    DocumentReference celldocRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference("wikiName1", "Celements1",
+        "cell1"));
+    XWikiDocument cellDoc = new XWikiDocument(celldocRef);
+    expect(modelAccessMock.getDocument(celldocRef)).andReturn(cellDoc);
+    expect(modelAccessMock.getProperty(eq(cellDoc), eq(
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME))).andReturn("content");
+    expect(modelAccessMock.getProperty(eq(cellDoc), eq(
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS_NAME))).andReturn(null);
+    Optional<String> expectedValue = Optional.<String>absent();
+
+    replayDefault();
+    Optional<Date> value = service.getCellDateValue(celldocRef, onDoc);
+    verifyDefault();
+    assertEquals(expectedValue, value);
   }
 
   // @Test
