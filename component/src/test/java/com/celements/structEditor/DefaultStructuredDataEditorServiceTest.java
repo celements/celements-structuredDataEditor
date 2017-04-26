@@ -16,6 +16,7 @@ import org.xwiki.model.reference.EntityReference;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
+import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
@@ -48,7 +49,6 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     context = getContext();
     wikiName = context.getDatabase();
     cellDoc = new XWikiDocument(new DocumentReference(wikiName, "layout", "cell"));
-
   }
 
   @Test
@@ -79,21 +79,18 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     assertEquals(prefix, ret);
   }
 
-  // @Test
-  // public void test_resolveFormPrefix_DocumentNotExists() throws Exception {
-  // String prefix = null;
-  // XWikiDocument parentDoc = new XWikiDocument(new DocumentReference(wikiName, "layout",
-  // "parent"));
-  // DocumentReference xClassDocRef = new DocumentReference(wikiName, "Celements",
-  // "TestXClassName");
-  // expect(modelAccessMock.getDocument(xClassDocRef)).andThrow(new DocumentNotExistsException(
-  // xClassDocRef)).once();
-
-  // replayDefault();
-  // String ret = service.resolveFormPrefix(parentDoc);
-  // verifyDefault();
-  // assertEquals(prefix, ret);
-  // }
+  @Test
+  public void test_resolveFormPrefix_DocumentNotExists() throws Exception {
+    XWikiDocument cellDoc = new XWikiDocument(new DocumentReference("wikiName", "Celements",
+        "cell"));
+    cellDoc.setParent("parent");
+    expect(modelAccessMock.getDocument(eq(cellDoc.getParentReference()))).andThrow(
+        new DocumentNotExistsException(cellDoc.getParentReference())).once();
+    replayDefault();
+    String ret = service.resolveFormPrefix(cellDoc);
+    verifyDefault();
+    assertNull(ret);
+  }
 
   @Test
   public void test_getXClassPrettyName() throws Exception {
