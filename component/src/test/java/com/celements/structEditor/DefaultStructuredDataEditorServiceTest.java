@@ -367,25 +367,26 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     assertEquals(expectedValue, value);
   }
 
-  // @Test
-  // public void test_getCellDateValue_NotValue() throws Exception {
-  // DocumentReference celldocRef = new DocumentReference("wikiName", "Celements",
-  // "TestXClassName");
-  // DocumentReference cellClassRef = new DocumentReference("wikiName", "Celements", "ClassName");
-  // XWikiDocument onDoc = new XWikiDocument(new DocumentReference("wikiName1", "Celements1",
-  // "cell1"));
-  // XWikiDocument cellDoc = new XWikiDocument(celldocRef);
-  // expect(modelAccessMock.getDocument(celldocRef)).andReturn(cellDoc);
-  // expect(modelAccessMock.getProperty(eq(cellDoc), eq(
-  // StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME))).andReturn("fieldName");
-  // expect(modelAccessMock.getProperty(eq(cellDoc), eq(
-  // StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS_NAME))).andReturn("ClassName");
-  // expect(modelAccessMock.getProperty(eq(onDoc), eq(cellClassRef), eq("fieldName"))).andReturn(
-  // "12/12/2012");
-  // replayDefault();
-  // Optional<Date> value = service.getCellDateValue(celldocRef, onDoc);
-  // verifyDefault();
-  // assertEquals(Optional.absent(), value);
-  // }
+  @Test
+  public void test_getCellDateValue_NotValue() throws Exception {
+    DocumentReference celldocRef = new DocumentReference("wikiName", "Celements", "TestXClassName");
+    DocumentReference cellClassRef = new DocumentReference("wikiName", "Celements", "ClassName");
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference("wikiName1", "Celements1",
+        "cell1"));
+    XWikiDocument cellDoc = new XWikiDocument(celldocRef);
+    Date date = new Date(2012, 12, 12);
+    expect(modelAccessMock.getDocument(celldocRef)).andReturn(cellDoc);
+    expect(modelAccessMock.getProperty(eq(cellDoc), eq(
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME))).andReturn("fieldName");
+    expect(modelAccessMock.getProperty(eq(cellDoc), eq(
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS_NAME))).andReturn("ClassName");
+    expect(modelAccessMock.getProperty(eq(onDoc), eq(cellClassRef), eq("fieldName"))).andReturn(
+        date);
+    replayDefault();
+    Optional<Date> value = service.getCellDateValue(celldocRef, onDoc);
+    verifyDefault();
+    assertTrue(value.isPresent());
+    assertEquals(date, value.get());
+  }
 
 }
