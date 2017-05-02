@@ -11,9 +11,6 @@
   <!-- WARN SelectTagView: doesn't support edit field class: $!propClass.get().getType() -->
 #elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
   <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
-#elseif($propClass.get().getProperty('multiSelect').getValue() != 0)
-  ## TODO: CELDEV-417 SelectTag from ListClass: multiSelect
-  <!-- WARN SelectTagView:  doesn't support multiSelect -->
 #else
   ## TODO: CELDEV-418 SelectTag from ListClass: DBList store/display value
   #set($setValue = $services.structuredDataEditor.getCellValueAsString($cellDocRef))
