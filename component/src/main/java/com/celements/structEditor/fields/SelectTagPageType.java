@@ -43,7 +43,7 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
           cellDoc, modelContext.getDoc()).or(""));
       if (modelAccess.getFieldValue(cellDoc, FIELD_IS_MULTISELECT).or(false)) {
-        attrBuilder.addEmptyAttribute("multiple");
+        attrBuilder.addNonEmptyAttribute("multiple", "multiple");
         attrBuilder.addCssClasses("celMultiselect");
       }
       if (modelAccess.getFieldValue(cellDoc, FIELD_IS_BOOTSTRAP).or(false)) {
