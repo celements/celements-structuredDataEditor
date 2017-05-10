@@ -13,8 +13,8 @@
   <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
 #else
   ## TODO: CELDEV-418 SelectTag from ListClass: DBList store/display value
-  #set($setValue = $services.structuredDataEditor.getCellValueAsString($cellDocRef))
+  #set($setValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
   #foreach($value in $propClass.get().getListValues())
-  <option value="$!value" #if($value.equals($setValue)) selected #end>$!value</option>
+  <option value="$!value" #if($setValues.contains($value)) selected #end>$!value</option>
   #end
 #end

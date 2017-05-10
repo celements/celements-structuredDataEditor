@@ -1,6 +1,8 @@
 package com.celements.structEditor;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -106,13 +108,23 @@ public class StructuredDataEditorScriptService implements ScriptService {
   }
 
   public String getCellValueAsString(DocumentReference cellDocRef) {
-    String retVal = new String();
+    String ret = "";
     try {
-      retVal = service.getCellValueAsString(cellDocRef, context.getDoc()).or("");
+      ret = service.getCellValueAsString(cellDocRef, context.getDoc()).or("");
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
-    return retVal;
+    return ret;
+  }
+
+  public List<String> getCellListValue(DocumentReference cellDocRef) {
+    List<String> ret = Collections.emptyList();
+    try {
+      ret = service.getCellListValue(cellDocRef, context.getDoc());
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+    }
+    return ret;
   }
 
   public Optional<com.xpn.xwiki.api.PropertyClass> getCellPropertyClass(
