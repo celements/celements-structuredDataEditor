@@ -8,19 +8,16 @@
 #set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
 #if("$!renderedContent" != '')
   $renderedContent
-#else
+#elseif(!$propClass.isPresent())
+  <!-- WARN SelectTagView: no edit field defined on cell: $!celldoc -->
+#elseif(!$supportedClasses.contains($propClass.get().getType()))
   <!-- WARN SelectTagView: doesn't support edit field class: $!propClass.get().getType() -->
-  #if(!$propClass.isPresent())
-    <!-- WARN SelectTagView: no edit field defined on cell: $!celldoc -->
-  #elseif(!$supportedClasses.contains($propClass.get().getType()))
-    <!-- WARN SelectTagView: doesn't support edit field class: $!propClass.get().getType() -->
-  #elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
-    <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
-  #else
-    ## TODO: CELDEV-418 SelectTag from ListClass: DBList store/display value
-    #set($setValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
-    #foreach($value in $propClass.get().getListValues())
-      <option value="$!value" #if($setValues.contains($value)) selected #end>$!value</option>
-    #end
+#elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
+  <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
+#else
+  ## TODO: CELDEV-418 SelectTag from ListClass: DBList store/display value
+  #set($setValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
+  #foreach($value in $propClass.get().getListValues())
+    <option value="$!value" #if($setValues.contains($value)) selected #end>$!value</option>
   #end
 #end
