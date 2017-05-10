@@ -50,7 +50,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
       try {
         prettyName = service.getPrettyName(cellDocRef).or("");
       } catch (DocumentNotExistsException exc) {
-        LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+        LOGGER.info("cell doesn't exist '{}'", cellDocRef, exc);
       }
     }
     return prettyName;
@@ -64,7 +64,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
       addNameAttributeToMap(retMap, cellDoc);
       retMap.put("value", context.getDoc().getTemplate());
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("Properties for docRef {} does not exist {}", cellDocRef, exc);
+      LOGGER.info("Properties for docRef {} does not exist {}", cellDocRef, exc);
     }
     return retMap;
   }
@@ -77,7 +77,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
       addAttributeToMap(retMap, "rows", cellDoc, TextAreaFieldEditorClass.FIELD_ROWS);
       addAttributeToMap(retMap, "cols", cellDoc, TextAreaFieldEditorClass.FIELD_COLS);
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("Properties for docRef {} does not exist {}", cellDocRef, exc);
+      LOGGER.info("Properties for docRef {} does not exist {}", cellDocRef, exc);
     }
     return retMap;
   }
@@ -87,7 +87,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     try {
       retVal = modelAccess.getProperty(cellDocRef, TextAreaFieldEditorClass.FIELD_VALUE);
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("Properties for docRef {} does not exist {}", cellDocRef, exc);
+      LOGGER.info("Properties for docRef {} does not exist {}", cellDocRef, exc);
     }
     return retVal;
   }
@@ -112,7 +112,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     try {
       ret = service.getCellValueAsString(cellDocRef, context.getDoc()).or("");
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      LOGGER.info("cell doesn't exist '{}'", cellDocRef, exc);
     }
     return ret;
   }
@@ -122,7 +122,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     try {
       ret = service.getCellListValue(cellDocRef, context.getDoc());
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      LOGGER.info("cell doesn't exist '{}'", cellDocRef, exc);
     }
     return ret;
   }
@@ -134,7 +134,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       propClass = service.getCellPropertyClass(cellDoc);
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      LOGGER.info("cell doesn't exist '{}'", cellDocRef, exc);
       propClass = Optional.absent();
     }
     return propClass.transform(PROPCLASS_TO_API);
