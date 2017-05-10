@@ -15,9 +15,13 @@
 #elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
   <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
 #else
-  ## TODO: CELDEV-418 SelectTag from ListClass: DBList store/display value
-  #set($setValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
-  #foreach($value in $propClass.get().getListValues())
-    <option value="$!value" #if($setValues.contains($value)) selected #end>$!value</option>
+  #set($setValue = $services.structuredDataEditor.getCellValueAsString($cellDocRef))
+  #set($valueMap = $propClass.get().getMapValues())
+  #foreach($keyValue in $propClass.get().getListValues())
+    #set($displayValue = $!valueMap.get($keyValue).getValue())
+    #if("$!displayValue" == "")
+      #set($displayValue = $keyValue)
+    #end
+    <option value="$!keyValue" #if($keyValue.equals($setValue)) selected #end>$!displayValue</option>
   #end
 #end
