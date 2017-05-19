@@ -42,6 +42,19 @@ public class StructuredDataEditorScriptService implements ScriptService {
     }
   };
 
+  public String getAttributeName(DocumentReference cellDocRef) {
+    String ret = "";
+    if (cellDocRef != null) {
+      try {
+        XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+        ret = service.getAttributeName(cellDoc, null).or(ret);
+      } catch (DocumentNotExistsException exc) {
+        LOGGER.info("cell doesn't exist '{}'", cellDocRef, exc);
+      }
+    }
+    return ret;
+  }
+
   public String getPrettyName(DocumentReference cellDocRef) {
     String prettyName = "";
     if (cellDocRef != null) {
