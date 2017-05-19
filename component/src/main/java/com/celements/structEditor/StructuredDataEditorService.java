@@ -1,6 +1,7 @@
 package com.celements.structEditor;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -36,7 +37,12 @@ public interface StructuredDataEditorService {
   public Optional<String> getDateFormatFromField(DocumentReference cellDocRef)
       throws DocumentNotExistsException;
 
-  public Optional<Date> getCellDateValue(DocumentReference cellDocRef, XWikiDocument onDoc)
-      throws DocumentNotExistsException;
+  @NotNull
+  public Optional<Date> getCellDateValue(@NotNull DocumentReference cellDocRef,
+      @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
+
+  @NotNull
+  public List<String> getCellListValue(@NotNull DocumentReference cellDocRef,
+      @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
 
 }

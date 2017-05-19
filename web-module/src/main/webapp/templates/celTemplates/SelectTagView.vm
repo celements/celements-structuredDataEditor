@@ -5,16 +5,23 @@
 #set($supportedClasses = ['ListClass','StaticListClass','DBListClass','DBTreeListClass','UsersClass','GroupsClass','LevelsClass'])
 #set($supportedDisplayTypes = ['select'])
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
-#if(!$propClass.isPresent())
+#set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
+#if("$!renderedContent" != '')
+  $renderedContent
+#elseif(!$propClass.isPresent())
   <!-- WARN SelectTagView: no edit field defined on cell: $!celldoc -->
 #elseif(!$supportedClasses.contains($propClass.get().getType()))
   <!-- WARN SelectTagView: doesn't support edit field class: $!propClass.get().getType() -->
 #elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
   <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
 #else
-  ## TODO: CELDEV-418 SelectTag from ListClass: DBList store/display value
-  #set($setValue = $services.structuredDataEditor.getCellValueAsString($cellDocRef))
-  #foreach($value in $propClass.get().getListValues())
-  <option value="$!value" #if($value.equals($setValue)) selected #end>$!value</option>
+  #set($setValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
+  #set($valueMap = $propClass.get().getMapValues())
+  #foreach($keyValue in $propClass.get().getListValues())
+    #set($displayValue = $!valueMap.get($keyValue).getValue())
+    #if("$!displayValue" == "")
+      #set($displayValue = $keyValue)
+    #end
+    <option value="$!keyValue" #if($setValues.contains($keyValue)) selected #end>$!displayValue</option>
   #end
 #end

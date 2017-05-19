@@ -97,7 +97,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       throws DocumentNotExistsException {
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
     Optional<PropertyClass> field = getCellPropertyClass(cellDoc);
-    if (field.isPresent() && field.get().getClass().equals(DateClass.class)) {
+    if (field.isPresent() && (field.get() instanceof DateClass)) {
       DateClass dateField = (DateClass) field.get();
       return Optional.fromNullable(dateField.getDateFormat());
     }
@@ -159,10 +159,23 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   public Optional<Date> getCellDateValue(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
     Object value = getCellValue(cellDocRef, onDoc);
-    if ((value != null) && value.getClass().equals(Date.class)) {
+    if (value instanceof Date) {
       return Optional.of((Date) value);
     }
     return Optional.absent();
+  }
+
+  @Override
+  public List<String> getCellListValue(DocumentReference cellDocRef, XWikiDocument onDoc)
+      throws DocumentNotExistsException {
+    List<String> ret = new ArrayList<>();
+    Object value = getCellValue(cellDocRef, onDoc);
+    if (value instanceof List) {
+      for (Object elem : (List<?>) value) {
+        ret.add(elem != null ? elem.toString() : "");
+      }
+    }
+    return ret;
   }
 
   private Object getCellValue(DocumentReference cellDocRef, XWikiDocument onDoc)
