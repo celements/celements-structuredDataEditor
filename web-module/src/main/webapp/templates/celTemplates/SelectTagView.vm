@@ -18,7 +18,11 @@
   #set($setValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
   #set($valueMap = $propClass.get().getMapValues())
   #foreach($keyValue in $propClass.get().getListValues())
-    #set($displayValue = $!valueMap.get($keyValue).getValue())
+    #set($dictKey = "$!services.structuredDataEditor.getAttributeName($cellDocRef)_$!keyValue")
+    #set($displayValue = $msg.get($dictKey))
+    #if("$!displayValue" == "$!dictKey")
+      #set($displayValue = "$!valueMap.get($keyValue).getValue()")
+    #end
     #if("$!displayValue" == "")
       #set($displayValue = $keyValue)
     #end
