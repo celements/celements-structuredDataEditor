@@ -1,6 +1,8 @@
 <!-- StructuredDataEditorView -->
-$services.javascript.addExtJSfileOnce(':structEditJS/StructEditor.js', 'file')
-$services.javascript.addExtJSfileOnce(':structEditJS/initStructEditor.js', 'file')
+##IMPORTANT js must be added to the PageType to load in header
+##$services.javascript.addExtJSfileOnce(':structEditJS/StructEditor.js', 'file')
+##$services.javascript.addExtJSfileOnce(':structEditJS/initStructEditor.js', 'file')
+
 ##TODO get navigation config from pageType document
 
 #if("$!celldoc" != '')
