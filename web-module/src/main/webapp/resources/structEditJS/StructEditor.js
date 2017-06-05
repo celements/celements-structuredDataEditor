@@ -27,15 +27,14 @@
 
   if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={};};
 
-  CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend({},
-      CELEMENTS.mixins.Observable);
-  CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend(
-      CELEMENTS.structEdit.StructEditorManager.prototype, {
-
+  /**
+   * StructEditorManager constructor
+   */
+  window.CELEMENTS.structEdit.StructEditorManager = Class.create({
         _initStructEditorHandlerBind : undefined,
         _allStructEditors : undefined,
 
-        _init : function() {
+        initialize : function() {
           var _me = this;
           _me._initStructEditorHandlerBind = _me._initStructEditorHandler.bind(_me);
           _me.registerListener();
@@ -90,19 +89,20 @@
         }
 
   });
+  CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend(
+      CELEMENTS.structEdit.StructEditorManager.prototype, CELEMENTS.mixins.Observable);
 
-  CELEMENTS.structEdit.StructEditor = Object.extend({}, CELEMENTS.mixins.Observable);
-  CELEMENTS.structEdit.StructEditor.prototype = Object.extend(
-      CELEMENTS.structEdit.StructEditor.prototype, {
-
+  CELEMENTS.structEdit.StructEditor.prototype = Class.create({
         _rootElem : undefined,
 
-        _init : function(editorRootElem) {
+        initialize : function(editorRootElem) {
           var _me = this;
           _me._rootElem = editorRootElem;
           console.log('TODO: init StructEditor for ', _me._rootElem);
         }
 
       });
+  CELEMENTS.structEdit.StructEditor = Object.extend(CELEMENTS.structEdit.StructEditor,
+      CELEMENTS.mixins.Observable);
 
 })(window);
