@@ -99,9 +99,21 @@
           var _me = this;
           _me._rootElem = editorRootElem;
           console.log('TODO: init StructEditor for ', _me._rootElem);
+        },
+
+        isDirty : function() {
+          var _me = this;
+          var isDirty = false;
+          //TODO IMPLEMENT!!!
+//          var isDirty = (_me.getDirtyFormIds().size() > 0) || _me._isEditorDirtyOnLoad;
+//          if ((typeof console != 'undefined') && (typeof console.log != 'undefined')) {
+//            console.log('isDirty: ', isDirty, ' , isEditorDirtyOnLoad: ',
+//                _me._isEditorDirtyOnLoad);
+//          }
+          return isDirty;
         }
 
-      });
+  });
   CELEMENTS.structEdit.StructEditor.prototype = Object.extend(
       CELEMENTS.structEdit.StructEditor.prototype, CELEMENTS.mixins.Observable);
 
