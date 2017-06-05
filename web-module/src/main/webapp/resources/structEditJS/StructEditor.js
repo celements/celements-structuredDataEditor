@@ -92,7 +92,7 @@
   CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend(
       CELEMENTS.structEdit.StructEditorManager.prototype, CELEMENTS.mixins.Observable);
 
-  CELEMENTS.structEdit.StructEditor.prototype = Class.create({
+  CELEMENTS.structEdit.StructEditor = Class.create({
         _rootElem : undefined,
 
         initialize : function(editorRootElem) {
@@ -102,7 +102,7 @@
         }
 
       });
-  CELEMENTS.structEdit.StructEditor = Object.extend(CELEMENTS.structEdit.StructEditor,
-      CELEMENTS.mixins.Observable);
+  CELEMENTS.structEdit.StructEditor.prototype = Object.extend(
+      CELEMENTS.structEdit.StructEditor.prototype, CELEMENTS.mixins.Observable);
 
 })(window);
