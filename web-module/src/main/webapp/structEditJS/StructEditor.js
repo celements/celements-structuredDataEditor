@@ -1,0 +1,107 @@
+/*
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+/*
+*
+*
+**/
+(function(window, undefined) {
+  "use strict";
+
+  if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={};};
+
+  CELEMENTS.structEdit.StructEditorManager = Object.extend({}, CELEMENTS.mixins.Observable);
+  CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend(
+      CELEMENTS.structEdit.StructEditorManager.prototype, {
+
+        _initStructEditorHandlerBind : undefined,
+        _allStructEditors : undefined,
+
+        _init : function() {
+          var _me = this;
+          _me._initStructEditorHandlerBind = _me._initStructEditorHandler.bind(_me);
+          _me.registerListener();
+        },
+
+        registerListener : function() {
+          var _me = this;
+          _me._allStructEditors = new Hash();
+          $(document.body).stopObserving("structEdit:initStructEditor",
+              _me._initStructEditorHandlerBind);
+          $(document.body).observe("structEdit:initStructEditor", _me._initStructEditorHandlerBind);
+        },
+
+        _createIdIfEmpty : function(structRoot) {
+          var _me = this;
+          var theId = structRoot.id;
+          if (!theId || (theId === '')) {
+            var count = 0;
+            do {
+              count++;
+              theId = 'CELSTRUCTEDITOR:' + count;
+            } while ($(theId));
+            structRoot.id = theId;
+          }
+        },
+
+        initStructEditors : function(checkRoot) {
+          var _me = this;
+          var rootElem = checkRoot || document.body;
+          rootElem.select('.structDataEditor').each(function(structRootElem) {
+            if (!structRootElem.hasClassName('celStructEditorLoading')
+                && !structRootElem.hasClassName('celStructEditorLoaded')) {
+              structRootElem.addClassName('celStructEditorLoading');
+              console.log('initStructEditorHandler: start editor for ', structRootElem);
+              var structRootId = _me._createIdIfEmpty(structRootElem);
+              if (!_me._allStructEditors.get(structRootId)) {
+                _me._allStructEditors.set(structRootId,
+                    new CELEMENTS.structEdit.StructEditor(structRootElem));
+              } else {
+                console.warn('initStructEditorHandler: skip double init on ', structRootId);
+              }
+            }
+          });
+        },
+
+        _initStructEditorHandler : function(event) {
+          var _me = this;
+          var checkRoot = event.memo.checkRoot || document.body;
+          console.log('initStructEditorHandler: run for ', checkRoot);
+          _me.initStructEditors(checkRoot);
+          console.log('initStructEditorHandler: finish for ', checkRoot);
+        }
+
+  });
+
+  CELEMENTS.structEdit.StructEditor = Object.extend({}, CELEMENTS.mixins.Observable);
+  CELEMENTS.structEdit.StructEditor.prototype = Object.extend(
+      CELEMENTS.structEdit.StructEditor.prototype, {
+
+        _rootElem : undefined,
+
+        _init : function(editorRootElem) {
+          var _me = this;
+          _me._rootElem = editorRootElem;
+          console.log('TODO: init StructEditor for ', _me._rootElem);
+        }
+
+      });
+
+})(window);

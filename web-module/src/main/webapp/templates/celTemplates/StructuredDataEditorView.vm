@@ -1,9 +1,11 @@
 <!-- StructuredDataEditorView -->
+$services.javascript.addExtJSfileOnce(':structEditJS/StructEditor.js', 'file')
+$services.javascript.addExtJSfileOnce(':structEditJS/initStructEditor.js', 'file')
 ##TODO get navigation config from pageType document
 
 #if("$!celldoc" != '')
 #set($contentDoc = $celldoc)
-#else   
+#else
 #set($contentDoc = $tdoc)
 #end
 #set($ptConfig = $services.pageType.getPageTypeConfig("$page_type"))
@@ -26,7 +28,8 @@
     DEBUG structDataEditorSpace: ${structDataEditorSpace} , $structDataEditorSpace.getClass()
   -->
   #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
-  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:" class="structDataEditor $!{structCmCssClass}">
+  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:"##
+   class="structDataEditor $!{structCmCssClass}">
   ##    #set($injectedNavigationObject = $structDataEditorNav)
   ##    #parse('celTemplates/PresentationView.vm')
   #if($services.layout.canRenderLayout($structDataEditorSpaceRef))
