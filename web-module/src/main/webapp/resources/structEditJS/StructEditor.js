@@ -27,7 +27,8 @@
 
   if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={};};
 
-  CELEMENTS.structEdit.StructEditorManager = Object.extend({}, CELEMENTS.mixins.Observable);
+  CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend({},
+      CELEMENTS.mixins.Observable);
   CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend(
       CELEMENTS.structEdit.StructEditorManager.prototype, {
 
