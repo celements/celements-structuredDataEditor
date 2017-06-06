@@ -265,8 +265,8 @@
 
     _formDirtyOnLoad : function() {
       var _me = this;
-      return  (typeof(_me.formElem.celFormDirtyOnLoad) !== 'undefined')
-          && (_me.formElem.celFormDirtyOnLoad.value == 'true');
+      return  (typeof(_me._formElem.celFormDirtyOnLoad) !== 'undefined')
+          && (_me._formElem.celFormDirtyOnLoad.value == 'true');
     },
 
     /**
