@@ -1,0 +1,4 @@
+$jsonBuilder.openProperty('structEditor')
+$jsonBuilder.openDictionary()
+$jsonBuilder.addStringProperty('unsavedChangesOnCloseMessage', "$!adminMsg.get('cel_tm_unsavedChangesOnCloseMessage')")
+$jsonBuilder.closeDictionary()
