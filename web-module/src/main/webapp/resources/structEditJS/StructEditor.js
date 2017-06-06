@@ -28,6 +28,34 @@
   if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={};};
 
   /****************************************
+   * CelementsButtonHandler class definition *
+   ****************************************/
+  window.CELEMENTS.structEdit.CelementsButtonHandler = Class.create({
+    initButtons : function(editorManager) {
+      var _me = this;
+      _me.initCloseButton();
+    },
+
+    initCloseButton : function() {
+      var _me = this;
+      //TODO connect buttons with saving functions!
+//      var closeClickHandler = function() {
+//        _me.checkUnsavedChanges(function(transport, jsonResponses, failed) {
+//          if (!failed) {
+//            window.onbeforeunload = null;
+//            window.location.href = _me._getCancelURL();
+//          } else {
+//            console.error('closeClickHandler: checkUnsavedChanges failed! ', failed);
+//          }
+//        });
+//      };
+//      var buttonLabel = _me.tabMenuConfig.closeButtonLabel || 'Close';
+//      _me.addActionButton(buttonLabel, closeClickHandler);
+    }
+
+  });
+
+  /****************************************
    * StructEditorManager class definition *
    ****************************************/
   window.CELEMENTS.structEdit.StructEditorManager = Class.create({
@@ -35,12 +63,14 @@
         _initStructEditorHandlerBind : undefined,
         _checkBeforeUnloadBind : undefined,
         _loading : undefined,
+        _buttonHandler : undefined,
 
-        initialize : function() {
+        initialize : function(buttonHandler) {
           var _me = this;
           _me._initStructEditorHandlerBind = _me._initStructEditorHandler.bind(_me);
           _me._checkBeforeUnloadBind = _me._checkBeforeUnload.bind(_me);
           window.onbeforeunload = _me._checkBeforeUnloadBind;
+          _me._buttonHandler = buttonHandler || new CELEMENTS.structEdit.CelementsButtonHandler();
           _me.registerListener();
           _me._loading = new CELEMENTS.LoadingIndicator();
         },
@@ -55,6 +85,7 @@
 
         initButtons : function() {
           var _me = this;
+          _me._buttonHandler.initButtons(_me);
         },
 
         getDirtyEditors : function() {
@@ -71,6 +102,33 @@
         hasDirtyEditors : function() {
           var _me = this;
           return (_me.getDirtyEditors().size() > 0);
+        },
+
+        saveAllFormsAsync : function(execCallback) {
+          var _me = this;
+          var dirtyEditors = _me.getDirtyEditors();
+          var jsonResponses = new Hash();
+          var saveAllForms = function(remainingDirtyEditors) {
+            var editorKey = remainingDirtyEditors.keys[0];
+            var editor = remainingDirtyEditors.get(editorKey);
+            remainingDirtyEditors.unset(editorKey);
+            var remainingDirtyEditorsMap = remainingDirtyEditors;
+            editor.saveAndContinue(function(additionalResponses) {
+              jsonResponses.update(additionalResponses);
+              if (remainingDirtyEditorsMap.size() > 0) {
+                console.log('next saveAllForms with: ', remainingDirtyEditorsMap.inspect());
+                saveAllForms(remainingDirtyEditorsMap);
+                } else {
+                  console.log('save done.');
+                  execCallback(transport, jsonResponses);
+                }
+            }});
+          };
+          if (dirtyEditors.size() > 0) {
+            saveAllForms(dirtyEditors);
+          } else {
+            execCallback();
+          }
         },
 
         checkUnsavedChanges : function(execCallback, execCancelCallback) {
@@ -94,12 +152,12 @@
                      } },
                       { text: window.celMessages.structEditor.savingDialogButtonSave, handler:function() {
                         var _dialog = this;
-                        _me.saveAllFormsAjax(function(transport, jsonResponses) {
+                        _me.saveAllFormsAsync(function(transport, jsonResponses) {
                           _dialog.hide();
                           var failed = _me.showErrorMessages(jsonResponses);
                           if ((typeof console != 'undefined')
                               && (typeof console.log != 'undefined')) {
-                            console.log('saveAllFormsAjax returning: ', failed, jsonResponses,
+                            console.log('saveAllFormsAsync returning: ', failed, jsonResponses,
                                 execCallback);
                           }
                     execCallback(transport, jsonResponses, failed);
@@ -174,6 +232,42 @@
           console.log('initStructEditorHandler: finish for ', checkRoot);
         },
 
+        /**
+         * showErrorMessages display errors in jsonResponses to the user
+         *
+         * @param jsonResponses
+         * @returns true if errors have been displayed
+         *          false if no errors have been displayed
+         */
+        showErrorMessages : function(jsonResponses) {
+          var _me = this;
+          var errorMessages = new Array();
+          jsonResponses.each(function(response) {
+//            var formId = response.key;
+            var formSaveResponse = response.value;
+            if (!formSaveResponse.successful) {
+              errorMessages.push(formSaveResponse.errorMessages);
+              errorMessages = errorMessages.flatten();
+            }
+          });
+          if (errorMessages.length > 0) {
+            var errorMesgDialog = _me._getModalDialog();
+            errorMesgDialog.setHeader('Saving failed!');
+            errorMesgDialog.setBody("saving failed for the following reasons:<ul><li>"
+                + errorMessages.join('</li><li>').replace(new RegExp('<li>$'),'') + "</ul>");
+            errorMesgDialog.cfg.setProperty("icon", YAHOO.widget.SimpleDialog.ICON_WARN);
+            errorMesgDialog.cfg.queueProperty("buttons",
+              [ { text: "OK", handler:function() {
+                     this.cancel();
+                   } }
+              ]);
+            errorMesgDialog.render();
+            errorMesgDialog.show();
+            return true;
+          }
+          return false;
+        },
+
         _getModalDialog : function() {
           if(!this.modalDialog) {
             this.modalDialog = new YAHOO.widget.SimpleDialog("modal dialog", {
@@ -211,11 +305,11 @@
           var _me = this;
           _me._rootElem = editorRootElem;
           console.log('TODO: init StructEditor for ', _me._rootElem);
-          _me._initFormDiffs();
+          _me._resetFormDiffs();
           console.log('finish init StructEditor for ', _me._rootElem);
         },
 
-        _initFormDiffs : function() {
+        _resetFormDiffs : function() {
           var _me = this;
           _me._formDiffsMap = new Hash();
           _me._rootElem.select('form').each(function(formelem) {
@@ -224,6 +318,17 @@
               _me._formDiffsMap.set(formelem.id, formDiff);
             }
           });
+        },
+
+        getDirtyForms : function() {
+          var _me = this;
+          var dirtyFormIds = new Array();
+          _me._formDiffsMap.each(function(formEntry) {
+            if (formEntry.value.isDirty()) {
+              dirtyFormIds.push(formEntry.key);
+            }
+          });
+          return dirtyFormIds;
         },
 
         isDirty : function() {
@@ -237,12 +342,15 @@
           var isDirty = memoObj.isDirty;
           console.log('isDirty after listeners for ', _me._rootElem, isDirty);
           if (!isDirty) {
-            _me._formDiffsMap.each(function(formEntry) {
-              isDirty = isDirty || formEntry.value.isDirty();
-              console.log('isDirty after for ', formEntry.key, isDirty);
-            });
+            isDirty = (_me.getDirtyForms().size() > 0);
           }
           return isDirty;
+        },
+
+        saveAndContinue : function(responseCb) {
+          var jsonResponses = new Hash();
+          console.log('TODO do for all dirty forms');
+          responseCb(jsonResponses.toObject());
         }
 
   });
@@ -380,20 +488,20 @@
       var isDirty = false;
       if (_me.isValidFormId()) {
         if (_me._formDirtyOnLoad()) {
-          console.log('_getDirtyFormIds formDirtyOnLoad found. ');
+          console.log('isDirty formDirtyOnLoad found. ');
           isDirty = true;
         } else {
           _me._updateTinyMCETextAreas();
           _me.formElem.getElements().each(function(elem) {
             if (_me._isSubmittableField(elem) && _me._isDirtyField(elem)) {
-              console.log('_getDirtyFormIds first found dirty field: ', elem.name);
+              console.log('isDirty first found dirty field: ', elem.name);
               isDirty = true;
               throw $break;  //prototype each -> break
             }
           });
         }
       } else {
-        console.warn('_getDirtyFormIds: form with id [' + _me.formElem.id
+        console.warn('isDirty: form with id [' + _me.formElem.id
             + '] disappeared since loading the editor.');
       }
       return isDirty;
