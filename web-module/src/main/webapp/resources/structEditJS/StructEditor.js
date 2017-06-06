@@ -158,7 +158,7 @@
           var _me = this;
           var memoObj = {
             'structRootId' : _me._rootElem.id,
-            'editor' : newEditor,
+            'editor' : _me,
             'isDirty' : false,
           };
           _me.celFire('structEdit:isDirty', memoObj);
