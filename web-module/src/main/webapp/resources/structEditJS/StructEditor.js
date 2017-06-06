@@ -492,7 +492,7 @@
           isDirty = true;
         } else {
           _me._updateTinyMCETextAreas();
-          _me.formElem.getElements().each(function(elem) {
+          _me._formElem.getElements().each(function(elem) {
             if (_me._isSubmittableField(elem) && _me._isDirtyField(elem)) {
               console.log('isDirty first found dirty field: ', elem.name);
               isDirty = true;
