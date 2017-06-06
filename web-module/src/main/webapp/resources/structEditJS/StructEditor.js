@@ -122,7 +122,7 @@
                   console.log('save done.');
                   execCallback(transport, jsonResponses);
                 }
-            }});
+            });
           };
           if (dirtyEditors.size() > 0) {
             saveAllForms(dirtyEditors);
