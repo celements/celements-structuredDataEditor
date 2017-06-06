@@ -27,9 +27,9 @@
 
   if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={};};
 
-  /**
-   * StructEditorManager constructor
-   */
+  /****************************************
+   * StructEditorManager class definition *
+   ****************************************/
   window.CELEMENTS.structEdit.StructEditorManager = Class.create({
         _allStructEditorMap : undefined,
         _initStructEditorHandlerBind : undefined,
@@ -128,6 +128,9 @@
   CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend(
       CELEMENTS.structEdit.StructEditorManager.prototype, CELEMENTS.mixins.Observable);
 
+  /*********************************
+   * StructEditor class definition *
+   *********************************/
   CELEMENTS.structEdit.StructEditor = Class.create({
         _rootElem : undefined,
         _formDiffsMap : undefined,
@@ -174,6 +177,9 @@
   CELEMENTS.structEdit.StructEditor.prototype = Object.extend(
       CELEMENTS.structEdit.StructEditor.prototype, CELEMENTS.mixins.Observable);
 
+  /************************************
+   * FormDiffBuilder class definition *
+   ************************************/
   CELEMENTS.structEdit.FormDiffBuilder = Class.create({
     _formElem : undefined,
     _initialValues : undefined,
