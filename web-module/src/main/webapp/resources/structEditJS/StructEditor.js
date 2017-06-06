@@ -54,7 +54,7 @@
         getDirtyEditors : function() {
           var _me = this;
           var dirtyEditors = new Hash();
-          _allStructEditorMap.each(function(entry) {
+          _me._allStructEditorMap.each(function(entry) {
             if (entry.value.isDirty()) {
               dirtyEditors.set(entry.key, entry.value);
             }
