@@ -105,7 +105,7 @@
                 _me.celFire('structEdit:beforeInitEditor', { 'structRootId' : structRootId });
                 var newEditor = new CELEMENTS.structEdit.StructEditor(structRootElem);
                 _me._allStructEditorMap.set(structRootId, newEditor);
-                _me.celFire('structEdit:beforeInitEditor', {
+                _me.celFire('structEdit:afterInitEditor', {
                   'structRootId' : structRootId,
                   'editor' : newEditor
                 });
@@ -159,7 +159,7 @@
           var memoObj = {
             'structRootId' : _me._rootElem.id,
             'editor' : _me,
-            'isDirty' : false,
+            'isDirty' : false
           };
           _me.celFire('structEdit:isDirty', memoObj);
           var isDirty = memoObj.isDirty;
