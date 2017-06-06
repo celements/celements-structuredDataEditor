@@ -166,7 +166,7 @@
           console.log('isDirty after listeners for ', _me._rootElem, isDirty);
           if (!isDirty) {
             _me._formDiffsMap.each(function(formEntry) {
-              isDirty = isDirty && formEntry.value.isDirty();
+              isDirty = isDirty || formEntry.value.isDirty();
               console.log('isDirty after for ', formEntry.key, isDirty);
             });
           }
