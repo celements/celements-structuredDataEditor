@@ -157,7 +157,7 @@
         isDirty : function() {
           var _me = this;
           var memoObj = {
-            'structRootId' : structRootId,
+            'structRootId' : _me._rootElem.id,
             'editor' : newEditor,
             'isDirty' : false,
           };
