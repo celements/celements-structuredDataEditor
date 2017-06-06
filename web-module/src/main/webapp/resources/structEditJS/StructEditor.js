@@ -34,6 +34,7 @@
         _allStructEditorMap : undefined,
         _initStructEditorHandlerBind : undefined,
         _checkBeforeUnloadBind : undefined,
+        _loading : undefined,
 
         initialize : function() {
           var _me = this;
@@ -41,6 +42,7 @@
           _me._checkBeforeUnloadBind = _me._checkBeforeUnload.bind(_me);
           window.onbeforeunload = _me._checkBeforeUnloadBind;
           _me.registerListener();
+          _me._loading = new CELEMENTS.LoadingIndicator();
         },
 
         registerListener : function() {
@@ -49,6 +51,10 @@
           $(document.body).stopObserving("structEdit:initStructEditor",
               _me._initStructEditorHandlerBind);
           $(document.body).observe("structEdit:initStructEditor", _me._initStructEditorHandlerBind);
+        },
+
+        initButtons : function() {
+          var _me = this;
         },
 
         getDirtyEditors : function() {
@@ -65,6 +71,50 @@
         hasDirtyEditors : function() {
           var _me = this;
           return (_me.getDirtyEditors().size() > 0);
+        },
+
+        checkUnsavedChanges : function(execCallback, execCancelCallback) {
+          var _me = this;
+          execCallback = execCallback || function() {};
+          execCancelCallback = execCancelCallback || function() {};
+          if (_me.hasDirtyEditors()) {
+          var saveBeforeCloseQuestion = _me._getModalDialog();
+            saveBeforeCloseQuestion.setHeader(window.celMessages.structEditor.savingDialogWarningHeader);
+            saveBeforeCloseQuestion.setBody(window.celMessages.structEditor.savingDialogMessage);
+            saveBeforeCloseQuestion.cfg.setProperty("icon", YAHOO.widget.SimpleDialog.ICON_WARN);
+            saveBeforeCloseQuestion.cfg.queueProperty("buttons",
+                [ { text: window.celMessages.structEditor.savingDialogButtonDoNotSave, handler:function() {
+                    window.onbeforeunload = null;
+                    this.hide();
+                    execCallback();
+                    }},
+                      { text: window.celMessages.structEditor.savingDialogButtonCancel, handler:function() {
+                       this.cancel();
+                       execCancelCallback();
+                     } },
+                      { text: window.celMessages.structEditor.savingDialogButtonSave, handler:function() {
+                        var _dialog = this;
+                        _me.saveAllFormsAjax(function(transport, jsonResponses) {
+                          _dialog.hide();
+                          var failed = _me.showErrorMessages(jsonResponses);
+                          if ((typeof console != 'undefined')
+                              && (typeof console.log != 'undefined')) {
+                            console.log('saveAllFormsAjax returning: ', failed, jsonResponses,
+                                execCallback);
+                          }
+                    execCallback(transport, jsonResponses, failed);
+                  });
+                        _dialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
+                        _dialog.cfg.queueProperty("buttons", null);
+                        _dialog.setBody(_me._loading.getLoadingIndicator(true));
+                        _dialog.render();
+                      }, isDefault:true }
+                    ]);
+            saveBeforeCloseQuestion.render();
+            saveBeforeCloseQuestion.show();
+          } else {
+            execCallback();
+          }
         },
 
         _checkBeforeUnload : function() {
@@ -122,6 +172,28 @@
           console.log('initStructEditorHandler: run for ', checkRoot);
           _me.initStructEditors(checkRoot);
           console.log('initStructEditorHandler: finish for ', checkRoot);
+        },
+
+        _getModalDialog : function() {
+          if(!this.modalDialog) {
+            this.modalDialog = new YAHOO.widget.SimpleDialog("modal dialog", {
+                width: "auto",
+                fixedcenter: true,
+                visible: false,
+                draggable: false,
+                close: false,
+                zindex:4,
+                modal:true,
+                monitorresize:false,
+                icon: YAHOO.widget.SimpleDialog.ICON_HELP,
+                constraintoviewport: true
+                } );
+          }
+          //add skin-div to get default yui-skin-sam layouting for the dialog
+          var yuiSamSkinDiv = new Element('div', {'class' : 'yui-skin-sam'});
+          $(document.body).insert(yuiSamSkinDiv);
+          this.modalDialog.render(yuiSamSkinDiv);
+          return this.modalDialog;
         }
 
   });
