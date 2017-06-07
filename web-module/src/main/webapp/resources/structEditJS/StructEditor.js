@@ -56,6 +56,16 @@
       }
     },
 
+    initCloseButton : function() {
+      var _me = this;
+      _me._registerButton('structEditClose', _me._closeClickHandlerBind);
+    },
+
+    initSaveButton : function() {
+      var _me = this;
+      _me._registerButton('structEditSave', _me._saveClickHandlerBind);
+    },
+
     _closeClickHandler : function(event) {
       var _me = this;
       event.stop();
@@ -71,30 +81,7 @@
       });
     },
 
-    initCloseButton : function() {
-      var _me = this;
-      _me._registerButton('structEditClose', _me._closeClickHandlerBind);
-    },
-
-    _deleteParamsFromURL : function() {
-      var newUrlParams = [];
-      var standardWhiteList = ["language", "xredirect", "xcontinue"];
-      var additionalWhiteList = [];
-      $j("input[name=white_list_url]").each(function( index, inputElem ) {
-        additionalWhiteList.add(inputElem.value);
-      });
-      standardWhiteList = standardWhiteList.concat(additionalWhiteList);
-      for (var index = 0; index < standardWhiteList.length; index++) {
-        var regEx = new RegExp("^.*(" + standardWhiteList[index] + "=[^&]*).*$", "g");
-        var regExArray = regEx.exec(window.location.search);
-        if (regExArray != null) {
-          newUrlParams = newUrlParams.concat(regExArray.slice(1));
-        }
-      }
-      return newUrlParams.join('&');
-    },
-
-    _saveClickHandler : function() {
+    _saveClickHandler : function(event) {
       var _me = this;
       event.stop();
       _me.saveAndContinue(function(transport, jsonResponses, failed) {
@@ -119,9 +106,22 @@
       });
     },
 
-    initSaveButton : function() {
-      var _me = this;
-      _me._registerButton('structEditSave', _me._saveClickHandlerBind);
+    _deleteParamsFromURL : function() {
+      var newUrlParams = [];
+      var standardWhiteList = ["language", "xredirect", "xcontinue"];
+      var additionalWhiteList = [];
+      $j("input[name=white_list_url]").each(function( index, inputElem ) {
+        additionalWhiteList.add(inputElem.value);
+      });
+      standardWhiteList = standardWhiteList.concat(additionalWhiteList);
+      for (var index = 0; index < standardWhiteList.length; index++) {
+        var regEx = new RegExp("^.*(" + standardWhiteList[index] + "=[^&]*).*$", "g");
+        var regExArray = regEx.exec(window.location.search);
+        if (regExArray != null) {
+          newUrlParams = newUrlParams.concat(regExArray.slice(1));
+        }
+      }
+      return newUrlParams.join('&');
     }
 
   });
