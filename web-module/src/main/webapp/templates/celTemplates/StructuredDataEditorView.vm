@@ -1,6 +1,7 @@
 <!-- StructuredDataEditorView -->
-<link rel="stylesheet" type="text/css" href="$xwiki.getSkinFile('celJS/yui/assets/skins/sam/container.css', true)" />
-<link rel="stylesheet" type="text/css" href="$xwiki.getSkinFile('celJS/yui/assets/skins/sam/button.css', true)" />
+<link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':celJS/yui/assets/skins/sam/container.css', 'file')">
+<link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':celJS/yui/assets/skins/sam/button.css', 'file')">
+<link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':structEditRes/structEdit.css', 'file')">
 ##IMPORTANT js must be added to the PageType to load in header
 ##$services.javascript.addExtJSfileOnce(':structEditJS/StructEditor.js', 'file')
 ##$services.javascript.addExtJSfileOnce(':structEditJS/initStructEditor.js', 'file')
