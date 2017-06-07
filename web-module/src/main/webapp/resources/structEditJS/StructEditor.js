@@ -124,14 +124,9 @@
       if ($$('input.celEditorRedirect').size() > 0) {
         redirectValue = $F($$('input.celEditorRedirect')[0]);
       } else {
-        var firstFormName = _me.getFirstFormWithId() || 0;
-        var firstForm = document.forms[firstFormName];
-        if (firstForm && firstForm['xredirect']) {
-          if (firstForm['xredirect'][0]) {
-            redirectValue = $F(firstForm['xredirect'][0]);
-          } else {
-            redirectValue = $F(firstForm['xredirect']);
-          }
+        var matchStr = window.location.search.match(/[?&]xredirect=([^&]*)/);
+        if (matchStr) {
+          redirectValue = matchStr[1];
         }
       }
       var redirectBaseValue = window.location.pathname.replace(/\/edit\/|\/inline\//,
