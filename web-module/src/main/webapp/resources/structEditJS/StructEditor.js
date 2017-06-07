@@ -83,8 +83,8 @@
     _saveClickHandler : function(event) {
       var _me = this;
       event.stop();
-      _me._editorManager.saveAllFormsAsync(function(jsonResponses, failed) {
-        console.log('saveClickHandler saveAllFormsAsync callback ', jsonResponses, failed);
+      _me._editorManager.saveAndContinue(function(jsonResponses, failed) {
+        console.log('saveClickHandler saveAndContinue callback ', jsonResponses, failed);
         if (!failed) {
           //remove template in url query after creating document in inline mode
           try {
@@ -93,7 +93,7 @@
               window.location.search = _me._deleteParamsFromURL();
             }
           } catch (err) {
-            console.error('_saveClickHandler: error in saveAllFormsAsync callback ', err);
+            console.error('_saveClickHandler: error in saveAndContinue callback ', err);
           }
           _me._editorManager.celFire('structEdit:saveAndContinueButtonSuccessful', {
             'jsonResponses' :jsonResponses
@@ -281,7 +281,33 @@
       }
     },
 
-    _checkBeforeUnload : function() {
+    saveAndContinue : function(execCallback) {
+      var _me = this;
+      //TODO add possibility to add JS-listener which can do additional 'isDirty' checks
+      if (_me.hasDirtyEditors()) {
+        var savingDialog = _me._getModalDialog();
+        savingDialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
+        savingDialog.setBody(_me._loading.getLoadingIndicator(true));
+        savingDialog.cfg.queueProperty("buttons", null);
+        savingDialog.render();
+        savingDialog.show();
+        //TODO add possibility to add JS-listener which can execute alternative save actions
+        _me.saveAllFormsAsync(function(transport, jsonResponses) {
+          savingDialog.hide();
+          var failed = _me.showErrorMessages(jsonResponses);
+          if (failed) {
+            _me.celFire('structEdit:failingSaved', jsonResponses);
+          } else {
+            _me.celFire('structEdit:successfulSaved', jsonResponses);
+          }
+          if ((typeof(execCallback) != 'undefined') && execCallback) {
+            execCallback(transport, jsonResponses, failed);
+          }
+        });
+      }
+     },
+
+     _checkBeforeUnload : function() {
       var _me = this;
       if (_me.hasDirtyEditors()) {
         if (window.celMessages && window.celMessages.structEditor
