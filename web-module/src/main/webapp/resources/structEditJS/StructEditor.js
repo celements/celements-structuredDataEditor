@@ -64,6 +64,7 @@
         _checkBeforeUnloadBind : undefined,
         _loading : undefined,
         _buttonHandler : undefined,
+        _modalDialog : undefined,
 
         initialize : function(buttonHandler) {
           var _me = this;
@@ -269,15 +270,16 @@
         },
 
         _getModalDialog : function() {
-          if(!this.modalDialog) {
-            this.modalDialog = new YAHOO.widget.SimpleDialog("modal dialog", {
+          var _me = this;
+          if(!_me._modalDialog) {
+            _me._modalDialog = new YAHOO.widget.SimpleDialog("modal dialog", {
                 width: "auto",
                 fixedcenter: true,
                 visible: false,
                 draggable: false,
                 close: false,
-                zindex:4,
-                modal:true,
+                zindex: 101,
+                modal: true,
                 monitorresize:false,
                 icon: YAHOO.widget.SimpleDialog.ICON_HELP,
                 constraintoviewport: true
@@ -286,8 +288,8 @@
           //add skin-div to get default yui-skin-sam layouting for the dialog
           var yuiSamSkinDiv = new Element('div', {'class' : 'yui-skin-sam'});
           $(document.body).insert(yuiSamSkinDiv);
-          this.modalDialog.render(yuiSamSkinDiv);
-          return this.modalDialog;
+          _me._modalDialog.render(yuiSamSkinDiv);
+          return _me._modalDialog;
         }
 
   });
