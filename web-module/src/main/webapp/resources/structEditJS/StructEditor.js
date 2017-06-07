@@ -84,7 +84,7 @@
     _saveClickHandler : function(event) {
       var _me = this;
       event.stop();
-      _me.saveAndContinue(function(transport, jsonResponses, failed) {
+      _me._editorManager.saveAllFormsAsync(function(transport, jsonResponses, failed) {
         if (!failed) {
           //remove template in url query after creating document in inline mode
           try {
@@ -93,7 +93,7 @@
               window.location.search = _me._deleteParamsFromURL();
             }
           } catch (err) {
-            console.error('initSaveButton: error in saveAndContinue callback ', err);
+            console.error('_saveClickHandler: error in saveAllFormsAsync callback ', err);
           }
           _me._editorManager.celFire('structEdit:saveAndContinueButtonSuccessful', {
             'jsonResponses' :jsonResponses
