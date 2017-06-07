@@ -521,7 +521,7 @@
                 saveAllForms(remainingDirtyFormIds);
                 } else {
                   console.log('save done.');
-                  execCallback(transport, jsonResponses.toObject());
+                  execCallback(jsonResponses.toObject());
                 }
             }});
           };
@@ -529,7 +529,7 @@
           if (dirtyFormIds.size() > 0) {
             saveAllForms(dirtyFormIds);
           } else {
-            execCallback();
+            execCallback(jsonResponses.toObject());
           }
         }
 
