@@ -84,6 +84,7 @@
       var _me = this;
       event.stop();
       _me._editorManager.saveAllFormsAsync(function(jsonResponses, failed) {
+        console.log('saveClickHandler saveAllFormsAsync callback ', jsonResponses, failed);
         if (!failed) {
           //remove template in url query after creating document in inline mode
           try {
