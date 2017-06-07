@@ -431,119 +431,119 @@
    * StructEditor class definition *
    *********************************/
   CELEMENTS.structEdit.StructEditor = Class.create({
-        _rootElem : undefined,
-        _formDiffsMap : undefined,
-        _resetOneFormDiffBind : undefined,
+    _rootElem : undefined,
+    _formDiffsMap : undefined,
+    _resetOneFormDiffBind : undefined,
 
-        initialize : function(editorRootElem) {
-          var _me = this;
-          _me._rootElem = editorRootElem;
-          _me._resetOneFormDiffBind = _me._resetOneFormDiff.bind(_me);
-          console.log('start init StructEditor for ', _me._rootElem);
-          _me._resetFormDiffs();
-          console.log('finish init StructEditor for ', _me._rootElem);
-        },
+    initialize : function(editorRootElem) {
+      var _me = this;
+      _me._rootElem = editorRootElem;
+      _me._resetOneFormDiffBind = _me._resetOneFormDiff.bind(_me);
+      console.log('start init StructEditor for ', _me._rootElem);
+      _me._resetFormDiffs();
+      console.log('finish init StructEditor for ', _me._rootElem);
+    },
 
-        _resetFormDiffs : function() {
-          var _me = this;
-          _me._formDiffsMap = new Hash();
-          _me._rootElem.select('form').each(_me._resetOneFormDiffBind);
-        },
+    _resetFormDiffs : function() {
+      var _me = this;
+      _me._formDiffsMap = new Hash();
+      _me._rootElem.select('form').each(_me._resetOneFormDiffBind);
+    },
 
-        _resetOneFormDiff : function(theForm) {
-          var _me = this;
-          _me._formDiffsMap = _me._formDiffsMap || new Hash();
-          var formDiff = new CELEMENTS.structEdit.FormDiffBuilder(theForm);
-          if (formDiff.isValidFormId()) {
-            _me._formDiffsMap.set(formDiff.getFormId(), formDiff);
-          }
-        },
+    _resetOneFormDiff : function(theForm) {
+      var _me = this;
+      _me._formDiffsMap = _me._formDiffsMap || new Hash();
+      var formDiff = new CELEMENTS.structEdit.FormDiffBuilder(theForm);
+      if (formDiff.isValidFormId()) {
+        _me._formDiffsMap.set(formDiff.getFormId(), formDiff);
+      }
+    },
 
-        getDirtyFormIds : function() {
-          var _me = this;
-          var dirtyFormIds = new Array();
-          _me._formDiffsMap.each(function(formEntry) {
-            if (formEntry.value.isDirty()) {
-              dirtyFormIds.push(formEntry.key);
-            }
-          });
-          return dirtyFormIds;
-        },
-
-        isDirty : function() {
-          var _me = this;
-          var memoObj = {
-            'structRootId' : _me._rootElem.id,
-            'editor' : _me,
-            'isDirty' : false
-          };
-          _me.celFire('structEdit:isDirty', memoObj);
-          var isDirty = memoObj.isDirty;
-          console.log('isDirty after listeners for ', _me._rootElem, isDirty);
-          if (!isDirty) {
-            isDirty = (_me.getDirtyFormIds().size() > 0);
-          }
-          return isDirty;
-        },
-
-        _saveAndContinueAjax : function(formName, handler) {
-         if(document.forms[formName]) {
-           document.forms[formName].select('textarea.mceEditor').each(function(formfield) {
-              console.log('textarea save tinymce: ', formfield.name, tinyMCE.get(formfield.id).save());
-              formfield.value = tinyMCE.get(formfield.id).save();
-            });
-            $(formName).request(handler);
-          } else {
-            console.error('form not found: ', formName);
-          }
-        },
-
-        _handleSaveAjaxResponse : function(formId, transport, jsonResponses) {
-          if (transport.responseText.isJSON()) {
-            console.log('_handleSaveAjaxResponse with json result: ', transport.responseText);
-            var jsonResult = transport.responseText.evalJSON();
-            jsonResponses.set(formId, jsonResult);
-            if (jsonResult.successful) {
-              return true;
-            } else {
-              console.warn('_handleSaveAjaxResponse: save failed for [' + formId + ']: ',
-                  jsonResult);
-            }
-          } else {
-            return true;
-          }
-          return false;
-        },
-
-        saveAllDirtyForms : function(execCallback, doNotSaveFormId) {
-          var _me = this;
-          doNotSaveFormId = doNotSaveFormId || [];
-          var dirtyFormIds = _me.getDirtyFormIds();
-          var jsonResponses = new Hash();
-          var saveAllForms = function(allDirtyFormIds) {
-            var formId = allDirtyFormIds.pop();
-            var remainingDirtyFormIds = allDirtyFormIds;
-            _me._saveAndContinueAjax(formId, { onSuccess : function(transport) {
-              if (_me._handleSaveAjaxResponse(formId, transport, jsonResponses)) {
-//                _me._isEditorDirtyOnLoad = false;
-                _me._resetOneFormDiff(formId);
-              }
-              if (remainingDirtyFormIds.size() > 0) {
-                console.log('next saveAllForms with: ', remainingDirtyFormIds);
-                saveAllForms(remainingDirtyFormIds);
-                } else {
-                  console.log('save done.');
-                  execCallback(jsonResponses.toObject());
-                }
-            }});
-          };
-          dirtyFormIds = dirtyFormIds.without(doNotSaveFormId);
-          if (dirtyFormIds.size() > 0) {
-            saveAllForms(dirtyFormIds);
-          } else {
-            execCallback(jsonResponses.toObject());
-          }
+    getDirtyFormIds : function() {
+      var _me = this;
+      var dirtyFormIds = new Array();
+      _me._formDiffsMap.each(function(formEntry) {
+        if (formEntry.value.isDirty()) {
+          dirtyFormIds.push(formEntry.key);
         }
+      });
+      return dirtyFormIds;
+    },
+
+    isDirty : function() {
+      var _me = this;
+      var memoObj = {
+        'structRootId' : _me._rootElem.id,
+        'editor' : _me,
+        'isDirty' : false
+      };
+      _me.celFire('structEdit:isDirty', memoObj);
+      var isDirty = memoObj.isDirty;
+      console.log('isDirty after listeners for ', _me._rootElem, isDirty);
+      if (!isDirty) {
+        isDirty = (_me.getDirtyFormIds().size() > 0);
+      }
+      return isDirty;
+    },
+
+    _saveAndContinueAjax : function(formName, handler) {
+     if(document.forms[formName]) {
+       document.forms[formName].select('textarea.mceEditor').each(function(formfield) {
+          console.log('textarea save tinymce: ', formfield.name, tinyMCE.get(formfield.id).save());
+          formfield.value = tinyMCE.get(formfield.id).save();
+        });
+        $(formName).request(handler);
+      } else {
+        console.error('form not found: ', formName);
+      }
+    },
+
+    _handleSaveAjaxResponse : function(formId, transport, jsonResponses) {
+      if (transport.responseText.isJSON()) {
+        console.log('_handleSaveAjaxResponse with json result: ', transport.responseText);
+        var jsonResult = transport.responseText.evalJSON();
+        jsonResponses.set(formId, jsonResult);
+        if (jsonResult.successful) {
+          return true;
+        } else {
+          console.warn('_handleSaveAjaxResponse: save failed for [' + formId + ']: ',
+              jsonResult);
+        }
+      } else {
+        return true;
+      }
+      return false;
+    },
+
+    saveAllDirtyForms : function(execCallback, doNotSaveFormId) {
+      var _me = this;
+      doNotSaveFormId = doNotSaveFormId || [];
+      var dirtyFormIds = _me.getDirtyFormIds();
+      var jsonResponses = new Hash();
+      var saveAllForms = function(allDirtyFormIds) {
+        var formId = allDirtyFormIds.pop();
+        var remainingDirtyFormIds = allDirtyFormIds;
+        _me._saveAndContinueAjax(formId, { onSuccess : function(transport) {
+          if (_me._handleSaveAjaxResponse(formId, transport, jsonResponses)) {
+//                _me._isEditorDirtyOnLoad = false;
+            _me._resetOneFormDiff(formId);
+          }
+          if (remainingDirtyFormIds.size() > 0) {
+            console.log('next saveAllForms with: ', remainingDirtyFormIds);
+            saveAllForms(remainingDirtyFormIds);
+            } else {
+              console.log('save done.');
+              execCallback(jsonResponses.toObject());
+            }
+        }});
+      };
+      dirtyFormIds = dirtyFormIds.without(doNotSaveFormId);
+      if (dirtyFormIds.size() > 0) {
+        saveAllForms(dirtyFormIds);
+      } else {
+        execCallback(jsonResponses.toObject());
+      }
+    }
 
   });
   CELEMENTS.structEdit.StructEditor.prototype = Object.extend(
