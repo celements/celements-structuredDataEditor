@@ -69,9 +69,8 @@
     _closeClickHandler : function(event) {
       var _me = this;
       event.stop();
-      _me._editorManager.checkUnsavedChanges(function(transport, jsonResponses, failed) {
-        console.log('closeClickHandler checkUnsavedChanges callback ', transport, jsonResponses,
-            failed);
+      _me._editorManager.checkUnsavedChanges(function(jsonResponses, failed) {
+        console.log('closeClickHandler checkUnsavedChanges callback ', jsonResponses, failed);
         if (!failed) {
           window.onbeforeunload = null;
           window.location.href = _me._editorManager.getCancelURL();
@@ -84,7 +83,7 @@
     _saveClickHandler : function(event) {
       var _me = this;
       event.stop();
-      _me._editorManager.saveAllFormsAsync(function(transport, jsonResponses, failed) {
+      _me._editorManager.saveAllFormsAsync(function(jsonResponses, failed) {
         if (!failed) {
           //remove template in url query after creating document in inline mode
           try {
@@ -222,7 +221,7 @@
             saveAllForms(remainingDirtyEditorsMap);
             } else {
               console.log('save done.');
-              execCallback(transport, jsonResponses);
+              execCallback(jsonResponses);
             }
         });
       };
@@ -262,11 +261,11 @@
               handler : function() {
                 console.log('save button pressed!');
                 var _dialog = this;
-                _me.saveAllFormsAsync(function(transport, jsonResponses) {
+                _me.saveAllFormsAsync(function(jsonResponses) {
                   _dialog.hide();
                   var failed = _me.showErrorMessages(jsonResponses);
                   console.log('saveAllFormsAsync returning: ', failed, jsonResponses, execCallback);
-                  execCallback(transport, jsonResponses, failed);
+                  execCallback(jsonResponses, failed);
                 });
                 _dialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
                 _dialog.cfg.queueProperty("buttons", null);
