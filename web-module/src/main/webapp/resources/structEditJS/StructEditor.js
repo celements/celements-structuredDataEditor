@@ -215,15 +215,17 @@
         var editor = remainingDirtyEditors.get(editorKey);
         remainingDirtyEditors.unset(editorKey);
         var remainingDirtyEditorsMap = remainingDirtyEditors;
-        editor.saveAndContinue(function(additionalResponses) {
+        editor.saveAllDirtyForms(function(additionalResponses) {
+          console.log('saveAllFormsAsync: saveAllDirtyForms callback ', jsonResponses,
+              additionalResponses);
           jsonResponses.update(additionalResponses);
           if (remainingDirtyEditorsMap.size() > 0) {
             console.log('next saveAllForms with: ', remainingDirtyEditorsMap.inspect());
             saveAllForms(remainingDirtyEditorsMap);
-            } else {
-              console.log('save done.');
-              execCallback(jsonResponses);
-            }
+          } else {
+            console.log('save done.', jsonResponses);
+            execCallback(jsonResponses);
+          }
         });
       };
       if (dirtyEditors.size() > 0) {
@@ -479,7 +481,7 @@
           return isDirty;
         },
 
-        saveAndContinue : function(responseCb) {
+        saveAllDirtyForms : function(responseCb) {
           var jsonResponses = new Hash();
           console.log('TODO do for all dirty forms');
           responseCb(jsonResponses.toObject());
