@@ -459,7 +459,7 @@
           }
         },
 
-        getDirtyFormsIds : function() {
+        getDirtyFormIds : function() {
           var _me = this;
           var dirtyFormIds = new Array();
           _me._formDiffsMap.each(function(formEntry) {
@@ -481,7 +481,7 @@
           var isDirty = memoObj.isDirty;
           console.log('isDirty after listeners for ', _me._rootElem, isDirty);
           if (!isDirty) {
-            isDirty = (_me.getDirtyFormsIds().size() > 0);
+            isDirty = (_me.getDirtyFormIds().size() > 0);
           }
           return isDirty;
         },
