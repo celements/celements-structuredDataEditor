@@ -486,6 +486,18 @@
           return isDirty;
         },
 
+        _saveAndContinueAjax : function(formName, handler) {
+         if(document.forms[formName]) {
+           document.forms[formName].select('textarea.mceEditor').each(function(formfield) {
+              console.log('textarea save tinymce: ', formfield.name, tinyMCE.get(formfield.id).save());
+              formfield.value = tinyMCE.get(formfield.id).save();
+            });
+            $(formName).request(handler);
+          } else {
+            console.error('form not found: ', formName);
+          }
+        },
+
         _handleSaveAjaxResponse : function(formId, transport, jsonResponses) {
           if (transport.responseText.isJSON()) {
             console.log('_handleSaveAjaxResponse with json result: ', transport.responseText);
@@ -511,7 +523,7 @@
           var saveAllForms = function(allDirtyFormIds) {
             var formId = allDirtyFormIds.pop();
             var remainingDirtyFormIds = allDirtyFormIds;
-            _me.saveAndContinueAjax(formId, { onSuccess : function(transport) {
+            _me._saveAndContinueAjax(formId, { onSuccess : function(transport) {
               if (_me._handleSaveAjaxResponse(formId, transport, jsonResponses)) {
 //                _me._isEditorDirtyOnLoad = false;
                 _me._resetOneFormDiff(formId);
