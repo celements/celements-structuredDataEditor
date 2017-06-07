@@ -286,7 +286,7 @@
                 } );
           }
           //add skin-div to get default yui-skin-sam layouting for the dialog
-          var yuiSamSkinDiv = new Element('div', {'class' : 'yui-skin-sam'});
+          var yuiSamSkinDiv = new Element('div', {'class' : 'yui-skin-sam structEditorModalDialog'});
           $(document.body).insert(yuiSamSkinDiv);
           _me._modalDialog.render(yuiSamSkinDiv);
           return _me._modalDialog;
