@@ -294,7 +294,7 @@
         savingDialog.render();
         savingDialog.show();
         //TODO add possibility to add JS-listener which can execute alternative save actions
-        _me.saveAllFormsAsync(function(transport, jsonResponses) {
+        _me.saveAllFormsAsync(function(jsonResponses) {
           savingDialog.hide();
           var failed = _me.showErrorMessages(jsonResponses);
           if (failed) {
@@ -303,7 +303,7 @@
             _me.celFire('structEdit:successfulSaved', jsonResponses);
           }
           if ((typeof(execCallback) != 'undefined') && execCallback) {
-            execCallback(transport, jsonResponses, failed);
+            execCallback(jsonResponses, failed);
           }
         });
       }
