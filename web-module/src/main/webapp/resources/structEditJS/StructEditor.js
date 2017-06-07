@@ -285,6 +285,7 @@
 
     saveAndContinue : function(execCallback) {
       var _me = this;
+      execCallback = execCallback || function() {};
       //TODO add possibility to add JS-listener which can do additional 'isDirty' checks
       if (_me.hasDirtyEditors()) {
         var savingDialog = _me._getModalDialog();
@@ -302,9 +303,7 @@
           } else {
             _me.celFire('structEdit:successfulSaved', jsonResponses);
           }
-          if ((typeof(execCallback) != 'undefined') && execCallback) {
-            execCallback(jsonResponses, failed);
-          }
+          execCallback(jsonResponses, failed);
         });
       }
      },
