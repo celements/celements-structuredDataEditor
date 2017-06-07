@@ -32,15 +32,28 @@
    ****************************************/
   window.CELEMENTS.structEdit.CelementsButtonHandler = Class.create({
     _closeClickHandlerBind : undefined,
+    _saveClickHandlerBind : undefined,
     _editorManager : undefined,
 
     initButtons : function(editorManager) {
       var _me = this;
       _me._closeClickHandlerBind = _me._closeClickHandler.bind(_me);
+      _me._saveClickHandlerBind = _me._saveClickHandler.bind(_me);
       _me._editorManager = editorManager;
       _me.initCloseButton();
-      //TODO connect buttons with saving functions!
-      // structEditSave
+      _me.initSaveButton();
+    },
+
+    _registerButton : function(cssClassName, clickHandler) {
+      var _me = this;
+      var buttonElem = _me._editorManager.getRootElem().down('.' + cssClassName);
+      if (buttonElem) {
+        buttonElem.stopObserving('click', clickHandler);
+        buttonElem.observe('click', clickHandler);
+        buttonElem.setStyle({'pointer' : 'cursor'});
+      } else {
+        console.warn('registerButton: no "' + cssClassName + '" found!');
+      }
     },
 
     _closeClickHandler : function(event) {
@@ -60,14 +73,55 @@
 
     initCloseButton : function() {
       var _me = this;
-      var closeButton = _me._editorManager.getRootElem().down('.structEditClose');
-      if (closeButton) {
-        closeButton.stopObserving('click', _me._closeClickHandlerBind);
-        closeButton.observe('click', _me._closeClickHandlerBind);
-        closeButton.setStyle({'pointer' : 'cursor'});
-      } else {
-        console.warn('initCloseButton: no structEditClose found!');
+      _me._registerButton('structEditClose', _me._closeClickHandlerBind);
+    },
+
+    _deleteParamsFromURL : function() {
+      var newUrlParams = [];
+      var standardWhiteList = ["language", "xredirect", "xcontinue"];
+      var additionalWhiteList = [];
+      $j("input[name=white_list_url]").each(function( index, inputElem ) {
+        additionalWhiteList.add(inputElem.value);
+      });
+      standardWhiteList = standardWhiteList.concat(additionalWhiteList);
+      for (var index = 0; index < standardWhiteList.length; index++) {
+        var regEx = new RegExp("^.*(" + standardWhiteList[index] + "=[^&]*).*$", "g");
+        var regExArray = regEx.exec(window.location.search);
+        if (regExArray != null) {
+          newUrlParams = newUrlParams.concat(regExArray.slice(1));
+        }
       }
+      return newUrlParams.join('&');
+    },
+
+    _saveClickHandler : function() {
+      var _me = this;
+      event.stop();
+      _me.saveAndContinue(function(transport, jsonResponses, failed) {
+        if (!failed) {
+          //remove template in url query after creating document in inline mode
+          try {
+            if (window.location.search.match(/\&?template=[^\&]+/)) {
+              window.onbeforeunload = null;
+              window.location.search = _me._deleteParamsFromURL();
+            }
+          } catch (err) {
+            console.error('initSaveButton: error in saveAndContinue callback ', err);
+          }
+          _me._editorManager.celFire('structEdit:saveAndContinueButtonSuccessful', {
+            'jsonResponses' :jsonResponses
+          });
+        } else {
+          _me._editorManager.celFire('structEdit:saveAndContinueButtonFailed', {
+            'jsonResponses' :jsonResponses
+          });
+        }
+      });
+    },
+
+    initSaveButton : function() {
+      var _me = this;
+      _me._registerButton('structEditSave', _me._saveClickHandlerBind);
     }
 
   });
