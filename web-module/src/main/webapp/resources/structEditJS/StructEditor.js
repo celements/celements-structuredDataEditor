@@ -206,22 +206,22 @@
       return (_me.getDirtyEditors().size() > 0);
     },
 
-    saveAllFormsAsync : function(execCallback) {
+    saveAllEditorsAsync : function(execCallback) {
       var _me = this;
       var dirtyEditors = _me.getDirtyEditors();
       var jsonResponses = new Hash();
-      var saveAllForms = function(remainingDirtyEditors) {
+      var saveAllEditors = function(remainingDirtyEditors) {
         var editorKey = remainingDirtyEditors.keys[0];
         var editor = remainingDirtyEditors.get(editorKey);
         remainingDirtyEditors.unset(editorKey);
         var remainingDirtyEditorsMap = remainingDirtyEditors;
         editor.saveAllDirtyForms(function(additionalResponses) {
-          console.log('saveAllFormsAsync: saveAllDirtyForms callback ', jsonResponses,
+          console.log('saveAllEditorsAsync: saveAllDirtyForms callback ', jsonResponses,
               additionalResponses);
           jsonResponses.update(additionalResponses);
           if (remainingDirtyEditorsMap.size() > 0) {
-            console.log('next saveAllForms with: ', remainingDirtyEditorsMap.inspect());
-            saveAllForms(remainingDirtyEditorsMap);
+            console.log('next saveAllEditors with: ', remainingDirtyEditorsMap.inspect());
+            saveAllEditors(remainingDirtyEditorsMap);
           } else {
             console.log('save done.', jsonResponses);
             execCallback(jsonResponses);
@@ -229,7 +229,7 @@
         });
       };
       if (dirtyEditors.size() > 0) {
-        saveAllForms(dirtyEditors);
+        saveAllEditors(dirtyEditors);
       } else {
         execCallback();
       }
@@ -264,10 +264,10 @@
               handler : function() {
                 console.log('save button pressed!');
                 var _dialog = this;
-                _me.saveAllFormsAsync(function(jsonResponses) {
+                _me.saveAllEditorsAsync(function(jsonResponses) {
                   _dialog.hide();
                   var failed = _me.showErrorMessages(jsonResponses);
-                  console.log('saveAllFormsAsync returning: ', failed, jsonResponses, execCallback);
+                  console.log('saveAllEditorsAsync returning: ', failed, jsonResponses, execCallback);
                   execCallback(jsonResponses, failed);
                 });
                 _dialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
@@ -295,7 +295,7 @@
         savingDialog.render();
         savingDialog.show();
         //TODO add possibility to add JS-listener which can execute alternative save actions
-        _me.saveAllFormsAsync(function(jsonResponses) {
+        _me.saveAllEditorsAsync(function(jsonResponses) {
           savingDialog.hide();
           var failed = _me.showErrorMessages(jsonResponses);
           if (failed) {
@@ -433,10 +433,12 @@
   CELEMENTS.structEdit.StructEditor = Class.create({
         _rootElem : undefined,
         _formDiffsMap : undefined,
+        _resetOneFormDiffBind : undefined,
 
         initialize : function(editorRootElem) {
           var _me = this;
           _me._rootElem = editorRootElem;
+          _me._resetOneFormDiffBind = _me._resetOneFormDiff.bind(_me);
           console.log('start init StructEditor for ', _me._rootElem);
           _me._resetFormDiffs();
           console.log('finish init StructEditor for ', _me._rootElem);
@@ -445,15 +447,19 @@
         _resetFormDiffs : function() {
           var _me = this;
           _me._formDiffsMap = new Hash();
-          _me._rootElem.select('form').each(function(formelem) {
-            var formDiff = new CELEMENTS.structEdit.FormDiffBuilder(formelem);
-            if (formDiff.isValidFormId()) {
-              _me._formDiffsMap.set(formelem.id, formDiff);
-            }
-          });
+          _me._rootElem.select('form').each(_me._resetOneFormDiffBind);
         },
 
-        getDirtyForms : function() {
+        _resetOneFormDiff : function(theForm) {
+          var _me = this;
+          _me._formDiffsMap = _me._formDiffsMap || new Hash();
+          var formDiff = new CELEMENTS.structEdit.FormDiffBuilder(theForm);
+          if (formDiff.isValidFormId()) {
+            _me._formDiffsMap.set(formDiff.getFormId(), formDiff);
+          }
+        },
+
+        getDirtyFormsIds : function() {
           var _me = this;
           var dirtyFormIds = new Array();
           _me._formDiffsMap.each(function(formEntry) {
@@ -475,15 +481,57 @@
           var isDirty = memoObj.isDirty;
           console.log('isDirty after listeners for ', _me._rootElem, isDirty);
           if (!isDirty) {
-            isDirty = (_me.getDirtyForms().size() > 0);
+            isDirty = (_me.getDirtyFormsIds().size() > 0);
           }
           return isDirty;
         },
 
-        saveAllDirtyForms : function(responseCb) {
+        _handleSaveAjaxResponse : function(formId, transport, jsonResponses) {
+          if (transport.responseText.isJSON()) {
+            console.log('_handleSaveAjaxResponse with json result: ', transport.responseText);
+            var jsonResult = transport.responseText.evalJSON();
+            jsonResponses.set(formId, jsonResult);
+            if (jsonResult.successful) {
+              return true;
+            } else {
+              console.warn('_handleSaveAjaxResponse: save failed for [' + formId + ']: ',
+                  jsonResult);
+            }
+          } else {
+            return true;
+          }
+          return false;
+        },
+
+        saveAllDirtyForms : function(execCallback) {
+          var _me = this;
+          var dirtyFormIds = _me.getDirtyFormIds();
           var jsonResponses = new Hash();
-          console.log('TODO do for all dirty forms');
-          responseCb(jsonResponses.toObject());
+          var saveAllForms = function(allDirtyFormIds) {
+            var formId = allDirtyFormIds.pop();
+            var remainingDirtyFormIds = allDirtyFormIds;
+            _me.saveAndContinueAjax(formId, { onSuccess : function(transport) {
+              if (_me._handleSaveAjaxResponse(formId, transport, jsonResponses)) {
+//                _me._isEditorDirtyOnLoad = false;
+                _me._resetOneFormDiff(formId);
+              }
+              if (remainingDirtyFormIds.size() > 0) {
+                console.log('next saveAllForms with: ', remainingDirtyFormIds);
+                saveAllForms(remainingDirtyFormIds);
+                } else {
+                  console.log('save done.');
+                  execCallback(transport, jsonResponses.toObject());
+                }
+            }});
+          };
+          if (doNotSaveFormId && (doNotSaveFormId != '')) {
+            dirtyFormIds = dirtyFormIds.without(doNotSaveFormId);
+          }
+          if (dirtyFormIds.size() > 0) {
+            saveAllForms(dirtyFormIds);
+          } else {
+            execCallback();
+          }
         }
 
   });
@@ -497,16 +545,21 @@
     _formElem : undefined,
     _initialValues : undefined,
 
-    initialize : function(formElem) {
+    initialize : function(theForm) {
       var _me = this;
-      _me._formElem = formElem;
+      _me._formElem = $(theForm);
       _me._initialValues = new Hash();
       _me._retrieveInitialValues();
     },
 
+    getFormId : function() {
+      var _me = this;
+      return _me._formElem.id;
+    },
+
     isValidFormId : function() {
       var _me = this;
-      var formId = _me._formElem.id;
+      var formId = _me.getFormId();
       return (typeof formId == 'string') && (formId != '') && _me._formElem
         && (typeof _me._formElem.action != 'undefined') && (_me._formElem.action != '');
     },
@@ -528,7 +581,7 @@
 
     _updateTinyMCETextAreas : function() {
       var _me = this;
-      var formId = _me._formElem.id;
+      var formId = _me.getFormId();
       var mceFields = document.forms[formId].select('textarea.mceEditor');
       console.log('_updateTinyMCETextAreas: for ', formId, mceFields);
       mceFields.each(function(formfield) {
@@ -550,7 +603,7 @@
 
     _retrieveInitialValues : function() {
       var _me = this;
-      var formId = _me._formElem.id;
+      var formId = _me.getFormId();
       console.log('retrieveInitialValues: ', formId);
       if (_me.isValidFormId()) {
         var elementsValues = new Hash();
