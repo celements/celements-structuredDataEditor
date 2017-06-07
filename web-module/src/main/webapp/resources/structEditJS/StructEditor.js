@@ -503,8 +503,9 @@
           return false;
         },
 
-        saveAllDirtyForms : function(execCallback) {
+        saveAllDirtyForms : function(execCallback, doNotSaveFormId) {
           var _me = this;
+          doNotSaveFormId = doNotSaveFormId || [];
           var dirtyFormIds = _me.getDirtyFormIds();
           var jsonResponses = new Hash();
           var saveAllForms = function(allDirtyFormIds) {
@@ -524,9 +525,7 @@
                 }
             }});
           };
-          if (doNotSaveFormId && (doNotSaveFormId != '')) {
-            dirtyFormIds = dirtyFormIds.without(doNotSaveFormId);
-          }
+          dirtyFormIds = dirtyFormIds.without(doNotSaveFormId);
           if (dirtyFormIds.size() > 0) {
             saveAllForms(dirtyFormIds);
           } else {
