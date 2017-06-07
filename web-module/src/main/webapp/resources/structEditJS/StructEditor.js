@@ -43,8 +43,9 @@
       // structEditSave
     },
 
-    _closeClickHandler : function() {
+    _closeClickHandler : function(event) {
       var _me = this;
+      event.stop();
       _me._editorManager.checkUnsavedChanges(function(transport, jsonResponses, failed) {
         if (!failed) {
           window.onbeforeunload = null;
