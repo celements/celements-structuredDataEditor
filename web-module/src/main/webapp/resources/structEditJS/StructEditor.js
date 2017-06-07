@@ -47,6 +47,8 @@
       var _me = this;
       event.stop();
       _me._editorManager.checkUnsavedChanges(function(transport, jsonResponses, failed) {
+        console.log('closeClickHandler checkUnsavedChanges callback ', transport, jsonResponses,
+            failed);
         if (!failed) {
           window.onbeforeunload = null;
           window.location.href = _me._editorManager.getCancelURL();
@@ -187,38 +189,42 @@
       execCallback = execCallback || function() {};
       execCancelCallback = execCancelCallback || function() {};
       if (_me.hasDirtyEditors()) {
-      var saveBeforeCloseQuestion = _me._getModalDialog();
+        var saveBeforeCloseQuestion = _me._getModalDialog();
         saveBeforeCloseQuestion.setHeader(window.celMessages.structEditor.savingDialogWarningHeader);
         saveBeforeCloseQuestion.setBody(window.celMessages.structEditor.savingDialogMessage);
         saveBeforeCloseQuestion.cfg.setProperty("icon", YAHOO.widget.SimpleDialog.ICON_WARN);
         saveBeforeCloseQuestion.cfg.queueProperty("buttons",
-            [ { text: window.celMessages.structEditor.savingDialogButtonDoNotSave, handler:function() {
+          [ { text: window.celMessages.structEditor.savingDialogButtonDoNotSave,
+              handler : function() {
+                console.log('doNotSave button pressed!');
                 window.onbeforeunload = null;
                 this.hide();
                 execCallback();
-                }},
-                  { text: window.celMessages.structEditor.savingDialogButtonCancel, handler:function() {
-                   this.cancel();
-                   execCancelCallback();
-                 } },
-                  { text: window.celMessages.structEditor.savingDialogButtonSave, handler:function() {
-                    var _dialog = this;
-                    _me.saveAllFormsAsync(function(transport, jsonResponses) {
-                      _dialog.hide();
-                      var failed = _me.showErrorMessages(jsonResponses);
-                      if ((typeof console != 'undefined')
-                          && (typeof console.log != 'undefined')) {
-                        console.log('saveAllFormsAsync returning: ', failed, jsonResponses,
-                            execCallback);
-                      }
-                execCallback(transport, jsonResponses, failed);
-              });
-                    _dialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
-                    _dialog.cfg.queueProperty("buttons", null);
-                    _dialog.setBody(_me._loading.getLoadingIndicator(true));
-                    _dialog.render();
-                  }, isDefault:true }
-                ]);
+              }
+            },
+            { text: window.celMessages.structEditor.savingDialogButtonCancel,
+              handler : function() {
+                console.log('cancel button pressed!');
+                this.cancel();
+                execCancelCallback();
+              }
+            },
+            { text: window.celMessages.structEditor.savingDialogButtonSave,
+              handler : function() {
+                console.log('save button pressed!');
+                var _dialog = this;
+                _me.saveAllFormsAsync(function(transport, jsonResponses) {
+                  _dialog.hide();
+                  var failed = _me.showErrorMessages(jsonResponses);
+                  console.log('saveAllFormsAsync returning: ', failed, jsonResponses, execCallback);
+                  execCallback(transport, jsonResponses, failed);
+                });
+                _dialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
+                _dialog.cfg.queueProperty("buttons", null);
+                _dialog.setBody(_me._loading.getLoadingIndicator(true));
+                _dialog.render();
+             }, isDefault:true }
+        ]);
         saveBeforeCloseQuestion.render();
         saveBeforeCloseQuestion.show();
       } else {
