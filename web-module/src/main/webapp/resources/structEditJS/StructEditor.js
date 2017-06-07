@@ -44,6 +44,7 @@
     },
 
     _closeClickHandler : function() {
+      var _me = this;
       _me._editorManager.checkUnsavedChanges(function(transport, jsonResponses, failed) {
         if (!failed) {
           window.onbeforeunload = null;
