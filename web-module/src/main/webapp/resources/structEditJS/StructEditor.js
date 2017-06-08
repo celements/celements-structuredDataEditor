@@ -352,6 +352,8 @@
           } else {
             console.warn('initStructEditorHandler: skip double init on ', structRootId);
           }
+          structRootElem.removeClassName('celStructEditorLoading');
+          structRootElem.addClassName('celStructEditorLoaded');
         }
       });
     },
