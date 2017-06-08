@@ -37,8 +37,7 @@
     window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
     $(document.body).stopObserving("celements:contentChanged", initStructEditorContentChangedHandler);
     $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
-    window.celStructEditorManager.initStructEditors();
-    window.celStructEditorManager.initButtons();
+    window.celStructEditorManager.startEditorManager();
   });
 
 })(window);

@@ -167,7 +167,13 @@
       $(document.body).observe("structEdit:initStructEditor", _me._initStructEditorHandlerBind);
     },
 
-    initButtons : function() {
+    startEditorManager : function() {
+      var _me = this;
+      _me._initButtons();
+      _me._initStructEditors();
+    },
+
+    _initButtons : function() {
       var _me = this;
       _me._buttonHandler.initButtons(_me);
     },
@@ -333,7 +339,7 @@
       }
     },
 
-    initStructEditors : function() {
+    _initStructEditors : function() {
       var _me = this;
       _me.getRootElem().select('.structDataEditor').each(function(structRootElem) {
         if (!structRootElem.hasClassName('celStructEditorLoading')
@@ -362,7 +368,7 @@
       var _me = this;
       var checkRoot = event.memo.checkRoot || document.body;
       console.log('initStructEditorHandler: run for ', checkRoot);
-      _me.initStructEditors(checkRoot);
+      _me._initStructEditors(checkRoot);
       console.log('initStructEditorHandler: finish for ', checkRoot);
     },
 
@@ -449,7 +455,7 @@
     _resetFormDiffs : function() {
       var _me = this;
       _me._formDiffsMap = new Hash();
-      _me._rootElem.select('form').each(_me._resetOneFormDiffBind);
+      _me._rootElem.select('form.celementsCheckUnsaved').each(_me._resetOneFormDiffBind);
     },
 
     _resetOneFormDiff : function(theForm) {
