@@ -162,18 +162,17 @@
     _allStructEditorMap : undefined,
     _initStructEditorHandlerBind : undefined,
     _checkBeforeUnloadBind : undefined,
-    _loading : undefined,
+    _saveAllEditorsAsyncBind : undefined,
     _buttonHandler : undefined,
-    _modalDialog : undefined,
 
     initialize : function(buttonHandler) {
       var _me = this;
       _me._initStructEditorHandlerBind = _me._initStructEditorHandler.bind(_me);
       _me._checkBeforeUnloadBind = _me._checkBeforeUnload.bind(_me);
+      _me._saveAllEditorsAsyncBind = _me.saveAllEditorsAsync.bind(_me);
       window.onbeforeunload = _me._checkBeforeUnloadBind;
       _me._buttonHandler = buttonHandler || new CELEMENTS.structEdit.CelementsButtonHandler();
       _me.registerListener();
-      _me._loading = new CELEMENTS.LoadingIndicator();
     },
 
     setRootElem : function(rootElem) {
@@ -219,6 +218,7 @@
 
     hasDirtyEditors : function() {
       var _me = this;
+      //TODO add possibility to add JS-listener which can do additional 'isDirty' checks
       return (_me.getDirtyEditors().size() > 0);
     },
 
@@ -251,49 +251,24 @@
       }
     },
 
+    _getUnsavedChangesHandler : function(execCallback) {
+      var _me = this;
+      var unsavedHandler = new CELEMENTS.structEdit.UnsavedChangesHandler(execCallback);
+      unsavedHandler.setDoBeforeFunction(_me._saveAllEditorsAsyncBind);
+      unsavedHandler.celObserve('structEdit:failingSaved', function(event) {
+        _me.celFire('structEdit:failingSaved', event.memo)
+      });
+      unsavedHandler.celObserve('structEdit:successfulSaved', function(event) {
+        _me.celFire('structEdit:successfulSaved', event.memo)
+      });
+    },
+
     checkUnsavedChanges : function(execCallback, execCancelCallback) {
       var _me = this;
-      execCallback = execCallback || function() {};
-      execCancelCallback = execCancelCallback || function() {};
       if (_me.hasDirtyEditors()) {
-        var saveBeforeCloseQuestion = _me._getModalDialog();
-        saveBeforeCloseQuestion.setHeader(window.celMessages.structEditor.savingDialogWarningHeader);
-        saveBeforeCloseQuestion.setBody(window.celMessages.structEditor.savingDialogMessage);
-        saveBeforeCloseQuestion.cfg.setProperty("icon", YAHOO.widget.SimpleDialog.ICON_WARN);
-        saveBeforeCloseQuestion.cfg.queueProperty("buttons",
-          [ { text: window.celMessages.structEditor.savingDialogButtonDoNotSave,
-              handler : function() {
-                console.log('doNotSave button pressed!');
-                window.onbeforeunload = null;
-                this.hide();
-                execCallback();
-              }
-            },
-            { text: window.celMessages.structEditor.savingDialogButtonCancel,
-              handler : function() {
-                console.log('cancel button pressed!');
-                this.cancel();
-                execCancelCallback();
-              }
-            },
-            { text: window.celMessages.structEditor.savingDialogButtonSave,
-              handler : function() {
-                console.log('save button pressed!');
-                var _dialog = this;
-                _me.saveAllEditorsAsync(function(jsonResponses) {
-                  _dialog.hide();
-                  var failed = _me.showErrorMessages(jsonResponses);
-                  console.log('saveAllEditorsAsync returning: ', failed, jsonResponses, execCallback);
-                  execCallback(jsonResponses, failed);
-                });
-                _dialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
-                _dialog.cfg.queueProperty("buttons", null);
-                _dialog.setBody(_me._loading.getLoadingIndicator(true));
-                _dialog.render();
-             }, isDefault:true }
-        ]);
-        saveBeforeCloseQuestion.render();
-        saveBeforeCloseQuestion.show();
+        var unsavedHandler = _me._getUnsavedChangesHandler(execCallback);
+        unsavedHandler.setCancelFunction(execCancelCallback);
+        unsavedHandler.displayBeforeQuestionDialog();
       } else {
         execCallback();
       }
@@ -302,25 +277,8 @@
     saveAndContinue : function(execCallback) {
       var _me = this;
       execCallback = execCallback || function() {};
-      //TODO add possibility to add JS-listener which can do additional 'isDirty' checks
       if (_me.hasDirtyEditors()) {
-        var savingDialog = _me._getModalDialog();
-        savingDialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
-        savingDialog.setBody(_me._loading.getLoadingIndicator(true));
-        savingDialog.cfg.queueProperty("buttons", null);
-        savingDialog.render();
-        savingDialog.show();
-        //TODO add possibility to add JS-listener which can execute alternative save actions
-        _me.saveAllEditorsAsync(function(jsonResponses) {
-          savingDialog.hide();
-          var failed = _me.showErrorMessages(jsonResponses);
-          if (failed) {
-            _me.celFire('structEdit:failingSaved', jsonResponses);
-          } else {
-            _me.celFire('structEdit:successfulSaved', jsonResponses);
-          }
-          execCallback(jsonResponses, failed);
-        });
+        _me._getUnsavedChangesHandler(execCallback).execShowProgressDialog();
       }
      },
 
@@ -380,6 +338,91 @@
       console.log('initStructEditorHandler: run for ', checkRoot);
       _me._initStructEditors(checkRoot);
       console.log('initStructEditorHandler: finish for ', checkRoot);
+    }
+  });
+  CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend(
+      CELEMENTS.structEdit.StructEditorManager.prototype, CELEMENTS.mixins.Observable);
+
+  /*****************************************
+   * UnsavedChangesHandler class definition *
+   *****************************************/
+  window.CELEMENTS.structEdit.UnsavedChangesHandler = Class.create({
+    _execCancelFn : undefined,
+    _execFn : undefined,
+    _beforeExecFn : undefined,
+    _loading : undefined,
+    _modalDialog : undefined,
+
+    initialize : function(execFn) {
+      var _me = this;
+      _me._execCancelFn = function() {};
+      _me._execFn = execFn || function() {};
+      _me._beforeExecFn = beforeExecFn || function(callbackFN) { callbackFN(); };
+      _me._loading = new CELEMENTS.LoadingIndicator();
+    },
+
+    setDoBeforeFunction : function(beforeExecFn) {
+      var _me = this;
+      _me._beforeExecFn = beforeExecFn || function() {};
+    },
+
+    setCancelFunction : function(execCancelFn) {
+      var _me = this;
+      _me._execCancelFn = execCancelFn || function() {};
+    },
+
+    displayBeforeQuestionDialog : function() {
+      var _me = this;
+      var saveBeforeCloseQuestion = _me._getModalDialog();
+      saveBeforeCloseQuestion.setHeader(window.celMessages.structEditor.savingDialogWarningHeader);
+      saveBeforeCloseQuestion.setBody(window.celMessages.structEditor.savingDialogMessage);
+      saveBeforeCloseQuestion.cfg.setProperty("icon", YAHOO.widget.SimpleDialog.ICON_WARN);
+      saveBeforeCloseQuestion.cfg.queueProperty("buttons",
+        [ { text: window.celMessages.structEditor.savingDialogButtonDoNotSave,
+            handler : function() {
+              console.log('doNotSave button pressed!');
+              window.onbeforeunload = null;
+              this.hide();
+              _me._execFn();
+            }
+          },
+          { text: window.celMessages.structEditor.savingDialogButtonCancel,
+            handler : function() {
+              console.log('cancel button pressed!');
+              this.cancel();
+              _me._execCancelFn();
+            }
+          },
+          { text: window.celMessages.structEditor.savingDialogButtonSave,
+            handler : function() {
+              console.log('save button pressed!');
+              this.hide();
+              _me.execShowProgressDialog();
+           }, isDefault:true }
+      ]);
+      saveBeforeCloseQuestion.render();
+      saveBeforeCloseQuestion.show();
+    },
+
+    execShowProgressDialog : function() {
+      var _me = this;
+      var savingDialog = _me._getModalDialog();
+      savingDialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
+      savingDialog.setBody(_me._loading.getLoadingIndicator(true));
+      savingDialog.cfg.queueProperty("buttons", null);
+      savingDialog.render();
+      savingDialog.show();
+      //TODO add possibility to add JS-listener which can execute alternative save actions
+      _me._beforeExecFn(function(jsonResponses) {
+        savingDialog.hide();
+        var failed = _me._showErrorMessages(jsonResponses);
+        if (failed) {
+          _me.celFire('structEdit:failingSaved', jsonResponses);
+        } else {
+          _me.celFire('structEdit:successfulSaved', jsonResponses);
+        }
+        _me._execFn(jsonResponses, failed);
+      });
     },
 
     /**
@@ -389,7 +432,7 @@
      * @returns true if errors have been displayed
      *          false if no errors have been displayed
      */
-    showErrorMessages : function(jsonResponses) {
+    _showErrorMessages : function(jsonResponses) {
       var _me = this;
       var errorMessages = new Array();
       jsonResponses.each(function(response) {
@@ -440,15 +483,14 @@
       _me._modalDialog.render(yuiSamSkinDiv);
       return _me._modalDialog;
     }
-
   });
-  CELEMENTS.structEdit.StructEditorManager.prototype = Object.extend(
-      CELEMENTS.structEdit.StructEditorManager.prototype, CELEMENTS.mixins.Observable);
+  CELEMENTS.structEdit.UnsavedChangesHandler.prototype = Object.extend(
+      CELEMENTS.structEdit.UnsavedChangesHandler.prototype, CELEMENTS.mixins.Observable);
 
   /*********************************
    * StructEditor class definition *
    *********************************/
-  CELEMENTS.structEdit.StructEditor = Class.create({
+  window.CELEMENTS.structEdit.StructEditor = Class.create({
     _rootElem : undefined,
     _formDiffsMap : undefined,
     _resetOneFormDiffBind : undefined,
@@ -528,7 +570,7 @@
   /************************************
    * FormDiffBuilder class definition *
    ************************************/
-  CELEMENTS.structEdit.FormDiffBuilder = Class.create({
+  window.CELEMENTS.structEdit.FormDiffBuilder = Class.create({
     _formElem : undefined,
     _initialValues : undefined,
 
@@ -685,7 +727,7 @@
   /************************************
    * CelementsFormSaver class definition *
    ************************************/
-  CELEMENTS.structEdit.CelementsFormSaver = Class.create({
+  window.CELEMENTS.structEdit.CelementsFormSaver = Class.create({
     _jsonResponses : undefined,
     _saveCallback : undefined,
 
