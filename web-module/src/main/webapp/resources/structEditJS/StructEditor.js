@@ -84,7 +84,7 @@
       var _me = this;
       _me._closeClickHandlerBind = _me._closeClickHandler.bind(_me);
       _me._saveClickHandlerBind = _me._saveClickHandler.bind(_me);
-      _me._urlFactory = new CELEMENTS.utils.UrlFactory();
+      _me._urlFactory = new CELEMENTS.Utils.UrlFactory.UrlFactory();
       _me._editorManager = editorManager;
       _me.initCloseButton();
       _me.initSaveButton();
