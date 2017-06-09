@@ -356,14 +356,14 @@
     initialize : function(execFn) {
       var _me = this;
       _me._execCancelFn = function() {};
+      _me._beforeExecFn = function(callbackFN) { callbackFN(); };
       _me._execFn = execFn || function() {};
-      _me._beforeExecFn = beforeExecFn || function(callbackFN) { callbackFN(); };
       _me._loading = new CELEMENTS.LoadingIndicator();
     },
 
     setDoBeforeFunction : function(beforeExecFn) {
       var _me = this;
-      _me._beforeExecFn = beforeExecFn || function() {};
+      _me._beforeExecFn = beforeExecFn || function(callbackFN) { callbackFN(); };
     },
 
     setCancelFunction : function(execCancelFn) {
