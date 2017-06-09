@@ -231,8 +231,8 @@
         var editor = remainingDirtyEditors.get(editorKey);
         remainingDirtyEditors.unset(editorKey);
         var remainingDirtyEditorsMap = remainingDirtyEditors;
-        editor.saveAllDirtyForms(function(additionalResponses) {
-          console.log('saveAllEditorsAsync: saveAllDirtyForms callback ', jsonResponses,
+        editor.saveAllDirtyFormsAsync(function(additionalResponses) {
+          console.log('saveAllEditorsAsync: saveAllDirtyFormsAsync callback ', jsonResponses,
               additionalResponses);
           jsonResponses.update(additionalResponses);
           if (remainingDirtyEditorsMap.size() > 0) {
@@ -452,11 +452,13 @@
     _rootElem : undefined,
     _formDiffsMap : undefined,
     _resetOneFormDiffBind : undefined,
+    _formSavedSuccessfulHandlerBind : undefined,
 
     initialize : function(editorRootElem) {
       var _me = this;
       _me._rootElem = editorRootElem;
       _me._resetOneFormDiffBind = _me._resetOneFormDiff.bind(_me);
+      _me._formSavedSuccessfulHandlerBind = _me._formSavedSuccessfulHandler.bind(_me);
       console.log('start init StructEditor for ', _me._rootElem);
       _me._resetFormDiffs();
       console.log('finish init StructEditor for ', _me._rootElem);
@@ -466,15 +468,6 @@
       var _me = this;
       _me._formDiffsMap = new Hash();
       _me._rootElem.select('form.celementsCheckUnsaved').each(_me._resetOneFormDiffBind);
-    },
-
-    _resetOneFormDiff : function(theForm) {
-      var _me = this;
-      _me._formDiffsMap = _me._formDiffsMap || new Hash();
-      var formDiff = new CELEMENTS.structEdit.FormDiffBuilder(theForm);
-      if (formDiff.isValidFormId()) {
-        _me._formDiffsMap.set(formDiff.getFormId(), formDiff);
-      }
     },
 
     getDirtyFormIds : function() {
@@ -504,63 +497,28 @@
       return isDirty;
     },
 
-    _saveAndContinueAjax : function(formName, handler) {
-     if(document.forms[formName]) {
-       document.forms[formName].select('textarea.mceEditor').each(function(formfield) {
-          console.log('textarea save tinymce: ', formfield.name, tinyMCE.get(formfield.id).save());
-          formfield.value = tinyMCE.get(formfield.id).save();
-        });
-        $(formName).request(handler);
-      } else {
-        console.error('form not found: ', formName);
+    _resetOneFormDiff : function(theForm) {
+      var _me = this;
+      _me._formDiffsMap = _me._formDiffsMap || new Hash();
+      var formDiff = new CELEMENTS.structEdit.FormDiffBuilder(theForm);
+      if (formDiff.isValidFormId()) {
+        _me._formDiffsMap.set(formDiff.getFormId(), formDiff);
       }
     },
 
-    _handleSaveAjaxResponse : function(formId, transport, jsonResponses) {
-      if (transport.responseText.isJSON()) {
-        console.log('_handleSaveAjaxResponse with json result: ', transport.responseText);
-        var jsonResult = transport.responseText.evalJSON();
-        jsonResponses.set(formId, jsonResult);
-        if (jsonResult.successful) {
-          return true;
-        } else {
-          console.warn('_handleSaveAjaxResponse: save failed for [' + formId + ']: ',
-              jsonResult);
-        }
-      } else {
-        return true;
-      }
-      return false;
+    _formSavedSuccessfulHandler : function(event) {
+      var _me = this;
+      _me._resetOneFormDiff(event.memo.savedFormId);
     },
 
-    saveAllDirtyForms : function(execCallback, doNotSaveFormId) {
+    saveAllDirtyFormsAsync : function(execCallback, doNotSaveFormId) {
       var _me = this;
       doNotSaveFormId = doNotSaveFormId || [];
       var dirtyFormIds = _me.getDirtyFormIds();
-      var jsonResponses = new Hash();
-      var saveAllForms = function(allDirtyFormIds) {
-        var formId = allDirtyFormIds.pop();
-        var remainingDirtyFormIds = allDirtyFormIds;
-        _me._saveAndContinueAjax(formId, { onSuccess : function(transport) {
-          if (_me._handleSaveAjaxResponse(formId, transport, jsonResponses)) {
-//                _me._isEditorDirtyOnLoad = false;
-            _me._resetOneFormDiff(formId);
-          }
-          if (remainingDirtyFormIds.size() > 0) {
-            console.log('next saveAllForms with: ', remainingDirtyFormIds);
-            saveAllForms(remainingDirtyFormIds);
-            } else {
-              console.log('save done.');
-              execCallback(jsonResponses.toObject());
-            }
-        }});
-      };
       dirtyFormIds = dirtyFormIds.without(doNotSaveFormId);
-      if (dirtyFormIds.size() > 0) {
-        saveAllForms(dirtyFormIds);
-      } else {
-        execCallback(jsonResponses.toObject());
-      }
+      var saveHandler = new CELEMENTS.structEdit.CelementsFormSaver(execCallback);
+      saveHandler.celObserve('structEdit:formSavedSuccessful', _me._formSavedSuccessfulHandlerBind);
+      saveHandler.saveAllForms(dirtyFormIds);
     }
 
   });
@@ -723,5 +681,71 @@
     }
 
   });
+
+  /************************************
+   * CelementsFormSaver class definition *
+   ************************************/
+  CELEMENTS.structEdit.CelementsFormSaver = Class.create({
+    _jsonResponses : undefined,
+    _saveCallback : undefined,
+
+    initialize : function(saveCallback) {
+      var _me = this;
+      _me._jsonResponses = new Hash();
+      _me._saveCallback = saveCallback;
+    },
+
+    _saveAndContinueAjax : function(formName, handler) {
+      if(document.forms[formName]) {
+        document.forms[formName].select('textarea.mceEditor').each(function(formfield) {
+           console.log('textarea save tinymce: ', formfield.name, tinyMCE.get(formfield.id).save());
+           formfield.value = tinyMCE.get(formfield.id).save();
+         });
+         $(formName).request(handler);
+       } else {
+         console.error('form not found: ', formName);
+       }
+     },
+
+     _handleSaveAjaxResponse : function(formId, transport) {
+       if (transport.responseText.isJSON()) {
+         console.log('_handleSaveAjaxResponse with json result: ', transport.responseText);
+         var jsonResult = transport.responseText.evalJSON();
+         _me._jsonResponses.set(formId, jsonResult);
+         if (jsonResult.successful) {
+           return true;
+         } else {
+           console.warn('_handleSaveAjaxResponse: save failed for [' + formId + ']: ', jsonResult);
+         }
+       } else {
+         return true;
+       }
+       return false;
+     },
+
+    saveAllForms : function(allDirtyFormIds) {
+      if (allDirtyFormIds.size() > 0) {
+        var formId = allDirtyFormIds.pop();
+        var remainingDirtyFormIds = allDirtyFormIds;
+        _me._saveAndContinueAjax(formId, {
+          onSuccess : function(transport) {
+            if (_me._handleSaveAjaxResponse(formId, transport)) {
+              _me.celFire('structEdit:formSavedSuccessful', {
+                'savedFormId' : formId
+              });
+            }
+            console.log('next saveAllForms with: ', remainingDirtyFormIds);
+            _me.saveAllForms(remainingDirtyFormIds);
+          }
+        });
+      } else {
+        console.log('save done.');
+        execCallback(_me._jsonResponses.toObject());
+      }
+    }
+
+  });
+  CELEMENTS.structEdit.CelementsFormSaver.prototype = Object.extend(
+      CELEMENTS.structEdit.CelementsFormSaver.prototype, CELEMENTS.mixins.Observable);
 
 })(window);
