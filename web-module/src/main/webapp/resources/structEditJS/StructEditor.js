@@ -28,17 +28,62 @@
   if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={};};
 
   /****************************************
+   * UrlFactory class definition *
+   ****************************************/
+  window.CELEMENTS.utils.UrlFactory = Class.create({
+
+    getCancelURL : function() {
+      var _me = this;
+      var redirectValue = '';
+      if ($$('input.celEditorRedirect').size() > 0) {
+        redirectValue = $F($$('input.celEditorRedirect')[0]);
+      } else {
+        var matchStr = window.location.search.match(/[?&]xredirect=([^&]*)/);
+        if (matchStr) {
+          redirectValue = matchStr[1];
+        }
+      }
+      var redirectBaseValue = window.location.pathname.replace(/\/edit\/|\/inline\//,
+          '/cancel/');
+      redirectValue = redirectBaseValue + '?xredirect=' + redirectValue;
+      console.log('getCancelURL: return redirectValue ', redirectValue);
+      return redirectValue;
+    },
+
+    deleteParamsFromURL : function() {
+      var newUrlParams = [];
+      var standardWhiteList = ["language", "xredirect", "xcontinue"];
+      var additionalWhiteList = [];
+      $j("input[name=white_list_url]").each(function( index, inputElem ) {
+        additionalWhiteList.add(inputElem.value);
+      });
+      standardWhiteList = standardWhiteList.concat(additionalWhiteList);
+      for (var index = 0; index < standardWhiteList.length; index++) {
+        var regEx = new RegExp("^.*(" + standardWhiteList[index] + "=[^&]*).*$", "g");
+        var regExArray = regEx.exec(window.location.search);
+        if (regExArray != null) {
+          newUrlParams = newUrlParams.concat(regExArray.slice(1));
+        }
+      }
+      return newUrlParams.join('&');
+    }
+
+  });
+
+  /****************************************
    * CelementsButtonHandler class definition *
    ****************************************/
   window.CELEMENTS.structEdit.CelementsButtonHandler = Class.create({
     _closeClickHandlerBind : undefined,
     _saveClickHandlerBind : undefined,
     _editorManager : undefined,
+    _urlFactory : undefined,
 
     initButtons : function(editorManager) {
       var _me = this;
       _me._closeClickHandlerBind = _me._closeClickHandler.bind(_me);
       _me._saveClickHandlerBind = _me._saveClickHandler.bind(_me);
+      _me._urlFactory = new CELEMENTS.utils.UrlFactory();
       _me._editorManager = editorManager;
       _me.initCloseButton();
       _me.initSaveButton();
@@ -73,7 +118,7 @@
         console.log('closeClickHandler checkUnsavedChanges callback ', jsonResponses, failed);
         if (!failed) {
           window.onbeforeunload = null;
-          window.location.href = _me._editorManager.getCancelURL();
+          window.location.href = _me._urlFactory.getCancelURL();
         } else {
           console.error('closeClickHandler: checkUnsavedChanges failed! ', failed);
         }
@@ -90,7 +135,7 @@
           try {
             if (window.location.search.match(/\&?template=[^\&]+/)) {
               window.onbeforeunload = null;
-              window.location.search = _me._deleteParamsFromURL();
+              window.location.search = _me._urlFactory.deleteParamsFromURL();
             }
           } catch (err) {
             console.error('_saveClickHandler: error in saveAndContinue callback ', err);
@@ -104,24 +149,6 @@
           });
         }
       });
-    },
-
-    _deleteParamsFromURL : function() {
-      var newUrlParams = [];
-      var standardWhiteList = ["language", "xredirect", "xcontinue"];
-      var additionalWhiteList = [];
-      $j("input[name=white_list_url]").each(function( index, inputElem ) {
-        additionalWhiteList.add(inputElem.value);
-      });
-      standardWhiteList = standardWhiteList.concat(additionalWhiteList);
-      for (var index = 0; index < standardWhiteList.length; index++) {
-        var regEx = new RegExp("^.*(" + standardWhiteList[index] + "=[^&]*).*$", "g");
-        var regExArray = regEx.exec(window.location.search);
-        if (regExArray != null) {
-          newUrlParams = newUrlParams.concat(regExArray.slice(1));
-        }
-      }
-      return newUrlParams.join('&');
     }
 
   });
@@ -176,24 +203,6 @@
     _initButtons : function() {
       var _me = this;
       _me._buttonHandler.initButtons(_me);
-    },
-
-    getCancelURL : function() {
-      var _me = this;
-      var redirectValue = '';
-      if ($$('input.celEditorRedirect').size() > 0) {
-        redirectValue = $F($$('input.celEditorRedirect')[0]);
-      } else {
-        var matchStr = window.location.search.match(/[?&]xredirect=([^&]*)/);
-        if (matchStr) {
-          redirectValue = matchStr[1];
-        }
-      }
-      var redirectBaseValue = window.location.pathname.replace(/\/edit\/|\/inline\//,
-          '/cancel/');
-      redirectValue = redirectBaseValue + '?xredirect=' + redirectValue;
-      console.log('_getCancelURL: return redirectValue ', redirectValue);
-      return redirectValue;
     },
 
     getDirtyEditors : function() {
