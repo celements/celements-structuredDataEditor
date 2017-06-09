@@ -261,6 +261,7 @@
       unsavedHandler.celObserve('structEdit:successfulSaved', function(event) {
         _me.celFire('structEdit:successfulSaved', event.memo)
       });
+      return unsavedHandler;
     },
 
     checkUnsavedChanges : function(execCallback, execCancelCallback) {
