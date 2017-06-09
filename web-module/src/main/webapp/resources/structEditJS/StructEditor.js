@@ -26,11 +26,12 @@
   "use strict";
 
   if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={};};
+  if(typeof window.CELEMENTS.Utils=="undefined"){window.CELEMENTS.Utils={};};
 
-  /****************************************
+  /*******************************
    * UrlFactory class definition *
-   ****************************************/
-  window.CELEMENTS.utils.UrlFactory = Class.create({
+   *******************************/
+  window.CELEMENTS.Utils.UrlFactory = Class.create({
 
     getCancelURL : function() {
       var _me = this;
@@ -70,9 +71,9 @@
 
   });
 
-  /****************************************
+  /*******************************************
    * CelementsButtonHandler class definition *
-   ****************************************/
+   *******************************************/
   window.CELEMENTS.structEdit.CelementsButtonHandler = Class.create({
     _closeClickHandlerBind : undefined,
     _saveClickHandlerBind : undefined,
