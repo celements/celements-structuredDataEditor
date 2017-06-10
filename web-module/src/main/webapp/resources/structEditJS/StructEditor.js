@@ -416,6 +416,7 @@
       //TODO add possibility to add JS-listener which can execute alternative save actions
       _me._beforeExecFn(function(jsonResponses) {
         savingDialog.hide();
+        console.log('execShowProgressDialog: after hide savingDialog');
         var failed = _me._showErrorMessages(jsonResponses);
         if (failed) {
           _me.celFire('structEdit:failingSaved', jsonResponses);
