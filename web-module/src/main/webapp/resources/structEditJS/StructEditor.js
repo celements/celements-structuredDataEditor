@@ -739,6 +739,7 @@
     },
 
     _saveAndContinueAjax : function(formName, handler) {
+      var _me = this;
       if(document.forms[formName]) {
         document.forms[formName].select('textarea.mceEditor').each(function(formfield) {
            console.log('textarea save tinymce: ', formfield.name, tinyMCE.get(formfield.id).save());
@@ -751,6 +752,7 @@
      },
 
      _handleSaveAjaxResponse : function(formId, transport) {
+       var _me = this;
        if (transport.responseText.isJSON()) {
          console.log('_handleSaveAjaxResponse with json result: ', transport.responseText);
          var jsonResult = transport.responseText.evalJSON();
@@ -767,6 +769,7 @@
      },
 
     saveAllForms : function(allDirtyFormIds) {
+      var _me = this;
       if (allDirtyFormIds.size() > 0) {
         var formId = allDirtyFormIds.pop();
         var remainingDirtyFormIds = allDirtyFormIds;
