@@ -239,8 +239,9 @@
             console.log('next saveAllEditors with: ', remainingDirtyEditorsMap.inspect());
             saveAllEditors(remainingDirtyEditorsMap);
           } else {
-            console.log('save done.', jsonResponses);
+            console.log('save done.', jsonResponses, execCallback);
             execCallback(jsonResponses);
+            console.log('after execCallback.');
           }
         });
       };
@@ -414,8 +415,11 @@
       savingDialog.render();
       savingDialog.show();
       //TODO add possibility to add JS-listener which can execute alternative save actions
+      console.log('execShowProgressDialog: before _beforeExecFn ', _me._beforeExecFn);
       _me._beforeExecFn(function(jsonResponses) {
+        console.log('execShowProgressDialog: beginning callback');
         savingDialog.hide();
+        console.log('execShowProgressDialog: after hide savingDialog');
         var failed = _me._showErrorMessages(jsonResponses);
         if (failed) {
           _me.celFire('structEdit:failingSaved', jsonResponses);
@@ -739,6 +743,7 @@
     },
 
     _saveAndContinueAjax : function(formName, handler) {
+      var _me = this;
       if(document.forms[formName]) {
         document.forms[formName].select('textarea.mceEditor').each(function(formfield) {
            console.log('textarea save tinymce: ', formfield.name, tinyMCE.get(formfield.id).save());
@@ -751,6 +756,7 @@
      },
 
      _handleSaveAjaxResponse : function(formId, transport) {
+       var _me = this;
        if (transport.responseText.isJSON()) {
          console.log('_handleSaveAjaxResponse with json result: ', transport.responseText);
          var jsonResult = transport.responseText.evalJSON();
@@ -767,6 +773,7 @@
      },
 
     saveAllForms : function(allDirtyFormIds) {
+      var _me = this;
       if (allDirtyFormIds.size() > 0) {
         var formId = allDirtyFormIds.pop();
         var remainingDirtyFormIds = allDirtyFormIds;
@@ -783,7 +790,7 @@
         });
       } else {
         console.log('save done.');
-        execCallback(_me._jsonResponses.toObject());
+        _me._saveCallback(_me._jsonResponses.toObject());
       }
     }
 
