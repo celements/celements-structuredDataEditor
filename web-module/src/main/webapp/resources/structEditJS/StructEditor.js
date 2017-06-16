@@ -680,9 +680,8 @@
       }
       var formId = fieldElem.up('form').id;
       if (fieldElem.hasClassName('mceEditor') && tinyMCE && tinyMCE.get(fieldElem.id)) {
-        //FIXME sometimes isDirty from tinyMCE is wrong... thus we compare the .getContent
-        //FIXME with the _initialValues instead.
-//        return tinyMCE.get(fieldElem.id).isDirty();
+        //sometimes isDirty from tinyMCE is wrong... thus we compare the .getContent
+        //with the _initialValues instead.
         return (_me._initialValues.get(fieldElem.name) != tinyMCE.get(fieldElem.id).getContent());
       } else if (!fieldElem.hasClassName('celIgnoreDirty')) {
         var isInputElem = (fieldElem.tagName.toLowerCase() == 'input');
