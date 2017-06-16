@@ -430,7 +430,9 @@
     /**
      * showErrorMessages display errors in jsonResponses to the user
      *
-     * @param jsonResponses
+     * @param jsonResponses must be a Hash object with key=formId and value=Array of
+     *                      formSaveResponses, which is a object of errorMessages
+     *                      and warningMessages
      * @returns true if errors have been displayed
      *          false if no errors have been displayed
      */
@@ -438,7 +440,6 @@
       var _me = this;
       var errorMessages = new Array();
       jsonResponses.each(function(response) {
-  //            var formId = response.key;
         var formSaveResponse = response.value;
         if (!formSaveResponse.successful) {
           errorMessages.push(formSaveResponse.errorMessages);
