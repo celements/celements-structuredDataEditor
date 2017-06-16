@@ -22,12 +22,12 @@
   "use strict";
 
   if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={};};
-  if(typeof window.CELEMENTS.Utils=="undefined"){window.CELEMENTS.Utils={};};
+  if(typeof window.CELEMENTS.commons=="undefined"){window.CELEMENTS.commons={};};
 
   /*******************************
    * UrlFactory class definition *
    *******************************/
-  window.CELEMENTS.Utils.UrlFactory = Class.create({
+  window.CELEMENTS.commons.UrlFactory = Class.create({
 
     getCancelURL : function() {
       var _me = this;
@@ -80,7 +80,7 @@
       var _me = this;
       _me._closeClickHandlerBind = _me._closeClickHandler.bind(_me);
       _me._saveClickHandlerBind = _me._saveClickHandler.bind(_me);
-      _me._urlFactory = new CELEMENTS.Utils.UrlFactory();
+      _me._urlFactory = new CELEMENTS.commons.UrlFactory();
       _me._editorManager = editorManager;
       _me.initCloseButton();
       _me.initSaveButton();
