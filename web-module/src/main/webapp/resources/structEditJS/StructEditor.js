@@ -214,7 +214,7 @@
 
     hasDirtyEditors : function() {
       var _me = this;
-      //TODO add possibility to add JS-listener which can do additional 'isDirty' checks
+      //TODO CELDEV-500: add possibility to add JS-listener which can do additional 'isDirty' checks
       return (_me.getDirtyEditors().size() > 0);
     },
 
@@ -410,7 +410,8 @@
       savingDialog.cfg.queueProperty("buttons", null);
       savingDialog.render();
       savingDialog.show();
-      //TODO add possibility to add JS-listener which can execute alternative save actions
+      //TODO CELDEV-500: add possibility to add JS-listener which can execute alternative
+      //TODO CELDEV-500: save actions
       console.log('execShowProgressDialog: before _beforeExecFn ', _me._beforeExecFn);
       _me._beforeExecFn(function(jsonResponses) {
         console.log('execShowProgressDialog: beginning callback');
