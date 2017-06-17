@@ -787,11 +787,13 @@
      _parseSaveAjaxResponse : function(transport) {
        var _me = this;
        var jsonResult;
+       console.log('_parseSaveAjaxResponse: ', transport);
        if (transport.responseText && transport.responseText.isJSON()) {
          jsonResult = transport.responseText.evalJSON();
        } else {
          jsonResult = _me._getSavingFailedJson();
        }
+       console.log('_parseSaveAjaxResponse: return ', jsonResult);
        return jsonResult;
      },
 
