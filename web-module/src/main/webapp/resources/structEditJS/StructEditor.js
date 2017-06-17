@@ -752,43 +752,65 @@
        }
      },
 
-     _handleSaveAjaxResponse : function(formId, transport) {
+     _handleSaveAjaxJsonResponse : function(formId, jsonResponse) {
        var _me = this;
-       if (transport.responseText.isJSON()) {
-         console.log('_handleSaveAjaxResponse with json result: ', transport.responseText);
-         var jsonResult = transport.responseText.evalJSON();
-         _me._jsonResponses.set(formId, jsonResult);
-         if (jsonResult.successful) {
-           return true;
-         } else {
-           console.warn('_handleSaveAjaxResponse: save failed for [' + formId + ']: ', jsonResult);
-         }
+       console.log('_handleSaveAjaxJsonResponse with json result: ', jsonResponse);
+       _me._jsonResponses.set(formId, jsonResponse);
+       if (jsonResponse.successful) {
+         _me.celFire('structEdit:formSavedSuccessful', {
+           'savedFormId' : formId
+         });
        } else {
-         return true;
+         console.warn('_handleSaveAjaxJsonResponse: save failed for [' + formId + ']: ', jsonResult);
+         _me.celFire('structEdit:formSavedFailed', {
+           'savedFormId' : formId,
+           'jsonResult' : jsonResult
+         });
        }
-       return false;
      },
 
-    saveAllForms : function(allDirtyFormIds) {
-      var _me = this;
-      if (allDirtyFormIds.size() > 0) {
-        var formId = allDirtyFormIds.pop();
-        var remainingDirtyFormIds = allDirtyFormIds;
-        _me._saveAndContinueAjax(formId, {
-          onSuccess : function(transport) {
-            if (_me._handleSaveAjaxResponse(formId, transport)) {
-              _me.celFire('structEdit:formSavedSuccessful', {
-                'savedFormId' : formId
-              });
-            }
-            console.log('next saveAllForms with: ', remainingDirtyFormIds);
-            _me.saveAllForms(remainingDirtyFormIds);
-          }
-        });
-      } else {
-        console.log('save done.');
-        _me._saveCallback(_me._jsonResponses.toObject());
-      }
+     _getSavingFailedJson : function() {
+       return {
+           'successful' : false,
+           'errorMessages' : window.celMessages.structEditor.savingFailed,
+           'responseText' : transport.responseText,
+           'httpStatus': transport.status
+         };
+     },
+
+     /**
+      * @param transport the Ajax transport-object
+      * @return jsonResponses must be a Hash object with key=formId and value=Array of
+      *                      formSaveResponses, which is a object of errorMessages
+      *                      and warningMessages
+      */
+     _parseSaveAjaxResponse : function(transport) {
+       var _me = this;
+       var jsonResult;
+       if (transport.responseText && transport.responseText.isJSON()) {
+         jsonResult = transport.responseText.evalJSON();
+       } else {
+         jsonResult = _me._getSavingFailedJson();
+       }
+       return jsonResult;
+     },
+
+     saveAllForms : function(allDirtyFormIds) {
+       var _me = this;
+       if (allDirtyFormIds.size() > 0) {
+         var formId = allDirtyFormIds.pop();
+         var remainingDirtyFormIds = allDirtyFormIds;
+         _me._saveAndContinueAjax(formId, {
+           onComplete : function(transport) {
+             _me._handleSaveAjaxJsonResponse(formId, _me._parseSaveAjaxResponse(transport));
+             console.log('next saveAllForms with: ', remainingDirtyFormIds);
+             _me.saveAllForms(remainingDirtyFormIds);
+           }
+         });
+       } else {
+         console.log('save done.');
+         _me._saveCallback(_me._jsonResponses.toObject());
+       }
     }
 
   });
