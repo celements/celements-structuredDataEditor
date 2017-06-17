@@ -769,7 +769,7 @@
        }
      },
 
-     _getSavingFailedJson : function() {
+     _getSavingFailedJson : function(transport) {
        return {
            'successful' : false,
            'errorMessages' : window.celMessages.structEditor.savingFailed,
@@ -791,7 +791,8 @@
        if (transport.responseText && transport.responseText.isJSON()) {
          jsonResult = transport.responseText.evalJSON();
        } else {
-         jsonResult = _me._getSavingFailedJson();
+         console.log('_parseSaveAjaxResponse: no JSON ', transport);
+         jsonResult = _me._getSavingFailedJson(transport);
        }
        console.log('_parseSaveAjaxResponse: return ', jsonResult);
        return jsonResult;
