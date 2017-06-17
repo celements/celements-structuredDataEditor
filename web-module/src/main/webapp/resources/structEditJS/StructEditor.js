@@ -761,10 +761,11 @@
            'savedFormId' : formId
          });
        } else {
-         console.warn('_handleSaveAjaxJsonResponse: save failed for [' + formId + ']: ', jsonResult);
+         console.warn('_handleSaveAjaxJsonResponse: save failed for [' + formId + ']: ',
+             jsonResponse);
          _me.celFire('structEdit:formSavedFailed', {
            'savedFormId' : formId,
-           'jsonResult' : jsonResult
+           'jsonResponse' : jsonResponse
          });
        }
      },
