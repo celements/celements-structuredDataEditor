@@ -8,4 +8,6 @@ $jsonBuilder.addStringProperty('savingDialogButtonSave', "$!adminMsg.get('cel_tm
 $jsonBuilder.addStringProperty('savingDialogButtonDoNotSave', "$!adminMsg.get('cel_tm_saving_dialog_button_donotsave')")
 $jsonBuilder.addStringProperty('savingDialogHeader', "$!adminMsg.get('cel_tm_saving_dialog_header')")
 $jsonBuilder.addStringProperty('savingFailed', "$!adminMsg.get('cel_tm_saving_failed')")
+$jsonBuilder.addStringProperty('savingFailedDialogHeader', "$!adminMsg.get('cel_tm_saving_failed_dialog_header')")
+$jsonBuilder.addStringProperty('savingFailedDialogText', "$!adminMsg.get('cel_tm_saving_failed_dialog_text')")
 $jsonBuilder.closeDictionary()

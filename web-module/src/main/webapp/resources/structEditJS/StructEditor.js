@@ -448,8 +448,8 @@
       });
       if (errorMessages.length > 0) {
         var errorMesgDialog = _me._getModalDialog();
-        errorMesgDialog.setHeader('Saving failed!');
-        errorMesgDialog.setBody("saving failed for the following reasons:<ul><li>"
+        errorMesgDialog.setHeader(window.celMessages.structEditor.savingFailedDialogHeader);
+        errorMesgDialog.setBody(window.celMessages.structEditor.savingFailedDialogText + "<ul><li>"
             + errorMessages.join('</li><li>').replace(new RegExp('<li>$'),'') + "</ul>");
         errorMesgDialog.cfg.setProperty("icon", YAHOO.widget.SimpleDialog.ICON_WARN);
         errorMesgDialog.cfg.queueProperty("buttons",
