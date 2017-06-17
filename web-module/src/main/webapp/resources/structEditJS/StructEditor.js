@@ -754,7 +754,6 @@
 
      _handleSaveAjaxJsonResponse : function(formId, jsonResponse) {
        var _me = this;
-       console.log('_handleSaveAjaxJsonResponse with json result: ', jsonResponse);
        _me._jsonResponses.set(formId, jsonResponse);
        if (jsonResponse.successful) {
          _me.celFire('structEdit:formSavedSuccessful', {
@@ -788,14 +787,12 @@
      _parseSaveAjaxResponse : function(transport) {
        var _me = this;
        var jsonResult;
-       console.log('_parseSaveAjaxResponse: ', transport);
        if (transport.responseText && transport.responseText.isJSON()) {
          jsonResult = transport.responseText.evalJSON();
        } else {
-         console.log('_parseSaveAjaxResponse: no JSON ', transport);
+         console.error('_parseSaveAjaxResponse: no JSON ', transport);
          jsonResult = _me._getSavingFailedJson(transport);
        }
-       console.log('_parseSaveAjaxResponse: return ', jsonResult);
        return jsonResult;
      },
 
@@ -805,20 +802,7 @@
          var formId = allDirtyFormIds.pop();
          var remainingDirtyFormIds = allDirtyFormIds;
          _me._saveAndContinueAjax(formId, {
-           on302 : function(transport) {
-             console.log('saveAllForms on302');
-             _me._handleSaveAjaxJsonResponse(formId, _me._parseSaveAjaxResponse(transport));
-             console.error('redirect happend! this is not expected on save: ', remainingDirtyFormIds);
-             _me.saveAllForms(remainingDirtyFormIds);
-           },
-           onError : function(transport) {
-             console.log('saveAllForms onError');
-             _me._handleSaveAjaxJsonResponse(formId, _me._parseSaveAjaxResponse(transport));
-             console.error('error happend! this is not expected on save: ', remainingDirtyFormIds);
-             _me.saveAllForms(remainingDirtyFormIds);
-           },
            onComplete : function(transport) {
-             console.log('saveAllForms onComplete');
              _me._handleSaveAjaxJsonResponse(formId, _me._parseSaveAjaxResponse(transport));
              console.log('next saveAllForms with: ', remainingDirtyFormIds);
              _me.saveAllForms(remainingDirtyFormIds);
