@@ -802,11 +802,19 @@
          var remainingDirtyFormIds = allDirtyFormIds;
          _me._saveAndContinueAjax(formId, {
            on302 : function(transport) {
+             console.log('saveAllForms on302');
              _me._handleSaveAjaxJsonResponse(formId, _me._parseSaveAjaxResponse(transport));
-             console.log('redirect happend! this is not expected on save: ', remainingDirtyFormIds);
+             console.error('redirect happend! this is not expected on save: ', remainingDirtyFormIds);
+             _me.saveAllForms(remainingDirtyFormIds);
+           },
+           onError : function(transport) {
+             console.log('saveAllForms onError');
+             _me._handleSaveAjaxJsonResponse(formId, _me._parseSaveAjaxResponse(transport));
+             console.error('error happend! this is not expected on save: ', remainingDirtyFormIds);
              _me.saveAllForms(remainingDirtyFormIds);
            },
            onComplete : function(transport) {
+             console.log('saveAllForms onComplete');
              _me._handleSaveAjaxJsonResponse(formId, _me._parseSaveAjaxResponse(transport));
              console.log('next saveAllForms with: ', remainingDirtyFormIds);
              _me.saveAllForms(remainingDirtyFormIds);
