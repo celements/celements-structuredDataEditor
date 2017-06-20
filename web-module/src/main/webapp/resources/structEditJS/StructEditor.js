@@ -407,7 +407,7 @@
       var savingDialog = _me._getModalDialog();
       savingDialog.setHeader(window.celMessages.structEditor.savingDialogHeader);
       savingDialog.setBody(_me._loading.getLoadingIndicator(true));
-      savingDialog.cfg.queueProperty("buttons", null);
+      savingDialog.cfg.queueProperty("buttons", []);
       savingDialog.render();
       savingDialog.show();
       //TODO CELDEV-500: add possibility to add JS-listener which can execute alternative
