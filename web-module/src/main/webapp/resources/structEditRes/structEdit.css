@@ -1,0 +1,20 @@
+@CHARSET "UTF-8";
+
+/* structEdit.css:
+ * struct editor layout
+ * 2016 - 2017 synventis gmbh
+ */
+
+.structEditorModalDialog {
+  font-family:"Open Sans",Tahoma,Geneva,Helvetica,Arial,sans-serif;
+}
+
+.structEditorModalDialog .yui-dialog .ft span.default button {
+  font-family:"Open Sans",Tahoma,Geneva,Helvetica,Arial,sans-serif;
+  background-color: #ff9900;
+  color:#333333 !important;
+}
+
+.structEditorModalDialog .yui-dialog .ft span.default button:hover {
+  background-color: #ffBB00;
+}
