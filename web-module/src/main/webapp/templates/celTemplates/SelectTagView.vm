@@ -1,4 +1,4 @@
-<!-- SelectTagView -->
+<!-- SelectTagView www -->
 ## tries to render option-tags from XWiki ListClass
 ## NOTE we cannot simply use XWiki's displayEdit here because it also renders the select-tag around it
 #set($cellDocRef = $celldoc.getDocumentReference())
@@ -15,7 +15,7 @@
 #elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
   <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
 #else
-  #set($setValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
+  #set($celValue = $services.structuredDataEditor.getCellValueAsString($cellDocRef))
   #set($valueMap = $propClass.get().getMapValues())
   #foreach($keyValue in $propClass.get().getListValues())
     #set($dictKey = "$!services.structuredDataEditor.getAttributeName($cellDocRef)_$!keyValue")
@@ -26,6 +26,6 @@
     #if("$!displayValue" == "")
       #set($displayValue = $keyValue)
     #end
-    <option value="$!keyValue" #if($setValues.contains($keyValue)) selected #end>$!displayValue</option>
+    <option value="$!keyValue" #if("$celValue" == "$keyValue")) selected #end>$!displayValue</option>
   #end
 #end
