@@ -26,6 +26,6 @@
     #if("$!displayValue" == "")
       #set($displayValue = $keyValue)
     #end
-    <option value="$!keyValue" #if("$celValue" == "$keyValue")) selected #end>$!displayValue</option>
+    <option value="$!keyValue" #if("$celValue" == "$keyValue") selected #end>$!displayValue</option>
   #end
 #end
