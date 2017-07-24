@@ -158,8 +158,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   public boolean isSelectMultiselect(DocumentReference cellDocRef) {
     boolean isMultiselect = false;
     try {
-      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      isMultiselect = modelAccess.getFieldValue(cellDoc, FIELD_IS_MULTISELECT).or(false);
+      isMultiselect = modelAccess.getFieldValue(cellDocRef, FIELD_IS_MULTISELECT).or(false);
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
