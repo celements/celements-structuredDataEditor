@@ -47,8 +47,23 @@
     return repo.full_name || repo.text;
   };
 
+  var processData = function (data, params) {
+    // parse the results into the format expected by Select2
+    // since we are using custom formatting functions we do not need to
+    // alter the remote JSON data, except to indicate that infinite
+    // scrolling can be used
+    params.page = params.page || 1;
+
+    return {
+      results: data.items,
+      pagination: {
+        more: (params.page * 30) < data.total_count
+      }
+    };
+  };
+
   var initSelect2Test = function() {
-    $j(".js-data-example-ajax").select2({
+    $j(".celSelectAjax").select2({
     placeholder : "Bitte einen Veranstaltungsort wählen/suchen",
     ajax: {
       url: "https://api.github.com/search/repositories",
@@ -60,20 +75,7 @@
           page: params.page
         };
       },
-      processResults: function (data, params) {
-        // parse the results into the format expected by Select2
-        // since we are using custom formatting functions we do not need to
-        // alter the remote JSON data, except to indicate that infinite
-        // scrolling can be used
-        params.page = params.page || 1;
-    
-        return {
-          results: data.items,
-          pagination: {
-            more: (params.page * 30) < data.total_count
-          }
-        };
-      },
+      processResults: processData,
       cache: true
     },
     escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
