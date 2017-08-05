@@ -22,6 +22,7 @@
   "use strict";
 
   var formatRepo = function(repo) {
+    console.log('formatRepo: ', repo);
     if (repo.loading) return repo.text;
 
     var markup = "<div class='select2-result-repository clearfix'>" +
@@ -43,8 +44,9 @@
     return markup;
   };
 
-  var formatRepoSelection = function(repo) {
-    return repo.full_name || repo.text;
+  var formatRepoSelection = function(data, container) {
+    console.log('formatRepoSelection: ', data, container);
+    return data.full_name || data.text;
   };
 
   var processData = function (data, params) {
@@ -63,28 +65,43 @@
   };
 
   var initSelect2Test = function() {
+    //TODO: lazily load i18n/de.js"
     $j(".celSelectAjax").select2({
-    placeholder : "Bitte einen Veranstaltungsort wählen/suchen",
-    ajax: {
-      url: "https://api.github.com/search/repositories",
-      dataType: 'json',
-      delay: 250,
-      data: function (params) {
-        return {
-          q: params.term, // search term
-          page: params.page
-        };
+      language: window.celMessages.celmeta.language,
+      placeholder: "Bitte einen Veranstaltungsort wählen/suchen",
+      ajax: {
+        url: "https://api.github.com/search/repositories",
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+          return {
+            q: params.term, // search term
+            page: params.page
+          };
+        },
+        processResults: processData,
+        cache: true
       },
-      processResults: processData,
-      cache: true
-    },
-    escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-    minimumInputLength: 1,
-    templateResult: formatRepo, // omitted for brevity, see the source of this page
-    templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+      escapeMarkup: function (markup) {
+        // default Utils.escapeMarkup is HTML-escaping the value. Because
+        // we formated the value using HTML it must not be further escaped.
+        return markup;
+      },
+      minimumInputLength: 1,
+      templateResult: formatRepo,
+      templateSelection: formatRepoSelection
     });
   };
 
-  celAddOnBeforeLoadListener(initSelect2Test);
+  var checkInitSelect2Test = function() {
+    if (!window.celMessages) {
+      $(document.body).observing('cel:messagesLoaded',  initSelect2Test);
+      $(document.body).observe('cel:messagesLoaded',  initSelect2Test);
+    } else {
+      initSelect2Test();
+    }
+  };
+
+  celAddOnBeforeLoadListener(checkInitSelect2Test);
 
 })(window);
