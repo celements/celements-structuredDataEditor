@@ -21,45 +21,48 @@
 (function(window, undefined) {
   "use strict";
 
-  var formatRepo = function(repo) {
-    console.log('formatRepo: ', repo);
-    if (repo.loading) return repo.text;
+  var formatRepo = function(data) {
+    console.log('formatRepo 1: ', data);
+    if (data.loading) return data.text;
 
     var markup = "<div class='select2-result-repository clearfix'>" +
-      "<div class='select2-result-repository__avatar'><img src='" + repo.owner.avatar_url + "' /></div>" +
+      "<div class='select2-result-repository__avatar'><img src='" + data.imageURL + "' /></div>" +
       "<div class='select2-result-repository__meta'>" +
-        "<div class='select2-result-repository__title'>" + repo.full_name + "</div>";
+        "<div class='select2-result-repository__title'>" + data.title + "</div>";
 
-    if (repo.description) {
-      markup += "<div class='select2-result-repository__description'>" + repo.description + "</div>";
+    if (data.description) {
+      markup += "<div class='select2-result-repository__description'>" + data.description + "</div>";
     }
 
     markup += "<div class='select2-result-repository__statistics'>" +
-      "<div class='select2-result-repository__forks'><i class='fa fa-flash'></i> " + repo.forks_count + " Forks</div>" +
-      "<div class='select2-result-repository__stargazers'><i class='fa fa-star'></i> " + repo.stargazers_count + " Stars</div>" +
-      "<div class='select2-result-repository__watchers'><i class='fa fa-eye'></i> " + repo.watchers_count + " Watchers</div>" +
+      "<div class='select2-result-repository__forks'><i class='fa fa-flash'></i> " + data.locName + "</div>" +
+      "<div class='select2-result-repository__stargazers'><i class='fa fa-star'></i> " + data.categoryName + "</div>" +
     "</div>" +
     "</div></div>";
-
     return markup;
   };
 
   var formatRepoSelection = function(data, container) {
     console.log('formatRepoSelection: ', data, container);
-    return data.full_name || data.text;
+    return data.text || data.id;
   };
 
-  var processData = function (data, params) {
+  var processData = function (response, params) {
     // parse the results into the format expected by Select2
     // since we are using custom formatting functions we do not need to
     // alter the remote JSON data, except to indicate that infinite
     // scrolling can be used
     params.page = params.page || 1;
+    
+    $A(response.results).each(function(elem){
+      elem.id = elem.progonEventId || elem.performanceId;
+      elem.text = elem.title;
+    });
 
     return {
-      results: data.items,
+      results: response.results,
       pagination: {
-        more: (params.page * 30) < data.total_count
+        more: params.countAfter > 0
       }
     };
   };
@@ -70,12 +73,12 @@
       language: window.celMessages.celmeta.language,
       placeholder: "Bitte einen Veranstaltungsort wählen/suchen",
       ajax: {
-        url: "https://api.github.com/search/repositories",
+        url: "http://programmzeitung.programmonline.ch/Content/Webseite?xpage=celements_ajax&ajax_mode=JSONsearch&showfields=description&fromdate=06.08.2017&startDate=06-08-2017",
         dataType: 'json',
         delay: 250,
         data: function (params) {
           return {
-            q: params.term, // search term
+            searchterm: params.term, // search term
             page: params.page
           };
         },
@@ -87,7 +90,7 @@
         // we formated the value using HTML it must not be further escaped.
         return markup;
       },
-      minimumInputLength: 1,
+      minimumInputLength: 3,
       templateResult: formatRepo,
       templateSelection: formatRepoSelection
     });
@@ -95,7 +98,7 @@
 
   var checkInitSelect2Test = function() {
     if (!window.celMessages) {
-      $(document.body).observing('cel:messagesLoaded',  initSelect2Test);
+      $(document.body).stopObserving('cel:messagesLoaded',  initSelect2Test);
       $(document.body).observe('cel:messagesLoaded',  initSelect2Test);
     } else {
       initSelect2Test();
