@@ -62,15 +62,20 @@
     return {
       results: response.results,
       pagination: {
-        more: params.countAfter > 0
+        more: response.countAfter > 0
       }
     };
   };
 
   var initSelect2Test = function() {
     //TODO: lazily load i18n/de.js"
+    var language = "de";
+    if (window.celMessages && window.celMessages.celmeta && window.celMessages.celmeta.language) {
+      language = window.celMessages.celmeta.language;
+    }
+    console.log('start initSelect2Test: ', language);
     $j(".celSelectAjax").select2({
-      language: window.celMessages.celmeta.language,
+      language: language,
       placeholder: "Bitte einen Veranstaltungsort wählen/suchen",
       ajax: {
         url: "http://programmzeitung.programmonline.ch/Content/Webseite?xpage=celements_ajax&ajax_mode=JSONsearch&showfields=description&fromdate=06.08.2017&startDate=06-08-2017",
@@ -98,9 +103,11 @@
 
   var checkInitSelect2Test = function() {
     if (!window.celMessages) {
+      console.log('observe cel:messagesLoaded for initSelect2Test ', window.celMessages);
       $(document.body).stopObserving('cel:messagesLoaded',  initSelect2Test);
       $(document.body).observe('cel:messagesLoaded',  initSelect2Test);
     } else {
+      console.log('direct call of initSelect2Test ', window.celMessages);
       initSelect2Test();
     }
   };
