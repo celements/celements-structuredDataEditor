@@ -30,14 +30,14 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-structuredDataEditor</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.5-SNAPSHOT</version>
   <description>Celements structured data editor</description>
   <dependencies>    
     <!-- Add here all your dependencies -->
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-core</artifactId>
-      <version>1.163</version>
+      <version>1.169</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
