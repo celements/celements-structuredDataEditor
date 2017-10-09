@@ -15,7 +15,12 @@
 #elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
   <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
 #else
-  #set($setValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
+  #set($isMultiselect = $services.structuredDataEditor.isSelectMultiselect($cellDocRef))
+  #if($isMultiselect)
+    #set($celValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
+  #else
+    #set($celValues = $services.structuredDataEditor.getCellValueAsString($cellDocRef))
+  #end
   #set($valueMap = $propClass.get().getMapValues())
   #foreach($keyValue in $propClass.get().getListValues())
     #set($dictKey = "$!services.structuredDataEditor.getAttributeName($cellDocRef)_$!keyValue")
@@ -26,6 +31,10 @@
     #if("$!displayValue" == "")
       #set($displayValue = $keyValue)
     #end
-    <option value="$!keyValue" #if($setValues.contains($keyValue)) selected #end>$!displayValue</option>
+    #if($isMultiselect)
+      <option value="$!keyValue" #if($celValues.contains($keyValue)) selected #end>$!displayValue</option>
+    #else
+      <option value="$!keyValue" #if("$celValues" == "$keyValue") selected #end>$!displayValue</option>
+    #end
   #end
 #end

@@ -1,5 +1,7 @@
 package com.celements.structEditor;
 
+import static com.celements.structEditor.classes.SelectTagEditorClass.*;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -151,6 +153,16 @@ public class StructuredDataEditorScriptService implements ScriptService {
       propClass = Optional.absent();
     }
     return propClass.transform(PROPCLASS_TO_API);
+  }
+
+  public boolean isSelectMultiselect(DocumentReference cellDocRef) {
+    boolean isMultiselect = false;
+    try {
+      isMultiselect = modelAccess.getFieldValue(cellDocRef, FIELD_IS_MULTISELECT).or(false);
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+    }
+    return isMultiselect;
   }
 
 }
