@@ -79,7 +79,7 @@
       language: language,
       placeholder: "Bitte einen Veranstaltungsort wählen/suchen",
       ajax: {
-        url: "http://programmzeitung.progdev1.sneakapeek.ch:8015/Content/Webseite?xpage=celements_ajax&ajax_mode=placesSearch&limit="+limit,
+        url: "http://programmzeitung.progdev.sneakapeek.ch/Content/Webseite?xpage=celements_ajax&ajax_mode=placesSearch&limit="+limit,
         dataType: 'json',
         delay: 250,
         cache: true,
