@@ -7,3 +7,7 @@
 	font-weight: normal;
 	color: #505050;
 }
+
+.select2-container .select2-dropdown .select2-results ul {
+	max-height: 500px;
+}
