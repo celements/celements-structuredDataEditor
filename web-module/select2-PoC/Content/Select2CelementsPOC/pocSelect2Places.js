@@ -82,7 +82,7 @@
         url: "http://programmzeitung.progdev1.sneakapeek.ch:8015/Content/Webseite?xpage=celements_ajax&ajax_mode=placesSearch&limit="+limit,
         dataType: 'json',
         delay: 250,
-//        cache: true,
+        cache: true,
         data: function (params) {
           var page = params.page || 1;
           var offset = (page - 1 ) * limit;
