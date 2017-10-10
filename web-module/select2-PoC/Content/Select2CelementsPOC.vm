@@ -1,7 +1,7 @@
 <h1>Select2.js Proof Of Concept (POC) Celements integration</h1>
 
 
-<select class="js-data-example-ajax" style="width:350px;" multiple="multiple">
+<select class="celSelectAjax" style="width:500px;" multiple="multiple">
 </select>
 
 <p>&nbsp;</p>
