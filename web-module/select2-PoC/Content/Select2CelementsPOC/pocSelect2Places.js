@@ -59,7 +59,6 @@
       elem.id = elem.fullName;
       elem.text = elem.name;
     });
-
     return {
       results: response.results,
       pagination: {
@@ -75,21 +74,25 @@
       language = window.celMessages.celmeta.language;
     }
     console.log('start initSelect2Test: ', language);
+    var limit = 10
     $j(".celSelectAjax").select2({
       language: language,
       placeholder: "Bitte einen Veranstaltungsort wählen/suchen",
       ajax: {
-        url: "http://programmzeitung.progdev.sneakapeek.ch/Content/Webseite?xpage=celements_ajax&ajax_mode=placesSearch",
+        url: "http://programmzeitung.progdev1.sneakapeek.ch:8015/Content/Webseite?xpage=celements_ajax&ajax_mode=placesSearch&limit="+limit,
         dataType: 'json',
         delay: 250,
+//        cache: true,
         data: function (params) {
+          var page = params.page || 1;
+          var offset = (page - 1 ) * limit;
           return {
             searchterm: params.term, // search term
-            page: params.page
+            page: page,
+            offset: offset
           };
         },
-        processResults: processData,
-        cache: true
+        processResults: processData
       },
       escapeMarkup: function (markup) {
         // default Utils.escapeMarkup is HTML-escaping the value. Because
