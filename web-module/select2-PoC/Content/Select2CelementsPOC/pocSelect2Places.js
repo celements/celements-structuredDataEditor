@@ -30,13 +30,13 @@
       placeUrl = data.fullName.split(":")[1].replace(".", "/")
     }
     var markup = 
-      "<div class=\"select2-result-repository clearfix progonOrgSearchResult\">" +
-      "  <div class='select2-result-repository__meta'>" +
-      "    <div class='select2-result-repository__title'>" + data.name + "</div>" +
-      "    <div class=\"select2-result-repository__forks progonOrgSearchResultAddress\">" + 
+      "<div class=\"select2-result-places clearfix progonOrgSearchResult\">" +
+      "  <div class='select2-result-places_meta'>" +
+      "    <div class='select2-result-places_title'>" + data.name + "</div>" +
+      "    <div class=\"select2-result-places_address\">" + 
              data.street + " " + data.streetNumber + 
       "    </div>" +
-      "    <div class='select2-result-repository__stargazers'>" + 
+      "    <div class='select2-result-places_city'>" + 
              data.zip + " " + data.city + ", " + data.country +
       "    </div>" +
       "  </div>" +
