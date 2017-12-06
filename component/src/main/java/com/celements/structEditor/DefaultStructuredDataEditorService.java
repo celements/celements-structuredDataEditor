@@ -227,7 +227,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return Optional.absent();
   }
 
-  Optional<BaseObject> getRequestXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc) {
+  private Optional<BaseObject> getRequestXObjectInStructEditor(XWikiDocument cellDoc,
+      XWikiDocument onDoc) {
     Optional<BaseObject> ret = Optional.absent();
     try {
       int objNb = Integer.parseInt(context.getRequestParameter("objNb").or("0"));
@@ -238,7 +239,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return ret;
   }
 
-  Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc,
+  private Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc,
       int objNb) {
     Optional<BaseObject> ret = Optional.absent();
     Optional<DocumentReference> classDocRef = getCellClassRef(cellDoc);
