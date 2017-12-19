@@ -23,6 +23,7 @@
   #end
   #set($valueMap = $propClass.get().getMapValues())
   #foreach($keyValue in $propClass.get().getListValues())
+    #set($keyValue = $keyValue.replaceAll(" ", "-"))
     #set($dictKey = "$!services.structuredDataEditor.getAttributeName($cellDocRef)_$!keyValue")
     #set($displayValue = $msg.get($dictKey))
     #if("$!displayValue" == "$!dictKey")
