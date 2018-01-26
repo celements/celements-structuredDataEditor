@@ -1,0 +1,41 @@
+<!-- SelectTagView -->
+## tries to render option-tags from XWiki ListClass
+## NOTE we cannot simply use XWiki's displayEdit here because it also renders the select-tag around it
+#set($cellDocRef = $celldoc.getDocumentReference())
+#set($supportedClasses = ['ListClass','StaticListClass','DBListClass','DBTreeListClass','UsersClass','GroupsClass','LevelsClass'])
+#set($supportedDisplayTypes = ['select'])
+#set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
+#set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
+#if("$!renderedContent" != '')
+  $renderedContent
+#elseif(!$propClass.isPresent())
+  <!-- WARN SelectTagView: no edit field defined on cell: $!celldoc -->
+#elseif(!$supportedClasses.contains($propClass.get().getType()))
+  <!-- WARN SelectTagView: doesn't support edit field class: $!propClass.get().getType() -->
+#elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
+  <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
+#else
+  #set($isMultiselect = $services.structuredDataEditor.isSelectMultiselect($cellDocRef))
+  #if($isMultiselect)
+    #set($celValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
+  #else
+    #set($celValues = $services.structuredDataEditor.getCellValueAsString($cellDocRef))
+  #end
+  #set($valueMap = $propClass.get().getMapValues())
+  #foreach($keyValue in $propClass.get().getListValues())
+    #set($keyValue = $keyValue.replaceAll(" ", "-"))
+    #set($dictKey = "$!services.structuredDataEditor.getAttributeName($cellDocRef)_$!keyValue")
+    #set($displayValue = $msg.get($dictKey))
+    #if("$!displayValue" == "$!dictKey")
+      #set($displayValue = "$!valueMap.get($keyValue).getValue()")
+    #end
+    #if("$!displayValue" == "")
+      #set($displayValue = $keyValue)
+    #end
+    #if($isMultiselect)
+      <option value="$!keyValue" #if($celValues.contains($keyValue)) selected #end>$!displayValue</option>
+    #else
+      <option value="$!keyValue" #if("$celValues" == "$keyValue") selected #end>$!displayValue</option>
+    #end
+  #end
+#end
