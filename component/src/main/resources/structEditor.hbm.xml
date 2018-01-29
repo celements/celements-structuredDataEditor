@@ -47,6 +47,21 @@
       <column name="STE_SELECT_TAG_IS_MULTISELECT" />
     </property>
   </class>
+  <class entity-name="Celements.SelectTagAutocompleteEditorClass" table="cel_select_tag_edit_field">
+    <id name="id" type="integer" unsaved-value="undefined">
+      <column name="STE_ID" not-null="true" />
+      <generator class="assigned" />
+    </id>
+    <property name="select_tag_autocomplete_separator" type="string">
+      <column name="STAE_SELECT_TAG_SEPARATOR" length="5"/>
+    </property>
+    <property name="select_tag_autocomplete_type" type="string">
+      <column name="STAE_SELECT_TAG_TYPE" length="256"/>
+    </property>
+    <property name="select_tag_autocomplete_is_multiselect" type="integer">
+      <column name="STAE_SELECT_TAG_IS_MULTISELECT" />
+    </property>
+  </class>
   <class entity-name="Celements.OptionTagEditorClass" table="cel_option_tag_edit_field">
     <id name="id" type="integer" unsaved-value="undefined">
       <column name="OTE_ID" not-null="true" />
