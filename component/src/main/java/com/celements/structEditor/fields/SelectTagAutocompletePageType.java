@@ -1,5 +1,7 @@
 package com.celements.structEditor.fields;
 
+import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
+
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -54,6 +56,9 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
       if (fetcher.filter(SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE, Arrays.asList(
           AutocompleteType.place)).exists()) {
         attrBuilder.addCssClasses("autocompletePlaces");
+      }
+      if (modelAccess.getFieldValue(cellDoc, FIELD_AUTOCOMPLETE_IS_MULTISELECT).or(false)) {
+        attrBuilder.addNonEmptyAttribute("multiple", "multiple");
       }
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
