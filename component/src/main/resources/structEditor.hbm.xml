@@ -47,9 +47,9 @@
       <column name="STE_SELECT_TAG_IS_MULTISELECT" />
     </property>
   </class>
-  <class entity-name="Celements.SelectTagAutocompleteEditorClass" table="cel_select_tag_edit_field">
+  <class entity-name="Celements.SelectTagAutocompleteEditorClass" table="cel_select_tag_autocomplete_edit_field">
     <id name="id" type="integer" unsaved-value="undefined">
-      <column name="STE_ID" not-null="true" />
+      <column name="STAE_ID" not-null="true" />
       <generator class="assigned" />
     </id>
     <property name="select_tag_autocomplete_separator" type="string">

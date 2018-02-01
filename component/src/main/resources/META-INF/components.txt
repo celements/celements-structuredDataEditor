@@ -21,3 +21,4 @@ com.celements.structEditor.fields.DateTimePickerPageType
 com.celements.structEditor.fields.SubmitLinkPageType
 com.celements.structEditor.fields.TextAreaFieldPageType
 com.celements.structEditor.DefaultStructuredDataEditorService
+com.celements.structEditor.SelectAutocompleteRole

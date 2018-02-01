@@ -10,7 +10,8 @@ import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.BooleanField;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.classes.fields.StringField;
-import com.celements.model.classes.fields.list.EnumListField;
+import com.celements.model.classes.fields.list.ComponentListField;
+import com.celements.structEditor.SelectAutocompleteRole;
 
 @Singleton
 @Component(SelectTagAutocompleteEditorClass.CLASS_DEF_HINT)
@@ -21,16 +22,12 @@ public class SelectTagAutocompleteEditorClass extends AbstractClassDefinition im
   public static final String DOC_NAME = "SelectTagAutocompleteEditorClass";
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
 
-  public enum AutocompleteType {
-    place;
-  }
-
   public static final ClassField<String> FIELD_SEPARATOR = new StringField.Builder(CLASS_DEF_HINT,
       "select_tag_autocomplete_separator").prettyName("Separator").build();
 
-  public static final ClassField<List<AutocompleteType>> FIELD_AUTOCOMPLETE_TYPE = new EnumListField.Builder<>(
-      CLASS_DEF_HINT, "select_tag_autocomplete_type", AutocompleteType.class).prettyName(
-          "Autocomplete Type").separator("|").multiSelect(false).displayType("select").build();
+  public static ClassField<List<SelectAutocompleteRole>> FIELD_AUTOCOMPLETE_TYPE = new ComponentListField.Builder<>(
+      CLASS_DEF_HINT, "select_tag_autocomplete_type", SelectAutocompleteRole.class).multiSelect(
+          true).separator("|").prettyName("Autocomplete Type").build();
 
   public static final ClassField<Boolean> FIELD_AUTOCOMPLETE_IS_MULTISELECT = new BooleanField.Builder(
       CLASS_DEF_HINT, "select_tag_autocomplete_is_multiselect").prettyName(
