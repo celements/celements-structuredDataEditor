@@ -27,7 +27,7 @@ public class SelectTagAutocompleteEditorClass extends AbstractClassDefinition im
 
   public static ClassField<List<SelectAutocompleteRole>> FIELD_AUTOCOMPLETE_TYPE = new ComponentListField.Builder<>(
       CLASS_DEF_HINT, "select_tag_autocomplete_type", SelectAutocompleteRole.class).multiSelect(
-          true).separator("|").prettyName("Autocomplete Type").build();
+          false).separator("|").prettyName("Autocomplete Type").build();
 
   public static final ClassField<Boolean> FIELD_AUTOCOMPLETE_IS_MULTISELECT = new BooleanField.Builder(
       CLASS_DEF_HINT, "select_tag_autocomplete_is_multiselect").prettyName(

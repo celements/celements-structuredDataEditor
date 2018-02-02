@@ -55,6 +55,9 @@
     <property name="select_tag_autocomplete_separator" type="string">
       <column name="STAE_SELECT_TAG_SEPARATOR" length="5"/>
     </property>
+    <property name="select_tag_autocomplete_type" type="string">
+      <column name="STAE_SELECT_TAG_TYPE" length="256"/>
+    </property>
     <property name="select_tag_autocomplete_is_multiselect" type="integer">
       <column name="STAE_SELECT_TAG_IS_MULTISELECT" />
     </property>
