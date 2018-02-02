@@ -1,7 +1,5 @@
 package com.celements.structEditor.fields;
 
-import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
-
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -56,34 +54,26 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
-      System.out.println("<<<<<<<<<<<<<<< SelectTagAutocompletePageType collectAttributes IN: ");
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
           cellDoc, modelContext.getDoc()).or(""));
-      // all values on a doc for a specific string field
-      Set<SelectAutocompleteRole> values = XWikiObjectFetcher.on(cellDoc).filter(
+      Set<SelectAutocompleteRole> types = XWikiObjectFetcher.on(cellDoc).filter(
           selectTagAutocomplete).iter().transformAndConcat(new FieldGetterFunction<>(
               xObjFieldAccessor, SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE)).toSet();
-      System.out.println("<<<<<<<<<<<<<<< SelectTagAutocompletePageType collectAttributes values: "
-          + values);
-      for (SelectAutocompleteRole selectAutocompleteRole : values) {
-        System.out.println("<<<<<<<<<<<<<<< SelectTagAutocompletePageType collectAttributes name: "
-            + selectAutocompleteRole.getName());
-        System.out.println("<<<<<<<<<<<<<<< SelectTagAutocompletePageType collectAttributes css: "
-            + selectAutocompleteRole.getCssClass());
-        System.out.println("<<<<<<<<<<<<<<< SelectTagAutocompletePageType collectAttributes js: "
-            + selectAutocompleteRole.getJsFilePath());
+      if (types.size() > 0) {
+        attrBuilder.addCssClasses(types.iterator().next().getCssClass());
       }
-
-      // modelAccess.getFieldValue(cellDoc, FIELD_AUTOCOMPLETE_TYPE);
-      //
-      // XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc).filter(selectTagAutocomplete);
-      // if (fetcher.filter(SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE, Arrays.asList(
-      // AutocompleteType.place)).exists()) {
-      // attrBuilder.addCssClasses("autocompletePlaces");
-      // }
-      if (modelAccess.getFieldValue(cellDoc, FIELD_AUTOCOMPLETE_IS_MULTISELECT).or(false)) {
+      Set<Boolean> multiselect = XWikiObjectFetcher.on(cellDoc).filter(
+          selectTagAutocomplete).iter().transform(new FieldGetterFunction<>(xObjFieldAccessor,
+              SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_IS_MULTISELECT)).toSet();
+      if ((multiselect.size() > 0) && multiselect.iterator().next()) {
         attrBuilder.addNonEmptyAttribute("multiple", "multiple");
+      }
+      Set<String> separator = XWikiObjectFetcher.on(cellDoc).filter(
+          selectTagAutocomplete).iter().transform(new FieldGetterFunction<>(xObjFieldAccessor,
+              SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_SEPARATOR)).toSet();
+      if ((separator.size() > 0)) {
+        attrBuilder.addNonEmptyAttribute("data-separator", separator.iterator().next());
       }
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);

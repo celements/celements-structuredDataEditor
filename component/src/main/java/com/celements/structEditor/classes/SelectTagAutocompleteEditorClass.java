@@ -22,8 +22,8 @@ public class SelectTagAutocompleteEditorClass extends AbstractClassDefinition im
   public static final String DOC_NAME = "SelectTagAutocompleteEditorClass";
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
 
-  public static final ClassField<String> FIELD_SEPARATOR = new StringField.Builder(CLASS_DEF_HINT,
-      "select_tag_autocomplete_separator").prettyName("Separator").build();
+  public static final ClassField<String> FIELD_AUTOCOMPLETE_SEPARATOR = new StringField.Builder(
+      CLASS_DEF_HINT, "select_tag_autocomplete_separator").prettyName("Separator").build();
 
   public static ClassField<List<SelectAutocompleteRole>> FIELD_AUTOCOMPLETE_TYPE = new ComponentListField.Builder<>(
       CLASS_DEF_HINT, "select_tag_autocomplete_type", SelectAutocompleteRole.class).multiSelect(

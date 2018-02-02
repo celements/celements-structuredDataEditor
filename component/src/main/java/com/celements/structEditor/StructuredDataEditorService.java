@@ -45,4 +45,7 @@ public interface StructuredDataEditorService {
   public List<String> getCellListValue(@NotNull DocumentReference cellDocRef,
       @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
 
+  @NotNull
+  public List<String> getSelectTagAutocompleteJsPath();
+
 }
