@@ -264,7 +264,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public List<String> getSelectTagAutocompleteJsPath() {
+  public List<String> getSelectTagAutocompleteJsPathList() {
     List<String> roles = new ArrayList<>();
     for (SelectAutocompleteRole role : selectAutocompleteRole) {
       roles.add(role.getJsFilePath());

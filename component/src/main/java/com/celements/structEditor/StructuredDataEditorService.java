@@ -46,6 +46,6 @@ public interface StructuredDataEditorService {
       @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
 
   @NotNull
-  public List<String> getSelectTagAutocompleteJsPath();
+  public List<String> getSelectTagAutocompleteJsPathList();
 
 }
