@@ -1,7 +1,5 @@
 package com.celements.structEditor.fields;
 
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
@@ -18,6 +16,7 @@ import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.structEditor.SelectAutocompleteRole;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -57,26 +56,25 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
           cellDoc, modelContext.getDoc()).or(""));
-      Set<SelectAutocompleteRole> types = XWikiObjectFetcher.on(cellDoc).filter(
-          selectTagAutocomplete).iter().transformAndConcat(new FieldGetterFunction<>(
-              xObjFieldAccessor, SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE)).toSet();
-      if (types.size() > 0) {
-        attrBuilder.addCssClasses(types.iterator().next().getCssClass());
+      FluentIterable<BaseObject> objIter = XWikiObjectFetcher.on(cellDoc).filter(
+          selectTagAutocomplete).iter();
+      Optional<SelectAutocompleteRole> type = objIter.transformAndConcat(new FieldGetterFunction<>(
+          xObjFieldAccessor, SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE)).first();
+      if (type.isPresent()) {
+        attrBuilder.addCssClasses(type.get().getCssClass());
       }
-      Set<Boolean> multiselect = XWikiObjectFetcher.on(cellDoc).filter(
-          selectTagAutocomplete).iter().transform(new FieldGetterFunction<>(xObjFieldAccessor,
-              SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_IS_MULTISELECT)).toSet();
-      if ((multiselect.size() > 0) && multiselect.iterator().next()) {
+      boolean multiselect = objIter.transform(new FieldGetterFunction<>(xObjFieldAccessor,
+          SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_IS_MULTISELECT)).first().or(false);
+      if (multiselect) {
         attrBuilder.addNonEmptyAttribute("multiple", "multiple");
       }
-      Set<String> separator = XWikiObjectFetcher.on(cellDoc).filter(
-          selectTagAutocomplete).iter().transform(new FieldGetterFunction<>(xObjFieldAccessor,
-              SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_SEPARATOR)).toSet();
-      if ((separator.size() > 0)) {
-        attrBuilder.addNonEmptyAttribute("data-separator", separator.iterator().next());
+      Optional<String> separator = objIter.transform(new FieldGetterFunction<>(xObjFieldAccessor,
+          SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_SEPARATOR)).first();
+      if ((separator.isPresent())) {
+        attrBuilder.addNonEmptyAttribute("data-separator", separator.get());
       }
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      LOGGER.warn("cell doesn't exist '{}'", cellDocRef, exc);
     }
   }
 
