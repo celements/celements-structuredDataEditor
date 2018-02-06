@@ -24,15 +24,14 @@ public class SelectTagAutocompleteEditorClass extends AbstractClassDefinition im
   public static final String CLASS_DEF_HINT = CLASS_FN;
 
   public static final ClassField<String> FIELD_AUTOCOMPLETE_SEPARATOR = new StringField.Builder(
-      CLASS_DEF_HINT, "select_tag_autocomplete_separator").prettyName("Separator").build();
+      CLASS_FN, "select_tag_autocomplete_separator").prettyName("Separator").build();
 
   public static ClassField<List<SelectAutocompleteRole>> FIELD_AUTOCOMPLETE_TYPE = new ComponentListField.Builder<>(
-      CLASS_DEF_HINT, "select_tag_autocomplete_type", SelectAutocompleteRole.class).multiSelect(
+      CLASS_FN, "select_tag_autocomplete_type", SelectAutocompleteRole.class).multiSelect(
           false).separator("|").prettyName("Autocomplete Type").build();
 
   public static final ClassField<Boolean> FIELD_AUTOCOMPLETE_IS_MULTISELECT = new BooleanField.Builder(
-      CLASS_DEF_HINT, "select_tag_autocomplete_is_multiselect").prettyName(
-          "Is Multiselect").build();
+      CLASS_FN, "select_tag_autocomplete_is_multiselect").prettyName("Is Multiselect").build();
 
   @Override
   public String getName() {

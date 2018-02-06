@@ -11,7 +11,7 @@
 #elseif(!$propClass.isPresent())
   <!-- WARN SelectTagutocompleteView: no edit field defined on cell: $!celldoc -->
 #elseif(!$supportedClasses.contains($propClass.get().getType()))
-  <!-- WARN SelectTagutocompleteView: doesn't support edit field class: $!propClass.get().getType() -->
+  <!-- WARN SelectTagAutocompleteView: doesn't support edit field class: $!propClass.get().getType() -->
 #elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
-  <!-- WARN SelectTagutocompleteView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
+  <!-- WARN SelectTagAutocompleteView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
 #end
