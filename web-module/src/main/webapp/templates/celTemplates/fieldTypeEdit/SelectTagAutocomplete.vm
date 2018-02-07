@@ -1,0 +1,16 @@
+#set($selectTagAutocompleteObj = "")
+#set($selectTagAutocompleteObj = $celldoc.getObject('Celements.SelectTagAutocompleteEditorClass', true))
+
+<p>selectTagAutocompleteObj: $selectTagAutocompleteObj</p>
+<p>selectTagAutocompleteObj.getNumber(): $selectTagAutocompleteObj.getNumber()</p>
+
+#set($cel_editobj_dict_prefix = 'cel_selectTagAutocompleteEditor_edit_' )
+#set($cel_embedded_editobj = true)
+#set($cel_editobj_classname = "Celements.SelectTagAutocompleteEditorClass")
+#set($createIfNotExists = true)
+##set($cel_editobj_nb = $selectTagAutocompleteObj.getNumber())
+#set($cel_editobj_hasObjRemoveLink = false)
+#set($cel_editobj_externalForm = true)
+#set($cel_editobj_properties = 'select_tag_autocomplete_separator,select_tag_autocomplete_type,select_tag_autocomplete_is_multiselect')
+#set($cel_editobj_readonly_properties = '')
+#parse("celTemplates/ObjectEdit.vm")

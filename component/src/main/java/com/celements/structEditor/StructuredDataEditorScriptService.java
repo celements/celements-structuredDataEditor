@@ -165,4 +165,8 @@ public class StructuredDataEditorScriptService implements ScriptService {
     return isMultiselect;
   }
 
+  public List<String> getSelectTagAutocompleteJsPathList() {
+    return service.getSelectTagAutocompleteJsPathList();
+  }
+
 }

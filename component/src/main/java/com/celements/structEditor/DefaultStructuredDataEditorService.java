@@ -51,6 +51,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Requirement
   private ModelContext context;
 
+  @Requirement
+  private List<SelectAutocompleteRole> selectAutocompleteRole;
+
   @Override
   public Optional<String> getAttributeName(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return getAttributeNameInternal(cellDoc, onDoc);
@@ -258,6 +261,15 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private Optional<String> getCellFieldName(XWikiDocument cellDoc) {
     return modelAccess.getFieldValue(cellDoc, StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME);
+  }
+
+  @Override
+  public List<String> getSelectTagAutocompleteJsPathList() {
+    List<String> roles = new ArrayList<>();
+    for (SelectAutocompleteRole role : selectAutocompleteRole) {
+      roles.add(role.getJsFilePath());
+    }
+    return roles;
   }
 
 }
