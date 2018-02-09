@@ -16,7 +16,7 @@
   $services.javascript.addExtJSfileOnce(':structEditJS/select2/initStructEditor.js', 'file')
   $services.javascript.addExtJSfileOnce(':structEditJS/select2/select2.full.min.js', 'file')
   $services.javascript.addExtJSfileOnce(':structEditJS/de.js', 'file')
-  #set($jsPath = $services.structuredDataEditor.getSelectTagAutocompleteJsPath())
+  #set($jsPath = $services.structuredDataEditor.getSelectTagAutocompleteJsPathList())
   #foreach($path in $jsPath)
     $services.javascript.addExtJSfileOnce(":${path}", 'file')
   #end
