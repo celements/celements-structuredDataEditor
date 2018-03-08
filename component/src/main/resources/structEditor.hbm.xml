@@ -3,7 +3,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 	<class entity-name="Celements.StructEditFieldClass" table="cel_struct_edit_fields">
-    <id name="id" type="integer" unsaved-value="undefined">
+    <id name="id" type="long" unsaved-value="undefined">
       <column name="SEF_ID" not-null="true" />
       <generator class="assigned" />
     </id>
@@ -15,7 +15,7 @@
     </property>
   </class>
   <class entity-name="Celements.FormFieldEditorClass" table="cel_form_field_edit_field">
-    <id name="id" type="integer" unsaved-value="undefined">
+    <id name="id" type="long" unsaved-value="undefined">
       <column name="FFE_ID" not-null="true" />
       <generator class="assigned" />
     </id>
@@ -33,7 +33,7 @@
     </property>
   </class>
   <class entity-name="Celements.SelectTagEditorClass" table="cel_select_tag_edit_field">
-    <id name="id" type="integer" unsaved-value="undefined">
+    <id name="id" type="long" unsaved-value="undefined">
       <column name="STE_ID" not-null="true" />
       <generator class="assigned" />
     </id>
@@ -48,7 +48,7 @@
     </property>
   </class>
   <class entity-name="Celements.SelectTagAutocompleteEditorClass" table="cel_select_tag_autocomplete_edit_field">
-    <id name="id" type="integer" unsaved-value="undefined">
+    <id name="id" type="long" unsaved-value="undefined">
       <column name="STAE_ID" not-null="true" />
       <generator class="assigned" />
     </id>
@@ -63,7 +63,7 @@
     </property>
   </class>
   <class entity-name="Celements.OptionTagEditorClass" table="cel_option_tag_edit_field">
-    <id name="id" type="integer" unsaved-value="undefined">
+    <id name="id" type="long" unsaved-value="undefined">
       <column name="OTE_ID" not-null="true" />
       <generator class="assigned" />
     </id>
@@ -81,7 +81,7 @@
     </property>
   </class>
   <class entity-name="Celements.TextAreaFieldEditorClass" table="cel_textarea_field_edit_field">
-    <id name="id" type="integer" unsaved-value="undefined">
+    <id name="id" type="long" unsaved-value="undefined">
       <column name="TAFE_ID" not-null="true" />
       <generator class="assigned" />
     </id>
@@ -96,7 +96,7 @@
     </property>
   </class>
   <class entity-name="Celements.HiddenTagEditorClass" table="cel_hidden_tag_edit_field">
-    <id name="id" type="integer" unsaved-value="undefined">
+    <id name="id" type="long" unsaved-value="undefined">
       <column name="HTE_ID" not-null="true" />
       <generator class="assigned" />
     </id>
@@ -108,7 +108,7 @@
     </property>
   </class>
   <class entity-name="Celements.DateTimePickerEditorClass" table="cel_date_time_picker_edit_field">
-    <id name="id" type="integer" unsaved-value="undefined">
+    <id name="id" type="long" unsaved-value="undefined">
       <column name="DTPEF_ID" not-null="true" />
       <generator class="assigned" />
     </id>
