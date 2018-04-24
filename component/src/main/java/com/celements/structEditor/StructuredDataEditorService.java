@@ -48,4 +48,6 @@ public interface StructuredDataEditorService {
   @NotNull
   public List<String> getSelectTagAutocompleteJsPathList();
 
+  public boolean hasEditField(@NotNull XWikiDocument cellDoc);
+
 }

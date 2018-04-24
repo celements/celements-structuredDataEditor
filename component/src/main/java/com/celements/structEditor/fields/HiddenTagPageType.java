@@ -44,15 +44,10 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       String value = getVelocityFieldValue(cellDoc, FIELD_VALUE).or("");
       String name = modelAccess.getFieldValue(cellDoc, FIELD_NAME).or(cellDocRef.getName());
-      Optional<String> cellValue = getStructDataEditorService().getCellValueAsString(cellDocRef,
-          modelContext.getDoc());
-      if (cellValue.isPresent()) {
-        value = cellValue.get();
-        Optional<String> attrName = getStructDataEditorService().getAttributeName(cellDoc,
-            modelContext.getDoc());
-        if (attrName.isPresent()) {
-          name = attrName.get();
-        }
+      if (getStructDataEditorService().hasEditField(cellDoc)) {
+        name = getStructDataEditorService().getAttributeName(cellDoc, modelContext.getDoc()).or("");
+        value = getStructDataEditorService().getCellValueAsString(cellDocRef,
+            modelContext.getDoc()).or("");
       }
       attrBuilder.addNonEmptyAttribute("name", name);
       attrBuilder.addNonEmptyAttribute("value", value);

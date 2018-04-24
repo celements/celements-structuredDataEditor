@@ -272,4 +272,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return roles;
   }
 
+  @Override
+  public boolean hasEditField(XWikiDocument cellDoc) {
+    return getCellFieldName(cellDoc).isPresent();
+  }
+
 }
