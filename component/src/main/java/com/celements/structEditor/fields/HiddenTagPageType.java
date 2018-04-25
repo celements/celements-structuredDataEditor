@@ -42,9 +42,18 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
     attrBuilder.addNonEmptyAttribute("type", "hidden");
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      attrBuilder.addNonEmptyAttribute("name", modelAccess.getFieldValue(cellDoc, FIELD_NAME).or(
-          cellDocRef.getName()));
-      attrBuilder.addNonEmptyAttribute("value", getVelocityFieldValue(cellDoc, FIELD_VALUE).or(""));
+      String value = "";
+      String name = "";
+      if (getStructDataEditorService().hasEditField(cellDoc)) {
+        name = getStructDataEditorService().getAttributeName(cellDoc, modelContext.getDoc()).or("");
+        value = getStructDataEditorService().getCellValueAsString(cellDocRef,
+            modelContext.getDoc()).or("");
+      } else {
+        value = getVelocityFieldValue(cellDoc, FIELD_VALUE).or("");
+        name = modelAccess.getFieldValue(cellDoc, FIELD_NAME).or(cellDocRef.getName());
+      }
+      attrBuilder.addNonEmptyAttribute("name", name);
+      attrBuilder.addNonEmptyAttribute("value", value);
     } catch (DocumentNotExistsException | XWikiVelocityException exc) {
       LOGGER.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }
