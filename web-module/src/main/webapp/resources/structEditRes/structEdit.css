@@ -18,3 +18,13 @@
 .structEditorModalDialog .yui-dialog .ft span.default button:hover {
   background-color: #ffBB00;
 }
+
+.structDataEditor input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.structDataEditor input[type=number] {
+    -moz-appearance:textfield;
+}
