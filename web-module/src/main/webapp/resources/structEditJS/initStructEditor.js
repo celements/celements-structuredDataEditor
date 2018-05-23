@@ -55,8 +55,10 @@
     window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
     $(document.body).stopObserving("celements:contentChanged", initStructEditorContentChangedHandler);
     $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
-    $(document.body).stopObserving("celements:contentChanged", initTinyMCE);
-    $(document.body).observe("celements:contentChanged", initTinyMCE);
+    $$(".cel_cell .tinyMCEV4").each(function(elem) {
+      elem.up(".cel_cell").stopObserving("celements:contentChanged", initTinyMCE);
+      elem.up(".cel_cell").observe("celements:contentChanged", initTinyMCE);
+    });
     initTinyMCE();
     window.celStructEditorManager.startEditorManager();
   });

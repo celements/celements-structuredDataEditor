@@ -28,7 +28,8 @@ public class TextAreaFieldEditorClass extends AbstractClassDefinition implements
       "textarea_field_value").rows(7).prettyName("Executional Code").build();
 
   public static final ClassField<Boolean> FIELD_IS_RICHTEXT = new BooleanField.Builder(
-      CLASS_DEF_HINT, "textarea_field_is_richtext").prettyName("Is RichText").build();
+      CLASS_DEF_HINT, "textarea_field_is_richtext").prettyName("Is RichText").displayType(
+          "yesno").build();
 
   @Override
   public String getName() {
