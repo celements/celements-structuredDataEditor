@@ -91,6 +91,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
       addNameAttributeToMap(retMap, cellDoc);
       addAttributeToMap(retMap, "rows", cellDoc, TextAreaFieldEditorClass.FIELD_ROWS);
       addAttributeToMap(retMap, "cols", cellDoc, TextAreaFieldEditorClass.FIELD_COLS);
+      addAttributeToMap(retMap, "isRichtext", cellDoc, TextAreaFieldEditorClass.FIELD_IS_RICHTEXT);
     } catch (DocumentNotExistsException exc) {
       LOGGER.info("Properties for docRef {} does not exist {}", cellDocRef, exc);
     }

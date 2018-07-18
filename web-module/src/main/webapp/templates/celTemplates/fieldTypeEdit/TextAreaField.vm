@@ -11,6 +11,6 @@
 ##set($cel_editobj_nb = $textAreaFieldObj.getNumber())
 #set($cel_editobj_hasObjRemoveLink = false)
 #set($cel_editobj_externalForm = true)
-#set($cel_editobj_properties = 'textarea_field_rows,textarea_field_cols,textarea_field_value')
+#set($cel_editobj_properties = 'textarea_field_rows,textarea_field_cols,textarea_field_value,textarea_field_is_richtext')
 #set($cel_editobj_readonly_properties = '')
 #parse("celTemplates/ObjectEdit.vm")

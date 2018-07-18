@@ -26,17 +26,40 @@
    */
 
   var initStructEditorContentChangedHandler = function(event) {
-    var _me = this;
     var checkRoot = event.memo.htmlElem || document.body;
     console.log('initStructEditorContentChangedHandler: run for ', checkRoot);
     $(document.body).fire('cel:initStructEditor', { 'checkRoot' : checkRoot });
     console.log('initStructEditorContentChangedHandler: finish for ', checkRoot);
+  };
+  
+  var initTinyMCE = function(event) {
+    tinymce.init({
+      selector: 'textarea.tinyMCE',
+      height: 500,
+      theme: 'modern',
+      plugins: 'print preview searchreplace autolink directionality visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists textcolor wordcount imagetools contextmenu colorpicker textpattern help',
+      toolbar1: 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat',
+      image_advtab: true,
+      templates: [
+        { title: 'Test template 1', content: 'Test 1' },
+        { title: 'Test template 2', content: 'Test 2' }
+      ],
+      content_css: [
+        '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
+        '//www.tinymce.com/css/codepen.min.css'
+      ]
+     });
   };
 
   celAddOnBeforeLoadListener(function() {
     window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
     $(document.body).stopObserving("celements:contentChanged", initStructEditorContentChangedHandler);
     $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
+    $$(".cel_cell .tinyMCEV4").each(function(elem) {
+      elem.up(".cel_cell").stopObserving("celements:contentChanged", initTinyMCE);
+      elem.up(".cel_cell").observe("celements:contentChanged", initTinyMCE);
+    });
+    initTinyMCE();
     window.celStructEditorManager.startEditorManager();
   });
 
