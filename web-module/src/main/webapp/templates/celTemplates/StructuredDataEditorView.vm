@@ -20,7 +20,7 @@
   #foreach($path in $jsPath)
     $services.javascript.addExtJSfileOnce(":${path}", 'file')
   #end
-  $!services.javascript.addExtJSfileOnce(':celRTE/4.7.12/tinymce.min.js')
+  $!services.javascript.addExtJSfileOnce(':celRTE/4.7.12/tinymce.min.js', 'file')
 #end
 ##TODO get navigation config from pageType document
 
