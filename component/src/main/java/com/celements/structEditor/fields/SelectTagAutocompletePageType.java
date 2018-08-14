@@ -16,7 +16,6 @@ import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.structEditor.SelectAutocompleteRole;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -74,10 +73,10 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
       if ((separator.isPresent())) {
         attrBuilder.addNonEmptyAttribute("data-separator", separator.get());
       }
-      String docFN = getStructDataEditorService().getCellValueAsString(cellDocRef,
-          modelContext.getDoc()).or("");
-      if (!Strings.isNullOrEmpty(docFN)) {
-        attrBuilder.addNonEmptyAttribute("data-value", docFN);
+      Optional<String> docFN = getStructDataEditorService().getCellValueAsString(cellDocRef,
+          modelContext.getDoc());
+      if (docFN.isPresent()) {
+        attrBuilder.addNonEmptyAttribute("data-value", docFN.get());
       }
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("cell doesn't exist '{}'", cellDocRef, exc);
