@@ -32,7 +32,7 @@
   <artifactId>structuredDataEditor-web</artifactId>
   <packaging>war</packaging>
   <name>Celements Structured Data Editor Web-Module</name>
-  <version>3.2</version>
+  <version>3.3-SNAPSHOT</version>
   <description>	</description>
   <licenses>
     <license>
@@ -45,7 +45,7 @@
     <connection>scm:git:git@github.com:celements/celements-structuredDataEditor.git</connection>
     <developerConnection>scm:git:git@github.com:celements/celements-structuredDataEditor.git</developerConnection>
     <url>https://github.com/celements/celements-structuredDataEditor</url>
-    <tag>structuredDataEditor-web-3.2</tag>
+    <tag>HEAD</tag>
   </scm>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
