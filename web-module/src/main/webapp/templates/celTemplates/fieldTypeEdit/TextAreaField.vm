@@ -1,16 +1,12 @@
-#set($textAreaFieldObj = "")
-#set($textAreaFieldObj = $celldoc.getObject('Celements.TextAreaFieldEditorClass', true))
-
-<p>textAreaFieldObj: $textAreaFieldObj</p>
-<p>textAreaFieldObj.getNumber(): $textAreaFieldObj.getNumber()</p>
-
 #set($cel_editobj_dict_prefix = 'cel_textAreaFieldEditor_edit_' )
 #set($cel_embedded_editobj = true)
-#set($cel_editobj_classname = "Celements.TextAreaFieldEditorClass")
+#set($cel_editobj_classname = 'Celements.TextAreaFieldEditorClass')
 #set($createIfNotExists = true)
-##set($cel_editobj_nb = $textAreaFieldObj.getNumber())
 #set($cel_editobj_hasObjRemoveLink = false)
 #set($cel_editobj_externalForm = true)
-#set($cel_editobj_properties = 'textarea_field_rows,textarea_field_cols,textarea_field_value,textarea_field_is_richtext')
+#set($cel_editobj_properties = '')
+#foreach($prop in $xwiki.getDocument($cel_editobj_classname).xWikiClass.properties)
+  #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
+#end
 #set($cel_editobj_readonly_properties = '')
 #parse("celTemplates/ObjectEdit.vm")
