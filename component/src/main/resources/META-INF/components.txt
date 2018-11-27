@@ -22,3 +22,5 @@ com.celements.structEditor.fields.SubmitLinkPageType
 com.celements.structEditor.fields.TextAreaFieldPageType
 com.celements.structEditor.DefaultStructuredDataEditorService
 com.celements.structEditor.SelectAutocompleteRole
+com.celements.struct.classes.TableClass;
+com.celements.struct.classes.TableColumnClass;
