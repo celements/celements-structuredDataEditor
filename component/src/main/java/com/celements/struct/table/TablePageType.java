@@ -21,4 +21,9 @@ public class TablePageType extends AbstractStructFieldPageType {
     return VIEW_TEMPLATE_NAME;
   }
 
+  @Override
+  protected String getEditTemplateName() {
+    return VIEW_TEMPLATE_NAME;
+  }
+
 }

@@ -4,7 +4,6 @@ import java.util.Set;
 
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.velocity.VelocityManager;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.model.access.IModelAccessFacade;
@@ -39,9 +38,6 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
   @Requirement
   protected ModelContext modelContext;
-
-  @Requirement
-  protected VelocityManager velocityManager;
 
   @Override
   public Set<IPageTypeCategoryRole> getCategories() {
