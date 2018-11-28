@@ -29,11 +29,11 @@ public class TableClass extends AbstractClassDefinition implements StructDataCla
   public static final ClassField<Integer> FIELD_RESULT_LIMIT = new IntField.Builder(CLASS_DEF_HINT,
       "result_limit").build();
 
-  public static final ClassField<List<String>> FIELD_TABLE_CSS_CLASSES = new StringListField.Builder<>(
-      CLASS_DEF_HINT, "table_css_classes").multiSelect(true).separator(",").build();
+  public static final ClassField<String> FIELD_CSS_ID = new StringField.Builder(CLASS_DEF_HINT,
+      "css_id").build();
 
-  public static final ClassField<List<String>> FIELD_ROW_CSS_CLASSES = new StringListField.Builder<>(
-      CLASS_DEF_HINT, "row_css_classes").multiSelect(true).separator(",").build();
+  public static final ClassField<List<String>> FIELD_CSS_CLASSES = new StringListField.Builder<>(
+      CLASS_DEF_HINT, "css_classes").multiSelect(true).separator(",").build();
 
   @Override
   public String getName() {

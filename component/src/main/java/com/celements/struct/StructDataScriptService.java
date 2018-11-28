@@ -7,6 +7,8 @@ import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.script.service.ScriptService;
 
+import com.celements.cells.DivWriter;
+import com.celements.cells.ICellWriter;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
 import com.celements.navigation.presentation.IPresentationTypeRole;
@@ -38,7 +40,7 @@ public class StructDataScriptService implements ScriptService {
   private ModelContext context;
 
   public String renderTable(DocumentReference cellDocRef) {
-    StringBuilder writer = new StringBuilder();
+    ICellWriter writer = new DivWriter();
     if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
       XWikiDocument doc = modelAccess.getOrCreateDocument(cellDocRef);
       Optional<TableConfig> tableCfg = service.loadTableConfig(doc);
@@ -48,7 +50,7 @@ public class StructDataScriptService implements ScriptService {
         LOGGER.info("renderTable - no table config found on [{}]", cellDocRef);
       }
     }
-    return writer.toString();
+    return writer.getAsString();
   }
 
 }

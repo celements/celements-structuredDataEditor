@@ -15,8 +15,8 @@ public class TableConfig implements PresentationNodeData {
   private String query = "";
   private List<String> sortFields = ImmutableList.of();
   private int resultLimit = 0;
-  private List<String> tableCssClasses = ImmutableList.of();
-  private List<String> rowCssClasses = ImmutableList.of();
+  private String cssId = "";
+  private List<String> cssClasses = ImmutableList.of();
   private List<ColumnConfig> columns = ImmutableList.of();
 
   public String getQuery() {
@@ -43,20 +43,20 @@ public class TableConfig implements PresentationNodeData {
     this.resultLimit = firstNonNull(resultLimit, 0);
   }
 
-  public List<String> getTableCssClasses() {
-    return tableCssClasses;
+  public String getCssId() {
+    return cssId;
   }
 
-  public void setTableCssClasses(List<String> cssClasses) {
-    this.tableCssClasses = ImmutableList.copyOf(cssClasses);
+  public void setCssId(String cssId) {
+    this.cssId = Strings.nullToEmpty(cssId);
   }
 
-  public List<String> getRowCssClasses() {
-    return rowCssClasses;
+  public List<String> getCssClasses() {
+    return cssClasses;
   }
 
-  public void setRowCssClasses(List<String> cssClasses) {
-    this.rowCssClasses = ImmutableList.copyOf(cssClasses);
+  public void setCssClasses(List<String> cssClasses) {
+    this.cssClasses = ImmutableList.copyOf(cssClasses);
   }
 
   public List<ColumnConfig> getColumns() {
@@ -70,8 +70,8 @@ public class TableConfig implements PresentationNodeData {
   @Override
   public String toString() {
     return "TableConfig [query=" + query + ", sortFields=" + sortFields + ", resultLimit="
-        + resultLimit + ", tableCssClasses=" + tableCssClasses + ", rowCssClasses=" + rowCssClasses
-        + ", columnCount=" + columns.size() + "]";
+        + resultLimit + ", cssId=" + cssId + ", cssClasses=" + cssClasses + ", columns=" + columns
+        + "]";
   }
 
 }
