@@ -9,25 +9,20 @@ import com.google.common.collect.ImmutableList;
 
 public class ColumnConfig implements Comparable<ColumnConfig> {
 
+  private int number = 0;
+  private int order = 0;
   private String title = "";
   private String content = "";
-  private int order = 0;
   private List<String> cssClasses = ImmutableList.of();
 
-  public String getTitle() {
-    return title;
+  private boolean headerMode = false;
+
+  public int getNumber() {
+    return number;
   }
 
-  public void setTitle(String title) {
-    this.title = Strings.nullToEmpty(title);
-  }
-
-  public String getContent() {
-    return content;
-  }
-
-  public void setContent(String content) {
-    this.content = Strings.nullToEmpty(content);
+  public void setNumber(int number) {
+    this.number = number;
   }
 
   public Integer getOrder() {
@@ -38,12 +33,36 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
     this.order = firstNonNull(order, 0);
   }
 
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = Strings.nullToEmpty(title);
+  }
+
+  public String getContent() {
+    if (headerMode) {
+      headerMode = false;
+      return getTitle();
+    }
+    return getContent();
+  }
+
+  public void setContent(String content) {
+    this.content = Strings.nullToEmpty(content);
+  }
+
   public List<String> getCssClasses() {
     return cssClasses;
   }
 
   public void setCssClasses(List<String> cssClasses) {
     this.cssClasses = ImmutableList.copyOf(cssClasses);
+  }
+
+  public void setHeaderMode() {
+    headerMode = true;
   }
 
   @Override

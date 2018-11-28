@@ -67,6 +67,12 @@ public class TableConfig implements PresentationNodeData {
     this.columns = FluentIterable.from(columns).toSortedList(Ordering.natural());
   }
 
+  public void setHeaderMode() {
+    for (ColumnConfig col : columns) {
+      col.setHeaderMode();
+    }
+  }
+
   @Override
   public String toString() {
     return "TableConfig [query=" + query + ", sortFields=" + sortFields + ", resultLimit="

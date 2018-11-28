@@ -8,7 +8,6 @@ import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
-import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -31,15 +30,15 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   @Override
   public void writeNodeContent(ICellWriter writer, DocumentReference docRef, TableConfig tableCfg) {
     LOGGER.debug("writeNodeContent - for [{}] with [{}]", docRef, tableCfg);
-    AttributeBuilder attributes = new DefaultAttributeBuilder();
+    AttributeBuilder attributes = newAttributeBuilder();
     attributes.addCssClasses(getDefaultCssClass());
     attributes.addAttribute("data-doc", modelUtils.serializeRef(docRef, COMPACT_WIKI));
-    writer.openLevel(attributes.build());
+    writer.openLevel("li", attributes.build());
     for (ColumnConfig colCfg : tableCfg.getColumns()) {
       writeTableCell(writer, docRef, colCfg);
     }
     if (tableCfg.getColumns().isEmpty()) {
-      writer.appendContent("No columns defined");
+      writer.appendContent("no columns defined");
     }
     writer.closeLevel();
   }
@@ -47,7 +46,10 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   private void writeTableCell(ICellWriter writer, DocumentReference docRef, ColumnConfig colCfg) {
     try {
       XWikiDocument doc = modelAccess.getDocument(docRef);
-      writer.openLevel(new DefaultAttributeBuilder().addCssClasses(colCfg.getCssClasses()).build());
+      AttributeBuilder attributes = newAttributeBuilder();
+      attributes.addCssClasses(CSS_CLASS + "_cell_" + colCfg.getNumber());
+      attributes.addCssClasses(getDefaultCssClass());
+      writer.openLevel(attributes.build());
       String content;
       try {
         content = structDataService.evaluateVelocityText(doc, colCfg.getContent());

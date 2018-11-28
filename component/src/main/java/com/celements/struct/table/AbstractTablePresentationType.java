@@ -7,6 +7,8 @@ import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 
 import com.celements.cells.DivWriter;
+import com.celements.cells.attribute.AttributeBuilder;
+import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;
@@ -40,6 +42,10 @@ public abstract class AbstractTablePresentationType implements IPresentationType
   @Override
   public SpaceReference getPageLayoutForDoc(DocumentReference docRef) {
     return null;
+  }
+
+  protected AttributeBuilder newAttributeBuilder() {
+    return new DefaultAttributeBuilder();
   }
 
 }

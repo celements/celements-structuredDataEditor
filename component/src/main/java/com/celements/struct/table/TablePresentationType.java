@@ -7,11 +7,9 @@ import java.util.List;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
-import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.search.lucene.ILuceneSearchService;
 import com.celements.search.lucene.LuceneSearchException;
@@ -47,23 +45,26 @@ public class TablePresentationType extends AbstractTablePresentationType {
   @Override
   public void writeNodeContent(ICellWriter writer, DocumentReference docRef, TableConfig tableCfg) {
     LOGGER.debug("writeNodeContent - for [{}] with [{}]", docRef, tableCfg);
-    AttributeBuilder attributes = new DefaultAttributeBuilder();
+    AttributeBuilder attributes = newAttributeBuilder();
     attributes.addId(tableCfg.getCssId());
     attributes.addCssClasses(getDefaultCssClass());
     attributes.addCssClasses(tableCfg.getCssClasses());
     writer.openLevel(attributes.build());
-    writeTableContent(writer, tableCfg);
+    writeTableContent(writer, docRef, tableCfg);
     writer.closeLevel();
   }
 
-  private void writeTableContent(ICellWriter writer, TableConfig tableCfg) {
+  private void writeTableContent(ICellWriter writer, DocumentReference docRef,
+      TableConfig tableCfg) {
     try {
       List<DocumentReference> rows = executeTableQuery(tableCfg);
       if (!rows.isEmpty()) {
-        writeHeaderRow(writer, tableCfg);
+        writeHeader(writer, docRef, tableCfg);
+        writer.openLevel("ul", newAttributeBuilder().addCssClasses(CSS_CLASS + "_data").build());
         for (DocumentReference resultDocRef : rows) {
           rowPresentationType.writeNodeContent(writer, resultDocRef, tableCfg);
         }
+        writer.closeLevel();
       } else {
         writer.appendContent(webUtils.getAdminMessageTool().get(getEmptyDictionaryKey()));
       }
@@ -81,21 +82,12 @@ public class TablePresentationType extends AbstractTablePresentationType {
     return result.getResults(offset, tableCfg.getResultLimit(), DocumentReference.class);
   }
 
-  private void writeHeaderRow(ICellWriter writer, TableConfig tableCfg) {
-    LOGGER.debug("writeHeaderRow - for [{}]", tableCfg);
-    writer.openLevel(new DefaultAttributeBuilder().addCssClasses(CSS_CLASS + "_header").build());
-    for (ColumnConfig colCfg : tableCfg.getColumns()) {
-      writer.openLevel(new DefaultAttributeBuilder().addCssClasses(colCfg.getCssClasses()).build());
-      String title;
-      try {
-        title = structDataService.evaluateVelocityText(colCfg.getTitle());
-      } catch (XWikiVelocityException exc) {
-        LOGGER.warn("writeHeaderRow - failed for [{}]", colCfg, exc);
-        title = "illegal macro: " + exc.getMessage();
-      }
-      writer.appendContent(title);
-      writer.closeLevel();
-    }
+  private void writeHeader(ICellWriter writer, DocumentReference docRef, TableConfig tableCfg) {
+    LOGGER.debug("writeHeader - for [{}]", tableCfg);
+    writer.openLevel("ul", newAttributeBuilder().addCssClasses(CSS_CLASS + "_header").build());
+    tableCfg.setHeaderMode();
+
+    rowPresentationType.writeNodeContent(writer, docRef, tableCfg);
     writer.closeLevel();
   }
 
