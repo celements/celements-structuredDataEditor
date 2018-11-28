@@ -38,7 +38,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     for (ColumnConfig colCfg : tableCfg.getColumns()) {
       writeTableCell(writer, docRef, colCfg);
     }
-    if (tableCfg.getColumns().isEmpty()) { // TODO if writer empty!
+    if (tableCfg.getColumns().isEmpty()) {
       writer.appendContent("No columns defined");
     }
     writer.closeLevel();
