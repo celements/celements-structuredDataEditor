@@ -24,8 +24,8 @@ com.celements.structEditor.DefaultStructuredDataEditorService
 com.celements.structEditor.SelectAutocompleteRole
 com.celements.struct.DefaultStructDataService
 com.celements.struct.StructDataScriptService
-com.celements.struct.classes.TableClass;
-com.celements.struct.classes.TableColumnClass;
+com.celements.struct.classes.TableClass
+com.celements.struct.classes.TableColumnClass
 com.celements.struct.table.TablePresentationType
 com.celements.struct.table.TableRowPresentationType
 com.celements.struct.table.TablePageType
