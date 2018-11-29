@@ -103,7 +103,7 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     presentationType.writeNodeContent(writer, doc.getDocumentReference(), table);
     verifyDefault();
 
-    String expHtml = loadFile("table_dummy.html").replaceAll("  |\n", "");
+    String expHtml = loadFile("table_dummy.html").replaceAll("  |\t|\n", "");
     assertEquals(expHtml, writer.getAsString());
   }
 

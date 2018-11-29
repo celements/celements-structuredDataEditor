@@ -44,7 +44,7 @@ public class TablePresentationType extends AbstractTablePresentationType {
 
   @Override
   public void writeNodeContent(ICellWriter writer, DocumentReference docRef, TableConfig tableCfg) {
-    LOGGER.debug("writeNodeContent - for [{}] with [{}]", docRef, tableCfg);
+    LOGGER.info("writeNodeContent - for [{}] with [{}]", docRef, tableCfg);
     AttributeBuilder attributes = newAttributeBuilder();
     attributes.addId(tableCfg.getCssId());
     attributes.addCssClasses(getDefaultCssClass());
@@ -60,11 +60,13 @@ public class TablePresentationType extends AbstractTablePresentationType {
       List<DocumentReference> rows = executeTableQuery(tableCfg);
       if (!rows.isEmpty()) {
         writeHeader(writer, docRef, tableCfg);
+        writer.openLevel(newAttributeBuilder().addCssClasses(CSS_CLASS + "_scroll").build());
         writer.openLevel("ul", newAttributeBuilder().addCssClasses(CSS_CLASS + "_data").build());
         for (DocumentReference resultDocRef : rows) {
           rowPresentationType.writeNodeContent(writer, resultDocRef, tableCfg);
         }
-        writer.closeLevel();
+        writer.closeLevel(); // ul
+        writer.closeLevel(); // div
       } else {
         writer.appendContent(webUtils.getAdminMessageTool().get(getEmptyDictionaryKey()));
       }
@@ -79,6 +81,7 @@ public class TablePresentationType extends AbstractTablePresentationType {
     int offset = firstNonNull(Ints.tryParse(context.getRequestParameter("offset").or("")), 0);
     LuceneSearchResult result = searchService.search(tableCfg.getQuery(), tableCfg.getSortFields(),
         ImmutableList.<String>of());
+    LOGGER.debug("executeTableQuery - [{}]", result);
     return result.getResults(offset, tableCfg.getResultLimit(), DocumentReference.class);
   }
 

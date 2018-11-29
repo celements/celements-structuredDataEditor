@@ -29,7 +29,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
 
   @Override
   public void writeNodeContent(ICellWriter writer, DocumentReference docRef, TableConfig tableCfg) {
-    LOGGER.debug("writeNodeContent - for [{}] with [{}]", docRef, tableCfg);
+    LOGGER.info("writeNodeContent - for [{}] with [{}]", docRef, tableCfg);
     AttributeBuilder attributes = newAttributeBuilder();
     attributes.addCssClasses(getDefaultCssClass());
     attributes.addAttribute("data-doc", modelUtils.serializeRef(docRef, COMPACT_WIKI));

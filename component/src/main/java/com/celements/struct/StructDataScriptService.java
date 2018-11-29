@@ -49,7 +49,7 @@ public class StructDataScriptService implements ScriptService {
         tablePresentationType.writeNodeContent(writer, context.getDoc().getDocumentReference(),
             tableCfg.get());
       } else {
-        writer.appendContent("no table config found on: " + cellDocRef);
+        writer.appendContent("no valid table config found on: " + cellDocRef);
       }
     }
     return writer.getAsString();
