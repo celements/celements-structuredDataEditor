@@ -46,7 +46,7 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
       headerMode = false;
       return getTitle();
     }
-    return getContent();
+    return content;
   }
 
   public void setContent(String content) {
