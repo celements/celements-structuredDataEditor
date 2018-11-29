@@ -32,7 +32,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     LOGGER.info("writeNodeContent - for [{}] with [{}]", docRef, tableCfg);
     AttributeBuilder attributes = newAttributeBuilder();
     attributes.addCssClasses(getDefaultCssClass());
-    attributes.addAttribute("data-doc", modelUtils.serializeRef(docRef, COMPACT_WIKI));
+    attributes.addAttribute("data-ref", modelUtils.serializeRef(docRef, COMPACT_WIKI));
     writer.openLevel("li", attributes.build());
     for (ColumnConfig colCfg : tableCfg.getColumns()) {
       writeTableCell(writer, docRef, colCfg);
