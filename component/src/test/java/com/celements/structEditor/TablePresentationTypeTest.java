@@ -7,6 +7,11 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +49,7 @@ import com.xpn.xwiki.web.XWikiRequest;
 public class TablePresentationTypeTest extends AbstractComponentTest {
 
   private TablePresentationType presentationType;
-  private XWikiDocument cellDoc;
+  private XWikiDocument doc;
 
   private XWikiMessageTool msgToolMock;
 
@@ -54,14 +59,14 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
         IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityManager.class);
     presentationType = (TablePresentationType) Utils.getComponent(IPresentationTypeRole.class,
         TablePresentationType.NAME);
-    cellDoc = new XWikiDocument(new DocumentReference("wiki", "layout", "cellDoc"));
+    doc = new XWikiDocument(new DocumentReference("xwikidb", "space", "tabledoc"));
     msgToolMock = createMockAndAddToDefault(XWikiMessageTool.class);
     expect(getMock(IWebUtilsService.class).getAdminMessageTool()).andReturn(msgToolMock).anyTimes();
     expect(getMock(VelocityManager.class).getVelocityContext()).andReturn(
         new VelocityContext()).anyTimes();
     expect(getMock(VelocityManager.class).getVelocityEngine()).andReturn(
         new VelocityEngineMock()).anyTimes();
-    getContext().setDoc(cellDoc);
+    getContext().setDoc(doc);
   }
 
   @Test
@@ -73,7 +78,7 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     expect(msgToolMock.get("struct_table_nodata")).andReturn("no data");
 
     replayDefault();
-    presentationType.writeNodeContent(writer, cellDoc.getDocumentReference(), table);
+    presentationType.writeNodeContent(writer, doc.getDocumentReference(), table);
     verifyDefault();
 
     assertEquals("<div id=\"tId\" class=\"struct_table t1 t2\">no data</div>",
@@ -84,30 +89,34 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
   public void test_writeNodeContent() throws Exception {
     ICellWriter writer = new DivWriter();
     TableConfig table = getDummyTableConfig();
-    XWikiDocument doc1 = new XWikiDocument(new DocumentReference("xwikidb", "data", "doc1"));
-    XWikiDocument doc2 = new XWikiDocument(new DocumentReference("xwikidb", "data", "doc2"));
-    List<DocumentReference> result = Arrays.asList(doc1.getDocumentReference(),
-        doc2.getDocumentReference());
+    XWikiDocument dataDoc1 = new XWikiDocument(new DocumentReference("wiki", "data", "doc1"));
+    XWikiDocument dataDoc2 = new XWikiDocument(new DocumentReference("wiki", "data", "doc2"));
+    List<DocumentReference> result = Arrays.asList(dataDoc1.getDocumentReference(),
+        dataDoc2.getDocumentReference());
 
-    expect(getMock(IModelAccessFacade.class).getDocument(cellDoc.getDocumentReference())).andReturn(
-        cellDoc).anyTimes();
-    expect(getMock(IModelAccessFacade.class).getApiDocument(cellDoc)).andReturn(
-        createMockAndAddToDefault(Document.class)).atLeastOnce();
-    expect(getMock(IModelAccessFacade.class).getDocument(doc1.getDocumentReference())).andReturn(
-        doc1).anyTimes();
-    expect(getMock(IModelAccessFacade.class).getApiDocument(doc1)).andReturn(
-        createMockAndAddToDefault(Document.class)).atLeastOnce();
-    expect(getMock(IModelAccessFacade.class).getDocument(doc2.getDocumentReference())).andReturn(
-        doc2).anyTimes();
-    expect(getMock(IModelAccessFacade.class).getApiDocument(doc2)).andReturn(
-        createMockAndAddToDefault(Document.class)).atLeastOnce();
+    expectGetDoc(doc);
+    expectGetDoc(dataDoc1);
+    expectGetDoc(dataDoc2);
     expectLuceneSearch(table, result, 0);
 
     replayDefault();
-    presentationType.writeNodeContent(writer, cellDoc.getDocumentReference(), table);
+    presentationType.writeNodeContent(writer, doc.getDocumentReference(), table);
     verifyDefault();
 
-    assertEquals("", writer.getAsString()); // TODO parse from html file
+    String expHtml = loadFile("table_dummy.html").replaceAll("  |\n", "");
+    assertEquals(expHtml, writer.getAsString());
+  }
+
+  private String loadFile(String file) throws IOException, URISyntaxException {
+    Path path = Paths.get(getClass().getClassLoader().getResource(file).toURI());
+    return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+  }
+
+  private void expectGetDoc(XWikiDocument doc) throws Exception {
+    expect(getMock(IModelAccessFacade.class).getDocument(doc.getDocumentReference())).andReturn(
+        doc).atLeastOnce();
+    expect(getMock(IModelAccessFacade.class).getApiDocument(doc)).andReturn(
+        createMockAndAddToDefault(Document.class)).atLeastOnce();
   }
 
   @Test
@@ -122,7 +131,7 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     expect(msgToolMock.get("struct_table_nodata")).andReturn("");
 
     replayDefault();
-    presentationType.writeNodeContent(writer, cellDoc.getDocumentReference(), table);
+    presentationType.writeNodeContent(writer, doc.getDocumentReference(), table);
     verifyDefault();
   }
 
@@ -134,11 +143,13 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     table.setCssId("tId");
     table.setCssClasses(Arrays.asList("t1", "t2"));
     ColumnConfig colA = new ColumnConfig();
+    colA.setNumber(1);
     colA.setTitle("A");
     colA.setContent("asdf");
     colA.setOrder(10);
     colA.setCssClasses(Arrays.asList("cA1", "cA2"));
     ColumnConfig colB = new ColumnConfig();
+    colB.setNumber(2);
     colB.setTitle("B");
     colB.setContent("fdsa");
     colB.setOrder(5);
