@@ -42,13 +42,14 @@ public class StructDataScriptService implements ScriptService {
   public String renderTable(DocumentReference cellDocRef) {
     ICellWriter writer = new DivWriter();
     if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
+      LOGGER.debug("renderTable - [{}]", cellDocRef);
       XWikiDocument doc = modelAccess.getOrCreateDocument(cellDocRef);
       Optional<TableConfig> tableCfg = service.loadTableConfig(doc);
       if (tableCfg.isPresent()) {
         tablePresentationType.writeNodeContent(writer, context.getDoc().getDocumentReference(),
             tableCfg.get());
       } else {
-        LOGGER.info("renderTable - no table config found on [{}]", cellDocRef);
+        writer.appendContent("no table config found on: " + cellDocRef);
       }
     }
     return writer.getAsString();
