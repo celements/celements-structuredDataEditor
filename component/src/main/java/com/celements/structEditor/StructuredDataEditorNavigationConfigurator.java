@@ -13,6 +13,7 @@ import com.celements.navigation.NavigationConfig;
 import com.celements.navigation.factories.JavaNavigationConfigurator;
 import com.celements.pagetype.IPageTypeConfig;
 import com.celements.pagetype.PageTypeReference;
+import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.pagetype.service.IPageTypeRole;
 import com.google.common.base.Strings;
 
@@ -32,16 +33,20 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
   }
 
   @Requirement
-  private ModelContext context;
+  private IPageTypeResolverRole pageTypeResolver;
 
   @Requirement
   private IPageTypeRole pageTypeService;
 
+  @Requirement
+  private ModelContext context;
+
   @Override
   @NotNull
-  public NavigationConfig getNavigationConfig(@NotNull PageTypeReference ptRef) {
-    LOGGER.debug("getNavigationConfig - for pageTypeRef [{}]", ptRef.getConfigName());
-    IPageTypeConfig ptCfg = pageTypeService.getPageTypeConfigForPageTypeRef(ptRef);
+  public NavigationConfig getNavigationConfig(@NotNull PageTypeReference configReference) {
+    LOGGER.debug("getNavigationConfig - for pageTypeRef [{}]", configReference.getConfigName());
+    IPageTypeConfig ptCfg = pageTypeService.getPageTypeConfigForPageTypeRef(
+        pageTypeResolver.resolvePageTypeRefForCurrentDoc());
     boolean isStructEdit = !Strings.isNullOrEmpty(ptCfg.getRenderTemplateForRenderMode("edit"));
     String spaceName = ptCfg.getName() + "-" + (isStructEdit ? "EditFields" : "StructData");
     LOGGER.info("configSpace: [{}]", spaceName);
