@@ -11,7 +11,10 @@ import org.xwiki.model.reference.SpaceReference;
 import com.celements.model.context.ModelContext;
 import com.celements.navigation.NavigationConfig;
 import com.celements.navigation.factories.JavaNavigationConfigurator;
+import com.celements.pagetype.IPageTypeConfig;
 import com.celements.pagetype.PageTypeReference;
+import com.celements.pagetype.service.IPageTypeRole;
+import com.google.common.base.Strings;
 
 @Component(StructuredDataEditorNavigationConfigurator.CONFIGURATOR_NAME)
 public class StructuredDataEditorNavigationConfigurator implements JavaNavigationConfigurator {
@@ -31,13 +34,19 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
   @Requirement
   private ModelContext context;
 
+  @Requirement
+  private IPageTypeRole pageTypeService;
+
   @Override
   @NotNull
-  public NavigationConfig getNavigationConfig(@NotNull PageTypeReference ptCfgRef) {
-    LOGGER.debug("getNavigationConfig: for pageTypeRef '{}'", ptCfgRef.getConfigName());
-    String spaceName = ptCfgRef.getConfigName() + "-EditFields";
-    SpaceReference editorConfigSpace = new SpaceReference(spaceName, context.getWikiRef());
-    return NAV_CFG.overlay(newNavCfgBuilder().nodeSpaceRef(editorConfigSpace).build());
+  public NavigationConfig getNavigationConfig(@NotNull PageTypeReference ptRef) {
+    LOGGER.debug("getNavigationConfig - for pageTypeRef [{}]", ptRef.getConfigName());
+    IPageTypeConfig ptCfg = pageTypeService.getPageTypeConfigForPageTypeRef(ptRef);
+    boolean isStructEdit = !Strings.isNullOrEmpty(ptCfg.getRenderTemplateForRenderMode("edit"));
+    String spaceName = ptCfg.getName() + "-" + (isStructEdit ? "EditFields" : "StructData");
+    LOGGER.info("configSpace: [{}]", spaceName);
+    SpaceReference configSpaceRef = new SpaceReference(spaceName, context.getWikiRef());
+    return NAV_CFG.overlay(newNavCfgBuilder().nodeSpaceRef(configSpaceRef).build());
   }
 
   @Override
