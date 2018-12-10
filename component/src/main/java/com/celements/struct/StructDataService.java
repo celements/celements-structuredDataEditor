@@ -14,12 +14,20 @@ import com.xpn.xwiki.doc.XWikiDocument;
 @ComponentRole
 public interface StructDataService {
 
+  /**
+   * evaluates the given text as velocity script. the velocity context is cloned beforehand, thus
+   * variable changes within have a local scope.
+   */
+  @NotNull
+  String evaluateVelocityText(@Nullable String text) throws XWikiVelocityException;
+
+  /**
+   * evaluates the given text as velocity script with contextDoc as the '$doc'. the velocity context
+   * is cloned beforehand, thus variable changes within have a local scope.
+   */
   @NotNull
   String evaluateVelocityTextWithContextDoc(@NotNull XWikiDocument contextDoc,
       @Nullable String text) throws NoAccessRightsException, XWikiVelocityException;
-
-  @NotNull
-  String evaluateVelocityText(@Nullable String text) throws XWikiVelocityException;
 
   @NotNull
   Optional<TableConfig> loadTableConfig(@NotNull XWikiDocument doc);

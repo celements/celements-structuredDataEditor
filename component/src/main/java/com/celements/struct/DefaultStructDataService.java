@@ -71,17 +71,21 @@ public class DefaultStructDataService implements StructDataService, Initializabl
   }
 
   @Override
+  public String evaluateVelocityText(String text) throws XWikiVelocityException {
+    return evaluateVelocityText(context.getDoc(), text, getVelocityContextClone());
+  }
+
+  @Override
   public String evaluateVelocityTextWithContextDoc(XWikiDocument contextDoc, String text)
       throws NoAccessRightsException, XWikiVelocityException {
     checkNotNull(contextDoc);
-    VelocityContext vContext = (VelocityContext) velocityManager.getVelocityContext().clone();
+    VelocityContext vContext = getVelocityContextClone();
     vContext.put("doc", modelAccess.getApiDocument(contextDoc));
     return evaluateVelocityText(contextDoc, text, vContext);
   }
 
-  @Override
-  public String evaluateVelocityText(String text) throws XWikiVelocityException {
-    return evaluateVelocityText(context.getDoc(), text, velocityManager.getVelocityContext());
+  private VelocityContext getVelocityContextClone() {
+    return (VelocityContext) velocityManager.getVelocityContext().clone();
   }
 
   private String evaluateVelocityText(XWikiDocument templateDoc, String text,
