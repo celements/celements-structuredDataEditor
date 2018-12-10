@@ -28,14 +28,15 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   }
 
   @Override
-  public void writeNodeContent(ICellWriter writer, DocumentReference docRef, TableConfig tableCfg) {
-    LOGGER.info("writeNodeContent - for [{}] with [{}]", docRef, tableCfg);
+  public void writeNodeContent(ICellWriter writer, DocumentReference rowDocRef,
+      TableConfig tableCfg) {
+    LOGGER.info("writeNodeContent - for [{}] with [{}]", rowDocRef, tableCfg);
     AttributeBuilder attributes = newAttributeBuilder();
     attributes.addCssClasses(getDefaultCssClass());
-    attributes.addAttribute("data-ref", modelUtils.serializeRef(docRef, COMPACT_WIKI));
+    attributes.addAttribute("data-ref", modelUtils.serializeRef(rowDocRef, COMPACT_WIKI));
     writer.openLevel("li", attributes.build());
     for (ColumnConfig colCfg : tableCfg.getColumns()) {
-      writeTableCell(writer, docRef, colCfg);
+      writeTableCell(writer, rowDocRef, colCfg);
     }
     if (tableCfg.getColumns().isEmpty()) {
       writer.appendContent("no columns defined");
@@ -43,9 +44,10 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     writer.closeLevel();
   }
 
-  private void writeTableCell(ICellWriter writer, DocumentReference docRef, ColumnConfig colCfg) {
+  private void writeTableCell(ICellWriter writer, DocumentReference rowDocRef,
+      ColumnConfig colCfg) {
     try {
-      XWikiDocument doc = modelAccess.getDocument(docRef);
+      XWikiDocument doc = modelAccess.getDocument(rowDocRef);
       AttributeBuilder attributes = newAttributeBuilder();
       attributes.addCssClasses(CSS_CLASS + "_cell_" + colCfg.getNumber());
       attributes.addCssClasses(colCfg.getCssClasses());
@@ -60,7 +62,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
       writer.appendContent(content);
       writer.closeLevel();
     } catch (DocumentNotExistsException | NoAccessRightsException exc) {
-      LOGGER.warn("writeTableCell - failed for [{}], [{}]", docRef, colCfg, exc);
+      LOGGER.warn("writeTableCell - failed for [{}], [{}]", rowDocRef, colCfg, exc);
     }
   }
 

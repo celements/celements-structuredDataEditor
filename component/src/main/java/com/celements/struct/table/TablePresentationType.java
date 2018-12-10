@@ -43,23 +43,24 @@ public class TablePresentationType extends AbstractTablePresentationType {
   }
 
   @Override
-  public void writeNodeContent(ICellWriter writer, DocumentReference docRef, TableConfig tableCfg) {
-    LOGGER.info("writeNodeContent - for [{}] with [{}]", docRef, tableCfg);
+  public void writeNodeContent(ICellWriter writer, DocumentReference tableDocRef,
+      TableConfig tableCfg) {
+    LOGGER.info("writeNodeContent - for [{}] with [{}]", tableDocRef, tableCfg);
     AttributeBuilder attributes = newAttributeBuilder();
     attributes.addId(tableCfg.getCssId());
     attributes.addCssClasses(getDefaultCssClass());
     attributes.addCssClasses(tableCfg.getCssClasses());
     writer.openLevel(attributes.build());
-    writeTableContent(writer, docRef, tableCfg);
+    writeTableContent(writer, tableDocRef, tableCfg);
     writer.closeLevel();
   }
 
-  private void writeTableContent(ICellWriter writer, DocumentReference docRef,
+  private void writeTableContent(ICellWriter writer, DocumentReference tableDocRef,
       TableConfig tableCfg) {
     try {
       List<DocumentReference> rows = executeTableQuery(tableCfg);
       if (!rows.isEmpty()) {
-        writeHeader(writer, docRef, tableCfg);
+        writeHeader(writer, tableDocRef, tableCfg);
         writer.openLevel(newAttributeBuilder().addCssClasses(CSS_CLASS + "_scroll").build());
         writer.openLevel("ul", newAttributeBuilder().addCssClasses(CSS_CLASS + "_data").build());
         for (DocumentReference resultDocRef : rows) {
@@ -85,11 +86,12 @@ public class TablePresentationType extends AbstractTablePresentationType {
     return result.getResults(offset, tableCfg.getResultLimit(), DocumentReference.class);
   }
 
-  private void writeHeader(ICellWriter writer, DocumentReference docRef, TableConfig tableCfg) {
+  private void writeHeader(ICellWriter writer, DocumentReference tableDocRef,
+      TableConfig tableCfg) {
     LOGGER.debug("writeHeader - for [{}]", tableCfg);
     writer.openLevel("ul", newAttributeBuilder().addCssClasses(CSS_CLASS + "_header").build());
     tableCfg.setHeaderMode();
-    rowPresentationType.writeNodeContent(writer, docRef, tableCfg);
+    rowPresentationType.writeNodeContent(writer, tableDocRef, tableCfg);
     writer.closeLevel();
   }
 

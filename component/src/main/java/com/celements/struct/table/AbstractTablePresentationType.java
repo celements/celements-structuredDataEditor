@@ -35,8 +35,8 @@ public abstract class AbstractTablePresentationType implements IPresentationType
 
   @Override
   public void writeNodeContent(StringBuilder writer, boolean isFirstItem, boolean isLastItem,
-      DocumentReference docRef, boolean isLeaf, int numItem, TableConfig table) {
-    writeNodeContent(new DivWriter(writer), docRef, table);
+      DocumentReference nodeDocRef, boolean isLeaf, int numItem, TableConfig table) {
+    writeNodeContent(new DivWriter(writer), nodeDocRef, table);
   }
 
   @Override
