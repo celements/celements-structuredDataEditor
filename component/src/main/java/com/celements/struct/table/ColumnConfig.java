@@ -4,9 +4,12 @@ import static com.google.common.base.MoreObjects.*;
 
 import java.util.List;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
+@NotThreadSafe
 public class ColumnConfig implements Comparable<ColumnConfig> {
 
   private int number = 0;
