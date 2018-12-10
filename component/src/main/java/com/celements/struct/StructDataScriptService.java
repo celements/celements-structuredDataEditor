@@ -9,6 +9,7 @@ import org.xwiki.script.service.ScriptService;
 
 import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
+import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
 import com.celements.navigation.presentation.IPresentationTypeRole;
@@ -49,7 +50,10 @@ public class StructDataScriptService implements ScriptService {
         tablePresentationType.writeNodeContent(writer, context.getDoc().getDocumentReference(),
             tableCfg.get());
       } else {
+        writer.openLevel(new DefaultAttributeBuilder().addCssClasses(
+            tablePresentationType.getDefaultCssClass()).build());
         writer.appendContent("no valid table config found on: " + cellDocRef);
+        writer.closeLevel();
       }
     }
     return writer.getAsString();
