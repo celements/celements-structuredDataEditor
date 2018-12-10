@@ -52,7 +52,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
       writer.openLevel(attributes.build());
       String content;
       try {
-        content = structDataService.evaluateVelocityText(doc, colCfg.getContent());
+        content = structDataService.evaluateVelocityTextWithContextDoc(doc, colCfg.getContent());
       } catch (XWikiVelocityException exc) {
         LOGGER.warn("writeTableCell - failed for [{}]", colCfg, exc);
         content = "illegal macro: " + exc.getMessage();

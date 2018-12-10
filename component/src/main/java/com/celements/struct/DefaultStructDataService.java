@@ -71,12 +71,12 @@ public class DefaultStructDataService implements StructDataService, Initializabl
   }
 
   @Override
-  public String evaluateVelocityText(XWikiDocument doc, String text) throws NoAccessRightsException,
-      XWikiVelocityException {
-    checkNotNull(doc);
+  public String evaluateVelocityTextWithContextDoc(XWikiDocument contextDoc, String text)
+      throws NoAccessRightsException, XWikiVelocityException {
+    checkNotNull(contextDoc);
     VelocityContext vContext = (VelocityContext) velocityManager.getVelocityContext().clone();
-    vContext.put("doc", modelAccess.getApiDocument(doc));
-    return evaluateVelocityText(doc, text, vContext);
+    vContext.put("doc", modelAccess.getApiDocument(contextDoc));
+    return evaluateVelocityText(contextDoc, text, vContext);
   }
 
   @Override
@@ -84,13 +84,13 @@ public class DefaultStructDataService implements StructDataService, Initializabl
     return evaluateVelocityText(context.getDoc(), text, velocityManager.getVelocityContext());
   }
 
-  private String evaluateVelocityText(XWikiDocument doc, String text, VelocityContext vContext)
-      throws XWikiVelocityException {
+  private String evaluateVelocityText(XWikiDocument templateDoc, String text,
+      VelocityContext vContext) throws XWikiVelocityException {
     StringWriter writer = new StringWriter();
     velocityManager.getVelocityEngine().evaluate(vContext, writer, modelUtils.serializeRef(
-        checkNotNull(doc).getDocumentReference()), Strings.nullToEmpty(text));
+        checkNotNull(templateDoc).getDocumentReference()), Strings.nullToEmpty(text));
     String result = writer.toString();
-    LOGGER.debug("evaluateVelocityText - for [{}], [{}]: {}", doc, text, result);
+    LOGGER.debug("evaluateVelocityText - for [{}], [{}]: {}", templateDoc, text, result);
     return result;
   }
 

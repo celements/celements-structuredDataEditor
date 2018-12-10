@@ -15,8 +15,8 @@ import com.xpn.xwiki.doc.XWikiDocument;
 public interface StructDataService {
 
   @NotNull
-  String evaluateVelocityText(@NotNull XWikiDocument doc, @Nullable String text)
-      throws NoAccessRightsException, XWikiVelocityException;
+  String evaluateVelocityTextWithContextDoc(@NotNull XWikiDocument contextDoc,
+      @Nullable String text) throws NoAccessRightsException, XWikiVelocityException;
 
   @NotNull
   String evaluateVelocityText(@Nullable String text) throws XWikiVelocityException;
