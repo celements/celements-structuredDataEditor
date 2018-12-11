@@ -9,6 +9,7 @@ import org.xwiki.component.annotation.Component;
 import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.classes.fields.StringField;
+import com.celements.model.classes.fields.list.DisplayType;
 import com.celements.model.classes.fields.list.StringListField;
 import com.celements.model.classes.fields.number.IntField;
 
@@ -30,7 +31,8 @@ public class TableColumnClass extends AbstractClassDefinition implements StructD
       "order").build();
 
   public static final ClassField<List<String>> FIELD_CSS_CLASSES = new StringListField.Builder<>(
-      CLASS_DEF_HINT, "css_classes").multiSelect(true).separator(",").build();
+      CLASS_DEF_HINT, "css_classes").multiSelect(true).separator(",").displayType(
+          DisplayType.input).build();
 
   @Override
   public String getName() {
