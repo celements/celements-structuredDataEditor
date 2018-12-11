@@ -35,7 +35,7 @@ public class TableClass extends AbstractClassDefinition implements StructDataCla
       "css_id").build();
 
   public static final ClassField<List<String>> FIELD_CSS_CLASSES = new StringListField.Builder<>(
-      CLASS_DEF_HINT, "css_classes").multiSelect(true).separator(",").displayType(
+      CLASS_DEF_HINT, "css_classes").multiSelect(true).separator(", ").displayType(
           DisplayType.input).build();
 
   @Override
