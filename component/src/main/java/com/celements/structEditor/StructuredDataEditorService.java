@@ -18,36 +18,35 @@ import com.xpn.xwiki.objects.classes.PropertyClass;
 public interface StructuredDataEditorService {
 
   @NotNull
-  public Optional<String> getAttributeName(@NotNull XWikiDocument cellDoc,
-      @Nullable XWikiDocument onDoc);
+  Optional<String> getAttributeName(@NotNull XWikiDocument cellDoc, @Nullable XWikiDocument onDoc);
 
   @NotNull
-  public Optional<String> getPrettyName(@NotNull DocumentReference cellDocRef)
+  Optional<String> getPrettyName(@NotNull DocumentReference cellDocRef)
       throws DocumentNotExistsException;
 
   @NotNull
-  public Optional<PropertyClass> getCellPropertyClass(@NotNull XWikiDocument cellDoc);
+  Optional<PropertyClass> getCellPropertyClass(@NotNull XWikiDocument cellDoc);
 
   @NotNull
-  public Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,
+  Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,
       @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
 
-  public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef);
+  Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef);
 
-  public Optional<String> getDateFormatFromField(DocumentReference cellDocRef)
+  Optional<String> getDateFormatFromField(DocumentReference cellDocRef)
       throws DocumentNotExistsException;
 
   @NotNull
-  public Optional<Date> getCellDateValue(@NotNull DocumentReference cellDocRef,
+  Optional<Date> getCellDateValue(@NotNull DocumentReference cellDocRef,
       @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
 
   @NotNull
-  public List<String> getCellListValue(@NotNull DocumentReference cellDocRef,
-      @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
+  List<String> getCellListValue(@NotNull DocumentReference cellDocRef, @NotNull XWikiDocument onDoc)
+      throws DocumentNotExistsException;
 
   @NotNull
-  public List<String> getSelectTagAutocompleteJsPathList();
+  List<String> getSelectTagAutocompleteJsPathList();
 
-  public boolean hasEditField(@NotNull XWikiDocument cellDoc);
+  boolean hasEditField(@NotNull XWikiDocument cellDoc);
 
 }

@@ -1,11 +1,9 @@
 package com.celements.structEditor.fields;
 
-import java.io.StringWriter;
 import java.util.Set;
 
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.velocity.VelocityManager;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.model.access.IModelAccessFacade;
@@ -15,6 +13,7 @@ import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.category.IPageTypeCategoryRole;
 import com.celements.pagetype.java.AbstractJavaPageType;
+import com.celements.struct.StructDataService;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
@@ -24,6 +23,9 @@ import com.xpn.xwiki.web.Utils;
 public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
   protected static final String EDIT_TEMPLATE_NAME = "StructDataFieldEdit";
+
+  @Requirement
+  protected StructDataService structDataService;
 
   @Requirement("structEditFieldTypeCategory")
   protected IPageTypeCategoryRole pageTypeCategory;
@@ -36,9 +38,6 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
   @Requirement
   protected ModelContext modelContext;
-
-  @Requirement
-  protected VelocityManager velocityManager;
 
   @Override
   public Set<IPageTypeCategoryRole> getCategories() {
@@ -119,10 +118,7 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
       ClassField<String> classField) throws XWikiVelocityException {
     Optional<String> text = modelAccess.getFieldValue(cellDoc, classField);
     if (text.isPresent()) {
-      StringWriter writer = new StringWriter();
-      velocityManager.getVelocityEngine().evaluate(velocityManager.getVelocityContext(), writer,
-          modelUtils.serializeRef(cellDoc.getDocumentReference()), text.get());
-      text = Optional.of(writer.toString());
+      text = Optional.of(structDataService.evaluateVelocityText(text.get()));
     }
     return text;
   }

@@ -1,0 +1,3 @@
+<!-- TableView -->
+#set($cellDocRef = $celldoc.getDocumentReference())
+$!services.structData.renderTable($cellDocRef)

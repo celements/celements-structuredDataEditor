@@ -27,7 +27,8 @@ import com.xpn.xwiki.objects.classes.PropertyClass;
 @Component("structuredDataEditor")
 public class StructuredDataEditorScriptService implements ScriptService {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(StructuredDataEditorScriptService.class);
+  private final static Logger LOGGER = LoggerFactory.getLogger(
+      StructuredDataEditorScriptService.class);
 
   @Requirement
   StructuredDataEditorService service;
