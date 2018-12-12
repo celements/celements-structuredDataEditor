@@ -37,7 +37,7 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-model</artifactId>
-      <version>3.10-SNAPSHOT</version>
+      <version>3.11-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
