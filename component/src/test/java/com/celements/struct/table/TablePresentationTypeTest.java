@@ -1,4 +1,4 @@
-package com.celements.structEditor;
+package com.celements.struct.table;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 import static org.easymock.EasyMock.*;
