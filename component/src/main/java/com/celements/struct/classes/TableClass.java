@@ -8,6 +8,7 @@ import org.xwiki.component.annotation.Component;
 
 import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.ClassField;
+import com.celements.model.classes.fields.LargeStringField;
 import com.celements.model.classes.fields.StringField;
 import com.celements.model.classes.fields.list.DisplayType;
 import com.celements.model.classes.fields.list.StringListField;
@@ -21,7 +22,7 @@ public class TableClass extends AbstractClassDefinition implements StructDataCla
   public static final String DOC_NAME = "StructTableClass";
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
 
-  public static final ClassField<String> FIELD_QUERY = new StringField.Builder(CLASS_DEF_HINT,
+  public static final ClassField<String> FIELD_QUERY = new LargeStringField.Builder(CLASS_DEF_HINT,
       "query").build();
 
   public static final ClassField<List<String>> FIELD_SORT_FIELDS = new StringListField.Builder<>(
