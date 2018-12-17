@@ -75,7 +75,6 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     String text = "";
     text = colCfg.getContent();
     if (Strings.nullToEmpty(text).trim().isEmpty() && !colCfg.isHeaderMode()) {
-      // fallback celStruct/table/<tblName>/col_<colNb>.vm
       text = "#parse('" + resolveMacroName(colCfg) + "')";
     }
     String content;
@@ -91,8 +90,8 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
 
   /**
    * {@code celStruct/table/<tblName>/col_<colName>.vm}
-   * tblName - either table page type name, table css id or table config fullname
-   * colName - either col name, col title, col order or col object number
+   * tblName - either table page type name, table css id or table config doc name
+   * colName - either col name, col order or col object number
    */
   String resolveMacroName(ColumnConfig colCfg) {
     String tblName = "";
@@ -110,7 +109,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     if (colName.isEmpty()) {
       colName = Integer.toString((colCfg.getOrder() >= 0) ? colCfg.getOrder() : colCfg.getNumber());
     }
-    return "celStruct/table/" + tblName + "/col_" + colName + ".vm";
+    return STRUCT_TABLE_FOLDER + tblName + "/col_" + colName + ".vm";
   }
 
   private VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,
@@ -119,7 +118,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
 
       @Override
       public VelocityContext apply(VelocityContext vContext) {
-        vContext.put("colCfg", colCfg);
+        vContext.put("colcfg", colCfg);
         try {
           vContext.put("rowdoc", modelAccess.getApiDocument(rowDoc));
         } catch (NoAccessRightsException exc) {
