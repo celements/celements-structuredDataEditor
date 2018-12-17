@@ -2,6 +2,7 @@
 #set($createIfNotExists = true)
 #set($cel_embedded_editobj = true)
 #set($cel_editobj_classname = "Celements.StructTableClass")
+#set($cel_editobj_nb = 0)
 #set($cel_editobj_hasObjAddLink = false)
 #set($cel_editobj_hasObjRemoveLink = false)
 #set($cel_editobj_externalForm = true)
@@ -15,6 +16,7 @@
 #set($createIfNotExists = false)
 #set($cel_embedded_editobj = true)
 #set($cel_editobj_classname = "Celements.StructTableColumnClass")
+#set($cel_editobj_objects = $doc.getObjects($cel_editobj_classname))
 #set($cel_editobj_hasObjAddLink = true)
 #set($cel_editobj_hasObjRemoveLink = true)
 #set($cel_editobj_externalForm = true)
@@ -22,5 +24,4 @@
 #foreach($prop in $xwiki.getDocument($cel_editobj_classname).xWikiClass.properties)
   #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
 #end
-#set($cel_editobj_readonly_properties = '')
 #parse("celTemplates/ObjectEdit.vm")
