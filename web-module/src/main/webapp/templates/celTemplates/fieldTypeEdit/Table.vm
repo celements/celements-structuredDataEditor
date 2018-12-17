@@ -24,4 +24,5 @@
 #foreach($prop in $xwiki.getDocument($cel_editobj_classname).xWikiClass.properties)
   #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
 #end
+#set($cel_editobj_readonly_properties = '')
 #parse("celTemplates/ObjectEdit.vm")
