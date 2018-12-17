@@ -15,7 +15,7 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
   private TableConfig tableConfig;
 
   private int number = 0;
-  private int order = 0;
+  private int order = -1;
   private String title = "";
   private String content = "";
   private List<String> cssClasses = ImmutableList.of();
@@ -43,7 +43,7 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
   }
 
   public void setOrder(Integer order) {
-    this.order = firstNonNull(order, 0);
+    this.order = firstNonNull(order, -1);
   }
 
   public String getTitle() {
