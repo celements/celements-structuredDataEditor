@@ -59,7 +59,8 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     try {
       XWikiDocument rowDoc = modelAccess.getDocument(rowDocRef);
       AttributeBuilder attributes = newAttributeBuilder();
-      attributes.addCssClasses(CSS_CLASS + "_cell_" + colCfg.getNumber());
+      attributes.addCssClasses(CSS_CLASS + "_cell");
+      attributes.addCssClasses("cell_" + colCfg.getNumber());
       attributes.addCssClasses(colCfg.getName());
       attributes.addCssClasses(colCfg.getCssClasses());
       writer.openLevel(attributes.build());

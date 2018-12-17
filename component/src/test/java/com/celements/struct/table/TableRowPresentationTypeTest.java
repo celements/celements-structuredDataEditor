@@ -92,19 +92,6 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
   public void test_resolveMacroName_colName_fallback_1() {
     TableConfig table = getDummyTableConfig();
     ColumnConfig col = table.getColumns().get(0);
-    col.setTitle("the col-name");
-    expectPageTypeRef("tableName");
-
-    replayDefault();
-    assertEquals("celStruct/table/tableName/col_the_col_name.vm", presentationType.resolveMacroName(
-        col));
-    verifyDefault();
-  }
-
-  @Test
-  public void test_resolveMacroName_colName_fallback_2() {
-    TableConfig table = getDummyTableConfig();
-    ColumnConfig col = table.getColumns().get(0);
     col.setOrder(5);
     expectPageTypeRef("tableName");
 
@@ -114,7 +101,7 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
   }
 
   @Test
-  public void test_resolveMacroName_colName_fallback_3() {
+  public void test_resolveMacroName_colName_fallback_2() {
     TableConfig table = getDummyTableConfig();
     ColumnConfig col = table.getColumns().get(0);
     expectPageTypeRef("tableName");
