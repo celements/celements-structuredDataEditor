@@ -60,6 +60,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
       XWikiDocument rowDoc = modelAccess.getDocument(rowDocRef);
       AttributeBuilder attributes = newAttributeBuilder();
       attributes.addCssClasses(CSS_CLASS + "_cell_" + colCfg.getNumber());
+      attributes.addCssClasses(colCfg.getName());
       attributes.addCssClasses(colCfg.getCssClasses());
       writer.openLevel(attributes.build());
       writer.appendContent(evaluateTableCellContent(rowDoc, colCfg));
@@ -104,8 +105,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     if (tblName.isEmpty()) {
       tblName = colCfg.getTableConfig().getDocumentReference().getName();
     }
-    String colName = !colCfg.getName().isEmpty() ? colCfg.getName() : colCfg.getTitle();
-    colName = colName.trim().replaceAll("\\W+", "_").toLowerCase();
+    String colName = colCfg.getName();
     if (colName.isEmpty()) {
       colName = Integer.toString((colCfg.getOrder() >= 0) ? colCfg.getOrder() : colCfg.getNumber());
     }

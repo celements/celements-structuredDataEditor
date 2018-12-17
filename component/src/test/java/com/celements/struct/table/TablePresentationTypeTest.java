@@ -141,12 +141,14 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     table.setCssClasses(Arrays.asList("t1", "t2"));
     ColumnConfig colA = new ColumnConfig();
     colA.setNumber(1);
+    colA.setName("A name");
     colA.setTitle("A");
     colA.setContent("asdf");
     colA.setOrder(10);
     colA.setCssClasses(Arrays.asList("cA1", "cA2"));
     ColumnConfig colB = new ColumnConfig();
     colB.setNumber(2);
+    colB.setName("B name");
     colB.setTitle("B");
     colB.setContent("fdsa");
     colB.setOrder(5);

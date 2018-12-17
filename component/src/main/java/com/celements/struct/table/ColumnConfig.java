@@ -54,7 +54,7 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
   }
 
   public void setName(String name) {
-    this.name = Strings.nullToEmpty(name);
+    this.name = Strings.nullToEmpty(name).trim().replaceAll("\\W+", "_");
   }
 
   public String getTitle() {
