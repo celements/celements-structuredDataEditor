@@ -22,6 +22,9 @@ public class TableColumnClass extends AbstractClassDefinition implements StructD
   public static final String DOC_NAME = "StructTableColumnClass";
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
 
+  public static final ClassField<String> FIELD_NAME = new StringField.Builder(CLASS_DEF_HINT,
+      "name").build();
+
   public static final ClassField<String> FIELD_TITLE = new StringField.Builder(CLASS_DEF_HINT,
       "title").build();
 

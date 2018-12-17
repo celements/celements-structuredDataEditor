@@ -90,7 +90,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   /**
    * {@code celStruct/table/<tblName>/col_<colName>.vm}
    * tblName - either table page type name, table css id or table config fullname
-   * colName - either col title derived, col order or col object number
+   * colName - either col name, col title, col order or col object number
    */
   String resolveMacroName(ColumnConfig colCfg) {
     String tblName = "";
@@ -104,8 +104,8 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     if (tblName.isEmpty()) {
       tblName = colCfg.getTableConfig().getDocumentReference().getName();
     }
-    String colName = Strings.nullToEmpty(colCfg.getTitle()).trim().replaceAll("\\W+",
-        "_").toLowerCase();
+    String colName = !colCfg.getName().isEmpty() ? colCfg.getName() : colCfg.getTitle();
+    colName = colName.trim().replaceAll("\\W+", "_").toLowerCase();
     if (colName.isEmpty()) {
       colName = Integer.toString((colCfg.getOrder() >= 0) ? colCfg.getOrder() : colCfg.getNumber());
     }

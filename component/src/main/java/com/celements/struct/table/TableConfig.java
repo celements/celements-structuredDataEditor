@@ -92,9 +92,9 @@ public class TableConfig implements PresentationNodeData {
 
   @Override
   public String toString() {
-    return "TableConfig [query=" + query + ", sortFields=" + sortFields + ", resultLimit="
-        + resultLimit + ", cssId=" + cssId + ", cssClasses=" + cssClasses + ", columns=" + columns
-        + "]";
+    return "TableConfig [documentReference=" + documentReference + ", query=" + query
+        + ", sortFields=" + sortFields + ", resultLimit=" + resultLimit + ", cssId=" + cssId
+        + ", cssClasses=" + cssClasses + ", columns=" + columns + "]";
   }
 
 }

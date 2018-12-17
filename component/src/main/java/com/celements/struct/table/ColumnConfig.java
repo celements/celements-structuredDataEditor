@@ -7,7 +7,9 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 
 @NotThreadSafe
 public class ColumnConfig implements Comparable<ColumnConfig> {
@@ -16,6 +18,7 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
 
   private int number = 0;
   private int order = -1;
+  private String name = "";
   private String title = "";
   private String content = "";
   private List<String> cssClasses = ImmutableList.of();
@@ -44,6 +47,14 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
 
   public void setOrder(Integer order) {
     this.order = firstNonNull(order, -1);
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = Strings.nullToEmpty(name);
   }
 
   public String getTitle() {
@@ -80,13 +91,16 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
 
   @Override
   public int compareTo(ColumnConfig other) {
-    return Integer.compare(this.order, other.order);
+    ComparisonChain cmp = ComparisonChain.start();
+    cmp = cmp.compare(this.getOrder(), other.getOrder(), Ordering.natural());
+    cmp = cmp.compare(this.getNumber(), other.getNumber(), Ordering.natural());
+    return cmp.result();
   }
 
   @Override
   public String toString() {
-    return "ColumnConfig [title=" + title + ", content=" + content + ", order=" + order
-        + ", cssClasses=" + cssClasses + "]";
+    return "ColumnConfig [number=" + number + ", order=" + order + ", name=" + name + ", title="
+        + title + ", content=" + content + ", cssClasses=" + cssClasses + "]";
   }
 
 }

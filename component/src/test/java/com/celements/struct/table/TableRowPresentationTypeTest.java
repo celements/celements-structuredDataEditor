@@ -42,22 +42,71 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
   public void test_resolveMacroName() {
     TableConfig table = getDummyTableConfig();
     ColumnConfig col = table.getColumns().get(0);
-    col.setTitle("The Name");
+    col.setName("name");
     expectPageTypeRef("tableName");
 
     replayDefault();
-    assertEquals("celStruct/table/tableName/col_the_name.vm", presentationType.resolveMacroName(
+    assertEquals("celStruct/table/tableName/col_name.vm", presentationType.resolveMacroName(col));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_resolveMacroName_tableName_fallback_1() {
+    TableConfig table = getDummyTableConfig();
+    table.setCssId("tableName");
+    ColumnConfig col = table.getColumns().get(0);
+    col.setName("name");
+    expectAbsentPageTypeRef();
+
+    replayDefault();
+    assertEquals("celStruct/table/tableName/col_name.vm", presentationType.resolveMacroName(col));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_tableName_resolveMacroName_fallback_2() {
+    TableConfig table = getDummyTableConfig();
+    ColumnConfig col = table.getColumns().get(0);
+    col.setName("name");
+    expectAbsentPageTypeRef();
+
+    replayDefault();
+    assertEquals("celStruct/table/tabledoc/col_name.vm", presentationType.resolveMacroName(col));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_resolveMacroName_colName_nonWhiteSpace() {
+    TableConfig table = getDummyTableConfig();
+    ColumnConfig col = table.getColumns().get(0);
+    col.setName("the col-name");
+    expectPageTypeRef("tableName");
+
+    replayDefault();
+    assertEquals("celStruct/table/tableName/col_the_col_name.vm", presentationType.resolveMacroName(
         col));
     verifyDefault();
   }
 
   @Test
-  public void test_resolveMacroName_fallback_1() {
+  public void test_resolveMacroName_colName_fallback_1() {
     TableConfig table = getDummyTableConfig();
-    table.setCssId("tableName");
+    ColumnConfig col = table.getColumns().get(0);
+    col.setTitle("the col-name");
+    expectPageTypeRef("tableName");
+
+    replayDefault();
+    assertEquals("celStruct/table/tableName/col_the_col_name.vm", presentationType.resolveMacroName(
+        col));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_resolveMacroName_colName_fallback_2() {
+    TableConfig table = getDummyTableConfig();
     ColumnConfig col = table.getColumns().get(0);
     col.setOrder(5);
-    expectAbsentPageTypeRef();
+    expectPageTypeRef("tableName");
 
     replayDefault();
     assertEquals("celStruct/table/tableName/col_5.vm", presentationType.resolveMacroName(col));
@@ -65,13 +114,13 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
   }
 
   @Test
-  public void test_resolveMacroName_fallback_2() {
+  public void test_resolveMacroName_colName_fallback_3() {
     TableConfig table = getDummyTableConfig();
     ColumnConfig col = table.getColumns().get(0);
-    expectAbsentPageTypeRef();
+    expectPageTypeRef("tableName");
 
     replayDefault();
-    assertEquals("celStruct/table/tabledoc/col_2.vm", presentationType.resolveMacroName(col));
+    assertEquals("celStruct/table/tableName/col_2.vm", presentationType.resolveMacroName(col));
     verifyDefault();
   }
 
