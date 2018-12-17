@@ -26,7 +26,7 @@ public class TableClass extends AbstractClassDefinition implements StructDataCla
 
   public static final ClassField<List<String>> FIELD_SORT_FIELDS = new StringListField.Builder<>(
       CLASS_DEF_HINT, "sort_fields").multiSelect(true).separator(",").displayType(
-          DisplayType.input).build();
+          DisplayType.input).size(30).build();
 
   public static final ClassField<Integer> FIELD_RESULT_LIMIT = new IntField.Builder(CLASS_DEF_HINT,
       "result_limit").build();
@@ -36,7 +36,7 @@ public class TableClass extends AbstractClassDefinition implements StructDataCla
 
   public static final ClassField<List<String>> FIELD_CSS_CLASSES = new StringListField.Builder<>(
       CLASS_DEF_HINT, "css_classes").multiSelect(true).separator(", ").displayType(
-          DisplayType.input).build();
+          DisplayType.input).size(30).build();
 
   @Override
   public String getName() {

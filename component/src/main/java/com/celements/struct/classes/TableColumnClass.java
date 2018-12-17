@@ -32,7 +32,7 @@ public class TableColumnClass extends AbstractClassDefinition implements StructD
 
   public static final ClassField<List<String>> FIELD_CSS_CLASSES = new StringListField.Builder<>(
       CLASS_DEF_HINT, "css_classes").multiSelect(true).separator(", ").displayType(
-          DisplayType.input).build();
+          DisplayType.input).size(30).build();
 
   @Override
   public String getName() {
