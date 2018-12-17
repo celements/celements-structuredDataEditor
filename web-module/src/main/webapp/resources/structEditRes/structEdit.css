@@ -48,5 +48,7 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 .structDataEditor .struct_table .struct_table_cell {
-  margin-right: 10px;
+  width: 200px;
+  margin-right: 20px;
+  overflow: hidden;
 }
