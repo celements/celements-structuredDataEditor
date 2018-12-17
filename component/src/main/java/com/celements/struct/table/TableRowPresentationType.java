@@ -1,7 +1,6 @@
 package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
-import static com.google.common.base.MoreObjects.*;
 
 import org.apache.velocity.VelocityContext;
 import org.xwiki.component.annotation.Component;
@@ -70,13 +69,12 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     }
   }
 
-  private String evaluateTableCellContent(final XWikiDocument rowDoc, final ColumnConfig colCfg) {
+  private String evaluateTableCellContent(XWikiDocument rowDoc, ColumnConfig colCfg) {
     String text = "";
     text = colCfg.getContent();
     if (Strings.nullToEmpty(text).trim().isEmpty()) {
       // fallback celStruct/table/<tblName>/col_<colNb>.vm
-      text = "#parse('celStruct/table/" + resolveTableName(colCfg) + "/col_" + firstNonNull(
-          colCfg.getOrder(), colCfg.getNumber()) + ".vm')";
+      text = "#parse('" + resolveMacroName(colCfg) + "')";
     }
     String content;
     try {
@@ -89,19 +87,29 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     return content;
   }
 
-  private String resolveTableName(final ColumnConfig colCfg) {
-    String tableName = "";
+  /**
+   * {@code celStruct/table/<tblName>/col_<colName>.vm}
+   * tblName - either table page type name, table css id or table config fullname
+   * colName - either col title derived, col order or col object number
+   */
+  String resolveMacroName(ColumnConfig colCfg) {
+    String tblName = "";
     Optional<PageTypeReference> ptRef = pageTypeResolver.resolvePageTypeReference(context.getDoc());
     if (ptRef.isPresent()) {
-      tableName = ptRef.get().getConfigName();
+      tblName = ptRef.get().getConfigName();
     }
-    if (tableName.isEmpty()) {
-      tableName = colCfg.getTableConfig().getCssId();
+    if (tblName.isEmpty()) {
+      tblName = colCfg.getTableConfig().getCssId();
     }
-    if (tableName.isEmpty()) {
-      tableName = modelUtils.serializeRef(colCfg.getTableConfig().getDocumentReference(), LOCAL);
+    if (tblName.isEmpty()) {
+      tblName = colCfg.getTableConfig().getDocumentReference().getName();
     }
-    return tableName;
+    String colName = Strings.nullToEmpty(colCfg.getTitle()).trim().replaceAll("\\W+",
+        "_").toLowerCase();
+    if (colName.isEmpty()) {
+      colName = Integer.toString((colCfg.getOrder() >= 0) ? colCfg.getOrder() : colCfg.getNumber());
+    }
+    return "celStruct/table/" + tblName + "/col_" + colName + ".vm";
   }
 
   private VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,
