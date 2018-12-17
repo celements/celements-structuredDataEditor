@@ -12,6 +12,8 @@ import com.google.common.collect.ImmutableList;
 @NotThreadSafe
 public class ColumnConfig implements Comparable<ColumnConfig> {
 
+  private TableConfig tableConfig;
+
   private int number = 0;
   private int order = 0;
   private String title = "";
@@ -19,6 +21,14 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
   private List<String> cssClasses = ImmutableList.of();
 
   private boolean headerMode = false;
+
+  public TableConfig getTableConfig() {
+    return tableConfig;
+  }
+
+  public void setTableConfig(TableConfig tableConfig) {
+    this.tableConfig = tableConfig;
+  }
 
   public int getNumber() {
     return number;

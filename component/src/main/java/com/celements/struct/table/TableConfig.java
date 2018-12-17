@@ -67,6 +67,9 @@ public class TableConfig implements PresentationNodeData {
   }
 
   public void setColumns(List<ColumnConfig> columns) {
+    for (ColumnConfig colCfg : columns) {
+      colCfg.setTableConfig(this);
+    }
     this.columns = FluentIterable.from(columns).toSortedList(Ordering.natural());
   }
 
