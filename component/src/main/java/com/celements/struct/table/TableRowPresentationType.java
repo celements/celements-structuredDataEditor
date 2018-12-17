@@ -74,7 +74,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   private String evaluateTableCellContent(XWikiDocument rowDoc, ColumnConfig colCfg) {
     String text = "";
     text = colCfg.getContent();
-    if (Strings.nullToEmpty(text).trim().isEmpty()) {
+    if (Strings.nullToEmpty(text).trim().isEmpty() && !colCfg.isHeaderMode()) {
       // fallback celStruct/table/<tblName>/col_<colNb>.vm
       text = "#parse('" + resolveMacroName(colCfg) + "')";
     }

@@ -84,9 +84,9 @@ public class TableConfig implements PresentationNodeData {
     this.columns = FluentIterable.from(columns).toSortedList(Ordering.natural());
   }
 
-  public void setHeaderMode() {
+  public void setHeaderMode(boolean headerMode) {
     for (ColumnConfig col : columns) {
-      col.setHeaderMode();
+      col.setHeaderMode(headerMode);
     }
   }
 
