@@ -2,7 +2,7 @@
 
 /* structEdit.css:
  * struct editor layout
- * 2016 - 2017 synventis gmbh
+ * 2016 - 2019 synventis gmbh
  */
 
 .structEditorModalDialog {
@@ -39,12 +39,12 @@ input[type=number]::-webkit-inner-spin-button {
 
 .structDataEditor .struct_table ul li.struct_table_row {
   display: flex;
+  padding: 5px;
 }
 
 .structDataEditor .struct_table ul.struct_table_data li.struct_table_row {
   border: 1px solid black;
-  padding: 5px;
-  margin-bottom:-1px;
+  margin-bottom: -1px;
 }
 
 .structDataEditor .struct_table .struct_table_cell {
