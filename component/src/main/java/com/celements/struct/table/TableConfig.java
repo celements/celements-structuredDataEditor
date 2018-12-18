@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.xwiki.model.reference.DocumentReference;
+
 import com.celements.navigation.presentation.PresentationNodeData;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
@@ -15,12 +17,21 @@ import com.google.common.collect.Ordering;
 @NotThreadSafe
 public class TableConfig implements PresentationNodeData {
 
+  private DocumentReference documentReference;
   private String query = "";
   private List<String> sortFields = ImmutableList.of();
   private int resultLimit = 0;
   private String cssId = "";
   private List<String> cssClasses = ImmutableList.of();
   private List<ColumnConfig> columns = ImmutableList.of();
+
+  public DocumentReference getDocumentReference() {
+    return documentReference;
+  }
+
+  public void setDocumentReference(DocumentReference documentReference) {
+    this.documentReference = documentReference;
+  }
 
   public String getQuery() {
     return query;
@@ -67,20 +78,23 @@ public class TableConfig implements PresentationNodeData {
   }
 
   public void setColumns(List<ColumnConfig> columns) {
+    for (ColumnConfig colCfg : columns) {
+      colCfg.setTableConfig(this);
+    }
     this.columns = FluentIterable.from(columns).toSortedList(Ordering.natural());
   }
 
-  public void setHeaderMode() {
+  public void setHeaderMode(boolean headerMode) {
     for (ColumnConfig col : columns) {
-      col.setHeaderMode();
+      col.setHeaderMode(headerMode);
     }
   }
 
   @Override
   public String toString() {
-    return "TableConfig [query=" + query + ", sortFields=" + sortFields + ", resultLimit="
-        + resultLimit + ", cssId=" + cssId + ", cssClasses=" + cssClasses + ", columns=" + columns
-        + "]";
+    return "TableConfig [documentReference=" + documentReference + ", query=" + query
+        + ", sortFields=" + sortFields + ", resultLimit=" + resultLimit + ", cssId=" + cssId
+        + ", cssClasses=" + cssClasses + ", columns=" + columns + "]";
   }
 
 }

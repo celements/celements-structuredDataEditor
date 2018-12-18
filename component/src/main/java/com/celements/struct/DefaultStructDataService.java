@@ -18,12 +18,10 @@ import org.xwiki.velocity.XWikiVelocityException;
 import com.celements.common.reflect.ReflectiveInstanceSupplier;
 import com.celements.convert.bean.BeanClassDefConverter;
 import com.celements.convert.bean.XObjectBeanConverter;
-import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.context.ModelContext;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.util.ModelUtils;
-import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.struct.classes.TableClass;
 import com.celements.struct.classes.TableColumnClass;
 import com.celements.struct.table.ColumnConfig;
@@ -40,9 +38,6 @@ public class DefaultStructDataService implements StructDataService, Initializabl
 
   @Requirement
   private ModelUtils modelUtils;
-
-  @Requirement
-  private IModelAccessFacade modelAccess;
 
   @Requirement
   private ModelContext context;
@@ -76,12 +71,14 @@ public class DefaultStructDataService implements StructDataService, Initializabl
   }
 
   @Override
-  public String evaluateVelocityTextWithContextDoc(XWikiDocument contextDoc, String text)
-      throws NoAccessRightsException, XWikiVelocityException {
-    checkNotNull(contextDoc);
+  public String evaluateVelocityText(XWikiDocument templateDoc, String text,
+      VelocityContextModifier contextModifier) throws XWikiVelocityException {
+    checkNotNull(templateDoc);
     VelocityContext vContext = getVelocityContextClone();
-    vContext.put("doc", modelAccess.getApiDocument(contextDoc));
-    return evaluateVelocityText(contextDoc, text, vContext);
+    if (contextModifier != null) {
+      vContext = contextModifier.apply(vContext);
+    }
+    return evaluateVelocityText(templateDoc, text, vContext);
   }
 
   private VelocityContext getVelocityContextClone() {

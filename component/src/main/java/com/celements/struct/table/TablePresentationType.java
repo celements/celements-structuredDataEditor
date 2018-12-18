@@ -90,8 +90,9 @@ public class TablePresentationType extends AbstractTablePresentationType {
       TableConfig tableCfg) {
     LOGGER.debug("writeHeader - for [{}]", tableCfg);
     writer.openLevel("ul", newAttributeBuilder().addCssClasses(CSS_CLASS + "_header").build());
-    tableCfg.setHeaderMode();
+    tableCfg.setHeaderMode(true);
     rowPresentationType.writeNodeContent(writer, tableDocRef, tableCfg);
+    tableCfg.setHeaderMode(false);
     writer.closeLevel();
   }
 

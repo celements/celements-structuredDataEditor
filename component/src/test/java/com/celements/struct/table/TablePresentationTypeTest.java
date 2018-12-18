@@ -1,4 +1,4 @@
-package com.celements.structEditor;
+package com.celements.struct.table;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 import static org.easymock.EasyMock.*;
@@ -35,9 +35,6 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.search.lucene.ILuceneSearchService;
 import com.celements.search.lucene.LuceneSearchException;
 import com.celements.search.lucene.LuceneSearchResult;
-import com.celements.struct.table.ColumnConfig;
-import com.celements.struct.table.TableConfig;
-import com.celements.struct.table.TablePresentationType;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.api.Document;
@@ -144,12 +141,14 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     table.setCssClasses(Arrays.asList("t1", "t2"));
     ColumnConfig colA = new ColumnConfig();
     colA.setNumber(1);
+    colA.setName("A name");
     colA.setTitle("A");
     colA.setContent("asdf");
     colA.setOrder(10);
     colA.setCssClasses(Arrays.asList("cA1", "cA2"));
     ColumnConfig colB = new ColumnConfig();
     colB.setNumber(2);
+    colB.setName("B name");
     colB.setTitle("B");
     colB.setContent("fdsa");
     colB.setOrder(5);

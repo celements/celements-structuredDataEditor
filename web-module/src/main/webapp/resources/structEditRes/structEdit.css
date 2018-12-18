@@ -2,7 +2,7 @@
 
 /* structEdit.css:
  * struct editor layout
- * 2016 - 2017 synventis gmbh
+ * 2016 - 2019 synventis gmbh
  */
 
 .structEditorModalDialog {
@@ -21,10 +21,35 @@
 
 .structDataEditor input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .structDataEditor input[type=number] {
-    -moz-appearance:textfield;
+  -moz-appearance:textfield;
+}
+
+
+/*------- Struct Table ------*/
+
+.structDataEditor .struct_table ul.struct_table_header,
+.structDataEditor .struct_table ul.struct_table_data {
+  list-style-type: none;
+}
+
+.structDataEditor .struct_table ul li.struct_table_row {
+  display: flex;
+  width: min-content;
+  padding: 5px;
+}
+
+.structDataEditor .struct_table ul.struct_table_data li.struct_table_row {
+  border: 1px solid black;
+  margin-bottom: -1px;
+}
+
+.structDataEditor .struct_table .struct_table_cell {
+  width: 200px;
+  margin-right: 20px;
+  overflow: hidden;
 }
