@@ -48,6 +48,10 @@ input[type=number]::-webkit-inner-spin-button {
   width: min-content;
 }
 
+.structDataEditor .struct_table ul li.struct_table_row .struct_table_cell:first-of-type {
+  margin-left: 10px;
+}
+
 .structDataEditor .struct_table ul.struct_table_data li.struct_table_row {
   border: 1px solid #888;
   margin-bottom: -1px;
