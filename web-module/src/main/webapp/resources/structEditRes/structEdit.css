@@ -48,13 +48,19 @@ input[type=number]::-webkit-inner-spin-button {
   width: min-content;
 }
 
-.structDataEditor .struct_table ul li.struct_table_row .struct_table_cell:first-of-type {
+.structDataEditor .struct_table ul li.struct_table_row .struct_table_cell:first-child {
   margin-left: 10px;
 }
 
-.structDataEditor .struct_table ul.struct_table_data li.struct_table_row {
-  border: 1px solid #888;
-  margin-bottom: -1px;
+.structDataEditor .struct_table.border ul.struct_table_data li.struct_table_row {
+  border-color: #888;
+  border-top: 1px solid;
+  border-right: 1px solid;
+  border-left: 1px solid;
+}
+
+.structDataEditor .struct_table.border ul.struct_table_data li.struct_table_row:last-child {
+  border-bottom: 1px solid;
 }
 
 .structDataEditor .struct_table ul.struct_table_data li.struct_table_row:nth-child(odd) {
