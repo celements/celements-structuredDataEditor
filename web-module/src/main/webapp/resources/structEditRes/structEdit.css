@@ -35,21 +35,41 @@ input[type=number]::-webkit-inner-spin-button {
 .structDataEditor .struct_table ul.struct_table_header,
 .structDataEditor .struct_table ul.struct_table_data {
   list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+.structDataEditor .struct_table ul.struct_table_header {
+  font-weight: bold;
 }
 
 .structDataEditor .struct_table ul li.struct_table_row {
   display: flex;
   width: min-content;
-  padding: 5px;
+}
+
+.structDataEditor .struct_table ul li.struct_table_row .struct_table_cell:first-of-type {
+  margin-left: 10px;
 }
 
 .structDataEditor .struct_table ul.struct_table_data li.struct_table_row {
-  border: 1px solid black;
+  border: 1px solid #888;
   margin-bottom: -1px;
 }
 
+.structDataEditor .struct_table ul.struct_table_data li.struct_table_row:nth-child(odd) {
+  background-color: #eee;
+}
+
+.structDataEditor .struct_table ul.struct_table_data li.struct_table_row:hover {
+  background-color: #dddddd;
+}
+
 .structDataEditor .struct_table .struct_table_cell {
+  display: flex;
+  align-items: center;
   width: 200px;
+  padding: 9px;
   margin-right: 20px;
   overflow: hidden;
 }
