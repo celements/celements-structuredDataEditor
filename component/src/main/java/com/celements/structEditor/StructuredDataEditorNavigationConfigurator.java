@@ -1,5 +1,7 @@
 package com.celements.structEditor;
 
+import static com.celements.model.util.References.*;
+
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -7,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.SpaceReference;
+import org.xwiki.model.reference.WikiReference;
 
 import com.celements.model.context.ModelContext;
 import com.celements.navigation.NavigationConfig;
@@ -15,6 +18,7 @@ import com.celements.pagetype.IPageTypeConfig;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.pagetype.service.IPageTypeRole;
+import com.celements.web.plugin.cmd.PageLayoutCommand;
 import com.google.common.base.Strings;
 
 @Component(StructuredDataEditorNavigationConfigurator.CONFIGURATOR_NAME)
@@ -50,8 +54,20 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
     boolean isStructEdit = !Strings.isNullOrEmpty(ptCfg.getRenderTemplateForRenderMode("edit"));
     String spaceName = ptCfg.getName() + "-" + (isStructEdit ? "EditFields" : "StructData");
     LOGGER.info("configSpace: [{}]", spaceName);
-    SpaceReference configSpaceRef = new SpaceReference(spaceName, context.getWikiRef());
+    SpaceReference configSpaceRef = getInheritedConfigSpaceRef(spaceName);
     return NAV_CFG.overlay(newNavCfgBuilder().nodeSpaceRef(configSpaceRef).build());
+  }
+
+  private SpaceReference getInheritedConfigSpaceRef(String spaceName) {
+    SpaceReference configSpaceRef = create(SpaceReference.class, spaceName, context.getWikiRef());
+    if (!new PageLayoutCommand().layoutExists(configSpaceRef)) {
+      configSpaceRef = create(SpaceReference.class, spaceName, getCentralWikiRef());
+    }
+    return configSpaceRef;
+  }
+
+  private WikiReference getCentralWikiRef() {
+    return new WikiReference("celements2web");
   }
 
   @Override
