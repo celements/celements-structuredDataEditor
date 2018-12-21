@@ -1,14 +1,20 @@
 package com.celements.structEditor;
 
+import static com.celements.model.util.References.*;
+
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
+import org.xwiki.model.reference.WikiReference;
 
+import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
+import com.celements.model.util.ModelUtils;
 import com.celements.navigation.NavigationConfig;
 import com.celements.navigation.factories.JavaNavigationConfigurator;
 import com.celements.pagetype.IPageTypeConfig;
@@ -39,6 +45,12 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
   private IPageTypeRole pageTypeService;
 
   @Requirement
+  private IModelAccessFacade modelAccess;
+
+  @Requirement
+  private ModelUtils modelUtils;
+
+  @Requirement
   private ModelContext context;
 
   @Override
@@ -50,8 +62,20 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
     boolean isStructEdit = !Strings.isNullOrEmpty(ptCfg.getRenderTemplateForRenderMode("edit"));
     String spaceName = ptCfg.getName() + "-" + (isStructEdit ? "EditFields" : "StructData");
     LOGGER.info("configSpace: [{}]", spaceName);
-    SpaceReference configSpaceRef = new SpaceReference(spaceName, context.getWikiRef());
+    SpaceReference configSpaceRef = getInheritedConfigSpaceRef(spaceName);
     return NAV_CFG.overlay(newNavCfgBuilder().nodeSpaceRef(configSpaceRef).build());
+  }
+
+  private SpaceReference getInheritedConfigSpaceRef(String spaceName) {
+    SpaceReference configSpaceRef = create(SpaceReference.class, spaceName, context.getWikiRef());
+    if (!modelAccess.exists(create(DocumentReference.class, "WebHome", configSpaceRef))) {
+      configSpaceRef = create(SpaceReference.class, spaceName, getCentralWikiRef());
+    }
+    return configSpaceRef;
+  }
+
+  private WikiReference getCentralWikiRef() {
+    return new WikiReference("celements2web");
   }
 
   @Override
