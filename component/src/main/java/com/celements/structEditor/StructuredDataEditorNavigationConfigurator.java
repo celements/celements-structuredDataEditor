@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
-import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.model.reference.WikiReference;
 
@@ -21,6 +20,7 @@ import com.celements.pagetype.IPageTypeConfig;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.pagetype.service.IPageTypeRole;
+import com.celements.web.plugin.cmd.PageLayoutCommand;
 import com.google.common.base.Strings;
 
 @Component(StructuredDataEditorNavigationConfigurator.CONFIGURATOR_NAME)
@@ -68,7 +68,7 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
 
   private SpaceReference getInheritedConfigSpaceRef(String spaceName) {
     SpaceReference configSpaceRef = create(SpaceReference.class, spaceName, context.getWikiRef());
-    if (!modelAccess.exists(create(DocumentReference.class, "WebHome", configSpaceRef))) {
+    if (!new PageLayoutCommand().layoutExists(configSpaceRef)) {
       configSpaceRef = create(SpaceReference.class, spaceName, getCentralWikiRef());
     }
     return configSpaceRef;
