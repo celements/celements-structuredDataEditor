@@ -11,9 +11,7 @@ import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.model.reference.WikiReference;
 
-import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
-import com.celements.model.util.ModelUtils;
 import com.celements.navigation.NavigationConfig;
 import com.celements.navigation.factories.JavaNavigationConfigurator;
 import com.celements.pagetype.IPageTypeConfig;
@@ -43,12 +41,6 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
 
   @Requirement
   private IPageTypeRole pageTypeService;
-
-  @Requirement
-  private IModelAccessFacade modelAccess;
-
-  @Requirement
-  private ModelUtils modelUtils;
 
   @Requirement
   private ModelContext context;
