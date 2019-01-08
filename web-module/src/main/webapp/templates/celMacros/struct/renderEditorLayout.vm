@@ -1,0 +1,41 @@
+#**************************************************************
+ *  renderEditorLayout.vm
+ *
+ * INPUT Parameter
+ * $structDataEditorSpaceRef : editor layout space reference
+ *
+***************************************************************#
+  #set($structDataEditorSpace = $structDataEditorSpaceRef.getName())
+  #set($structCmCssClass = $structDataEditorNav.getCssClass())
+  #if($isSuperAdmin)
+  <!--
+    DEBUG structCmCssClass: $!{structCmCssClass}
+    DEBUG structDataEditorSpace: $!{structDataEditorSpace}
+  -->
+  #end
+
+  ## include CSS defined on struct layout
+  #set($structDataEditorCfgDocRef = $services.model.createDocumentReference('', $structDataEditorSpace, ''))
+  #set($structDataEditorCfgDoc = $services.modelAccess.getDocument($structDataEditorCfgDocRef))
+  #foreach($cssObj in $structDataEditorCfgDoc.getObjects('Skins.UserCSS'))
+    #set($cssFile = $services.celementsweb.getSkinFile("$!cssObj.cssname", 'file'))
+    #if ("$!cssFile" != '')
+      <link rel="stylesheet" type="text/css" href="$!cssFile">
+    #end
+  #end
+
+  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:"##
+   class="structDataEditor $!{structCmCssClass}">
+  ##    #set($injectedNavigationObject = $structDataEditorNav)
+  ##    #parse('celTemplates/PresentationView.vm')
+  #if($services.layout.canRenderLayout($structDataEditorSpaceRef))
+    #set($layoutApi = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
+    #if($layoutApi.isEditorLayoutType())
+      $services.layout.renderPageLayout($structDataEditorSpaceRef)
+    #else
+      <p>Wrong Editor Layout Type (${layoutApi.getLayoutType()}) for '${structDataEditorSpace}'!</p>
+    #end
+  #else
+    <p>Editor Layout for '${structDataEditorSpace}' is missing!</p>
+  #end
+  </div>
