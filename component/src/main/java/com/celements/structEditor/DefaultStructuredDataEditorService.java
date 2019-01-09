@@ -230,16 +230,20 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return Optional.absent();
   }
 
+  @Override
+  public Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return getRequestXObjectInStructEditor(cellDoc, onDoc);
+  }
+
   private Optional<BaseObject> getRequestXObjectInStructEditor(XWikiDocument cellDoc,
       XWikiDocument onDoc) {
-    Optional<BaseObject> ret = Optional.absent();
+    int objNb = 0;
     try {
-      int objNb = Integer.parseInt(context.getRequestParameter("objNb").or("0"));
-      ret = getXObjectInStructEditor(cellDoc, onDoc, objNb);
+      objNb = Integer.parseInt(context.getRequestParameter("objNb").or("0"));
     } catch (NumberFormatException nfe) {
       LOGGER.debug("unable to parse objNb from request: {}", nfe.getMessage());
     }
-    return ret;
+    return getXObjectInStructEditor(cellDoc, onDoc, objNb);
   }
 
   private Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc,

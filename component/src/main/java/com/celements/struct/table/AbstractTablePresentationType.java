@@ -14,6 +14,7 @@ import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;
 import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.struct.StructDataService;
+import com.celements.structEditor.StructuredDataEditorService;
 
 public abstract class AbstractTablePresentationType implements IPresentationTypeRole<TableConfig> {
 
@@ -24,6 +25,9 @@ public abstract class AbstractTablePresentationType implements IPresentationType
 
   @Requirement
   protected StructDataService structDataService;
+
+  @Requirement
+  protected StructuredDataEditorService structDataEditorService;
 
   @Requirement
   protected IModelAccessFacade modelAccess;

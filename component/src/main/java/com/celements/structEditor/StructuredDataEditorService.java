@@ -12,6 +12,7 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 
 @ComponentRole
@@ -26,6 +27,10 @@ public interface StructuredDataEditorService {
 
   @NotNull
   Optional<PropertyClass> getCellPropertyClass(@NotNull XWikiDocument cellDoc);
+
+  @NotNull
+  Optional<BaseObject> getXObjectInStructEditor(@NotNull XWikiDocument cellDoc,
+      @NotNull XWikiDocument onDoc);
 
   @NotNull
   Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,
