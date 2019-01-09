@@ -31,13 +31,6 @@
 #end
 #set($ptConfig = $services.pageType.getPageTypeConfig("$page_type"))
 #if("$!page_type" != 'StructuredDataEditor')
-  #set($overwritePresCmCssClass = '')
-  #set($overwriteNavCMcssClass = 'cel_cm_structured_data_editor_element')
-  #set($emptyDictKeySuffix = '_strucured_data_editor')
-  #if("$!structDataEditorPresentationCount" == '')
-    #set($structDataEditorPresentationCount = 0)
-  #end
-  #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
   ##TODO move editor layout space computation out of Navigation Configuration!!!
   #set($structDataEditorNav = $services.treeNode.getJavaNavigation("StructuredDataEditor"))
   #set($structDataEditorSpaceRef = $structDataEditorNav.getNodeSpaceRef())
