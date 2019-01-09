@@ -97,7 +97,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     } catch (XWikiVelocityException exc) {
       LOGGER.debug("writeTableCell - failed for [{}]", colCfg, exc);
     }
-    if (content.isEmpty()) {
+    if (content.isEmpty() && !colCfg.isHeaderMode()) {
       content = getColumnFieldValue(rowDoc, colCfg);
     }
     return content;
