@@ -1,6 +1,7 @@
 package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
+import static com.google.common.base.MoreObjects.*;
 
 import java.util.regex.Pattern;
 
@@ -115,10 +116,14 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   private String getColumnFieldValue(XWikiDocument cellDoc, XWikiDocument rowDoc, String name) {
     String value = "";
     Optional<BaseObject> obj = structDataEditorService.getXObjectInStructEditor(cellDoc, rowDoc);
-    if (obj.isPresent()) {
+    if (obj.isPresent() && hasValue(obj.get(), name)) {
       value = obj.get().displayView(name, context.getXWikiContext());
     }
     return value;
+  }
+
+  private boolean hasValue(BaseObject obj, String name) {
+    return !firstNonNull(modelAccess.getProperty(obj, name), "").toString().trim().isEmpty();
   }
 
   /**
