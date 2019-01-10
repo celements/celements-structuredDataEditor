@@ -47,8 +47,7 @@ public class StructDataScriptService implements ScriptService {
       XWikiDocument doc = modelAccess.getOrCreateDocument(cellDocRef);
       Optional<TableConfig> tableCfg = service.loadTableConfig(doc);
       if (tableCfg.isPresent()) {
-        tablePresentationType.writeNodeContent(writer, context.getDoc().getDocumentReference(),
-            tableCfg.get());
+        tablePresentationType.writeNodeContent(writer, cellDocRef, tableCfg.get());
       } else {
         writer.openLevel(new DefaultAttributeBuilder().addCssClasses(
             tablePresentationType.getDefaultCssClass()).build());

@@ -1,41 +1,69 @@
+<!-- renderEditorLayout -->
 #**************************************************************
- *  renderEditorLayout.vm
- *
- * INPUT Parameter
- * $structDataEditorSpaceRef : editor layout space reference
- *
+ * INPUT Parameters
+ * $structDataEditorSpaceRef : required, editor layout space reference
+ * $activateJsCheckUnsaved : optional, boolean
 ***************************************************************#
-  #set($structDataEditorSpace = $structDataEditorSpaceRef.getName())
-  #set($structCmCssClass = $structDataEditorNav.getCssClass())
-  #if($isSuperAdmin)
-  <!--
-    DEBUG structCmCssClass: $!{structCmCssClass}
-    DEBUG structDataEditorSpace: $!{structDataEditorSpace}
-  -->
+<link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':celJS/yui/assets/skins/sam/container.css', 'file')">
+<link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':celJS/yui/assets/skins/sam/button.css', 'file')">
+<link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':structEditRes/structEdit.css', 'file')">
+<link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':structEditRes/select2/select2.min.css', 'file')">
+#if($activateJsCheckUnsaved)
+  $services.javascript.addExtJSfileOnce(':celJS/yui/utilities/utilities.js', 'file')
+  $services.javascript.addExtJSfileOnce(':celJS/yui/dom/dom-min.js', 'file')
+  $services.javascript.addExtJSfileOnce(':celJS/yui/yahoo-dom-event/yahoo-dom-event.js', 'file')
+  $services.javascript.addExtJSfileOnce(':celJS/yui/animation/animation-min.js', 'file')
+  $services.javascript.addExtJSfileOnce(':celJS/yui/dragdrop/dragdrop-min.js', 'file')
+  $services.javascript.addExtJSfileOnce(':celJS/yui/element/element-min.js', 'file')
+  $services.javascript.addExtJSfileOnce(':celJS/yui/button/button-min.js', 'file')
+  $services.javascript.addExtJSfileOnce(':celJS/yui/container/container-min.js', 'file')
+  $services.javascript.addExtJSfileOnce(':structEditJS/StructEditor.js', 'file')
+  $services.javascript.addExtJSfileOnce(':structEditJS/initStructEditor.js', 'file')
+  $services.javascript.addExtJSfileOnce(':structEditJS/select2/select2.full.min.js', 'file')
+  $services.javascript.addExtJSfileOnce(':structEditJS/select2/de.js', 'file')
+  #set($jsPath = $services.structuredDataEditor.getSelectTagAutocompleteJsPathList())
+  #foreach($path in $jsPath)
+    $services.javascript.addExtJSfileOnce(":${path}", 'file')
   #end
+  $!services.javascript.addExtJSfileOnce(':celRTE/4.7.12/tinymce.min.js', 'file')
+#end ## activateJsCheckUnsaved
 
-  ## include CSS defined on struct layout
-  #set($structDataEditorCfgDocRef = $services.model.createDocumentReference('', $structDataEditorSpace, ''))
-  #set($structDataEditorCfgDoc = $services.modelAccess.getDocument($structDataEditorCfgDocRef))
-  #foreach($cssObj in $structDataEditorCfgDoc.getObjects('Skins.UserCSS'))
-    #set($cssFile = $services.celementsweb.getSkinFile("$!cssObj.cssname", 'file'))
-    #if ("$!cssFile" != '')
-      <link rel="stylesheet" type="text/css" href="$!cssFile">
-    #end
+#set($structDataEditorCfgDocRef = $services.model.resolveDocument('', 'default', $structDataEditorSpaceRef))
+#set($structDataEditorSpace = $structDataEditorSpaceRef.name)
+#if($isSuperAdmin)
+<!--
+  structDataEditorCfg: $!{services.model.serialize($structDataEditorCfgDocRef)}
+-->
+#end
+
+## include CSS defined on struct layout
+#set($structDataEditorCfgDoc = $services.modelAccess.getDocument($structDataEditorCfgDocRef))
+#foreach($cssObj in $structDataEditorCfgDoc.getObjects('Skins.UserCSS'))
+  #set($cssFile = $services.celementsweb.getSkinFile("$!cssObj.cssname", 'file'))
+  #if ("$!cssFile" != '')
+    <link rel="stylesheet" type="text/css" href="$!cssFile">
   #end
+#end
 
-  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:"##
-   class="structDataEditor $!{structCmCssClass}">
-  ##    #set($injectedNavigationObject = $structDataEditorNav)
-  ##    #parse('celTemplates/PresentationView.vm')
-  #if($services.layout.canRenderLayout($structDataEditorSpaceRef))
-    #set($layoutApi = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
-    #if($layoutApi.isEditorLayoutType())
-      $services.layout.renderPageLayout($structDataEditorSpaceRef)
-    #else
-      <p>Wrong Editor Layout Type (${layoutApi.getLayoutType()}) for '${structDataEditorSpace}'!</p>
-    #end
+#set($overwritePresCmCssClass = '')
+#set($overwriteNavCMcssClass = 'cel_cm_structured_data_editor_element')
+#set($emptyDictKeySuffix = '_strucured_data_editor')
+#if("$!structDataEditorPresentationCount" == '')
+  #set($structDataEditorPresentationCount = 0)
+#end
+#set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
+#set($structDataEditorNav = $services.treeNode.getJavaNavigation('StructuredDataEditor'))
+#set($structCmCssClass = $structDataEditorNav.getCssClass())
+<div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:"##
+ class="structDataEditor $!{structCmCssClass}">
+#if($services.layout.canRenderLayout($structDataEditorSpaceRef))
+  #set($layoutApi = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
+  #if($layoutApi.isEditorLayoutType())
+    $services.layout.renderPageLayout($structDataEditorSpaceRef)
   #else
-    <p>Editor Layout for '${structDataEditorSpace}' is missing!</p>
+    <p>Wrong Editor Layout Type (${layoutApi.getLayoutType()}) for '${structDataEditorSpace}'!</p>
   #end
-  </div>
+#else
+  <p>Editor Layout for '${structDataEditorSpace}' is missing!</p>
+#end
+</div>

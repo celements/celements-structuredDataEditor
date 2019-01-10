@@ -1,31 +1,34 @@
 package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
+import static com.google.common.base.MoreObjects.*;
+
+import java.util.regex.Pattern;
 
 import org.apache.velocity.VelocityContext;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.component.annotation.Requirement;
+import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.pagetype.PageTypeReference;
-import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.struct.VelocityContextModifier;
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
+import com.google.common.base.Splitter;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.objects.BaseObject;
 
 @Component(TableRowPresentationType.NAME)
 public class TableRowPresentationType extends AbstractTablePresentationType {
 
   public static final String NAME = "structTableRow";
 
-  @Requirement
-  private IPageTypeResolverRole pageTypeResolver;
+  private static final Pattern PATTERN_NON_ALPHANUMERIC = Pattern.compile("[^a-zA-Z0-9]");
 
   @Override
   public String getDefaultCssClass() {
@@ -72,26 +75,64 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   }
 
   private String evaluateTableCellContent(XWikiDocument rowDoc, ColumnConfig colCfg) {
-    String text = "";
-    text = colCfg.getContent();
-    if (Strings.nullToEmpty(text).trim().isEmpty() && !colCfg.isHeaderMode()) {
-      text = "#parse('" + resolveMacroName(colCfg) + "')";
-    }
-    String content;
-    try {
-      content = structDataService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
-          rowDoc, colCfg));
-    } catch (XWikiVelocityException exc) {
-      LOGGER.warn("writeTableCell - failed for [{}]", colCfg, exc);
-      content = "failed to evaluate velocity - " + exc.getMessage() + ": " + text;
+    String content = evaluateColumnContentOrMacro(rowDoc, colCfg);
+    if (content.isEmpty() && !colCfg.getName().isEmpty()) {
+      XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
+          colCfg.getTableConfig().getDocumentReference());
+      if (colCfg.isHeaderMode()) {
+        content = resolveTitleFromDictionary(tableCfgDoc, colCfg.getName());
+      } else {
+        content = loadColumnFieldValue(tableCfgDoc, rowDoc, colCfg.getName());
+      }
     }
     return content;
   }
 
+  private String evaluateColumnContentOrMacro(XWikiDocument rowDoc, ColumnConfig colCfg) {
+    String content = "";
+    try {
+      String text = colCfg.getContent().trim();
+      if (text.isEmpty() && !colCfg.isHeaderMode()) {
+        text = "#parse('" + resolveMacroName(colCfg) + "')";
+      }
+      content = structDataService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
+          rowDoc, colCfg)).trim();
+    } catch (XWikiVelocityException exc) {
+      LOGGER.info("writeTableCell - failed for [{}]", colCfg, exc);
+    }
+    return content;
+  }
+
+  private String resolveTitleFromDictionary(XWikiDocument cellDoc, String name) {
+    String title = "";
+    Optional<ClassReference> classRef = structDataEditorService.getCellClassRef(cellDoc);
+    if (classRef.isPresent()) {
+      String dictKey = modelUtils.serializeRef(classRef.get()) + "_" + name;
+      String msg = webUtils.getAdminMessageTool().get(dictKey);
+      if (!dictKey.equals(msg)) {
+        title = msg;
+      }
+    }
+    return title;
+  }
+
+  private String loadColumnFieldValue(XWikiDocument cellDoc, XWikiDocument rowDoc, String name) {
+    String value = "";
+    Optional<BaseObject> obj = structDataEditorService.getXObjectInStructEditor(cellDoc, rowDoc);
+    if (obj.isPresent() && hasValue(obj.get(), name)) {
+      value = obj.get().displayView(name, context.getXWikiContext());
+    }
+    return value;
+  }
+
+  private boolean hasValue(BaseObject obj, String name) {
+    return !firstNonNull(modelAccess.getProperty(obj, name), "").toString().trim().isEmpty();
+  }
+
   /**
    * {@code celStruct/table/<tblName>/col_<colName>.vm}
-   * tblName - either table page type name, table css id or table config doc name
-   * colName - either col name, col order or col object number
+   * tblName - either table page type name or layout space primary name
+   * colName - defined column name
    */
   String resolveMacroName(ColumnConfig colCfg) {
     String tblName = "";
@@ -100,16 +141,14 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
       tblName = ptRef.get().getConfigName();
     }
     if (tblName.isEmpty()) {
-      tblName = colCfg.getTableConfig().getCssId();
+      tblName = resolvePrimaryLayoutSpaceName(colCfg.getTableConfig());
     }
-    if (tblName.isEmpty()) {
-      tblName = colCfg.getTableConfig().getDocumentReference().getName();
-    }
-    String colName = colCfg.getName();
-    if (colName.isEmpty()) {
-      colName = Integer.toString((colCfg.getOrder() >= 0) ? colCfg.getOrder() : colCfg.getNumber());
-    }
-    return STRUCT_TABLE_FOLDER + tblName + "/col_" + colName + ".vm";
+    return STRUCT_TABLE_FOLDER + tblName + "/col_" + colCfg.getName() + ".vm";
+  }
+
+  private String resolvePrimaryLayoutSpaceName(TableConfig tableCfg) {
+    SpaceReference layoutSpaceRef = tableCfg.getDocumentReference().getLastSpaceReference();
+    return Splitter.on(PATTERN_NON_ALPHANUMERIC).split(layoutSpaceRef.getName()).iterator().next();
   }
 
   private VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,

@@ -34,7 +34,7 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
         IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityManager.class);
     presentationType = (TableRowPresentationType) Utils.getComponent(IPresentationTypeRole.class,
         TableRowPresentationType.NAME);
-    doc = new XWikiDocument(new DocumentReference("xwikidb", "space", "tabledoc"));
+    doc = new XWikiDocument(new DocumentReference("xwikidb", "layoutspace", "tabledoc"));
     getContext().setDoc(doc);
   }
 
@@ -51,7 +51,7 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
   }
 
   @Test
-  public void test_resolveMacroName_tableName_fallback_1() {
+  public void test_resolveMacroName_tableName_fallback_layoutspace() {
     TableConfig table = getDummyTableConfig();
     table.setCssId("tableName");
     ColumnConfig col = table.getColumns().get(0);
@@ -59,19 +59,7 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
     expectAbsentPageTypeRef();
 
     replayDefault();
-    assertEquals("celStruct/table/tableName/col_name.vm", presentationType.resolveMacroName(col));
-    verifyDefault();
-  }
-
-  @Test
-  public void test_tableName_resolveMacroName_fallback_2() {
-    TableConfig table = getDummyTableConfig();
-    ColumnConfig col = table.getColumns().get(0);
-    col.setName("name");
-    expectAbsentPageTypeRef();
-
-    replayDefault();
-    assertEquals("celStruct/table/tabledoc/col_name.vm", presentationType.resolveMacroName(col));
+    assertEquals("celStruct/table/layoutspace/col_name.vm", presentationType.resolveMacroName(col));
     verifyDefault();
   }
 
@@ -85,29 +73,6 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
     replayDefault();
     assertEquals("celStruct/table/tableName/col_the_col_name.vm", presentationType.resolveMacroName(
         col));
-    verifyDefault();
-  }
-
-  @Test
-  public void test_resolveMacroName_colName_fallback_1() {
-    TableConfig table = getDummyTableConfig();
-    ColumnConfig col = table.getColumns().get(0);
-    col.setOrder(5);
-    expectPageTypeRef("tableName");
-
-    replayDefault();
-    assertEquals("celStruct/table/tableName/col_5.vm", presentationType.resolveMacroName(col));
-    verifyDefault();
-  }
-
-  @Test
-  public void test_resolveMacroName_colName_fallback_2() {
-    TableConfig table = getDummyTableConfig();
-    ColumnConfig col = table.getColumns().get(0);
-    expectPageTypeRef("tableName");
-
-    replayDefault();
-    assertEquals("celStruct/table/tableName/col_2.vm", presentationType.resolveMacroName(col));
     verifyDefault();
   }
 
