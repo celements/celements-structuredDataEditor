@@ -20,7 +20,6 @@ import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.struct.VelocityContextModifier;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -76,26 +75,30 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   }
 
   private String evaluateTableCellContent(XWikiDocument rowDoc, ColumnConfig colCfg) {
-    String text = "";
-    text = colCfg.getContent();
-    if (Strings.nullToEmpty(text).trim().isEmpty() && !colCfg.isHeaderMode()) {
-      text = "#parse('" + resolveMacroName(colCfg) + "')";
-    }
-    String content = "";
-    try {
-      content = structDataService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
-          rowDoc, colCfg));
-    } catch (XWikiVelocityException exc) {
-      LOGGER.debug("writeTableCell - failed for [{}]", colCfg, exc);
-    }
-    if (content.trim().isEmpty() && !colCfg.getName().isEmpty()) {
+    String content = evaluateColumnContentOrMacro(rowDoc, colCfg);
+    if (content.isEmpty() && !colCfg.getName().isEmpty()) {
       XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
           colCfg.getTableConfig().getDocumentReference());
       if (colCfg.isHeaderMode()) {
         content = resolveTitleFromDictionary(tableCfgDoc, colCfg.getName());
       } else {
-        content = getColumnFieldValue(tableCfgDoc, rowDoc, colCfg.getName());
+        content = loadColumnFieldValue(tableCfgDoc, rowDoc, colCfg.getName());
       }
+    }
+    return content;
+  }
+
+  private String evaluateColumnContentOrMacro(XWikiDocument rowDoc, ColumnConfig colCfg) {
+    String content = "";
+    try {
+      String text = colCfg.getContent().trim();
+      if (text.isEmpty() && !colCfg.isHeaderMode()) {
+        text = "#parse('" + resolveMacroName(colCfg) + "')";
+      }
+      content = structDataService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
+          rowDoc, colCfg)).trim();
+    } catch (XWikiVelocityException exc) {
+      LOGGER.info("writeTableCell - failed for [{}]", colCfg, exc);
     }
     return content;
   }
@@ -113,7 +116,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     return title;
   }
 
-  private String getColumnFieldValue(XWikiDocument cellDoc, XWikiDocument rowDoc, String name) {
+  private String loadColumnFieldValue(XWikiDocument cellDoc, XWikiDocument rowDoc, String name) {
     String value = "";
     Optional<BaseObject> obj = structDataEditorService.getXObjectInStructEditor(cellDoc, rowDoc);
     if (obj.isPresent() && hasValue(obj.get(), name)) {
@@ -128,8 +131,8 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
 
   /**
    * {@code celStruct/table/<tblName>/col_<colName>.vm}
-   * tblName - either table page type name, table css id or table config doc name
-   * colName - either col name, col order or col object number
+   * tblName - either table page type name or layout space primary name
+   * colName - defined column name
    */
   String resolveMacroName(ColumnConfig colCfg) {
     String tblName = "";
@@ -140,11 +143,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     if (tblName.isEmpty()) {
       tblName = resolvePrimaryLayoutSpaceName(colCfg.getTableConfig());
     }
-    String colName = colCfg.getName();
-    if (colName.isEmpty()) {
-      colName = Integer.toString((colCfg.getOrder() >= 0) ? colCfg.getOrder() : colCfg.getNumber());
-    }
-    return STRUCT_TABLE_FOLDER + tblName + "/col_" + colName + ".vm";
+    return STRUCT_TABLE_FOLDER + tblName + "/col_" + colCfg.getName() + ".vm";
   }
 
   private String resolvePrimaryLayoutSpaceName(TableConfig tableCfg) {
