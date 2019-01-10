@@ -61,11 +61,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private Optional<String> getAttributeNameInternal(XWikiDocument cellDoc, XWikiDocument onDoc) {
     List<String> nameParts = new ArrayList<>();
-    Optional<DocumentReference> classRef = getCellClassRef(cellDoc);
+    Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     Optional<String> fieldName = getCellFieldName(cellDoc);
     if (fieldName.isPresent()) {
       if (classRef.isPresent()) {
-        nameParts.add(modelUtils.serializeRefLocal(classRef.get()));
+        nameParts.add(modelUtils.serializeRef(classRef.get()));
         if (onDoc != null) {
           Optional<BaseObject> obj = getRequestXObjectInStructEditor(cellDoc, onDoc);
           nameParts.add(Integer.toString(obj.isPresent() ? obj.get().getNumber() : -1));
@@ -134,13 +134,25 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
+  public Optional<ClassReference> getCellClassRef(XWikiDocument cellDoc) {
+    Optional<DocumentReference> classDocRef = modelAccess.getFieldValue(cellDoc,
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS);
+    if (classDocRef.isPresent()) {
+      return Optional.of(new ClassReference(classDocRef.get()));
+    } else {
+      return Optional.absent();
+    }
+  }
+
+  @Override
   public Optional<PropertyClass> getCellPropertyClass(XWikiDocument cellDoc) {
-    Optional<DocumentReference> classRef = getCellClassRef(cellDoc);
+    Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     Optional<String> fieldName = getCellFieldName(cellDoc);
     if (classRef.isPresent() && fieldName.isPresent()) {
       try {
-        return Optional.fromNullable((PropertyClass) modelAccess.getDocument(
-            classRef.get()).getXClass().get(fieldName.get()));
+        XWikiDocument xClassDoc = modelAccess.getDocument(classRef.get().getDocRef(
+            cellDoc.getDocumentReference().getWikiReference()));
+        return Optional.fromNullable((PropertyClass) xClassDoc.getXClass().get(fieldName.get()));
       } catch (DocumentNotExistsException exc) {
         LOGGER.warn("configured class '{}' on cell '{}' doesn't exist", classRef, cellDoc, exc);
       }
@@ -249,18 +261,13 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc,
       int objNb) {
     Optional<BaseObject> ret = Optional.absent();
-    Optional<DocumentReference> classDocRef = getCellClassRef(cellDoc);
-    if (classDocRef.isPresent()) {
-      ClassReference classRef = new ClassReference(classDocRef.get());
-      ret = XWikiObjectFetcher.on(onDoc).filter(classRef).filter(objNb).first();
+    Optional<ClassReference> classRef = getCellClassRef(cellDoc);
+    if (classRef.isPresent()) {
+      ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).first();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
-        + "{}", cellDoc, onDoc, classDocRef.orNull(), objNb, ret.orNull());
+        + "{}", cellDoc, onDoc, classRef.orNull(), objNb, ret.orNull());
     return ret;
-  }
-
-  private Optional<DocumentReference> getCellClassRef(XWikiDocument cellDoc) {
-    return modelAccess.getFieldValue(cellDoc, StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS);
   }
 
   private Optional<String> getCellFieldName(XWikiDocument cellDoc) {

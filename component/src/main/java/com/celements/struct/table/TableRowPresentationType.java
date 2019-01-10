@@ -1,13 +1,12 @@
 package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
-import static com.google.common.base.MoreObjects.*;
 
 import java.util.regex.Pattern;
 
 import org.apache.velocity.VelocityContext;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.component.annotation.Requirement;
+import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.velocity.XWikiVelocityException;
@@ -15,12 +14,9 @@ import org.xwiki.velocity.XWikiVelocityException;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.model.classes.ClassDefinition;
 import com.celements.pagetype.PageTypeReference;
-import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.struct.VelocityContextModifier;
-import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -33,12 +29,6 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   public static final String NAME = "structTableRow";
 
   private static final Pattern PATTERN_NON_ALPHANUMERIC = Pattern.compile("[^a-zA-Z0-9]");
-
-  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
-  private ClassDefinition structFieldClassDef;
-
-  @Requirement
-  private IPageTypeResolverRole pageTypeResolver;
 
   @Override
   public String getDefaultCssClass() {
@@ -97,19 +87,36 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     } catch (XWikiVelocityException exc) {
       LOGGER.debug("writeTableCell - failed for [{}]", colCfg, exc);
     }
-    if (content.isEmpty() && !colCfg.isHeaderMode()) {
-      content = getColumnFieldValue(rowDoc, colCfg);
+    if (content.trim().isEmpty() && !colCfg.getName().isEmpty()) {
+      XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
+          colCfg.getTableConfig().getDocumentReference());
+      if (colCfg.isHeaderMode()) {
+        content = resolveTitleFromDictionary(tableCfgDoc, colCfg.getName());
+      } else {
+        content = getColumnFieldValue(tableCfgDoc, rowDoc, colCfg.getName());
+      }
     }
     return content;
   }
 
-  private String getColumnFieldValue(XWikiDocument rowDoc, ColumnConfig colCfg) {
+  private String resolveTitleFromDictionary(XWikiDocument cellDoc, String name) {
+    String title = "";
+    Optional<ClassReference> classRef = structDataEditorService.getCellClassRef(cellDoc);
+    if (classRef.isPresent()) {
+      String dictKey = modelUtils.serializeRef(classRef.get()) + "_" + name;
+      String msg = webUtils.getAdminMessageTool().get(dictKey);
+      if (!dictKey.equals(msg)) {
+        title = msg;
+      }
+    }
+    return title;
+  }
+
+  private String getColumnFieldValue(XWikiDocument cellDoc, XWikiDocument rowDoc, String name) {
     String value = "";
-    XWikiDocument tblCfgDoc = modelAccess.getOrCreateDocument(
-        colCfg.getTableConfig().getDocumentReference());
-    Optional<BaseObject> obj = structDataEditorService.getXObjectInStructEditor(tblCfgDoc, rowDoc);
-    if (obj.isPresent() && !colCfg.getName().isEmpty()) {
-      value = firstNonNull(modelAccess.getProperty(obj.get(), colCfg.getName()), "").toString();
+    Optional<BaseObject> obj = structDataEditorService.getXObjectInStructEditor(cellDoc, rowDoc);
+    if (obj.isPresent()) {
+      value = obj.get().displayView(name, context.getXWikiContext());
     }
     return value;
   }
