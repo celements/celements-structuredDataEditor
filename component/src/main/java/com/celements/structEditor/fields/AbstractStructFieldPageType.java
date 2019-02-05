@@ -15,6 +15,7 @@ import com.celements.pagetype.category.IPageTypeCategoryRole;
 import com.celements.pagetype.java.AbstractJavaPageType;
 import com.celements.struct.StructDataService;
 import com.celements.structEditor.StructuredDataEditorService;
+import com.celements.velocity.VelocityService;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -29,6 +30,9 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
   @Requirement("structEditFieldTypeCategory")
   protected IPageTypeCategoryRole pageTypeCategory;
+
+  @Requirement
+  protected VelocityService velocityService;
 
   @Requirement
   protected IModelAccessFacade modelAccess;
@@ -118,7 +122,7 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
       ClassField<String> classField) throws XWikiVelocityException {
     Optional<String> text = modelAccess.getFieldValue(cellDoc, classField);
     if (text.isPresent()) {
-      text = Optional.of(structDataService.evaluateVelocityText(text.get()));
+      text = Optional.of(velocityService.evaluateVelocityText(text.get()));
     }
     return text;
   }
