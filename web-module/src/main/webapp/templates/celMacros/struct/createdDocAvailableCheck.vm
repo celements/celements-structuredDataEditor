@@ -1,0 +1,23 @@
+#set($newDocFn = "$!request.newDocumentFn")
+#if("$!newDocFn" != '')
+  #set($newDocRef = $services.model.resolveDocument("$!newDocFn"))
+  #if($services.modelAccess.exists($newDocRef))
+    #set($query = $services.lucene.createQuery())
+    #set($devNull = $query.addRestriction($services.lucene.createDocRestriction("$!newDocFn")))
+    #set($results = $services.lucene.search("$query.getQueryString()", [], ['default','de']))
+    #if($results.getResults().size() < 1)
+      <p>$adminMsg.get('struct_table_new_entry_created_not_indexed')</p>
+      <img src="$!celementsweb.getSkinFile(':celRes/ajax-loader.gif')" />
+      <script type="text/javascript">
+          Event.observe(window, 'load', function() {
+              (function() { location.reload();}).delay(3);
+          });
+          $$('.list-container').each(function(ele) { ele.hide(); });
+      </script>
+    #else
+      <!-- newDocumentFn param available. $newDocFn exists and is indexed by lucene -->
+    #end
+  #else
+    <!-- newDocumentFn param available, but no doc $newDocFn exists -->
+  #end
+#end
