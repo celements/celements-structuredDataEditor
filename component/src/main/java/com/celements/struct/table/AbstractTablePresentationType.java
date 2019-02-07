@@ -18,6 +18,7 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.struct.StructDataService;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
+import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 
 public abstract class AbstractTablePresentationType implements IPresentationTypeRole<TableConfig> {
@@ -35,6 +36,9 @@ public abstract class AbstractTablePresentationType implements IPresentationType
 
   @Requirement
   protected StructuredDataEditorService structDataEditorService;
+
+  @Requirement
+  protected VelocityService velocityService;
 
   @Requirement
   protected IPageTypeResolverRole pageTypeResolver;
