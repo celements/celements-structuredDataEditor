@@ -17,7 +17,7 @@ import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.rights.access.exceptions.NoAccessRightsException;
-import com.celements.struct.VelocityContextModifier;
+import com.celements.velocity.VelocityContextModifier;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -95,7 +95,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
       if (text.isEmpty() && !colCfg.isHeaderMode()) {
         text = "#parse('" + resolveMacroName(colCfg) + "')";
       }
-      content = structDataService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
+      content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
           rowDoc, colCfg)).trim();
     } catch (XWikiVelocityException exc) {
       LOGGER.info("writeTableCell - failed for [{}]", colCfg, exc);
