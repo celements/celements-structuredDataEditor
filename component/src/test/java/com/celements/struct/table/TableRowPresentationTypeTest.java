@@ -46,7 +46,7 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
     expectPageTypeRef("tableName");
 
     replayDefault();
-    assertEquals("celStruct/table/tableName/col_name.vm", presentationType.resolveMacroName(col));
+    assertEquals("tableName/col_name", presentationType.resolveMacroName(col));
     verifyDefault();
   }
 
@@ -59,7 +59,7 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
     expectAbsentPageTypeRef();
 
     replayDefault();
-    assertEquals("celStruct/table/layoutspace/col_name.vm", presentationType.resolveMacroName(col));
+    assertEquals("layoutspace/col_name", presentationType.resolveMacroName(col));
     verifyDefault();
   }
 
@@ -71,8 +71,7 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
     expectPageTypeRef("tableName");
 
     replayDefault();
-    assertEquals("celStruct/table/tableName/col_the_col_name.vm", presentationType.resolveMacroName(
-        col));
+    assertEquals("tableName/col_the_col_name", presentationType.resolveMacroName(col));
     verifyDefault();
   }
 

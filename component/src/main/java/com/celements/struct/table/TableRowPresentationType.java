@@ -93,12 +93,13 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     try {
       String text = colCfg.getContent().trim();
       if (text.isEmpty() && !colCfg.isHeaderMode()) {
-        text = "#parse('" + resolveMacroName(colCfg) + "')";
+        String macroPath = "/templates/" + STRUCT_TABLE_FOLDER + resolveMacroName(colCfg) + ".vm";
+        text = webUtils.getTranslatedDiscTemplateContent(macroPath, null, null);
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
           rowDoc, colCfg)).trim();
     } catch (XWikiVelocityException exc) {
-      LOGGER.info("writeTableCell - failed for [{}]", colCfg, exc);
+      LOGGER.error("writeTableCell - failed for [{}]", colCfg, exc);
     }
     return content;
   }
@@ -130,7 +131,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   }
 
   /**
-   * {@code celStruct/table/<tblName>/col_<colName>.vm}
+   * {@code <tblName>/col_<colName>.vm}
    * tblName - either table page type name or layout space primary name
    * colName - defined column name
    */
@@ -143,7 +144,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     if (tblName.isEmpty()) {
       tblName = resolvePrimaryLayoutSpaceName(colCfg.getTableConfig());
     }
-    return STRUCT_TABLE_FOLDER + tblName + "/col_" + colCfg.getName() + ".vm";
+    return tblName + "/col_" + colCfg.getName();
   }
 
   private String resolvePrimaryLayoutSpaceName(TableConfig tableCfg) {
