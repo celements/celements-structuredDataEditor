@@ -92,11 +92,10 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   private String evaluateColumnContentOrMacro(XWikiDocument rowDoc, ColumnConfig colCfg) {
     String content = "";
     try {
-
       String text = colCfg.getContent().trim();
       if (text.isEmpty() && !colCfg.isHeaderMode()) {
-        String renderTemplatePath = ":Templates/" + resolveMacroName(colCfg);
-        text = webUtils.getTranslatedDiscTemplateContent(renderTemplatePath, null, null);
+        String macroPath = "celTemplates/" + resolveMacroName(colCfg);
+        text = webUtils.getTranslatedDiscTemplateContent(macroPath, null, null);
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
           rowDoc, colCfg)).trim();
