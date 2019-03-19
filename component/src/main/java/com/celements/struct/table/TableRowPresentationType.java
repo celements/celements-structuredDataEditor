@@ -20,6 +20,7 @@ import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.velocity.VelocityContextModifier;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
+import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -91,14 +92,16 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   private String evaluateColumnContentOrMacro(XWikiDocument rowDoc, ColumnConfig colCfg) {
     String content = "";
     try {
+
       String text = colCfg.getContent().trim();
       if (text.isEmpty() && !colCfg.isHeaderMode()) {
-        text = "#parse('" + resolveMacroName(colCfg) + "')";
+        String renderTemplatePath = ":Templates/" + resolveMacroName(colCfg);
+        text = webUtils.getTranslatedDiscTemplateContent(renderTemplatePath, null, null);
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
           rowDoc, colCfg)).trim();
     } catch (XWikiVelocityException exc) {
-      LOGGER.info("writeTableCell - failed for [{}]", colCfg, exc);
+      LOGGER.error("writeTableCell - failed for [{}]", colCfg, exc);
     }
     return content;
   }
@@ -166,6 +169,10 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
         return vContext;
       }
     };
+  }
+
+  private XWiki getWiki() {
+    return context.getXWikiContext().getWiki();
   }
 
 }

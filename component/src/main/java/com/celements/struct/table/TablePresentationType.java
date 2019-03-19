@@ -14,7 +14,6 @@ import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.search.lucene.ILuceneSearchService;
 import com.celements.search.lucene.LuceneSearchException;
 import com.celements.search.lucene.LuceneSearchResult;
-import com.celements.web.service.IWebUtilsService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 
@@ -28,9 +27,6 @@ public class TablePresentationType extends AbstractTablePresentationType {
 
   @Requirement
   private ILuceneSearchService searchService;
-
-  @Requirement
-  private IWebUtilsService webUtils;
 
   @Override
   public String getDefaultCssClass() {
