@@ -20,7 +20,6 @@ import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.velocity.VelocityContextModifier;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
-import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -94,7 +93,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     try {
       String text = colCfg.getContent().trim();
       if (text.isEmpty() && !colCfg.isHeaderMode()) {
-        String macroPath = ":Templates." + resolveMacroName(colCfg);
+        String macroPath = ":Templates." + STRUCT_TABLE_FOLDER + resolveMacroName(colCfg);
         text = webUtils.getTranslatedDiscTemplateContent(macroPath, null, null);
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
@@ -132,7 +131,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   }
 
   /**
-   * {@code celStruct/table/<tblName>/col_<colName>.vm}
+   * {@code <tblName>/col_<colName>.vm}
    * tblName - either table page type name or layout space primary name
    * colName - defined column name
    */
@@ -145,7 +144,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     if (tblName.isEmpty()) {
       tblName = resolvePrimaryLayoutSpaceName(colCfg.getTableConfig());
     }
-    return STRUCT_TABLE_FOLDER + tblName + "/col_" + colCfg.getName() + ".vm";
+    return tblName + "/col_" + colCfg.getName();
   }
 
   private String resolvePrimaryLayoutSpaceName(TableConfig tableCfg) {
@@ -168,10 +167,6 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
         return vContext;
       }
     };
-  }
-
-  private XWiki getWiki() {
-    return context.getXWikiContext().getWiki();
   }
 
 }
