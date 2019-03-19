@@ -94,7 +94,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     try {
       String text = colCfg.getContent().trim();
       if (text.isEmpty() && !colCfg.isHeaderMode()) {
-        String macroPath = "celTemplates/" + resolveMacroName(colCfg);
+        String macroPath = ":Templates." + resolveMacroName(colCfg);
         text = webUtils.getTranslatedDiscTemplateContent(macroPath, null, null);
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
