@@ -7,6 +7,7 @@ import java.util.List;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
@@ -67,17 +68,17 @@ public class TablePresentationType extends AbstractTablePresentationType {
       } else {
         writer.appendContent(webUtils.getAdminMessageTool().get(getEmptyDictionaryKey()));
       }
-    } catch (LuceneSearchException exc) {
+    } catch (XWikiVelocityException | LuceneSearchException exc) {
       LOGGER.warn("writeTableContent - failed for [{}]", tableCfg, exc);
       writer.appendContent("search failed: " + exc.getMessage());
     }
   }
 
   private List<DocumentReference> executeTableQuery(TableConfig tableCfg)
-      throws LuceneSearchException {
+      throws XWikiVelocityException, LuceneSearchException {
     int offset = firstNonNull(Ints.tryParse(context.getRequestParameter("offset").or("")), 0);
-    LuceneSearchResult result = searchService.search(tableCfg.getQuery(), tableCfg.getSortFields(),
-        ImmutableList.<String>of());
+    String query = velocityService.evaluateVelocityText(tableCfg.getQuery());
+    LuceneSearchResult result = searchService.search(query, tableCfg.getSortFields(), ImmutableList.of());
     LOGGER.debug("executeTableQuery - [{}]", result);
     return result.getResults(offset, tableCfg.getResultLimit(), DocumentReference.class);
   }

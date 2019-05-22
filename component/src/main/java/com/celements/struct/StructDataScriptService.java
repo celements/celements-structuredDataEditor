@@ -23,7 +23,7 @@ import com.xpn.xwiki.doc.XWikiDocument;
 @Component("structData")
 public class StructDataScriptService implements ScriptService {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(StructDataScriptService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(StructDataScriptService.class);
 
   @Requirement
   private StructDataService service;
