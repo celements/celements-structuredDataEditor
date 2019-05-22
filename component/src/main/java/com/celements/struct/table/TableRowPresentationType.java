@@ -135,11 +135,8 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
    * colName - defined column name
    */
   String resolveMacroName(final ColumnConfig colCfg) {
-    Optional<String> tblName = Optional.absent();
-    if (context.getCurrentDoc().isPresent()) {
-      tblName = pageTypeResolver.resolvePageTypeReference(context.getCurrentDoc().get())
-          .transform(PageTypeReference::getConfigName);
-    }
+    Optional<String> tblName = pageTypeResolver.resolvePageTypeReference(context.getCurrentDoc().get())
+        .transform(PageTypeReference::getConfigName);
     return tblName.or(() -> resolvePrimaryLayoutSpaceName(colCfg.getTableConfig()))
         + "/col_" + colCfg.getName();
   }
