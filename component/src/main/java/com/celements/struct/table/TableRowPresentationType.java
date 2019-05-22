@@ -5,7 +5,6 @@ import static com.google.common.base.MoreObjects.*;
 
 import java.util.regex.Pattern;
 
-import org.apache.velocity.VelocityContext;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
@@ -135,16 +134,14 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
    * tblName - either table page type name or layout space primary name
    * colName - defined column name
    */
-  String resolveMacroName(ColumnConfig colCfg) {
-    String tblName = "";
-    Optional<PageTypeReference> ptRef = pageTypeResolver.resolvePageTypeReference(context.getDoc());
-    if (ptRef.isPresent()) {
-      tblName = ptRef.get().getConfigName();
+  String resolveMacroName(final ColumnConfig colCfg) {
+    Optional<String> tblName = Optional.absent();
+    if (context.getCurrentDoc().isPresent()) {
+      tblName = pageTypeResolver.resolvePageTypeReference(context.getCurrentDoc().get())
+          .transform(PageTypeReference::getConfigName);
     }
-    if (tblName.isEmpty()) {
-      tblName = resolvePrimaryLayoutSpaceName(colCfg.getTableConfig());
-    }
-    return tblName + "/col_" + colCfg.getName();
+    return tblName.or(() -> resolvePrimaryLayoutSpaceName(colCfg.getTableConfig()))
+        + "/col_" + colCfg.getName();
   }
 
   private String resolvePrimaryLayoutSpaceName(TableConfig tableCfg) {
@@ -152,20 +149,16 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     return Splitter.on(PATTERN_NON_ALPHANUMERIC).split(layoutSpaceRef.getName()).iterator().next();
   }
 
-  private VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,
+  VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,
       final ColumnConfig colCfg) {
-    return new VelocityContextModifier() {
-
-      @Override
-      public VelocityContext apply(VelocityContext vContext) {
-        vContext.put("colcfg", colCfg);
-        try {
-          vContext.put("rowdoc", modelAccess.getApiDocument(rowDoc));
-        } catch (NoAccessRightsException exc) {
-          LOGGER.info("missing access rights on row", exc);
-        }
-        return vContext;
+    return vContext -> {
+      vContext.put("colcfg", colCfg);
+      try {
+        vContext.put("rowdoc", modelAccess.getApiDocument(rowDoc));
+      } catch (NoAccessRightsException exc) {
+        LOGGER.info("missing access rights on row", exc);
       }
+      return vContext;
     };
   }
 
