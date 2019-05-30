@@ -64,7 +64,7 @@
 //        elem.up(".cel_cell").observe("celements:contentChanged", initTinyMCE);
 //      });
 //      initTinyMCE();
-    }
+//    }
     window.celStructEditorManager.startEditorManager();
   });
 
