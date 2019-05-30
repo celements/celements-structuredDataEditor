@@ -168,7 +168,6 @@
       _me._saveAllEditorsAsyncBind = _me.saveAllEditorsAsync.bind(_me);
       window.onbeforeunload = _me._checkBeforeUnloadBind;
       _me._buttonHandler = buttonHandler || new CELEMENTS.structEdit.CelementsButtonHandler();
-      _me.registerListener();
     },
 
     setRootElem : function(rootElem) {
@@ -192,8 +191,10 @@
 
     startEditorManager : function() {
       var _me = this;
+      _me.registerListener();
       _me._initButtons();
       _me._initStructEditors();
+      _me.celFire('structEdit:finishedLoading');
     },
 
     _initButtons : function() {
@@ -305,9 +306,10 @@
       }
     },
 
-    _initStructEditors : function() {
+    _initStructEditors : function(theCheckRoot) {
       var _me = this;
-      _me.getRootElem().select('.structDataEditor').each(function(structRootElem) {
+      var checkRoot = theCheckRoot || _me.getRootElem();
+      checkRoot.select('.structDataEditor').each(function(structRootElem) {
         if (!structRootElem.hasClassName('celStructEditorLoading')
             && !structRootElem.hasClassName('celStructEditorLoaded')) {
           structRootElem.addClassName('celStructEditorLoading');
