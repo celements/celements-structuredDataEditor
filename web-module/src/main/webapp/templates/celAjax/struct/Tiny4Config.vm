@@ -22,9 +22,7 @@
   #set($template_external_list_url = $!services.celementsweb.getSkinFile("$services.model.serialize($skin_doc.documentReference, 'default');template-list.js", 'file'))
 #end
 { 
-  "mode" : "specific_textareas",
-  "editor_selector" : "mceEditor",
-  "editor_deselector" : "mceNoEditor",
+  "selector" : 'textarea.tinyMCE',
 #set($pageStyles = '')
 #if("$!{xwiki.celementsweb.getPageLayoutForDoc($doc.documentReference)}" != '')
 #set($pageStyles = "layout_$!{xwiki.celementsweb.getPageLayoutForDoc($doc.documentReference)}")
@@ -34,7 +32,7 @@
 #set($pageStyles = "$!{pageStyles} $!cel_pageTypeObj.getProperty('page_styles').getValue()")
   "body_class" : "$!{pageStyles.trim()}",
   "language" : "$admin_language",
-  "theme" : "advanced",
+  "theme" : "modern",
   "oninit" : "celFinishTinyMCEStart",
   "editor_css" : "$services.celementsweb.getSkinFile(':celRTE/celements-ui.css')",
   ## lookup the additional rte_plugins field in the XWiki and WebPreference

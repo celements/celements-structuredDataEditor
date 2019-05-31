@@ -37,6 +37,7 @@
       method: 'post',
       parameters: params,
       onSuccess: function(transport) {
+        console.log('tinyMCE4 config loaded: starting tiny');
         var tinyConfigJSON = transport.responseText.replace(/\n/g,' ');
         if (tinyConfigJSON.isJSON()) {
 //          window.tinymce.dom.Event.domLoaded = true; -> still needed in tinyMCE4?
@@ -51,13 +52,13 @@
     });
   };
   
-  function(structManager){
-    console.log('loadTinyMCE async finishHeaderListener: start');
+  (function(structManager){
+    console.log('loadTinyMCE async: start');
     if (structManager) {
-      if (structManager.isStartFinished()) {
+      if (!structManager.isStartFinished()) {
         console.log('structEditorManager not initialized: register for finishLoading');
         structManager.celStopObserving('structEdit:finishedLoading', initCelRTE4);
-        structManager.observe('structEdit:finishedLoading', initCelRTE4);
+        structManager.celObserve('structEdit:finishedLoading', initCelRTE4);
       } else {
         console.log('structEditorManager already initialized: initCelRTE4');
         initCelRTE4();
@@ -65,7 +66,7 @@
     } else {
       console.error('No struct editor manager found -> Failed to initialize tinyMCE4.');
     }
-    console.log('loadTinyMCE async finishHeaderListener: end');
+    console.log('loadTinyMCE async: end');
   })(window.celStructEditorManager);
   
 })(window);
