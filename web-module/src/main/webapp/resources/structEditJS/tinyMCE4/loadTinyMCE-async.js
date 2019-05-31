@@ -51,13 +51,13 @@
     });
   };
   
-  celAddOnFinishHeaderListener(function(){
+  function(structManager){
     console.log('loadTinyMCE async finishHeaderListener: start');
-    if (window.celStructEditorManager) {
-      if (window.celStructEditorManager.isStartFinished()) {
+    if (structManager) {
+      if (structManager.isStartFinished()) {
         console.log('structEditorManager not initialized: register for finishLoading');
-        window.celStructEditorManager.celStopObserving('structEdit:finishedLoading', initCelRTE4);
-        window.celStructEditorManager.observe('structEdit:finishedLoading', initCelRTE4);
+        structManager.celStopObserving('structEdit:finishedLoading', initCelRTE4);
+        structManager.observe('structEdit:finishedLoading', initCelRTE4);
       } else {
         console.log('structEditorManager already initialized: initCelRTE4');
         initCelRTE4();
@@ -66,6 +66,6 @@
       console.error('No struct editor manager found -> Failed to initialize tinyMCE4.');
     }
     console.log('loadTinyMCE async finishHeaderListener: end');
-  });
+  })(window.celStructEditorManager);
   
 })(window);
