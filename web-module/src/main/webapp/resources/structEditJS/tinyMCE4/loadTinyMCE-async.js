@@ -37,6 +37,7 @@
       method: 'post',
       parameters: params,
       onSuccess: function(transport) {
+        var tinyConfigJSON = transport.responseText;
         console.log('tinyMCE4 config loaded: starting tiny');
         if (tinyConfigJSON.isJSON()) {
           var tinyConfigObj = tinyConfigJSON.evalJSON();
