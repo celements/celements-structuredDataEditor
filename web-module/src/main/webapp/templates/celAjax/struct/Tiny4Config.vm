@@ -4,7 +4,7 @@
 #set($rtePluginsPre = ["print","preview","searchreplace","autolink","directionality","visualblocks","visualchars","fullscreen","image","link","media","template","codesample","table","charmap","hr","pagebreak","nonbreaking","anchor","toc","insertdatetime","advlist","lists","textcolor","wordcount","imagetools","contextmenu","colorpicker","textpattern","help"])
 #set($rtePluginsConfig = $services.rteconfig.getRTEConfigField('plugins'))
 ## adding celements tinymce plugins
-#set($!dev = $rtePluginsPre.addAll(["advlink", "advimage","celimage"]))
+#set($!dev = $rtePluginsPre.addAll(["celimage", "cellink"]))
 #set($rteOmitPlugins = [])
 #if("$!rtePluginsConfig" != '')
   #foreach($oneRtePlugin in $rtePluginsConfig.split('[,| ]'))
