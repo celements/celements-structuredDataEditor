@@ -38,11 +38,8 @@
       parameters: params,
       onSuccess: function(transport) {
         console.log('tinyMCE4 config loaded: starting tiny');
-//        var tinyConfigJSON = transport.responseText.replace(/\n/g,' ');
         if (tinyConfigJSON.isJSON()) {
-//          window.tinymce.dom.Event.domLoaded = true; -> still needed in tinyMCE4?
           var tinyConfigObj = tinyConfigJSON.evalJSON();
-          tinyConfigObj["body_class"] = getAllEditorBodyClasses(tinyConfigObj).join(',');
           console.log('initCelRTE4: tinyMCE.init');
           tinyMCE.init(tinyConfigObj);
         } else {
