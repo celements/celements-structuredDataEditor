@@ -1,0 +1,11 @@
+#if("$!tinyMCE_height" == '')
+  #set($tinyMCE_height = 500)
+#end
+#set($jsonBuilder = $services.json.newBuilder())
+$jsonBuilder.openDictionary()
+$jsonBuilder.addStringProperty('selector', 'textarea.tinyMCE')
+$jsonBuilder.addStringProperty('language', "$admin_language")
+$jsonBuilder.addStringProperty('theme', "modern")
+$jsonBuilder.addStringProperty("height", "$tinyMCE_height")
+$jsonBuilder.closeDictionary()
+$jsonBuilder.getJSON()
