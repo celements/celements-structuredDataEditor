@@ -1,7 +1,7 @@
 #if("$!tinyMCE_height" == '')
   #set($tinyMCE_height = 500)
 #end
-#set($jsonBuilder = $services.json.newBuilder())
+#set($jsonBuilder = $services.celementsweb.getNewJSONBuilder())
 $jsonBuilder.openDictionary()
 $jsonBuilder.addStringProperty('selector', 'textarea.tinyMCE')
 $jsonBuilder.addStringProperty('language', "$admin_language")
