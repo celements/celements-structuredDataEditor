@@ -3,9 +3,10 @@
 #end
 #set($jsonBuilder = $services.celementsweb.getNewJSONBuilder())
 $jsonBuilder.openDictionary()
-$jsonBuilder.addStringProperty('selector', 'textarea.tinyMCE')
-$jsonBuilder.addStringProperty('language', "$admin_language")
-$jsonBuilder.addStringProperty('theme', "modern")
+$jsonBuilder.addStringProperty("selector", "textarea.tinyMCE")
+$jsonBuilder.addStringProperty("language", "$admin_language")
+$jsonBuilder.addStringProperty("theme", "modern")
 $jsonBuilder.addStringProperty("height", "$tinyMCE_height")
+$jsonBuilder.addProperty("menubar", false)
 $jsonBuilder.closeDictionary()
 $jsonBuilder.getJSON()
