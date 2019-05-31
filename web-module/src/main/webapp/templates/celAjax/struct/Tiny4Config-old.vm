@@ -22,7 +22,7 @@
   #set($template_external_list_url = $!services.celementsweb.getSkinFile("$services.model.serialize($skin_doc.documentReference, 'default');template-list.js", 'file'))
 #end
 { 
-  "selector" : 'textarea.tinyMCE',
+  "selector" : "textarea.tinyMCE",
 #set($pageStyles = '')
 #if("$!{xwiki.celementsweb.getPageLayoutForDoc($doc.documentReference)}" != '')
 #set($pageStyles = "layout_$!{xwiki.celementsweb.getPageLayoutForDoc($doc.documentReference)}")
