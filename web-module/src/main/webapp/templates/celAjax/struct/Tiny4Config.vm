@@ -21,15 +21,20 @@
       #set($rtePlugins = "$!{rtePlugins} $!oneRtePlugin")
     #end
   #end
-#set($jsonBuilder = $services.celementsweb.getNewJSONBuilder())
-$jsonBuilder.openDictionary()
-$jsonBuilder.addStringProperty("selector", "textarea.tinyMCE")
-$jsonBuilder.addStringProperty("language", "$!admin_language")
-$jsonBuilder.addStringProperty("theme", "modern")
-$jsonBuilder.addStringProperty("height", "$tinyMCE_height")
-$jsonBuilder.addProperty("menubar", false)
-$jsonBuilder.addStringProperty("plugins", "$!rtePlugins")
-$jsonBuilder.closeDictionary()
+#set($jsonBuilder = $services.celementsweb.getNewJSONBuilder())##
+$jsonBuilder.openDictionary()##
+$jsonBuilder.addStringProperty("selector", "textarea.tinyMCE")##
+$jsonBuilder.addStringProperty("language", "$!admin_language")##
+$jsonBuilder.addStringProperty("theme", "modern")##
+$jsonBuilder.addStringProperty("height", "$tinyMCE_height")##
+$jsonBuilder.addProperty("menubar", false)##
+$jsonBuilder.addStringProperty("plugins", "$!rtePlugins")##
+$jsonBuilder.openProperty("external_plugins")##
+$jsonBuilder.openDictionary()##
+$jsonBuilder.addStringProperty("celimage", $!services.javascript.addExtJSfileOnce(':celRTE/4.7.12/plugins/celimage/editor_plugin_src.js', 'file'))##
+$jsonBuilder.addStringProperty("cellink", $!services.javascript.addExtJSfileOnce(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
+$jsonBuilder.closeDictionary()## external plugins
+$jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.getJSON()
 ##        toolbar1: 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat',
 ##        image_advtab: true,
