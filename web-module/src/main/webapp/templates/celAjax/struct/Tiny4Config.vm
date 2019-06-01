@@ -21,6 +21,7 @@
       #set($rtePlugins = "$!{rtePlugins} $!oneRtePlugin")
     #end
   #end
+#set($rte_row_1 = "formatselect | bold italic strikethrough forecolor backcolor | cellink | celimage | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat")
 #set($jsonBuilder = $services.celementsweb.getNewJSONBuilder())##
 $jsonBuilder.openDictionary()##
 $jsonBuilder.addStringProperty("selector", "textarea.tinyMCE")##
@@ -35,6 +36,7 @@ $jsonBuilder.addStringProperty("celimage", $services.celementsweb.getSkinFile(':
 $jsonBuilder.addStringProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
 $jsonBuilder.closeDictionary()## external plugins
 $jsonBuilder.closeDictionary()## tiny4 config dictionary
+$jsonBuilder.addStringProperty("toolbar1", "$!rte_row_1")##
 $jsonBuilder.getJSON()
 ##        toolbar1: 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat',
 ##        image_advtab: true,
