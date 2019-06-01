@@ -31,8 +31,8 @@ $jsonBuilder.addProperty("menubar", false)##
 $jsonBuilder.addStringProperty("plugins", "$!rtePlugins")##
 $jsonBuilder.openProperty("external_plugins")##
 $jsonBuilder.openDictionary()##
-$jsonBuilder.addStringProperty("celimage", $!services.javascript.addExtJSfileOnce(':celRTE/4.7.12/plugins/celimage/editor_plugin_src.js', 'file'))##
-$jsonBuilder.addStringProperty("cellink", $!services.javascript.addExtJSfileOnce(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
+$jsonBuilder.addStringProperty("celimage", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/celimage/editor_plugin_src.js', 'file'))##
+$jsonBuilder.addStringProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
 $jsonBuilder.closeDictionary()## external plugins
 $jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.getJSON()
