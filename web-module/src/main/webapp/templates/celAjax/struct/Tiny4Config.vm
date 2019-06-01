@@ -35,8 +35,8 @@ $jsonBuilder.openDictionary()##
 $jsonBuilder.addStringProperty("celimage", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/celimage/editor_plugin_src.js', 'file'))##
 $jsonBuilder.addStringProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
 $jsonBuilder.closeDictionary()## external plugins
-$jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.addStringProperty("toolbar1", "$!rte_row_1")##
+$jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.getJSON()
 ##        toolbar1: 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat',
 ##        image_advtab: true,
