@@ -65,9 +65,6 @@ $jsonBuilder.addProperty("cel_crop",  $!useCelCrop)##
 #if($services.celementsphoto.useImageAnimations())
   $jsonBuilder.addStringProperty("gallerylist", "$availableGalleries.replaceFirst(',','')")##
 #end
-#if("$!content_css_filenameURL" != '')
-"content_css" : "$!{content_css_filenameURL.replaceAll('^,', '')}",
-#end
 $jsonBuilder.openProperty("content_css")##
 $jsonBuilder.openArray()##
 #foreach($cssURL in $content_css_filenameURL)
