@@ -21,7 +21,27 @@
       #set($rtePlugins = "$!{rtePlugins} $!oneRtePlugin")
     #end
   #end
+#set($useCelCrop = ("$!xwiki.getSpacePreference('celcrop')" == '1'))
+#if($services.celementsphoto.useImageAnimations())
+  #set($galleriesXWQL = "from doc.object(XWiki.PhotoAlbumClass) as album")
+  #set($galleriesXWQL = "${galleriesXWQL} where doc.fullName <> 'XWiki.PhotoAlbumClassTemplate'")
+  #set($galleriesXWQL = "${galleriesXWQL} and doc.translation=0")
+  #set($galleriesXWQL = "${galleriesXWQL} order by doc.title, doc.name")
+  #set($availableGalleries = '')
+  #foreach($galleryFN in $services.query.xwql($galleriesXWQL).execute())
+    #set($galleryDoc = $xwiki.getDocument($galleryFN))
+    #set($galleryName = "$!galleryDoc.title ($!galleryDoc.name)")
+    #set($availableGalleries = "$!{availableGalleries},${galleryName}=${galleryFN}")
+  #end
+#end
 #set($rte_row_1 = "formatselect | bold italic strikethrough forecolor backcolor | cellink | celimage | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat")
+#set($content_css_filenameURL = [ "$celementsweb.getSkinFile(':celRes/celements2-content.css', 'file')" ])
+#foreach($cssObj in $services.css.getRTEContentCSS())
+#if("$!{cssObj.getCSS()}" != '')
+    #set($!devNull = $content_css_filenameURL.add("$!{cssObj.getCSS()}"))
+  #end
+#end
+## start writing JSON
 #set($jsonBuilder = $services.celementsweb.getNewJSONBuilder())##
 $jsonBuilder.openDictionary()##
 $jsonBuilder.addStringProperty("selector", "textarea.tinyMCE")##
@@ -36,15 +56,24 @@ $jsonBuilder.addStringProperty("celimage", $services.celementsweb.getSkinFile(':
 $jsonBuilder.addStringProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
 $jsonBuilder.closeDictionary()## external plugins
 $jsonBuilder.addStringProperty("toolbar1", "$!rte_row_1")##
+$jsonBuilder.addProperty("celanim_slideshow",  $!services.celementsphoto.useImageAnimations())##
+$jsonBuilder.addProperty("cel_crop",  $!useCelCrop)##
+#if($services.celementsphoto.useImageAnimations())
+  $jsonBuilder.addStringProperty("gallerylist", "$availableGalleries.replaceFirst(',','')")##
+#end
+#if("$!content_css_filenameURL" != '')
+"content_css" : "$!{content_css_filenameURL.replaceAll('^,', '')}",
+#end
+$jsonBuilder.openProperty("content_css")##
+$jsonBuilder.openArray()##
+#foreach($cssURL in $content_css_filenameURL)
+  $jsonBuilder.addString($cssURL)
+#end
+$jsonBuilder.closeArray()##
 $jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.getJSON()
-##        toolbar1: 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat',
 ##        image_advtab: true,
 ##        templates: [
 ##          { title: 'Test template 1', content: 'Test 1' },
 ##          { title: 'Test template 2', content: 'Test 2' }
 ##        ],
-##        content_css: [
-##          '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
-##          '//www.tinymce.com/css/codepen.min.css'
-##        ]

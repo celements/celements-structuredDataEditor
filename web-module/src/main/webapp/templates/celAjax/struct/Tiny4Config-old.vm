@@ -50,15 +50,6 @@
   "document_base_url" : "/",
   "inline_styles" : true,
   "accessibility_warnings" : false,
-  #set($content_css_filenameURL = "$celementsweb.getSkinFile(':celRes/celements2-content.css', 'file')")
-  #foreach($cssObj in $services.css.getRTEContentCSS())
-  #if("$!{cssObj.getCSS()}" != '')
-      #set($content_css_filenameURL = "$!{content_css_filenameURL},$!{cssObj.getCSS()}")
-    #end
-  #end
-  #if("$!content_css_filenameURL" != '')
-  "content_css" : "$!{content_css_filenameURL.replaceAll('^,', '')}",
-  #end
   ## lookup the rte_styles field in the XWiki and WebPreference
   #set($rteStyles = $celementsweb.getRTEConfigField('styles'))
 ##  #if("$!rteStyles" == '')
@@ -175,22 +166,6 @@
   #if($spellCheckTest.contains(',spellchecker,'))
     "spellchecker_languages" : "+English=en-us,French=fr,German=de,Italian=it",
     "spellchecker_rpc_url" : "/jmyspell-spellchecker",
-  #end
-  "celanim_slideshow" : $!celementsweb.useImageAnimations(),
-  #set($useCelCrop = ("$!xwiki.getSpacePreference('celcrop')" == '1'))
-  "cel_crop" : $useCelCrop,
-  #if($celementsweb.useImageAnimations())
-    #set($galleriesXWQL = "from doc.object(XWiki.PhotoAlbumClass) as album")
-    #set($galleriesXWQL = "${galleriesXWQL} where doc.fullName <> 'XWiki.PhotoAlbumClassTemplate'")
-    #set($galleriesXWQL = "${galleriesXWQL} and doc.translation=0")
-    #set($galleriesXWQL = "${galleriesXWQL} order by doc.title, doc.name")
-    #set($availableGalleries = '')
-    #foreach($galleryFN in $services.query.xwql($galleriesXWQL).execute())
-      #set($galleryDoc = $xwiki.getDocument($galleryFN))
-      #set($galleryName = "$!galleryDoc.title ($!galleryDoc.name)")
-      #set($availableGalleries = "$!{availableGalleries},${galleryName}=${galleryFN}")
-    #end
-    "gallerylist" : "$availableGalleries.replaceFirst(',','')",
   #end
   ##
   ## file base link, file picker link
