@@ -4,12 +4,6 @@
 #if("$!tinyMCE_statuslocation" == '')
   #set($tinyMCE_statuslocation = 'bottom')
 #end
-#if("$!tinyMCE_height" == '')
-  #set($tinyMCE_height = 500)
-#end
-#if("$!tinyMCE_width" == '')
-  #set($tinyMCE_width = 453)
-#end
 #set($xwikiPref_template_url = "$!xwiki.getDocument('XWiki.XWikiPreferences').getAttachment('template-list.js')")
 #set($webPref_template_url = "$!xwiki.getDocument('${doc.space}.WebPreferences').getAttachment('template-list.js')")
 #if(!$services.celementsweb.getRTETemplateList().isEmpty())
@@ -38,8 +32,6 @@
   "theme_advanced_layout_manager" : "SimpleLayout",
   "theme_advanced_toolbar_location" : "top",
   "theme_advanced_toolbar_align" : "left",
-  "height" : "$tinyMCE_height",
-  "width" : "$tinyMCE_width",
   "template_external_list_url" : "$!template_external_list_url",
   "theme_advanced_statusbar_location" : "$tinyMCE_statuslocation",
   "theme_advanced_resize_horizontal" : false,
