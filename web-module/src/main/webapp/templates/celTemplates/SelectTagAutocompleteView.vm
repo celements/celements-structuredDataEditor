@@ -4,14 +4,23 @@
 #set($cellDocRef = $celldoc.getDocumentReference())
 #set($supportedClasses = ['ListClass','StaticListClass','DBListClass','DBTreeListClass','UsersClass','GroupsClass','LevelsClass'])
 #set($supportedDisplayTypes = ['select'])
+#set($autoCompleteImpl = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef))
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
-#set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
-#if("$!renderedContent" != '')
-  $renderedContent
-#elseif(!$propClass.isPresent())
-  <!-- WARN SelectTagutocompleteView: no edit field defined on cell: $!celldoc -->
-#elseif(!$supportedClasses.contains($propClass.get().getType()))
-  <!-- WARN SelectTagAutocompleteView: doesn't support edit field class: $!propClass.get().getType() -->
-#elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
-  <!-- WARN SelectTagAutocompleteView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
+#set($currentValueJson = "")
+#if($autoCompleteImpl.isPresent())
+  #set($currentValueJson = "$autoCompleteImpl.getSelectedValueJSON()")
+#end
+#if("$!$currentValueJson" != '')
+ <option selected="selected" data-cel-selected-json="$!$currentValueJson"></option>
+#else
+  #set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
+  #if("$!renderedContent" != '')
+    $renderedContent
+  #elseif(!$propClass.isPresent())
+    <!-- WARN SelectTagutocompleteView: no edit field defined on cell: $!celldoc -->
+  #elseif(!$supportedClasses.contains($propClass.get().getType()))
+    <!-- WARN SelectTagAutocompleteView: doesn't support edit field class: $!propClass.get().getType() -->
+  #elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
+    <!-- WARN SelectTagAutocompleteView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
+  #end
 #end

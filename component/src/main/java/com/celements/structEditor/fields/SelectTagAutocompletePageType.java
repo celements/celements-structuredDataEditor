@@ -13,6 +13,7 @@ import com.celements.model.field.FieldAccessor;
 import com.celements.model.field.FieldGetterFunction;
 import com.celements.model.field.XObjectFieldAccessor;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
+import com.celements.struct.SelectTagServiceRole;
 import com.celements.structEditor.SelectAutocompleteRole;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.google.common.base.Optional;
@@ -34,6 +35,9 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
 
   @Requirement(XObjectFieldAccessor.NAME)
   private FieldAccessor<BaseObject> xObjFieldAccessor;
+
+  @Requirement
+  private SelectTagServiceRole selectTagService;
 
   @Override
   public String getName() {
@@ -58,8 +62,8 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
           cellDoc, modelContext.getDoc()).or(""));
       FluentIterable<BaseObject> objIter = XWikiObjectFetcher.on(cellDoc).filter(
           selectTagAutocomplete).iter();
-      Optional<SelectAutocompleteRole> type = objIter.transformAndConcat(new FieldGetterFunction<>(
-          xObjFieldAccessor, SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE)).first();
+      Optional<SelectAutocompleteRole> type = Optional.fromJavaUtil(selectTagService.getTypeImpl(
+          cellDocRef));
       if (type.isPresent()) {
         attrBuilder.addCssClasses(type.get().getCssClass());
       }

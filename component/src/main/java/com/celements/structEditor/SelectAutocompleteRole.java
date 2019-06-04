@@ -12,4 +12,7 @@ public interface SelectAutocompleteRole {
   public @NotNull String getCssClass();
 
   public @NotNull String getJsFilePath();
+
+  public @NotNull String getSelectedValueJSON();
+
 }
