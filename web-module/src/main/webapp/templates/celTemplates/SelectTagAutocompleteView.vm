@@ -10,8 +10,9 @@
 #if($autoCompleteImpl.isPresent())
   #set($currentValueJson = "$autoCompleteImpl.getSelectedValue()")
 #end
-#if("$!$currentValueJson" != '')
- <option selected="selected" data-cel-selected-json="$!$currentValueJson"></option>
+<!-- autoCompleteImpl : $!autoCompleteImpl -->
+#if("$!currentValueJson" != '')
+ <option selected="selected" data-cel-selected-json="$!currentValueJson"></option>
 #else
   #set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
   #if("$!renderedContent" != '')
