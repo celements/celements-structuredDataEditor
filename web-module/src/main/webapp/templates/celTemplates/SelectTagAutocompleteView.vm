@@ -6,13 +6,12 @@
 #set($supportedDisplayTypes = ['select'])
 #set($autoCompleteImpl = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef))
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
-#set($currentValueJson = "")
 #if($autoCompleteImpl.isPresent())
   #set($currentValueJson = "$autoCompleteImpl.get().getSelectedValue($cellDocRef)")
-#end
-<!-- autoCompleteImpl : $!autoCompleteImpl -->
-#if("$!currentValueJson" != '')
- <option selected="selected" data-cel-selected-json="$!currentValueJson"></option>
+  <!-- autoCompleteImpl : $!autoCompleteImpl -->
+  #if($currentValueJson.isPresent())
+    <option selected="selected" data-cel-selected-json="$!currentValueJson.get()"></option>
+  #end
 #else
   #set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
   #if("$!renderedContent" != '')
