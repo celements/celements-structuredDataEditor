@@ -41,21 +41,24 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
       Optional<DocumentReference> selectCellDocRef = getStructDataEditorService().getSelectCellDocRef(
           cellDocRef);
       if (selectCellDocRef.isPresent()) {
-        Optional<String> optionValue = getNotEmptyString(cellDocRef, FIELD_VALUE);
+        Optional<String> optionValue = modelAccess.getFieldValue(cellDocRef, FIELD_VALUE);
         Optional<String> cellValue = getStructDataEditorService().getCellValueAsString(
-            selectCellDocRef.get(), modelContext.getDoc());
+            selectCellDocRef.get(), modelContext.getCurrentDoc().get());
         if (cellValue.isPresent() && optionValue.isPresent() && cellValue.get().equals(
             optionValue.get())) {
           attrBuilder.addEmptyAttribute("selected");
-        } else if (!cellValue.isPresent() && getFieldValue(cellDocRef, FIELD_SELECTED).or(false)) {
+        } else if (!cellValue.isPresent() && modelAccess.getFieldValue(cellDocRef,
+            FIELD_SELECTED).or(false)) {
           attrBuilder.addEmptyAttribute("selected");
         }
       }
-      if (getFieldValue(cellDocRef, FIELD_DISABLED).or(false)) {
+      if (modelAccess.getFieldValue(cellDocRef, FIELD_DISABLED).or(false)) {
         attrBuilder.addEmptyAttribute("disabled");
       }
-      attrBuilder.addNonEmptyAttribute("value", getNotEmptyString(cellDocRef, FIELD_VALUE).or(""));
-      attrBuilder.addNonEmptyAttribute("label", getNotEmptyString(cellDocRef, FIELD_LABEL).or(""));
+      attrBuilder.addNonEmptyAttribute("value", modelAccess.getFieldValue(cellDocRef,
+          FIELD_VALUE).or(""));
+      attrBuilder.addNonEmptyAttribute("label", modelAccess.getFieldValue(cellDocRef,
+          FIELD_LABEL).or(""));
     } catch (DocumentNotExistsException exc) {
       LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
     }

@@ -8,7 +8,7 @@
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
 #set($currentValueJson = "")
 #if($autoCompleteImpl.isPresent())
-  #set($currentValueJson = "$autoCompleteImpl.getSelectedValueJSON()")
+  #set($currentValueJson = "$autoCompleteImpl.getSelectedValue()")
 #end
 #if("$!$currentValueJson" != '')
  <option selected="selected" data-cel-selected-json="$!$currentValueJson"></option>
