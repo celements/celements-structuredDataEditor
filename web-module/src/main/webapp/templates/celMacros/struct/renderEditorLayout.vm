@@ -26,6 +26,8 @@
     $services.javascript.addExtJSfileOnce(":${path}", 'file')
   #end
   $!services.javascript.addExtJSfileOnce(':celRTE/4.7.12/tinymce.min.js', 'file')
+  $!services.javascript.addExtJSfileOnce(':celRTE/4.7.12/plugins/compat3x/plugin.min.js', 'file')
+  $!services.javascript.addExtJSfileOnce(':structEditJS/tinyMCE4/loadTinyMCE-async.js', 'file')
 #end ## activateJsCheckUnsaved
 
 #set($structDataEditorCfgDocRef = $services.model.resolveDocument('', 'default', $structDataEditorSpaceRef))
