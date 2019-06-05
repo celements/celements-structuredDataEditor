@@ -127,6 +127,9 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
     return text;
   }
 
+  /**
+   * CAUTION: cyclic dependency with DefaultStructuredDataEditorService !!!!
+   */
   protected StructuredDataEditorService getStructDataEditorService() {
     return Utils.getComponent(StructuredDataEditorService.class);
   }
