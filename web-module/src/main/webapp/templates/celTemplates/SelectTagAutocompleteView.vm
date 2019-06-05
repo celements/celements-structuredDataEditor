@@ -8,12 +8,12 @@
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
   <!-- autoCompleteImpl : ${autoCompleteImpl.isPresent()} - '$autoCompleteImpl.orElse("")' - $autoCompleteImpl -->
 #if($autoCompleteImpl.isPresent())
-  #set($currentValueJson = $autoCompleteImpl.get().getSelectedValue($cellDocRef))
-  <!-- currentValueJson : $currentValueJson.isPresent() - '$currentValueJson.orElse("N/A")' - $currentValueJson -->
-  #if($currentValueJson.isPresent())
-    <option selected="selected" data-cel-selected-json="$!currentValueJson.get()"></option>
+  #set($currentDocRefValue = $autoCompleteImpl.get().getSelectedValue($cellDocRef))
+  <!-- currentDocRefValue : $currentDocRefValue.isPresent() - '$currentDocRefValue.orElse("N/A")' - $currentDocRefValue -->
+  #if($currentDocRefValue.isPresent())
+    <option selected="selected" data-cel-selected-json="$!services.progon.getJsonForValue($!currentDocRefValue.get())"></option>
   #else
-  <!-- currentValueJson is empty!! -->
+  <!-- currentDocRefValue is empty!! -->
   #end
 #else
   #set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
