@@ -11,8 +11,9 @@
   #set($currentDocRefValue = $autoCompleteImpl.get().getSelectedValue($cellDocRef))
   <!-- currentDocRefValue : $currentDocRefValue.isPresent() - '$currentDocRefValue.orElse("N/A")' - $currentDocRefValue -->
   #if($currentDocRefValue.isPresent())
-  <!-- jsonvalue: $services.progon.getJsonForValue($currentDocRefValue.get()) - $currentDocRefValue.get().getClass() -->
-    <option selected="selected" data-cel-selected-json="$!services.progon.getJsonForValue($!currentDocRefValue.get())"></option>
+    #set($jsonBuilder = $!services.progon.getJsonForValue($!currentDocRefValue.get()))
+  <!-- jsonvalue: $jsonBuilder.getClass() - $currentDocRefValue.get().getClass() -->
+    <option selected="selected" data-cel-selected-json="$jsonBuilder.getJSON()"></option>
   #else
   <!-- currentDocRefValue is empty!! -->
   #end
