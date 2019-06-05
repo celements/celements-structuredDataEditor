@@ -8,7 +8,7 @@
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
 #set($currentValueJson = "")
 #if($autoCompleteImpl.isPresent())
-  #set($currentValueJson = "$autoCompleteImpl.getSelectedValue()")
+  #set($currentValueJson = "$autoCompleteImpl.get().getSelectedValue()")
 #end
 <!-- autoCompleteImpl : $!autoCompleteImpl -->
 #if("$!currentValueJson" != '')
