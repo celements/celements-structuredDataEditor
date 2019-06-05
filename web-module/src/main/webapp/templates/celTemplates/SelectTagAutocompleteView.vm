@@ -6,10 +6,10 @@
 #set($supportedDisplayTypes = ['select'])
 #set($autoCompleteImpl = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef))
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
-  <!-- autoCompleteImpl : ${autoCompleteImpl.isPresent()} - $!autoCompleteImpl -->
+  <!-- autoCompleteImpl : ${autoCompleteImpl.isPresent()} - '$!autoCompleteImpl.orElse("")' -->
 #if($autoCompleteImpl.isPresent())
   #set($currentValueJson = "$autoCompleteImpl.get().getSelectedValue($cellDocRef)")
-  <!-- currentValueJson : ${currentValueJson.isPresent()} - $!currentValueJson.orElse("") -->
+  <!-- currentValueJson : ${currentValueJson.isPresent()} - '$!currentValueJson.orElse("")' - currentValueJson -->
   #if($currentValueJson.isPresent())
     <option selected="selected" data-cel-selected-json="$!currentValueJson.get()"></option>
   #else
