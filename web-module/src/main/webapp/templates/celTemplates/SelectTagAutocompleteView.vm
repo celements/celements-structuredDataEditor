@@ -9,7 +9,7 @@
   <!-- autoCompleteImpl : ${autoCompleteImpl.isPresent()} - '$!autoCompleteImpl.orElse("")' - $autoCompleteImpl -->
 #if($autoCompleteImpl.isPresent())
   #set($currentValueJson = "$autoCompleteImpl.get().getSelectedValue($cellDocRef)")
-  <!-- currentValueJson : ${currentValueJson.isPresent()} - '$!currentValueJson.orElse("")' - $currentValueJson -->
+  <!-- currentValueJson : ${currentValueJson.isPresent()} - '$!currentValueJson.orElse("N/A")' - $currentValueJson -->
   #if($currentValueJson.isPresent())
     <option selected="selected" data-cel-selected-json="$!currentValueJson.get()"></option>
   #else
