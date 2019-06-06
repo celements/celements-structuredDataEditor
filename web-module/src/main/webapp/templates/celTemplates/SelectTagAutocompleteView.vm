@@ -6,14 +6,11 @@
 #set($supportedDisplayTypes = ['select'])
 #set($autoCompleteImpl = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef))
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
-  <!-- autoCompleteImpl : ${autoCompleteImpl.isPresent()} - '$autoCompleteImpl.orElse("")' - $autoCompleteImpl -->
 #if($autoCompleteImpl.isPresent())
   #set($currentDocRefValue = $autoCompleteImpl.get().getSelectedValue($cellDocRef))
-  <!-- currentDocRefValue : $currentDocRefValue.isPresent() - '$currentDocRefValue.orElse("N/A")' - $currentDocRefValue -->
   #if($currentDocRefValue.isPresent())
     #set($jsonBuilder = $!autoCompleteImpl.getJsonForValue($!currentDocRefValue.get()))
-  <!-- jsonvalue: $jsonBuilder.getClass() - $currentDocRefValue.get().getClass() -->
-    <option selected="selected" data-cel-selected-json="$jsonBuilder.getJSON()"></option>
+    <option selected="selected" data-cel-selected-json="$escapetool.html($jsonBuilder.getJSON())"></option>
   #else
   <!-- currentDocRefValue is empty!! -->
   #end
