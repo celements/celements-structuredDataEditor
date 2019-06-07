@@ -17,14 +17,15 @@ import com.celements.model.field.XObjectFieldAccessor;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.structEditor.SelectAutocompleteRole;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
+import com.celements.structEditor.fields.SelectTagPageType;
 import com.google.common.collect.FluentIterable;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
 @Component
-public class DefaultSelectTagService implements SelectTagServiceRole {
+final public class DefaultSelectTagService implements SelectTagServiceRole {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(DefaultSelectTagService.class);
+  final private static Logger LOGGER = LoggerFactory.getLogger(DefaultSelectTagService.class);
 
   @Requirement(SelectTagAutocompleteEditorClass.CLASS_DEF_HINT)
   private ClassDefinition selectTagAutocomplete;
@@ -33,7 +34,10 @@ public class DefaultSelectTagService implements SelectTagServiceRole {
   private FieldAccessor<BaseObject> xObjFieldAccessor;
 
   @Requirement
-  protected IModelAccessFacade modelAccess;
+  private IModelAccessFacade modelAccess;
+
+  @Requirement
+  private StructUtilServiceRole structUtils;
 
   @Override
   public Optional<SelectAutocompleteRole> getTypeImpl(DocumentReference cellDocRef) {
@@ -47,6 +51,22 @@ public class DefaultSelectTagService implements SelectTagServiceRole {
       LOGGER.warn("cell doesn't exist '{}'", cellDocRef, exc);
     }
     return Optional.empty();
+  }
+
+  @Override
+  public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef) {
+    DocumentReference selectCellDocRef = null;
+    try {
+      Optional<XWikiDocument> selectCellDoc = structUtils.findParentCell(modelAccess.getDocument(
+          cellDocRef), SelectTagPageType.PAGETYPE_NAME);
+      if (selectCellDoc.isPresent()) {
+        selectCellDocRef = selectCellDoc.get().getDocumentReference();
+      }
+      LOGGER.debug("getSelectCellDocRef: '{}' for cell '{}'", selectCellDocRef, cellDocRef);
+    } catch (DocumentNotExistsException exc) {
+      LOGGER.warn("parent on doc '{}' doesn't exist", cellDocRef, exc);
+    }
+    return Optional.ofNullable(selectCellDocRef);
   }
 
 }

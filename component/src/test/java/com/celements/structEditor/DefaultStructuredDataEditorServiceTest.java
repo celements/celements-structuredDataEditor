@@ -59,9 +59,10 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     cellDoc.setParentReference((EntityReference) parentDoc.getDocumentReference());
     expect(modelAccessMock.getDocument(eq(parentDoc.getDocumentReference()))).andReturn(
         parentDoc).once();
-    expect(getMock(IPageTypeResolverRole.class).getPageTypeRefForDoc(same(parentDoc))).andReturn(
-        new PageTypeReference(FormFieldPageType.PAGETYPE_NAME, "",
-            Collections.<String>emptyList())).once();
+    final PageTypeReference ptRef = new PageTypeReference(FormFieldPageType.PAGETYPE_NAME, "",
+        Collections.<String>emptyList());
+    expect(getMock(IPageTypeResolverRole.class).resolvePageTypeReference(same(
+        parentDoc))).andReturn(Optional.of(ptRef)).once();
     expect(modelAccessMock.getFieldValue(same(parentDoc), same(
         FormFieldEditorClass.FIELD_PREFIX))).andReturn(Optional.of(prefix)).once();
     replayDefault();

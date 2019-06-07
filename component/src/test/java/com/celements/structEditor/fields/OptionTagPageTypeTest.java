@@ -17,6 +17,7 @@ import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.pagetype.java.IJavaPageTypeRole;
+import com.celements.struct.SelectTagServiceRole;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -25,10 +26,12 @@ import com.xpn.xwiki.web.Utils;
 public class OptionTagPageTypeTest extends AbstractComponentTest {
 
   private OptionTagPageType optionTagPT;
+  private SelectTagServiceRole selectTagSrvMock;
   private StructuredDataEditorService structDataEditorSrvMock;
 
   @Before
   public void setUp_OptionTagPageTypeTest() throws Exception {
+    selectTagSrvMock = registerComponentMock(SelectTagServiceRole.class);
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
     optionTagPT = (OptionTagPageType) Utils.getComponent(IJavaPageTypeRole.class,
         OptionTagPageType.PAGETYPE_NAME);
@@ -79,8 +82,8 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
         optionConfigValue).atLeastOnce();
     DocumentReference parentCell = new DocumentReference(getContext().getDatabase(), "TestSpace",
         "TestParentSelectCell");
-    Optional<DocumentReference> selectCellDocRef = Optional.of(parentCell);
-    expect(structDataEditorSrvMock.getSelectCellDocRef(eq(cellDocRef))).andReturn(selectCellDocRef);
+    java.util.Optional<DocumentReference> selectCellDocRef = java.util.Optional.of(parentCell);
+    expect(selectTagSrvMock.getSelectCellDocRef(eq(cellDocRef))).andReturn(selectCellDocRef);
     Optional<String> currentStoredValue = Optional.of(myTestValue);
     expect(structDataEditorSrvMock.getCellValueAsString(eq(parentCell), same(
         currentPageDoc))).andReturn(currentStoredValue);
