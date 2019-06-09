@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.model.reference.ImmutableDocumentReference;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.reference.RefBuilder;
@@ -28,7 +27,7 @@ public class StructUtilServiceTest extends AbstractComponentTest {
   public void testFindParentCell_parentEmpty() throws Exception {
     String ptName = "SelectTag";
     DocumentReference cellDocRef = new RefBuilder().wiki(getContext().getDatabase()).space(
-        "myTestSpace").doc("myDocName").build(ImmutableDocumentReference.class);
+        "myTestSpace").doc("myDocName").build(DocumentReference.class);
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
     replayDefault();
     Optional<XWikiDocument> parentCell = structUtils.findParentCell(cellDoc, ptName);

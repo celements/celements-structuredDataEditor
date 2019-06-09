@@ -10,7 +10,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.model.reference.ImmutableDocumentReference;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
@@ -36,7 +35,7 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
   @Test
   public void testGetTypeImpl_configMissing() throws Exception {
     DocumentReference cellDocRef = new RefBuilder().wiki(getContext().getDatabase()).space(
-        "myTestSpace").doc("myTestDoc").build(ImmutableDocumentReference.class);
+        "myTestSpace").doc("myTestDoc").build(DocumentReference.class);
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(cellDoc);
     replayDefault();
@@ -48,7 +47,7 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
   @Test
   public void testGetTypeImpl_config_notSet() throws Exception {
     DocumentReference cellDocRef = new RefBuilder().wiki(getContext().getDatabase()).space(
-        "myTestSpace").doc("myTestDoc").build(ImmutableDocumentReference.class);
+        "myTestSpace").doc("myTestDoc").build(DocumentReference.class);
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
     final BaseObject selectConfigObj = createObject(
         SelectTagAutocompleteEditorClass.CLASS_DEF_HINT);
@@ -66,7 +65,7 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
   @Test
   public void testGetSelectCellDocRef() throws Exception {
     DocumentReference cellDocRef = new RefBuilder().wiki(getContext().getDatabase()).space(
-        "myTestSpace").doc("myTestPage").build(ImmutableDocumentReference.class);
+        "myTestSpace").doc("myTestPage").build(DocumentReference.class);
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(cellDoc);
     replayDefault();
