@@ -55,18 +55,15 @@ final public class DefaultSelectTagService implements SelectTagServiceRole {
 
   @Override
   public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef) {
-    DocumentReference selectCellDocRef = null;
+    Optional<DocumentReference> selectCellDocRef = Optional.empty();
     try {
-      Optional<XWikiDocument> selectCellDoc = structUtils.findParentCell(modelAccess.getDocument(
-          cellDocRef), SelectTagPageType.PAGETYPE_NAME);
-      if (selectCellDoc.isPresent()) {
-        selectCellDocRef = selectCellDoc.get().getDocumentReference();
-      }
+      selectCellDocRef = structUtils.findParentCell(modelAccess.getDocument(cellDocRef),
+          SelectTagPageType.PAGETYPE_NAME).map(selectDoc -> selectDoc.getDocumentReference());
       LOGGER.debug("getSelectCellDocRef: '{}' for cell '{}'", selectCellDocRef, cellDocRef);
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("parent on doc '{}' doesn't exist", cellDocRef, exc);
     }
-    return Optional.ofNullable(selectCellDocRef);
+    return selectCellDocRef;
   }
 
 }
