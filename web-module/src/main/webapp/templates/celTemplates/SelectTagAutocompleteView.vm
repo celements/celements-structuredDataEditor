@@ -11,7 +11,8 @@
   #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef))
   #if($currentDocRefValue.isPresent())
     #set($jsonBuilder = $!autoComplete.getJsonForValue($!currentDocRefValue.get()))
-    <option selected="selected" data-cel-selected-json="$escapetool.html($jsonBuilder.getJSON())"></option>
+    <option selected="selected" data-cel-selected-json="$escapetool.html($jsonBuilder.getJSON())"##
+ value="$!currentDocRefValue.get()"></option>
   #else
   <!-- currentDocRefValue is empty!! -->
   #end
