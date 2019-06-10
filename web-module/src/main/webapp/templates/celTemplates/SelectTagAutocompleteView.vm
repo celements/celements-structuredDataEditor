@@ -12,7 +12,7 @@
   #if($currentDocRefValue.isPresent())
     #set($jsonBuilder = $!autoComplete.getJsonForValue($!currentDocRefValue.get()))
     <option selected="selected" data-cel-selected-json="$escapetool.html($jsonBuilder.getJSON())"##
- value="$!currentDocRefValue.get()"></option>
+ value="$services.model.serialize($!currentDocRefValue.get(), 'default')"></option>
   #else
   <!-- currentDocRefValue is empty!! -->
   #end
