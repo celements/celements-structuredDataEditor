@@ -16,12 +16,12 @@ import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.context.ModelContext;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.util.ModelUtils;
-import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
+import com.celements.struct.SelectTagServiceRole;
+import com.celements.struct.StructUtilServiceRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.structEditor.fields.FormFieldPageType;
-import com.celements.structEditor.fields.SelectTagPageType;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -53,6 +53,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Requirement
   private List<SelectAutocompleteRole> selectAutocompleteRole;
+
+  @Requirement
+  private SelectTagServiceRole selectTagService;
+
+  @Requirement
+  private StructUtilServiceRole structUtils;
 
   @Override
   public Optional<String> getAttributeName(XWikiDocument cellDoc, XWikiDocument onDoc) {
@@ -112,7 +118,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   Optional<String> resolveFormPrefix(XWikiDocument cellDoc) {
     Optional<String> prefix = Optional.absent();
     try {
-      Optional<XWikiDocument> formDoc = findParentCell(cellDoc, FormFieldPageType.PAGETYPE_NAME);
+      Optional<XWikiDocument> formDoc = Optional.fromJavaUtil(structUtils.findParentCell(cellDoc,
+          FormFieldPageType.PAGETYPE_NAME));
       if (formDoc.isPresent()) {
         prefix = modelAccess.getFieldValue(formDoc.get(), FormFieldEditorClass.FIELD_PREFIX);
       }
@@ -214,32 +221,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
+  @Deprecated
   public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef) {
-    DocumentReference selectCellDocRef = null;
-    try {
-      Optional<XWikiDocument> selectCellDoc = findParentCell(modelAccess.getDocument(cellDocRef),
-          SelectTagPageType.PAGETYPE_NAME);
-      if (selectCellDoc.isPresent()) {
-        selectCellDocRef = selectCellDoc.get().getDocumentReference();
-      }
-      LOGGER.debug("getSelectCellDocRef: '{}' for cell '{}'", selectCellDocRef, cellDocRef);
-    } catch (DocumentNotExistsException exc) {
-      LOGGER.warn("parent on doc '{}' doesn't exist", cellDocRef, exc);
-    }
-    return Optional.fromNullable(selectCellDocRef);
-  }
-
-  // TODO this method can be considered utility, move to another service
-  private Optional<XWikiDocument> findParentCell(XWikiDocument cellDoc, String ptName)
-      throws DocumentNotExistsException {
-    while (cellDoc.getParentReference() != null) {
-      cellDoc = modelAccess.getDocument(cellDoc.getParentReference());
-      PageTypeReference ptRef = ptResolver.getPageTypeRefForDoc(cellDoc);
-      if ((ptRef != null) && ptRef.getConfigName().equals(ptName)) {
-        return Optional.of(cellDoc);
-      }
-    }
-    return Optional.absent();
+    return Optional.fromJavaUtil(selectTagService.getSelectCellDocRef(cellDocRef));
   }
 
   @Override

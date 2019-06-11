@@ -11,6 +11,7 @@ import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.struct.SelectTagServiceRole;
 import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -40,6 +41,10 @@ public interface StructuredDataEditorService {
   Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,
       @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
 
+  /**
+   * since 4.0 instead use {@link SelectTagServiceRole#getSelectCellDocRef}
+   */
+  @Deprecated
   Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef);
 
   Optional<String> getDateFormatFromField(DocumentReference cellDocRef)
