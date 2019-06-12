@@ -5,8 +5,6 @@ import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,15 +13,10 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.context.Context;
 import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.velocity.VelocityEngine;
-import org.xwiki.velocity.VelocityManager;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.DivWriter;
@@ -35,9 +28,10 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.search.lucene.ILuceneSearchService;
 import com.celements.search.lucene.LuceneSearchException;
 import com.celements.search.lucene.LuceneSearchResult;
+import com.celements.velocity.VelocityContextModifier;
+import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.collect.ImmutableList;
-import com.xpn.xwiki.api.Document;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
@@ -46,24 +40,20 @@ import com.xpn.xwiki.web.XWikiRequest;
 public class TablePresentationTypeTest extends AbstractComponentTest {
 
   private TablePresentationType presentationType;
-  private XWikiDocument doc;
+  private XWikiDocument tableDoc;
 
   private XWikiMessageTool msgToolMock;
 
   @Before
   public void prepareTest() throws Exception {
     registerComponentMocks(IModelAccessFacade.class, IWebUtilsService.class,
-        IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityManager.class);
+        IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityService.class);
     presentationType = (TablePresentationType) Utils.getComponent(IPresentationTypeRole.class,
         TablePresentationType.NAME);
-    doc = new XWikiDocument(new DocumentReference("xwikidb", "space", "tabledoc"));
+    tableDoc = new XWikiDocument(new DocumentReference("xwikidb", "space", "tabledoc"));
     msgToolMock = createMockAndAddToDefault(XWikiMessageTool.class);
     expect(getMock(IWebUtilsService.class).getAdminMessageTool()).andReturn(msgToolMock).anyTimes();
-    expect(getMock(VelocityManager.class).getVelocityContext()).andReturn(
-        new VelocityContext()).anyTimes();
-    expect(getMock(VelocityManager.class).getVelocityEngine()).andReturn(
-        new VelocityEngineMock()).anyTimes();
-    getContext().setDoc(doc);
+    getContext().setDoc(tableDoc);
   }
 
   @Test
@@ -75,7 +65,7 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     expect(msgToolMock.get("struct_table_nodata")).andReturn("no data");
 
     replayDefault();
-    presentationType.writeNodeContent(writer, doc.getDocumentReference(), table);
+    presentationType.writeNodeContent(writer, tableDoc.getDocumentReference(), table);
     verifyDefault();
 
     assertEquals("<div id=\"tId\" class=\"struct_table t1 t2\">no data</div>",
@@ -91,13 +81,11 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     List<DocumentReference> result = Arrays.asList(dataDoc1.getDocumentReference(),
         dataDoc2.getDocumentReference());
 
-    expectGetDoc(doc);
-    expectGetDoc(dataDoc1);
-    expectGetDoc(dataDoc2);
     expectLuceneSearch(table, result, 0);
+    expectTableRender(table, Arrays.asList(dataDoc1, dataDoc2));
 
     replayDefault();
-    presentationType.writeNodeContent(writer, doc.getDocumentReference(), table);
+    presentationType.writeNodeContent(writer, tableDoc.getDocumentReference(), table);
     verifyDefault();
 
     String expHtml = loadFile("table_dummy.html").replaceAll("  |\t|\n", "");
@@ -109,11 +97,21 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
   }
 
-  private void expectGetDoc(XWikiDocument doc) throws Exception {
-    expect(getMock(IModelAccessFacade.class).getDocument(doc.getDocumentReference())).andReturn(
-        doc).atLeastOnce();
-    expect(getMock(IModelAccessFacade.class).getApiDocument(doc)).andReturn(
-        createMockAndAddToDefault(Document.class)).atLeastOnce();
+  private void expectTableRender(TableConfig table, List<XWikiDocument> docs) throws Exception {
+    expect(getMock(IModelAccessFacade.class).getDocument(tableDoc.getDocumentReference()))
+        .andReturn(tableDoc).atLeastOnce();
+    for (XWikiDocument dataDoc : docs) {
+      expect(getMock(IModelAccessFacade.class).getDocument(dataDoc.getDocumentReference()))
+          .andReturn(dataDoc).atLeastOnce();
+    }
+    for (ColumnConfig col : table.getColumns()) {
+      expect(getMock(VelocityService.class).evaluateVelocityText(same(tableDoc), eq(col.getTitle()),
+          anyObject(VelocityContextModifier.class))).andReturn(col.getTitle());
+      for (XWikiDocument dataDoc : docs) {
+        expect(getMock(VelocityService.class).evaluateVelocityText(same(dataDoc), eq(col.getContent()),
+            anyObject(VelocityContextModifier.class))).andReturn(col.getContent());
+      }
+    }
   }
 
   @Test
@@ -128,7 +126,7 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     expect(msgToolMock.get("struct_table_nodata")).andReturn("");
 
     replayDefault();
-    presentationType.writeNodeContent(writer, doc.getDocumentReference(), table);
+    presentationType.writeNodeContent(writer, tableDoc.getDocumentReference(), table);
     verifyDefault();
   }
 
@@ -158,49 +156,14 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
   }
 
   private void expectLuceneSearch(TableConfig table, List<DocumentReference> result, int offset)
-      throws LuceneSearchException {
+      throws LuceneSearchException, XWikiVelocityException {
+    String queryEvaluated = table.getQuery() + "Evaluated";
+    expect(getMock(VelocityService.class).evaluateVelocityText(table.getQuery())).andReturn(queryEvaluated);
     LuceneSearchResult resultMock = createMockAndAddToDefault(LuceneSearchResult.class);
-    expect(getMock(ILuceneSearchService.class).search(table.getQuery(), table.getSortFields(),
+    expect(getMock(ILuceneSearchService.class).search(queryEvaluated, table.getSortFields(),
         ImmutableList.<String>of())).andReturn(resultMock);
     expect(resultMock.getResults(offset, table.getResultLimit(),
         DocumentReference.class)).andReturn(result);
-  }
-
-  private class VelocityEngineMock implements VelocityEngine {
-
-    @Override
-    public void initialize(Properties properties) throws XWikiVelocityException {
-    }
-
-    @Override
-    public boolean evaluate(Context context, Writer out, String templateName, String source)
-        throws XWikiVelocityException {
-      try {
-        out.append(source);
-      } catch (IOException exc) {
-        throw new XWikiVelocityException("test", exc);
-      }
-      return true;
-    }
-
-    @Override
-    public boolean evaluate(Context context, Writer out, String templateName, Reader source)
-        throws XWikiVelocityException {
-      return false;
-    }
-
-    @Override
-    public void clearMacroNamespace(String templateName) {
-    }
-
-    @Override
-    public void startedUsingMacroNamespace(String namespace) {
-    }
-
-    @Override
-    public void stoppedUsingMacroNamespace(String namespace) {
-    }
-
   }
 
 }

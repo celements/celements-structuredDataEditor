@@ -18,6 +18,7 @@ import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
+import com.celements.struct.SelectTagServiceRole;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -35,6 +36,9 @@ public class StructuredDataEditorScriptService implements ScriptService {
 
   @Requirement
   IModelAccessFacade modelAccess;
+
+  @Requirement
+  private SelectTagServiceRole selectTagService;
 
   @Requirement
   static ModelContext context;
@@ -171,4 +175,8 @@ public class StructuredDataEditorScriptService implements ScriptService {
     return service.getSelectTagAutocompleteJsPathList();
   }
 
+  public java.util.Optional<SelectAutocompleteRole> getSelectTagAutoCompleteImpl(
+      DocumentReference cellDocRef) {
+    return selectTagService.getTypeImpl(cellDocRef);
+  }
 }

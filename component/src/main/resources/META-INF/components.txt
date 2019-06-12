@@ -29,3 +29,5 @@ com.celements.struct.classes.TableColumnClass
 com.celements.struct.table.TablePresentationType
 com.celements.struct.table.TableRowPresentationType
 com.celements.struct.table.TablePageType
+com.celements.struct.DefaultSelectTagService
+com.celements.struct.StructUtilService

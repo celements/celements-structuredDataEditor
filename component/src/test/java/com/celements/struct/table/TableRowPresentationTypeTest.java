@@ -7,10 +7,10 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.apache.velocity.VelocityContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.velocity.VelocityManager;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
@@ -18,8 +18,10 @@ import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.search.lucene.ILuceneSearchService;
+import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Optional;
+import com.xpn.xwiki.api.Document;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
 
@@ -31,7 +33,7 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
   @Before
   public void prepareTest() throws Exception {
     registerComponentMocks(IModelAccessFacade.class, IWebUtilsService.class,
-        IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityManager.class);
+        IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityService.class);
     presentationType = (TableRowPresentationType) Utils.getComponent(IPresentationTypeRole.class,
         TableRowPresentationType.NAME);
     doc = new XWikiDocument(new DocumentReference("xwikidb", "layoutspace", "tabledoc"));
@@ -73,6 +75,22 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
     replayDefault();
     assertEquals("tableName/col_the_col_name", presentationType.resolveMacroName(col));
     verifyDefault();
+  }
+
+  @Test
+  public void test_getVelocityContextModifier() throws Exception {
+    ColumnConfig col = getDummyTableConfig().getColumns().get(0);
+    VelocityContext vContext = new VelocityContext();
+    Document apiDocMock = createMockAndAddToDefault(Document.class);
+
+    expect(getMock(IModelAccessFacade.class).getApiDocument(same(doc))).andReturn(apiDocMock);
+
+    replayDefault();
+    assertSame(vContext, presentationType.getVelocityContextModifier(doc, col).apply(vContext));
+    verifyDefault();
+
+    assertSame(col, vContext.get("colcfg"));
+    assertSame(apiDocMock, vContext.get("rowdoc"));
   }
 
   private TableConfig getDummyTableConfig() {
