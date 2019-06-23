@@ -63,7 +63,10 @@ public class TinyMce4Config implements RteConfigRole {
   private static final ImmutableMap<String, List<String>> initButtonConversionMap() {
     return ImmutableMap.<String, List<String>>builder().put("image", CELIMAGE).put("advimage",
         CELIMAGE).put("separator", ImmutableList.of(SEPARATOR)).put("advlink", CELLINK).put("link",
-            CELLINK).put("tablecontrols", TABLE_CONTROLS).build();
+            CELLINK).put("tablecontrols", TABLE_CONTROLS).put("justifyleft", ImmutableList.of(
+                "alignleft")).put("justifycenter", ImmutableList.of("aligncenter")).put(
+                    "justifyright", ImmutableList.of("alignright")).put("justifyfull",
+                        ImmutableList.of("alignjustify")).build();
   }
 
   private static final Pattern ROW_LAYOUT_REGEX = Pattern.compile("row_\\d+");
