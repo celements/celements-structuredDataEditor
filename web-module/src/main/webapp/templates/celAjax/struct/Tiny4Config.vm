@@ -1,3 +1,4 @@
+$!services.rteconfig.setRteConfigHint("tinymce4")
 #if("$!tinyMCE_height" == '')
   #set($tinyMCE_height = 500)
 #end
