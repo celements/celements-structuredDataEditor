@@ -111,6 +111,17 @@ public class TinyMce4ConfigTest extends AbstractComponentTest {
   }
 
   @Test
+  public void test_rowLayoutConvert_tablecontrols() {
+    replayDefault();
+    assertEquals(
+        "italic table | tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter"
+            + " tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol | "
+            + "tablesplitcells tablemergecells bold", tinyMce4Config.rowLayoutConvert(
+                "italic, tablecontrols, bold"));
+    verifyDefault();
+  }
+
+  @Test
   public void test_rowLayoutConvert_general() {
     replayDefault();
     assertEquals("list | bold italic celimage cellink | cellink celimage",

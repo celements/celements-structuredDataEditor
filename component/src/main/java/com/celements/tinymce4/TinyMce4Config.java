@@ -50,10 +50,22 @@ public class TinyMce4Config implements RteConfigRole {
   private RteConfigRole rteConfig;
 
   private static final String SEPARATOR = "|";
+  private static final List<String> ALL_SEPARATOR_LIST = ImmutableList.of(SEPARATOR, "separator");
+  private static final ImmutableList<String> TABLE_CONTROLS = ImmutableList.of("table", SEPARATOR,
+      "tablerowprops", "tablecellprops", SEPARATOR, "tableinsertrowbefore", "tableinsertrowafter",
+      "tabledeleterow", SEPARATOR, "tableinsertcolbefore", "tableinsertcolafter", "tabledeletecol",
+      SEPARATOR, "tablesplitcells", "tablemergecells");
+  private static final ImmutableList<String> CELIMAGE = ImmutableList.of("celimage");
+  private static final ImmutableList<String> CELLINK = ImmutableList.of("cellink");
   private static final List<String> BUTTONS_BLACKLIST = ImmutableList.of("save", "cancel", "");
-  private static final Map<String, String> BUTTONS_CONVERSIONMAP = ImmutableMap.of("image",
-      "celimage", "advimage", "celimage", "separator", SEPARATOR, "advlink", "cellink", "link",
-      "cellink");
+  private static final Map<String, List<String>> BUTTONS_CONVERSIONMAP = initButtonConversionMap();
+
+  private static final ImmutableMap<String, List<String>> initButtonConversionMap() {
+    return ImmutableMap.<String, List<String>>builder().put("image", CELIMAGE).put("advimage",
+        CELIMAGE).put("separator", ImmutableList.of(SEPARATOR)).put("advlink", CELLINK).put("link",
+            CELLINK).put("tablecontrols", TABLE_CONTROLS).build();
+  }
+
   private static final Pattern ROW_LAYOUT_REGEX = Pattern.compile("row_\\d+");
 
   @Override
@@ -80,21 +92,23 @@ public class TinyMce4Config implements RteConfigRole {
     boolean isFirst = true;
     boolean pendingAddSeparator = false;
     for (String element : rteRowArray) {
-      String buttonName = element.trim();
+      final String buttonName = element.trim();
       if (!BUTTONS_BLACKLIST.contains(buttonName)) {
+        List<String> newButtonNameList = ImmutableList.of(buttonName);
         if (BUTTONS_CONVERSIONMAP.containsKey(buttonName)) {
-          buttonName = BUTTONS_CONVERSIONMAP.get(buttonName);
+          newButtonNameList = BUTTONS_CONVERSIONMAP.get(buttonName);
         }
-        if (!isFirst || !SEPARATOR.equals(buttonName)) {
+        boolean isSeparator = ALL_SEPARATOR_LIST.contains(buttonName);
+        if (!isFirst || !isSeparator) {
           isFirst = false;
-          if (SEPARATOR.equals(buttonName)) {
+          if (isSeparator) {
             pendingAddSeparator = true;
           } else {
             if (pendingAddSeparator) {
               rteRowList.add(SEPARATOR);
               pendingAddSeparator = false;
             }
-            rteRowList.add(buttonName);
+            rteRowList.addAll(newButtonNameList);
           }
         }
       }
