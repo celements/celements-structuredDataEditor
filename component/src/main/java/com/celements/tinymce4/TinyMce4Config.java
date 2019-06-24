@@ -66,7 +66,8 @@ public class TinyMce4Config implements RteConfigRole {
             CELLINK).put("tablecontrols", TABLE_CONTROLS).put("justifyleft", ImmutableList.of(
                 "alignleft")).put("justifycenter", ImmutableList.of("aligncenter")).put(
                     "justifyright", ImmutableList.of("alignright")).put("justifyfull",
-                        ImmutableList.of("alignjustify")).build();
+                        ImmutableList.of("alignjustify")).put("pasteword", ImmutableList.of(
+                            "paste")).build();
   }
 
   private static final Pattern ROW_LAYOUT_REGEX = Pattern.compile("row_\\d+");

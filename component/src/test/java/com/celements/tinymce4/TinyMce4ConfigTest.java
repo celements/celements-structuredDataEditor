@@ -122,6 +122,14 @@ public class TinyMce4ConfigTest extends AbstractComponentTest {
   }
 
   @Test
+  public void test_rowLayoutConvert_pasteword() {
+    replayDefault();
+    assertEquals("italic pastetext paste bold", tinyMce4Config.rowLayoutConvert(
+        "italic, pastetext,pasteword, bold"));
+    verifyDefault();
+  }
+
+  @Test
   public void test_rowLayoutConvert_general() {
     replayDefault();
     assertEquals("list | bold italic celimage cellink | cellink celimage",
