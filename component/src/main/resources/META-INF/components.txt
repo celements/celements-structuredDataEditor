@@ -31,3 +31,4 @@ com.celements.struct.table.TableRowPresentationType
 com.celements.struct.table.TablePageType
 com.celements.struct.DefaultSelectTagService
 com.celements.struct.StructUtilService
+com.celements.tinymce4.TinyMce4Config
