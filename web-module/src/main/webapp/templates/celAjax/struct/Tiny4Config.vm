@@ -1,7 +1,8 @@
 ## ***********************************************************************
 ## tinyMCE_width and tinyMCE_height set by PrepareVelocityContextService
 ## ***********************************************************************
-#set($rtePluginsPre = ["print","preview","searchreplace","autolink","directionality","visualblocks","visualchars","fullscreen","image","link","media","template","codesample","table","charmap","hr","pagebreak","nonbreaking","anchor","toc","insertdatetime","advlist","lists","textcolor","wordcount","imagetools","contextmenu","colorpicker","textpattern","help"])
+$!services.rteconfig.setRteConfigHint("tinymce4")
+#set($rtePluginsPre = ["print","preview","searchreplace","autolink","directionality","visualblocks","visualchars","fullscreen","image","link","media","template","codesample","table","charmap","hr","pagebreak","nonbreaking","anchor","toc","insertdatetime","advlist","lists","textcolor","wordcount","imagetools","contextmenu","colorpicker","textpattern","help", "code", "paste"])
 #set($rtePluginsConfig = $services.rteconfig.getRTEConfigField('plugins'))
 ## adding celements tinymce plugins
 #set($!dev = $rtePluginsPre.addAll(["celimage", "cellink"]))
@@ -34,7 +35,16 @@
     #set($availableGalleries = "$!{availableGalleries},${galleryName}=${galleryFN}")
   #end
 #end
-#set($rte_row_1 = "formatselect | bold italic strikethrough forecolor backcolor | cellink | celimage | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat")
+## lookup the rte button layout in XWiki- and WebPreferences and
+## default back to the standard fields
+#set($rteRows = [])
+#foreach($rowNum in [1,2,3])
+  #set($rte_row = $services.rteconfig.getRTEConfigField("row_$!{rowNum}"))
+  #if("$!rte_row" != '')
+    #set($!devNull = $rteRows.add($rte_row))
+  #end
+#end
+## get other rte preferences
 #set($content_css_filenameURL = [ "$celementsweb.getSkinFile(':celRes/celements2-content.css', 'file')" ])
 #foreach($cssObj in $services.css.getRTEContentCSS())
 #if("$!{cssObj.getCSS()}" != '')
@@ -127,16 +137,21 @@ $jsonBuilder.openDictionary()##
 $jsonBuilder.addStringProperty("celimage", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/celimage/editor_plugin_src.js', 'file'))##
 $jsonBuilder.addStringProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
 $jsonBuilder.closeDictionary()## external plugins
-$jsonBuilder.addStringProperty("toolbar1", "$!rte_row_1")##
-$jsonBuilder.addProperty("celanim_slideshow",  $!services.celementsphoto.useImageAnimations())##
-$jsonBuilder.addProperty("cel_crop",  $!useCelCrop)##
+$jsonBuilder.openProperty("toolbar")##
+$jsonBuilder.openArray()##
+#foreach($rteRowLayout in $rteRows)
+  $jsonBuilder.addValue($rteRowLayout)
+#end
+$jsonBuilder.closeArray()##
+$jsonBuilder.addStringProperty("celanim_slideshow",  $!services.celementsphoto.useImageAnimations())##
+$jsonBuilder.addStringProperty("cel_crop",  $!useCelCrop)##
 #if($services.celementsphoto.useImageAnimations())
   $jsonBuilder.addStringProperty("gallerylist", "$availableGalleries.replaceFirst(',','')")##
 #end
 $jsonBuilder.openProperty("content_css")##
 $jsonBuilder.openArray()##
 #foreach($cssURL in $content_css_filenameURL)
-  $jsonBuilder.addString($cssURL)
+  $jsonBuilder.addValue($cssURL)
 #end
 $jsonBuilder.closeArray()##
 ## file base link, file picker link
