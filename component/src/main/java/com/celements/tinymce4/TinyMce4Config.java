@@ -31,10 +31,9 @@ import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.rteConfig.RteConfigRole;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
-import jersey.repackaged.com.google.common.base.Joiner;
 
 @Component(TinyMce4Config.HINT)
 public class TinyMce4Config implements RteConfigRole {
