@@ -94,16 +94,16 @@
     }
   };
 
-  var lacyLoadTinyMCEforTab = function(event) {
+  var lazyLoadTinyMCEforTab = function(event) {
     try {
       var tabBodyId = event.memo.newTabId;
       var tinyMceAreas = $(tabBodyId).select('textarea.mceEditor');
-      console.log('lacyLoadTinyMCEforTab: for tabBodyId ', tabBodyId, tinyMceAreas);
+      console.log('lazyLoadTinyMCEforTab: for tabBodyId ', tabBodyId, tinyMceAreas);
       tinyMceAreas.each(function(editorArea) {
         tinyMCE.execCommand("mceAddEditor", false, editorArea.id);
       });
     } catch (exp) {
-      console.error("lacyLoadTinyMCEforTab failed. ", exp);
+      console.error("lazyLoadTinyMCEforTab failed. ", exp);
     }
   };
 
@@ -131,7 +131,7 @@
     if ($('tabMenuPanel')) {
       $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
           delayedEditorOpeningHandler);
-      $('tabMenuPanel').observe('tabedit:tabchange', lacyLoadTinyMCEforTab);
+      $('tabMenuPanel').observe('tabedit:tabchange', lazyLoadTinyMCEforTab);
       console.log('loadTinyMCE-async on ready: before register initCelRTE4Listener');
       getCelementsTabEditor().addAfterInitListener(initCelRTE4Listener);
     }
