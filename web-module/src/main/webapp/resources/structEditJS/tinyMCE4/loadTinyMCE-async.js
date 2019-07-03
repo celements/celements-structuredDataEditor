@@ -83,12 +83,16 @@
   };
 
   var lacyLoadTinyMCEforTab = function(event) {
-    var tabBodyId = event.memo.newTabId;
-    var tinyMceAreas = $(tabBodyId).select('textarea.mceEditor');
-    console.log('lacyLoadTinyMCEforTab: for tabBodyId ', tabBodyId, tinyMceAreas);
-    tinyMceAreas.each(function(editorArea) {
-      tinyMCE.execCommand("mceAddEditor", false, editorArea.id);
-    });
+    try {
+      var tabBodyId = event.memo.newTabId;
+      var tinyMceAreas = $(tabBodyId).select('textarea.mceEditor');
+      console.log('lacyLoadTinyMCEforTab: for tabBodyId ', tabBodyId, tinyMceAreas);
+      tinyMceAreas.each(function(editorArea) {
+        tinyMCE.execCommand("mceAddEditor", false, editorArea.id);
+      });
+    } catch (exp) {
+      console.error("lacyLoadTinyMCEforTab failed. ", exp);
+    }
   };
 
   var delayedEditorOpeningHandler = function(event) {
