@@ -102,8 +102,8 @@
     }
   };
 
-  var initCelRTEListener = function() {
-    console.log('initCelRTEListener: before initCelRTE');
+  var initCelRTE4Listener = function() {
+    console.log('initCelRTE4Listener: before initCelRTE4');
     initCelRTE4();
     if(typeof(resize) != 'undefined') {
       resize();
@@ -115,8 +115,8 @@
       $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
           delayedEditorOpeningHandler);
       $('tabMenuPanel').observe('tabedit:tabchange', lacyLoadTinyMCEforTab);
-      console.log('loadTinyMCE-async on ready: before register initCelRTEListener');
-      getCelementsTabEditor().addAfterInitListener(initCelRTEListener);
+      console.log('loadTinyMCE-async on ready: before register initCelRTE4Listener');
+      getCelementsTabEditor().addAfterInitListener(initCelRTE4Listener);
     }
   });
   
