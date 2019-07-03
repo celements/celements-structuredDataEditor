@@ -41,8 +41,9 @@
         console.log('tinyMCE4 config loaded: starting tiny');
         if (tinyConfigJSON.isJSON()) {
           var tinyConfigObj = tinyConfigJSON.evalJSON();
-          console.log('initCelRTE4: tinyMCE.init');
+          console.debug('initCelRTE4: tinyMCE.init');
           tinyMCE.init(tinyConfigObj);
+          console.debug('initCelRTE4: tinyMCE.init finished');
         } else {
           console.error('TinyConfig is no json!', tinyConfigJSON);
         }
