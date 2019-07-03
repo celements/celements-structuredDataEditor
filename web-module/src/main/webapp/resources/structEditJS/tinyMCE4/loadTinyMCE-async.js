@@ -65,7 +65,7 @@
         initCelRTE4();
       }
     } else {
-      console.error('No struct editor manager found -> Failed to initialize tinyMCE4.');
+      console.warn('No struct editor manager found -> Failed to initialize tinyMCE4.');
     }
     console.log('loadTinyMCE async: end');
   })(window.celStructEditorManager);
@@ -93,11 +93,13 @@
   };
 
   $j(document).ready(function() {
-    $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
-        delayedEditorOpeningHandler);
-    $('tabMenuPanel').observe('tabedit:tabchange', lacyLoadTinyMCEforTab);
-    console.log('loadTinyMCE-async on ready: before register initCelRTEListener');
-    getCelementsTabEditor().addAfterInitListener(initCelRTEListener);
+    if ($('tabMenuPanel')) {
+      $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
+          delayedEditorOpeningHandler);
+      $('tabMenuPanel').observe('tabedit:tabchange', lacyLoadTinyMCEforTab);
+      console.log('loadTinyMCE-async on ready: before register initCelRTEListener');
+      getCelementsTabEditor().addAfterInitListener(initCelRTEListener);
+    }
   });
   
 })(window);
