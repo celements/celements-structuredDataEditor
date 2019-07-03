@@ -41,6 +41,7 @@
         console.log('tinyMCE4 config loaded: starting tiny');
         if (tinyConfigJSON.isJSON()) {
           var tinyConfigObj = tinyConfigJSON.evalJSON();
+          tinyConfigObj["setup"] = celSetupTinyMCE;
           console.debug('initCelRTE4: tinyMCE.init');
           tinyMCE.init(tinyConfigObj);
           console.debug('initCelRTE4: tinyMCE.init finished');
@@ -51,6 +52,12 @@
     });
   };
   
+  var celSetupTinyMCE = function(editor) {
+    console.log('celSetupTinyMCE start');
+    editor.on('init', celFinishTinyMCEStart);
+    console.log('celSetupTinyMCE finish');
+  };
+
   /**
    * loading in struct layout editor
    **/
@@ -76,10 +83,15 @@
    **/
   var finishedCelRTE_tinyMCE_Load = false;
   
-  window.celFinishTinyMCEStart = function() {
-    console.log('celFinishTinyMCEStart: start');
-    finishedCelRTE_tinyMCE_Load = true;
-    $$('body')[0].fire('celRTE:finishedInit');
+  var celFinishTinyMCEStart = function() {
+    try {
+      console.log('celFinishTinyMCEStart: start');
+      finishedCelRTE_tinyMCE_Load = true;
+      $$('body')[0].fire('celRTE:finishedInit');
+      console.log('celFinishTinyMCEStart: finish');
+    } catch (exp) {
+      console.error('celFinishTinyMCEStart failed', exp);
+    }
   };
 
   var lacyLoadTinyMCEforTab = function(event) {
