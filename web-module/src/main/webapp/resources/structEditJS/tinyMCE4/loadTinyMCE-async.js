@@ -73,6 +73,23 @@
   /**
    * loading in overlay TabEditor
    **/
+  var finishedCelRTE_tinyMCE_Load = false;
+  
+  window.celFinishTinyMCEStart = function() {
+    console.log('celFinishTinyMCEStart: start');
+    finishedCelRTE_tinyMCE_Load = true;
+    $$('body')[0].fire('celRTE:finishedInit');
+  };
+
+  var lacyLoadTinyMCEforTab = function(event) {
+    var tabBodyId = event.memo.newTabId;
+    var tinyMceAreas = $(tabBodyId).select('textarea.mceEditor');
+    console.log('lacyLoadTinyMCEforTab: for tabBodyId ', tabBodyId, tinyMceAreas);
+    tinyMceAreas.each(function(editorArea) {
+      tinyMCE.execCommand("mceAddEditor", false, editorArea.id);
+    });
+  };
+
   var delayedEditorOpeningHandler = function(event) {
     console.log('delayedEditorOpeningHandler: start');
     var mceEditorAreaAvailable = ($$('#tabMenuPanel .mceEditor').size() > 0);
