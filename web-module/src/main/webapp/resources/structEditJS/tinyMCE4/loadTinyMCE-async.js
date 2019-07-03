@@ -127,6 +127,7 @@
   };
 
   $j(document).ready(function() {
+    console.log("tinymce4: register document ready...");
     if ($('tabMenuPanel')) {
       $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
           delayedEditorOpeningHandler);
