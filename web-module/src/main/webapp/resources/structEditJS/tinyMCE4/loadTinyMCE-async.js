@@ -50,6 +50,9 @@
     });
   };
   
+  /**
+   * loading in struct layout editor
+   **/
   (function(structManager){
     console.log('loadTinyMCE async: start');
     if (structManager) {
@@ -66,5 +69,35 @@
     }
     console.log('loadTinyMCE async: end');
   })(window.celStructEditorManager);
+
+  /**
+   * loading in overlay TabEditor
+   **/
+  var delayedEditorOpeningHandler = function(event) {
+    console.log('delayedEditorOpeningHandler: start');
+    var mceEditorAreaAvailable = ($$('#tabMenuPanel .mceEditor').size() > 0);
+    if (!finishedCelRTE_tinyMCE_Load && mceEditorAreaAvailable) {
+      event.stop();
+      $$('body')[0].observe('celRTE:finishedInit', function() {
+        event.memo.start();
+      });
+    }
+  };
+
+  var initCelRTEListener = function() {
+    console.log('initCelRTEListener: before initCelRTE');
+    initCelRTE4();
+    if(typeof(resize) != 'undefined') {
+      resize();
+    }
+  };
+
+  $j(document).ready(function() {
+    $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
+        delayedEditorOpeningHandler);
+    $('tabMenuPanel').observe('tabedit:tabchange', lacyLoadTinyMCEforTab);
+    console.log('loadTinyMCE-async on ready: before register initCelRTEListener');
+    getCelementsTabEditor().addAfterInitListener(initCelRTEListener);
+  });
   
 })(window);
