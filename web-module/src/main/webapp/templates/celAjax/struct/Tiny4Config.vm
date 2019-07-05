@@ -125,7 +125,7 @@ $!services.rteconfig.setRteConfigHint("tinymce4")
 ## start writing JSON
 #set($jsonBuilder = $services.celementsweb.getNewJSONBuilder())##
 $jsonBuilder.openDictionary()##
-$jsonBuilder.addStringProperty("selector", "textarea.tinyMCE")##
+$jsonBuilder.addStringProperty("selector", "textarea.tinyMCE,textarea.mceEditor")##
 $jsonBuilder.addStringProperty("language", "$!admin_language")##
 $jsonBuilder.addStringProperty("theme", "modern")##
 $jsonBuilder.addStringProperty("height", "$!tinyMCE_height")##

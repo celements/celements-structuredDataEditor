@@ -41,8 +41,10 @@
         console.log('tinyMCE4 config loaded: starting tiny');
         if (tinyConfigJSON.isJSON()) {
           var tinyConfigObj = tinyConfigJSON.evalJSON();
-          console.log('initCelRTE4: tinyMCE.init');
+          tinyConfigObj["setup"] = celSetupTinyMCE;
+          console.debug('initCelRTE4: tinyMCE.init');
           tinyMCE.init(tinyConfigObj);
+          console.debug('initCelRTE4: tinyMCE.init finished');
         } else {
           console.error('TinyConfig is no json!', tinyConfigJSON);
         }
@@ -50,6 +52,15 @@
     });
   };
   
+  var celSetupTinyMCE = function(editor) {
+    console.log('celSetupTinyMCE start');
+    editor.on('init', celFinishTinyMCEStart);
+    console.log('celSetupTinyMCE finish');
+  };
+
+  /**
+   * loading in struct layout editor
+   **/
   (function(structManager){
     console.log('loadTinyMCE async: start');
     if (structManager) {
@@ -62,9 +73,68 @@
         initCelRTE4();
       }
     } else {
-      console.error('No struct editor manager found -> Failed to initialize tinyMCE4.');
+      console.warn('No struct editor manager found -> Failed to initialize tinyMCE4.');
     }
     console.log('loadTinyMCE async: end');
   })(window.celStructEditorManager);
+
+  /**
+   * loading in overlay TabEditor
+   **/
+  var finishedCelRTE_tinyMCE_Load = false;
+  
+  var celFinishTinyMCEStart = function() {
+    try {
+      console.log('celFinishTinyMCEStart: start');
+      finishedCelRTE_tinyMCE_Load = true;
+      $$('body')[0].fire('celRTE:finishedInit');
+      console.log('celFinishTinyMCEStart: finish');
+    } catch (exp) {
+      console.error('celFinishTinyMCEStart failed', exp);
+    }
+  };
+
+  var lazyLoadTinyMCEforTab = function(event) {
+    try {
+      var tabBodyId = event.memo.newTabId;
+      var tinyMceAreas = $(tabBodyId).select('textarea.mceEditor');
+      console.log('lazyLoadTinyMCEforTab: for tabBodyId ', tabBodyId, tinyMceAreas);
+      tinyMceAreas.each(function(editorArea) {
+        tinyMCE.execCommand("mceAddEditor", false, editorArea.id);
+      });
+    } catch (exp) {
+      console.error("lazyLoadTinyMCEforTab failed. ", exp);
+    }
+  };
+
+  var delayedEditorOpeningHandler = function(event) {
+    console.log('delayedEditorOpeningHandler: start');
+    var mceEditorAreaAvailable = ($$('#tabMenuPanel .mceEditor').size() > 0);
+    if (!finishedCelRTE_tinyMCE_Load && mceEditorAreaAvailable) {
+      event.stop();
+      $$('body')[0].observe('celRTE:finishedInit', function() {
+        event.memo.start();
+      });
+    }
+  };
+
+  var initCelRTE4Listener = function() {
+    console.log('initCelRTE4Listener: before initCelRTE4');
+    initCelRTE4();
+    if(typeof(resize) != 'undefined') {
+      resize();
+    }
+  };
+
+  $j(document).ready(function() {
+    console.log("tinymce4: register document ready...");
+    if ($('tabMenuPanel')) {
+      $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
+          delayedEditorOpeningHandler);
+      $('tabMenuPanel').observe('tabedit:tabchange', lazyLoadTinyMCEforTab);
+      console.log('loadTinyMCE-async on ready: before register initCelRTE4Listener');
+      getCelementsTabEditor().addAfterInitListener(initCelRTE4Listener);
+    }
+  });
   
 })(window);
