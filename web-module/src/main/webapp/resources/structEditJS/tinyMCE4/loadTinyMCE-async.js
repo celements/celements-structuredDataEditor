@@ -81,12 +81,9 @@
   /**
    * loading in overlay TabEditor
    **/
-  var finishedCelRTE_tinyMCE_Load = false;
-  
   var celFinishTinyMCEStart = function() {
     try {
       console.log('celFinishTinyMCEStart: start');
-      finishedCelRTE_tinyMCE_Load = true;
       $$('body')[0].fire('celRTE:finishedInit');
       console.log('celFinishTinyMCEStart: finish');
     } catch (exp) {
@@ -108,12 +105,15 @@
   };
 
   var delayedEditorOpeningHandler = function(event) {
-    console.log('delayedEditorOpeningHandler: start');
-    var mceEditorAreaAvailable = ($$('#tabMenuPanel .mceEditor').size() > 0);
-    if (!finishedCelRTE_tinyMCE_Load && mceEditorAreaAvailable) {
+    console.log('delayedEditorOpeningHandler: start ', event.memo);
+    var mceParentElem = event.memo.tabBodyId || "tabMenuPanel";
+    var mceEditorAreaAvailable = ($(mceParentElem).select('.mceEditor').size() > 0);
+    if (mceEditorAreaAvailable) {
+      console.debug('delayedEditorOpeningHandler: stopping display event');
       event.stop();
       $$('body')[0].observe('celRTE:finishedInit', function() {
-        event.memo.start();
+        console.debug('delayedEditorOpeningHandler: start display effect');
+        event.memo.effect.start();
       });
     }
   };
