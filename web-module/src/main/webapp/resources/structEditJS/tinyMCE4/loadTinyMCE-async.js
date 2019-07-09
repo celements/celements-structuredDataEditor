@@ -103,8 +103,9 @@
         tinyMceAreas.each(function(editorArea) {
           tinyMCE.execCommand("mceAddEditor", false, editorArea.id);
         });
+        console.log('lazyLoadTinyMCEforTab: finish', tabBodyId);
       } else {
-        console.log('lazyLoadTinyMCEforTab: skip mceAddControl because tinyConfig not yet loaded.',
+        console.log('lazyLoadTinyMCEforTab: skip mceAddEditor because tinyConfig not yet loaded.',
             tabBodyId);
       }
     } catch (exp) {
@@ -116,9 +117,10 @@
     console.log('getUninitializedMceEditors: start ', mceParentElem);
     var mceEditorsToInit = new Array();
     $(mceParentElem).select('textarea.mceEditor').each(function(editorArea) {
-      var alreadyInitialized = (typeof(tinymce.get(editorArea.id)) !== 'undefined');
-      console.log('start mceAddControl for ', editorArea.id, alreadyInitialized);
-      if (!alreadyInitialized) {
+      var notInitialized = !tinymce.get(editorArea.id);
+      console.log('getUninitializedMceEditors: found new editorArea ', editorArea.id,
+          notInitialized);
+      if (notInitialized) {
         mceEditorsToInit.push(editorArea.id);
       }
     });
