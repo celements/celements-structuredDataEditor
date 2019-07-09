@@ -116,7 +116,7 @@
     console.log('getUninitializedMceEditors: start ', mceParentElem);
     var mceEditorsToInit = new Array();
     $(mceParentElem).select('textarea.mceEditor').each(function(editorArea) {
-      var alreadyInitialized = (typeof(tinymce.getInstanceById(editorArea.id)) !== 'undefined');
+      var alreadyInitialized = (typeof(tinymce.get(editorArea.id)) !== 'undefined');
       console.log('start mceAddControl for ', editorArea.id, alreadyInitialized);
       if (!alreadyInitialized) {
         mceEditorsToInit.push(editorArea.id);
