@@ -152,7 +152,7 @@
     if ($('tabMenuPanel')) {
       $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
           delayedEditorOpeningHandler);
-      $('tabMenuPanel').observe('tabedit:tabchange', lazyLoadTinyMCEforTab);
+      $('tabMenuPanel').observe('tabedit:tabLoadingFinished', lazyLoadTinyMCEforTab);
       console.log('loadTinyMCE-async on ready: before register initCelRTE4Listener');
       getCelementsTabEditor().addAfterInitListener(initCelRTE4Listener);
     }
