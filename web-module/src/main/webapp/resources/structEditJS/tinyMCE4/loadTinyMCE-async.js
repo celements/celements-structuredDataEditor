@@ -98,10 +98,10 @@
     try {
       var tabBodyId = event.memo.newTabBodyId;
       if (tinyConfigLoaded) {
-        var tinyMceAreas = $(tabBodyId).select('textarea.mceEditor');
-        console.log('lazyLoadTinyMCEforTab: for tabBodyId ', tabBodyId, tinyMceAreas);
-        tinyMceAreas.each(function(editorArea) {
-          tinymce.execCommand("mceAddEditor", false, editorArea.id);
+        getUninitializedMceEditors(tabBodyId).each(function(editorAreaId) {
+          console.log('lazyLoadTinyMCEforTab: mceAddEditor for editorArea ', editorAreaId,
+              tabBodyId);
+          tinymce.execCommand("mceAddEditor", false, editorAreaId);
         });
         console.log('lazyLoadTinyMCEforTab: finish', tabBodyId);
       } else {
