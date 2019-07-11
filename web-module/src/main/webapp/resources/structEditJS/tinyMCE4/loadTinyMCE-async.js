@@ -40,14 +40,14 @@
       parameters: params,
       onSuccess: function(transport) {
         var tinyConfigJSON = transport.responseText;
-        console.log('tinyMCE4 config loaded: starting tiny');
+        console.log('tinymce4 config loaded: starting tiny');
         if (tinyConfigJSON.isJSON()) {
           var tinyConfigObj = tinyConfigJSON.evalJSON();
           tinyConfigObj["setup"] = celSetupTinyMCE;
-          console.debug('initCelRTE4: tinyMCE.init');
-          tinyMCE.init(tinyConfigObj);
+          console.debug('initCelRTE4: tinymce.init');
+          tinymce.init(tinyConfigObj);
           tinyConfigLoaded = true;
-          console.debug('initCelRTE4: tinyMCE.init finished');
+          console.debug('initCelRTE4: tinymce.init finished');
         } else {
           console.error('TinyConfig is no json!', tinyConfigJSON);
         }
@@ -76,7 +76,7 @@
         initCelRTE4();
       }
     } else {
-      console.warn('No struct editor manager found -> Failed to initialize tinyMCE4.');
+      console.warn('No struct editor manager found -> Failed to initialize tinymce4.');
     }
     console.log('loadTinyMCE async: end');
   })(window.celStructEditorManager);
@@ -101,7 +101,7 @@
         var tinyMceAreas = $(tabBodyId).select('textarea.mceEditor');
         console.log('lazyLoadTinyMCEforTab: for tabBodyId ', tabBodyId, tinyMceAreas);
         tinyMceAreas.each(function(editorArea) {
-          tinyMCE.execCommand("mceAddEditor", false, editorArea.id);
+          tinymce.execCommand("mceAddEditor", false, editorArea.id);
         });
         console.log('lazyLoadTinyMCEforTab: finish', tabBodyId);
       } else {
