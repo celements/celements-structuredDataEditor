@@ -141,7 +141,6 @@
       });
     }
   };
-  
   var initCelRTE4Listener = function() {
     console.log('initCelRTE4Listener: before initCelRTE4');
     initCelRTE4();
