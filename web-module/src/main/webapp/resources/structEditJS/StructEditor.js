@@ -312,6 +312,7 @@
         } while ($(theId));
         structRoot.id = theId;
       }
+      return theId;
     },
 
     _initStructEditors : function(theCheckRoot) {
