@@ -232,7 +232,7 @@
       var dirtyEditors = _me.getDirtyEditors();
       var jsonResponses = new Hash();
       var saveAllEditors = function(remainingDirtyEditors) {
-        var editorKey = remainingDirtyEditors.keys[0];
+        var editorKey = remainingDirtyEditors.keys()[0];
         var editor = remainingDirtyEditors.get(editorKey);
         remainingDirtyEditors.unset(editorKey);
         var remainingDirtyEditorsMap = remainingDirtyEditors;
