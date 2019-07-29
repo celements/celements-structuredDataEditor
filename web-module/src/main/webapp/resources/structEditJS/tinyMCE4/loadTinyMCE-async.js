@@ -22,6 +22,7 @@
   "use strict";
   
   var tinyConfigLoaded = false;
+  var editorCounter = 0;
 
   var initCelRTE4 = function() {
     console.log('initCelRTE4: start');
@@ -117,6 +118,9 @@
     console.log('getUninitializedMceEditors: start ', mceParentElem);
     var mceEditorsToInit = new Array();
     $(mceParentElem).select('textarea.mceEditor').each(function(editorArea) {
+      if (!editorArea.id) {
+        editorArea.writeAttribute('id', editorArea.name + 'Editor' + (++editorCounter));
+      }
       var notInitialized = !tinymce.get(editorArea.id);
       console.log('getUninitializedMceEditors: found new editorArea ', editorArea.id,
           notInitialized);

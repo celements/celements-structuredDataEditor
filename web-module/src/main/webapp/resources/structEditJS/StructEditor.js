@@ -232,7 +232,7 @@
       var dirtyEditors = _me.getDirtyEditors();
       var jsonResponses = new Hash();
       var saveAllEditors = function(remainingDirtyEditors) {
-        var editorKey = remainingDirtyEditors.keys[0];
+        var editorKey = remainingDirtyEditors.keys()[0];
         var editor = remainingDirtyEditors.get(editorKey);
         remainingDirtyEditors.unset(editorKey);
         var remainingDirtyEditorsMap = remainingDirtyEditors;
@@ -301,6 +301,17 @@
       }
     },
 
+    getEditorForFormElem : function(formElem){
+      var _me = this;
+      var editor = null;
+      if (formElem) {
+        var editorRootElem = formElem.up('.structDataEditor.celStructEditorLoaded');
+        console.log('getEditorForFormElem editorRootElem ', editorRootElem);
+        editor = _me._allStructEditorMap.get(editorRootElem.id);
+      }
+      return editor;
+    },
+
     _createIdIfEmpty : function(structRoot) {
       var _me = this;
       var theId = structRoot.id;
@@ -312,6 +323,7 @@
         } while ($(theId));
         structRoot.id = theId;
       }
+      return theId;
     },
 
     _initStructEditors : function(theCheckRoot) {
