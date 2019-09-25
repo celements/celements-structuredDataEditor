@@ -135,14 +135,21 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
    * colName - defined column name
    */
   String resolveMacroName(final ColumnConfig colCfg) {
-    Optional<String> tblName = pageTypeResolver.resolvePageTypeReference(context.getCurrentDoc().get())
-        .transform(PageTypeReference::getConfigName);
-    return tblName.or(() -> resolvePrimaryLayoutSpaceName(colCfg.getTableConfig()))
+    Optional<String> tblName = structDataService
+        .getStructLayoutSpaceRef(context.getCurrentDoc().get())
+        .transform(this::getFirstPartOfLayoutName)
+        .or(pageTypeResolver.resolvePageTypeReference(context.getCurrentDoc().get())
+            .transform(PageTypeReference::getConfigName));
+    return tblName.or(() -> resolvePrimaryTableConfigLayoutSpaceName(colCfg.getTableConfig()))
         + "/col_" + colCfg.getName();
   }
 
-  private String resolvePrimaryLayoutSpaceName(TableConfig tableCfg) {
+  private String resolvePrimaryTableConfigLayoutSpaceName(TableConfig tableCfg) {
     SpaceReference layoutSpaceRef = tableCfg.getDocumentReference().getLastSpaceReference();
+    return getFirstPartOfLayoutName(layoutSpaceRef);
+  }
+
+  private String getFirstPartOfLayoutName(SpaceReference layoutSpaceRef) {
     return Splitter.on(PATTERN_NON_ALPHANUMERIC).split(layoutSpaceRef.getName()).iterator().next();
   }
 
