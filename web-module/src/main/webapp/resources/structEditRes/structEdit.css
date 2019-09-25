@@ -73,11 +73,15 @@ input[type=number]::-webkit-inner-spin-button {
 
 .struct_table .struct_table_cell {
   display: flex;
+  position: relative;
   align-items: center;
   width: 200px;
   padding: 9px;
   margin-right: 20px;
+  border: none;
+  white-space: nowrap;
   overflow: hidden;
+  text-align: left;
 }
 
 .struct_table .struct_table_cell.edit,
@@ -89,5 +93,13 @@ input[type=number]::-webkit-inner-spin-button {
 
 .struct_table.border ul.struct_table_data .struct_table_cell.edit,
 .struct_table.border ul.struct_table_data .struct_table_cell.delete {
-  border-left: 1px solid #0067B1;
+  border-color: #888;
+  border-left: 1px solid;
+}
+
+.struct_table .struct_table_cell.title {
+  background: inherit;
+  font: inherit;
+  font-style: inherit;
+  color: inherit;
 }
