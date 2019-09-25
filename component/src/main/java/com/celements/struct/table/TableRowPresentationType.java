@@ -1,6 +1,7 @@
 package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
+import static com.celements.web.classes.oldcore.XWikiDocumentClass.*;
 import static com.google.common.base.MoreObjects.*;
 import static java.util.stream.Collectors.*;
 import static org.glassfish.jersey.internal.guava.Predicates.*;
@@ -11,6 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
@@ -19,6 +21,9 @@ import org.xwiki.velocity.XWikiVelocityException;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.classes.ClassDefinition;
+import com.celements.model.field.FieldAccessor;
+import com.celements.model.field.XDocumentFieldAccessor;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.velocity.VelocityContextModifier;
@@ -35,6 +40,12 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   public static final String NAME = "structTableRow";
 
   private static final Pattern PATTERN_NON_ALPHANUMERIC = Pattern.compile("[^a-zA-Z0-9]");
+
+  @Requirement(XDocumentFieldAccessor.NAME)
+  private FieldAccessor<XWikiDocument> xDocFieldAccessor;
+
+  @Requirement(CLASS_DEF_HINT)
+  private ClassDefinition xwikiDocPseudoClass;
 
   @Override
   public String getDefaultCssClass() {
@@ -133,6 +144,9 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     Optional<BaseObject> obj = structDataEditorService.getXObjectInStructEditor(cellDoc, rowDoc);
     if (obj.isPresent() && hasValue(obj.get(), name)) {
       value = obj.get().displayView(name, context.getXWikiContext());
+    } else if (xwikiDocPseudoClass.getField(name).isPresent()) {
+      value = xDocFieldAccessor.getValue(rowDoc, xwikiDocPseudoClass.getField(name).get())
+          .transform(Object::toString).or("");
     }
     return value;
   }
@@ -157,7 +171,8 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   }
 
   private String getFirstPartOfLayoutName(SpaceReference layoutSpaceRef) {
-    return Splitter.on(PATTERN_NON_ALPHANUMERIC).split(layoutSpaceRef.getName()).iterator().next();
+    return Splitter.on(PATTERN_NON_ALPHANUMERIC).split(layoutSpaceRef.getName()).iterator()
+        .next();
   }
 
   private String getMacroContent(String... paths) {
