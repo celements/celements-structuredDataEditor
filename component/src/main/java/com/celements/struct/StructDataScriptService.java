@@ -1,17 +1,24 @@
 package com.celements.struct;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
+import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.script.service.ScriptService;
 
 import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.model.access.IModelAccessFacade;
+import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.context.ModelContext;
+import com.celements.model.reference.RefBuilder;
 import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
@@ -56,6 +63,24 @@ public class StructDataScriptService implements ScriptService {
       }
     }
     return writer.getAsString();
+  }
+
+  public List<String> getLayoutJavaScriptFiles(SpaceReference layoutSpaceRef) {
+    List<String> jsFiles = new ArrayList<>();
+    if (rightsAccess.hasAccessLevel(layoutSpaceRef, EAccessLevel.VIEW)) {
+      try {
+        DocumentReference layoutDocRef = RefBuilder.from(layoutSpaceRef).doc("WebHome")
+            .build(DocumentReference.class);
+        modelAccess.getXObjects(layoutDocRef, new ClassReference("JavaScript",
+            "ExternalFiles").getDocRef(layoutDocRef.getWikiReference())).stream()
+            .map(xObj -> xObj.getStringValue("filepath"))
+            .filter(file -> !file.trim().isEmpty())
+            .forEach(jsFiles::add);
+      } catch (DocumentNotExistsException exc) {
+        LOGGER.info("getLayoutJavaScriptFiles - [{}]", layoutSpaceRef, exc);
+      }
+    }
+    return jsFiles;
   }
 
 }
