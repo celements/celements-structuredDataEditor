@@ -2,8 +2,13 @@ package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
 import static com.google.common.base.MoreObjects.*;
+import static java.util.stream.Collectors.*;
+import static org.glassfish.jersey.internal.guava.Predicates.*;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.ClassReference;
@@ -19,6 +24,8 @@ import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.velocity.VelocityContextModifier;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -91,10 +98,12 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     String content = "";
     try {
       String text = colCfg.getContent().trim();
+      String macroName = "col_" + colCfg.getName() + ".vm";
       if (text.isEmpty() && !colCfg.isHeaderMode()) {
-        String macroName = "col_" + colCfg.getName() + ".vm";
-        text += getMacroContent(macroName);
-        text += getMacroContent(resolveTableName(colCfg) + "/" + macroName);
+        for (Iterator<String> iter = resolvePossibleTableNames(context.getCurrentDoc().get())
+            .iterator(); (text.isEmpty() && iter.hasNext());) {
+          text = getMacroContent(STRUCT_TABLE_DIR, iter.next(), macroName);
+        }
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
           rowDoc, colCfg)).trim();
@@ -133,26 +142,28 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   }
 
   /**
-   * @return the table name, which is the first valid value of the following possibilites:
+   * @return possible table names:
    *         1. struct layout space name defined by StructLayoutClass_layoutSpace
    *         2. table page type name
-   *         3. table config layout space name (legacy support)
    */
-  String resolveTableName(final ColumnConfig colCfg) {
-    String directory = structDataService.getStructLayoutSpaceRef(context.getCurrentDoc().get())
-        .transform(this::getFirstPartOfLayoutName)
-        .or(() -> pageTypeResolver.resolvePageTypeReference(context.getCurrentDoc().get())
-            .transform(PageTypeReference::getConfigName).orNull());
-    return Optional.fromNullable(directory).or(() -> getFirstPartOfLayoutName(
-        colCfg.getTableConfig().getDocumentReference().getLastSpaceReference()));
+  List<String> resolvePossibleTableNames(XWikiDocument tableDoc) {
+    ImmutableList.Builder<String> tableNames = new ImmutableList.Builder<>();
+    structDataService.getStructLayoutSpaceRef(tableDoc).toJavaUtil()
+        .map(this::getFirstPartOfLayoutName).ifPresent(tableNames::add);
+    pageTypeResolver.resolvePageTypeReference(tableDoc).toJavaUtil()
+        .map(PageTypeReference::getConfigName).ifPresent(tableNames::add);
+    tableNames.add("");
+    return tableNames.build();
   }
 
   private String getFirstPartOfLayoutName(SpaceReference layoutSpaceRef) {
     return Splitter.on(PATTERN_NON_ALPHANUMERIC).split(layoutSpaceRef.getName()).iterator().next();
   }
 
-  private String getMacroContent(String path) {
-    return webUtils.getTranslatedDiscTemplateContent(STRUCT_TABLE_DIR + path, null, null);
+  private String getMacroContent(String... paths) {
+    return Strings.nullToEmpty(webUtils.getTranslatedDiscTemplateContent(
+        Stream.of(paths).filter(not(String::isEmpty)).collect(joining("/")),
+        null, null)).trim();
   }
 
   VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,
