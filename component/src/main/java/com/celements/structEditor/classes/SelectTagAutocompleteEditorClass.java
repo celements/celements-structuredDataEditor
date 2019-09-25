@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.model.reference.ClassReference;
 
 import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.BooleanField;
@@ -22,6 +23,7 @@ public class SelectTagAutocompleteEditorClass extends AbstractClassDefinition im
   public static final String DOC_NAME = "SelectTagAutocompleteEditorClass";
   public static final String CLASS_FN = SPACE_NAME + "." + DOC_NAME;
   public static final String CLASS_DEF_HINT = CLASS_FN;
+  public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
   public static final ClassField<String> FIELD_AUTOCOMPLETE_SEPARATOR = new StringField.Builder(
       CLASS_FN, "select_tag_autocomplete_separator").prettyName("Separator").build();

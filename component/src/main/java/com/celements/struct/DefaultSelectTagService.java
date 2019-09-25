@@ -12,13 +12,11 @@ import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.field.FieldAccessor;
-import com.celements.model.field.FieldGetterFunction;
 import com.celements.model.field.XObjectFieldAccessor;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.structEditor.SelectAutocompleteRole;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.celements.structEditor.fields.SelectTagPageType;
-import com.google.common.collect.FluentIterable;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -43,10 +41,10 @@ final public class DefaultSelectTagService implements SelectTagServiceRole {
   public Optional<SelectAutocompleteRole> getTypeImpl(DocumentReference cellDocRef) {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      FluentIterable<BaseObject> objIter = XWikiObjectFetcher.on(cellDoc).filter(
-          selectTagAutocomplete).iter();
-      return objIter.transformAndConcat(new FieldGetterFunction<>(xObjFieldAccessor,
-          SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE)).first().toJavaUtil();
+      return XWikiObjectFetcher.on(cellDoc)
+          .fetchField(SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE)
+          .first().toJavaUtil()
+          .flatMap(list -> list.stream().findFirst());
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("cell doesn't exist '{}'", cellDocRef, exc);
     }
