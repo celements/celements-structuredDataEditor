@@ -131,7 +131,10 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
 
   /**
    * {@code <tblName>/col_<colName>.vm}
-   * tblName - either table page type name or layout space primary name
+   * tblName - the first valid value of the following possibilites:
+   * 1. struct layout space name defined by StructLayoutClass_layoutSpace
+   * 2. table page type name
+   * 3. table config layout space name (legacy support)
    * colName - defined column name
    */
   String resolveMacroName(final ColumnConfig colCfg) {

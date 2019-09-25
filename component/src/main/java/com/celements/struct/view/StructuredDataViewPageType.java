@@ -1,13 +1,13 @@
-package com.celements.structEditor;
+package com.celements.struct.view;
 
 import org.xwiki.component.annotation.Component;
 
 import com.celements.struct.StructBasePageType;
 
-@Component(StructuredDataEditorPageType.NAME)
-public class StructuredDataEditorPageType extends StructBasePageType {
+@Component(StructuredDataViewPageType.NAME)
+public class StructuredDataViewPageType extends StructBasePageType {
 
-  public static final String NAME = "StructuredDataEditor";
+  public static final String NAME = "StructuredDataView";
 
   @Override
   public String getName() {
@@ -21,7 +21,7 @@ public class StructuredDataEditorPageType extends StructBasePageType {
 
   @Override
   public String getEditRenderTemplate() {
-    return "PresentationEdit";
+    return "PresentationEdit"; // TODO render table config layout
   }
 
 }
