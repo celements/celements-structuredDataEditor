@@ -49,9 +49,8 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
     DocumentReference cellDocRef = new RefBuilder().wiki(getContext().getDatabase()).space(
         "myTestSpace").doc("myTestDoc").build(DocumentReference.class);
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
-    final BaseObject selectConfigObj = createObject(
+    final BaseObject selectConfigObj = addXObject(cellDoc,
         SelectTagAutocompleteEditorClass.CLASS_DEF_HINT);
-    cellDoc.addXObject(selectConfigObj);
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(cellDoc);
     expect(modelAccessMock.getFieldValue(eq(selectConfigObj), eq(
         SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE))).andReturn(
@@ -74,11 +73,12 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
     verifyDefault();
   }
 
-  private BaseObject createObject(String hint) {
+  private BaseObject addXObject(XWikiDocument doc, String hint) {
     ClassDefinition classDef = Utils.getComponent(ClassDefinition.class, hint);
-    final BaseObject bO = new BaseObject();
-    bO.setXClassReference(classDef.getClassReference());
-    return bO;
+    final BaseObject xObj = new BaseObject();
+    xObj.setDocumentReference(doc.getDocumentReference());
+    xObj.setXClassReference(classDef.getClassReference());
+    return xObj;
   }
 
 }

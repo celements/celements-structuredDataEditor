@@ -1,6 +1,6 @@
 package com.celements.structEditor;
 
-import static com.celements.model.util.References.*;
+import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 
@@ -12,10 +12,14 @@ import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.model.reference.WikiReference;
 
 import com.celements.model.context.ModelContext;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
+import com.celements.model.reference.RefBuilder;
+import com.celements.model.util.ModelUtils;
 import com.celements.navigation.NavigationConfig;
 import com.celements.navigation.factories.JavaNavigationConfigurator;
 import com.celements.pagetype.IPageTypeConfig;
 import com.celements.pagetype.PageTypeReference;
+import com.celements.pagetype.classes.PageTypeClass;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.pagetype.service.IPageTypeRole;
 import com.celements.web.plugin.cmd.PageLayoutCommand;
@@ -43,25 +47,46 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
   private IPageTypeRole pageTypeService;
 
   @Requirement
+  private ModelUtils modelUtils;
+
+  @Requirement
   private ModelContext context;
 
   @Override
   @NotNull
   public NavigationConfig getNavigationConfig(@NotNull PageTypeReference configReference) {
     LOGGER.debug("getNavigationConfig - for pageTypeRef [{}]", configReference.getConfigName());
+    SpaceReference configSpaceRef = getConfigSpaceRefFromPageTypeLayout()
+        .orElseGet(this::getCalculatedConfigSpaceRef);
+    LOGGER.info("configSpace: [{}]", configSpaceRef);
+    return NAV_CFG.overlay(newNavCfgBuilder().nodeSpaceRef(configSpaceRef).build());
+  }
+
+  private Optional<SpaceReference> getConfigSpaceRefFromPageTypeLayout() {
+    String spaceName = XWikiObjectFetcher.on(context.getCurrentDoc().get())
+        .fetchField(PageTypeClass.PAGE_LAYOUT).first().or("");
+    if (!spaceName.isEmpty()) {
+      SpaceReference configSpaceRef = getInheritedConfigSpaceRef(spaceName);
+      if (new PageLayoutCommand().layoutExists(configSpaceRef)) {
+        return Optional.of(configSpaceRef);
+      }
+    }
+    return Optional.empty();
+  }
+
+  private SpaceReference getCalculatedConfigSpaceRef() {
     IPageTypeConfig ptCfg = pageTypeService.getPageTypeConfigForPageTypeRef(
         pageTypeResolver.resolvePageTypeRefForCurrentDoc());
     boolean isStructEdit = !Strings.isNullOrEmpty(ptCfg.getRenderTemplateForRenderMode("edit"));
     String spaceName = ptCfg.getName() + "-" + (isStructEdit ? "EditFields" : "StructData");
-    LOGGER.info("configSpace: [{}]", spaceName);
-    SpaceReference configSpaceRef = getInheritedConfigSpaceRef(spaceName);
-    return NAV_CFG.overlay(newNavCfgBuilder().nodeSpaceRef(configSpaceRef).build());
+    return getInheritedConfigSpaceRef(spaceName);
   }
 
   private SpaceReference getInheritedConfigSpaceRef(String spaceName) {
-    SpaceReference configSpaceRef = create(SpaceReference.class, spaceName, context.getWikiRef());
+    SpaceReference configSpaceRef = modelUtils.resolveRef(spaceName, SpaceReference.class);
     if (!new PageLayoutCommand().layoutExists(configSpaceRef)) {
-      configSpaceRef = create(SpaceReference.class, spaceName, getCentralWikiRef());
+      configSpaceRef = RefBuilder.from(configSpaceRef).with(getCentralWikiRef())
+          .build(SpaceReference.class);
     }
     return configSpaceRef;
   }

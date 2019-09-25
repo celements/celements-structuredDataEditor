@@ -29,6 +29,7 @@ com.celements.struct.classes.TableColumnClass
 com.celements.struct.table.TablePresentationType
 com.celements.struct.table.TableRowPresentationType
 com.celements.struct.table.TablePageType
+com.celements.struct.table.StructuredDataListPageType
 com.celements.struct.DefaultSelectTagService
 com.celements.struct.StructUtilService
 com.celements.tinymce4.TinyMce4Config
