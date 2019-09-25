@@ -92,8 +92,9 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     try {
       String text = colCfg.getContent().trim();
       if (text.isEmpty() && !colCfg.isHeaderMode()) {
-        String macroPath = "/templates/" + STRUCT_TABLE_FOLDER + resolveMacroName(colCfg) + ".vm";
-        text = webUtils.getTranslatedDiscTemplateContent(macroPath, null, null);
+        String macroName = "col_" + colCfg.getName() + ".vm";
+        text += getMacroContent(macroName);
+        text += getMacroContent(resolveTableName(colCfg) + "/" + macroName);
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
           rowDoc, colCfg)).trim();
@@ -111,6 +112,8 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
       String msg = webUtils.getAdminMessageTool().get(dictKey);
       if (!dictKey.equals(msg)) {
         title = msg;
+      } else {
+        LOGGER.info("resolveTitleFromDictionary: nothing found for [{}]", dictKey);
       }
     }
     return title;
@@ -130,30 +133,26 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   }
 
   /**
-   * {@code <tblName>/col_<colName>.vm}
-   * tblName - the first valid value of the following possibilites:
-   * 1. struct layout space name defined by StructLayoutClass_layoutSpace
-   * 2. table page type name
-   * 3. table config layout space name (legacy support)
-   * colName - defined column name
+   * @return the table name, which is the first valid value of the following possibilites:
+   *         1. struct layout space name defined by StructLayoutClass_layoutSpace
+   *         2. table page type name
+   *         3. table config layout space name (legacy support)
    */
-  String resolveMacroName(final ColumnConfig colCfg) {
-    Optional<String> tblName = structDataService
-        .getStructLayoutSpaceRef(context.getCurrentDoc().get())
+  String resolveTableName(final ColumnConfig colCfg) {
+    String directory = structDataService.getStructLayoutSpaceRef(context.getCurrentDoc().get())
         .transform(this::getFirstPartOfLayoutName)
-        .or(pageTypeResolver.resolvePageTypeReference(context.getCurrentDoc().get())
-            .transform(PageTypeReference::getConfigName));
-    return tblName.or(() -> resolvePrimaryTableConfigLayoutSpaceName(colCfg.getTableConfig()))
-        + "/col_" + colCfg.getName();
-  }
-
-  private String resolvePrimaryTableConfigLayoutSpaceName(TableConfig tableCfg) {
-    SpaceReference layoutSpaceRef = tableCfg.getDocumentReference().getLastSpaceReference();
-    return getFirstPartOfLayoutName(layoutSpaceRef);
+        .or(() -> pageTypeResolver.resolvePageTypeReference(context.getCurrentDoc().get())
+            .transform(PageTypeReference::getConfigName).orNull());
+    return Optional.fromNullable(directory).or(() -> getFirstPartOfLayoutName(
+        colCfg.getTableConfig().getDocumentReference().getLastSpaceReference()));
   }
 
   private String getFirstPartOfLayoutName(SpaceReference layoutSpaceRef) {
     return Splitter.on(PATTERN_NON_ALPHANUMERIC).split(layoutSpaceRef.getName()).iterator().next();
+  }
+
+  private String getMacroContent(String path) {
+    return webUtils.getTranslatedDiscTemplateContent(STRUCT_TABLE_DIR + path, null, null);
   }
 
   VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,

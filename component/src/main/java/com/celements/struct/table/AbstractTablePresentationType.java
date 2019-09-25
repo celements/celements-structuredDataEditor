@@ -25,7 +25,7 @@ public abstract class AbstractTablePresentationType implements IPresentationType
 
   protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-  public static final String STRUCT_TABLE_FOLDER = "celStruct/table/";
+  public static final String STRUCT_TABLE_DIR = "/templates/celStruct/table/";
   public static final String CSS_CLASS = "struct_table";
 
   @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
