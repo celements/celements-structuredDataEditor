@@ -21,7 +21,7 @@ public class StructuredDataViewPageType extends StructBasePageType {
 
   @Override
   public String getEditRenderTemplate() {
-    return "PresentationEdit"; // TODO render table config layout
+    return ""; // TODO render table config layout
   }
 
 }

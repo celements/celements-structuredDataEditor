@@ -62,14 +62,14 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     TableConfig table = getDummyTableConfig();
 
     expectLuceneSearch(table, Collections.<DocumentReference>emptyList(), 0);
-    expect(msgToolMock.get("struct_table_nodata")).andReturn("no data");
+    expectNoData(table);
 
     replayDefault();
     presentationType.writeNodeContent(writer, tableDoc.getDocumentReference(), table);
     verifyDefault();
 
-    assertEquals("<div id=\"tId\" class=\"struct_table t1 t2\">no data</div>",
-        writer.getAsString());
+    String expHtml = loadFile("table_dummy_empty.html").replaceAll("  |\t|\n", "");
+    assertEquals(expHtml, writer.getAsString());
   }
 
   @Test
@@ -121,9 +121,9 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
     int offset = 123;
 
     expectLuceneSearch(table, Collections.<DocumentReference>emptyList(), offset);
+    expectNoData(table);
     getContext().setRequest(createMockAndAddToDefault(XWikiRequest.class));
     expect(getContext().getRequest().get("offset")).andReturn(Integer.toString(offset));
-    expect(msgToolMock.get("struct_table_nodata")).andReturn("");
 
     replayDefault();
     presentationType.writeNodeContent(writer, tableDoc.getDocumentReference(), table);
@@ -164,6 +164,14 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
         ImmutableList.<String>of())).andReturn(resultMock);
     expect(resultMock.getResults(offset, table.getResultLimit(),
         DocumentReference.class)).andReturn(result);
+  }
+
+  private void expectNoData(TableConfig table) throws Exception {
+    expectTableRender(table, Arrays.asList());
+    String value = "no data";
+    expect(msgToolMock.get("struct_table_nodata")).andReturn(value);
+    expect(getMock(VelocityService.class).evaluateVelocityText(same(tableDoc), eq(value),
+        anyObject(VelocityContextModifier.class))).andReturn(value);
   }
 
 }
