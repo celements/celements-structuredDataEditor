@@ -3,8 +3,8 @@ package com.celements.struct.table;
 import static com.celements.model.util.ReferenceSerializationMode.*;
 import static com.celements.web.classes.oldcore.XWikiDocumentClass.*;
 import static com.google.common.base.MoreObjects.*;
+import static com.google.common.base.Predicates.*;
 import static java.util.stream.Collectors.*;
-import static org.glassfish.jersey.internal.guava.Predicates.*;
 
 import java.util.Iterator;
 import java.util.List;
