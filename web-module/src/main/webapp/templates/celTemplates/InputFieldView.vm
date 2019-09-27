@@ -1,7 +1,7 @@
 <!-- InputFieldView -->
 #set($cellDocRef = $celldoc.getDocumentReference())
 #set($attrMap = $services.structuredDataEditor.getTextAttributes($cellDocRef))
-#parse('celStruct/fieldLabel.vm')
+#parse('celMacros/struct/renderLabel.vm')
 <input value="$!services.structuredDataEditor.getCellValueAsString($cellDocRef)"##
 #foreach($attrEntry in $attrMap.entrySet())
   ${attrEntry.key}="$!{attrEntry.value}"

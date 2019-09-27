@@ -7,7 +7,7 @@
   #set($cssClassesTA = "${cssClassesTA} tinyMCE mceEditor tinyMCEV4")
   #set($cssClassesLabel = "${cssClassesLabel} tinyMCELabel mceEditorLabel")
 #end
-#parse('celStruct/fieldLabel.vm')
+#parse('celMacros/struct/renderLabel.vm')
 <textarea class="$cssClassesTA"##
   #foreach($attrEntry in $attrMap.entrySet())##
     ${attrEntry.key}="$!{attrEntry.value}"##

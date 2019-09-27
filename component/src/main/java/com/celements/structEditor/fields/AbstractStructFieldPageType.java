@@ -2,6 +2,8 @@ package com.celements.structEditor.fields;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.velocity.XWikiVelocityException;
@@ -22,6 +24,8 @@ import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
 
 public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
+
+  protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   protected static final String EDIT_TEMPLATE_NAME = "StructDataFieldEdit";
 
