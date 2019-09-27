@@ -1,0 +1,4 @@
+#set($cellDocRef = $celldoc.getDocumentReference())
+<label for="$!services.structuredDataEditor.getAttributeName($cellDocRef)" class="structuredDataEditorLabel $!cssClassesLabel">
+  $!services.structuredDataEditor.getPrettyName($cellDocRef)
+</label>
