@@ -32,50 +32,78 @@ input[type=number]::-webkit-inner-spin-button {
 
 /*------- Struct Table ------*/
 
-.structDataEditor .struct_table ul.struct_table_header,
-.structDataEditor .struct_table ul.struct_table_data {
+.struct_table ul.struct_table_header,
+.struct_table ul.struct_table_data {
   list-style-type: none;
   margin: 0px;
   padding: 0px;
 }
 
-.structDataEditor .struct_table ul.struct_table_header {
+.struct_table ul.struct_table_header {
   font-weight: bold;
 }
 
-.structDataEditor .struct_table ul li.struct_table_row {
+.struct_table ul li.struct_table_row {
   display: flex;
-  width: min-content;
+  width: 100%;
 }
 
-.structDataEditor .struct_table ul li.struct_table_row .struct_table_cell:first-child {
+.struct_table ul li.struct_table_row .struct_table_cell:first-child {
   margin-left: 10px;
 }
 
-.structDataEditor .struct_table.border ul.struct_table_data li.struct_table_row {
+.struct_table.border ul.struct_table_data li.struct_table_row {
   border-color: #888;
   border-top: 1px solid;
   border-right: 1px solid;
   border-left: 1px solid;
 }
 
-.structDataEditor .struct_table.border ul.struct_table_data li.struct_table_row:last-child {
+.struct_table.border ul.struct_table_data li.struct_table_row:last-child {
   border-bottom: 1px solid;
 }
 
-.structDataEditor .struct_table ul.struct_table_data li.struct_table_row:nth-child(odd) {
+.struct_table ul.struct_table_data li.struct_table_row:nth-child(odd) {
   background-color: #eee;
 }
 
-.structDataEditor .struct_table ul.struct_table_data li.struct_table_row:hover {
+.struct_table ul.struct_table_data li.struct_table_row:hover {
   background-color: #dddddd;
 }
 
-.structDataEditor .struct_table .struct_table_cell {
+.struct_table .struct_table_cell {
   display: flex;
+  position: relative;
   align-items: center;
   width: 200px;
   padding: 9px;
   margin-right: 20px;
+  border: none;
+  white-space: nowrap;
   overflow: hidden;
+  text-align: left;
+}
+
+.struct_table .struct_table_cell.row_span {
+  width: 100%;
+}	
+
+.struct_table .struct_table_cell.edit,
+.struct_table .struct_table_cell.delete {
+  width: 25px;
+  margin-right: 0px;
+  text-align: center;
+}
+
+.struct_table.border ul.struct_table_data .struct_table_cell.edit,
+.struct_table.border ul.struct_table_data .struct_table_cell.delete {
+  border-color: #888;
+  border-left: 1px solid;
+}
+
+.struct_table .struct_table_cell.title {
+  background: inherit;
+  font: inherit;
+  font-style: inherit;
+  color: inherit;
 }

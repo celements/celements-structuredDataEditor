@@ -4,16 +4,15 @@ import static com.celements.common.test.CelementsTestUtils.*;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
-import com.celements.model.classes.ClassDefinition;
 import com.celements.model.reference.RefBuilder;
 import com.celements.structEditor.SelectAutocompleteRole;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
@@ -49,13 +48,8 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
     DocumentReference cellDocRef = new RefBuilder().wiki(getContext().getDatabase()).space(
         "myTestSpace").doc("myTestDoc").build(DocumentReference.class);
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
-    final BaseObject selectConfigObj = createObject(
-        SelectTagAutocompleteEditorClass.CLASS_DEF_HINT);
-    cellDoc.addXObject(selectConfigObj);
+    addXObject(cellDoc, SelectTagAutocompleteEditorClass.CLASS_REF);
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(cellDoc);
-    expect(modelAccessMock.getFieldValue(eq(selectConfigObj), eq(
-        SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE))).andReturn(
-            com.google.common.base.Optional.fromNullable(Collections.emptyList()));
     replayDefault();
     Optional<SelectAutocompleteRole> typeImpl = selectTagServ.getTypeImpl(cellDocRef);
     assertFalse(typeImpl.isPresent());
@@ -74,11 +68,11 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
     verifyDefault();
   }
 
-  private BaseObject createObject(String hint) {
-    ClassDefinition classDef = Utils.getComponent(ClassDefinition.class, hint);
-    final BaseObject bO = new BaseObject();
-    bO.setXClassReference(classDef.getClassReference());
-    return bO;
+  private BaseObject addXObject(XWikiDocument doc, ClassReference classRef) {
+    final BaseObject xObj = new BaseObject();
+    xObj.setDocumentReference(doc.getDocumentReference());
+    xObj.setXClassReference(classRef.getDocRef(doc.getDocumentReference().getWikiReference()));
+    return xObj;
   }
 
 }

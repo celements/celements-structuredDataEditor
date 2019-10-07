@@ -4,6 +4,17 @@
  * $structDataEditorSpaceRef : required, editor layout space reference
  * $activateJsCheckUnsaved : optional, boolean
 ***************************************************************#
+#set($structDataEditorCfgDocRef = $services.model.resolveDocument('', 'default', $structDataEditorSpaceRef))
+#set($structDataEditorSpace = $structDataEditorSpaceRef.name)
+#if($isSuperAdmin)
+<!--
+  structDataEditorCfg: $!{services.model.serialize($structDataEditorCfgDocRef)}
+-->
+#end
+
+#foreach($path in $services.structData.getJavaScriptFiles($structDataEditorCfgDocRef))
+  $services.javascript.addExtJSfileOnce("$!{path}", 'file')
+#end
 <link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':celJS/yui/assets/skins/sam/container.css', 'file')">
 <link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':celJS/yui/assets/skins/sam/button.css', 'file')">
 <link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':structEditRes/structEdit.css', 'file')">
@@ -21,21 +32,12 @@
   $services.javascript.addExtJSfileOnce(':structEditJS/initStructEditor.js', 'file')
   $services.javascript.addExtJSfileOnce(':structEditJS/select2/select2.full.min.js', 'file')
   $services.javascript.addExtJSfileOnce(':structEditJS/select2/de.js', 'file')
-  #set($jsPath = $services.structuredDataEditor.getSelectTagAutocompleteJsPathList())
-  #foreach($path in $jsPath)
+  #foreach($path in $services.structuredDataEditor.getSelectTagAutocompleteJsPathList())
     $services.javascript.addExtJSfileOnce(":${path}", 'file')
   #end
   #set($lazyAdd = false)
   #parse("celMacros/includeCelementsRTE.vm")
 #end ## activateJsCheckUnsaved
-
-#set($structDataEditorCfgDocRef = $services.model.resolveDocument('', 'default', $structDataEditorSpaceRef))
-#set($structDataEditorSpace = $structDataEditorSpaceRef.name)
-#if($isSuperAdmin)
-<!--
-  structDataEditorCfg: $!{services.model.serialize($structDataEditorCfgDocRef)}
--->
-#end
 
 ## include CSS defined on struct layout
 #set($structDataEditorCfgDoc = $services.modelAccess.getDocument($structDataEditorCfgDocRef))

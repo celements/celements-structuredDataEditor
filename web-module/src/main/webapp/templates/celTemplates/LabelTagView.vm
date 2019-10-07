@@ -1,0 +1,3 @@
+<!-- LabelTagView -->
+#set($cellDocRef = $celldoc.getDocumentReference())
+$!services.structuredDataEditor.getPrettyName($cellDocRef)

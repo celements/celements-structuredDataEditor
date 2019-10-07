@@ -18,6 +18,7 @@ import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.search.lucene.ILuceneSearchService;
+import com.celements.struct.StructDataService;
 import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Optional;
@@ -33,7 +34,8 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
   @Before
   public void prepareTest() throws Exception {
     registerComponentMocks(IModelAccessFacade.class, IWebUtilsService.class,
-        IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityService.class);
+        IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityService.class,
+        StructDataService.class);
     presentationType = (TableRowPresentationType) Utils.getComponent(IPresentationTypeRole.class,
         TableRowPresentationType.NAME);
     doc = new XWikiDocument(new DocumentReference("xwikidb", "layoutspace", "tabledoc"));
@@ -41,39 +43,24 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
   }
 
   @Test
-  public void test_resolveMacroName() {
-    TableConfig table = getDummyTableConfig();
-    ColumnConfig col = table.getColumns().get(0);
-    col.setName("name");
+  public void test_resolvePossibleTableNames_tableName() {
+    expect(getMock(StructDataService.class).getStructLayoutSpaceRef(same(doc)))
+        .andReturn(Optional.absent());
     expectPageTypeRef("tableName");
 
     replayDefault();
-    assertEquals("tableName/col_name", presentationType.resolveMacroName(col));
+    assertEquals(Arrays.asList("tableName", ""), presentationType.resolvePossibleTableNames(doc));
     verifyDefault();
   }
 
   @Test
-  public void test_resolveMacroName_tableName_fallback_layoutspace() {
-    TableConfig table = getDummyTableConfig();
-    table.setCssId("tableName");
-    ColumnConfig col = table.getColumns().get(0);
-    col.setName("name");
+  public void test_resolvePossibleTableNames_layoutspace() {
+    expect(getMock(StructDataService.class).getStructLayoutSpaceRef(same(doc)))
+        .andReturn(Optional.of(doc.getDocumentReference().getLastSpaceReference()));
     expectAbsentPageTypeRef();
 
     replayDefault();
-    assertEquals("layoutspace/col_name", presentationType.resolveMacroName(col));
-    verifyDefault();
-  }
-
-  @Test
-  public void test_resolveMacroName_colName_nonWhiteSpace() {
-    TableConfig table = getDummyTableConfig();
-    ColumnConfig col = table.getColumns().get(0);
-    col.setName("the col-name");
-    expectPageTypeRef("tableName");
-
-    replayDefault();
-    assertEquals("tableName/col_the_col_name", presentationType.resolveMacroName(col));
+    assertEquals(Arrays.asList("layoutspace", ""), presentationType.resolvePossibleTableNames(doc));
     verifyDefault();
   }
 

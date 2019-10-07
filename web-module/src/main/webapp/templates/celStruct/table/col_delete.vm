@@ -1,0 +1,7 @@
+#set($xredirect = "$!request.xredirect")
+#if ("$!xredirect" == '')
+  #set($xredirect = $services.url.getURL())
+#end
+#set($xredirect = $escapetool.url($xredirect))
+#set($url = $services.url.getURL($rowdoc.documentReference, 'delete', "xredirect=${xredirect}"))
+<a class="icon-link" href="$!url"><i class="icon fa fa-2x fa-trash-o" title="delete"></i></a>

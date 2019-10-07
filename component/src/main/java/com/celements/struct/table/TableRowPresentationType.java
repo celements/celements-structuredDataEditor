@@ -1,11 +1,18 @@
 package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
+import static com.celements.web.classes.oldcore.XWikiDocumentClass.*;
 import static com.google.common.base.MoreObjects.*;
+import static com.google.common.base.Predicates.*;
+import static java.util.stream.Collectors.*;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
@@ -14,11 +21,16 @@ import org.xwiki.velocity.XWikiVelocityException;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.classes.ClassDefinition;
+import com.celements.model.field.FieldAccessor;
+import com.celements.model.field.XDocumentFieldAccessor;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.velocity.VelocityContextModifier;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -28,6 +40,12 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   public static final String NAME = "structTableRow";
 
   private static final Pattern PATTERN_NON_ALPHANUMERIC = Pattern.compile("[^a-zA-Z0-9]");
+
+  @Requirement(XDocumentFieldAccessor.NAME)
+  private FieldAccessor<XWikiDocument> xDocFieldAccessor;
+
+  @Requirement(CLASS_DEF_HINT)
+  private ClassDefinition xwikiDocPseudoClass;
 
   @Override
   public String getDefaultCssClass() {
@@ -91,9 +109,12 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     String content = "";
     try {
       String text = colCfg.getContent().trim();
+      String macroName = "col_" + colCfg.getName() + ".vm";
       if (text.isEmpty() && !colCfg.isHeaderMode()) {
-        String macroPath = "/templates/" + STRUCT_TABLE_FOLDER + resolveMacroName(colCfg) + ".vm";
-        text = webUtils.getTranslatedDiscTemplateContent(macroPath, null, null);
+        for (Iterator<String> iter = resolvePossibleTableNames(context.getCurrentDoc().get())
+            .iterator(); (text.isEmpty() && iter.hasNext());) {
+          text = getMacroContent(STRUCT_TABLE_DIR, iter.next(), macroName);
+        }
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
           rowDoc, colCfg)).trim();
@@ -111,6 +132,8 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
       String msg = webUtils.getAdminMessageTool().get(dictKey);
       if (!dictKey.equals(msg)) {
         title = msg;
+      } else {
+        LOGGER.info("resolveTitleFromDictionary: nothing found for [{}]", dictKey);
       }
     }
     return title;
@@ -121,6 +144,9 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
     Optional<BaseObject> obj = structDataEditorService.getXObjectInStructEditor(cellDoc, rowDoc);
     if (obj.isPresent() && hasValue(obj.get(), name)) {
       value = obj.get().displayView(name, context.getXWikiContext());
+    } else if (xwikiDocPseudoClass.getField(name).isPresent()) {
+      value = xDocFieldAccessor.getValue(rowDoc, xwikiDocPseudoClass.getField(name).get())
+          .transform(Object::toString).or("");
     }
     return value;
   }
@@ -130,20 +156,29 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
   }
 
   /**
-   * {@code <tblName>/col_<colName>.vm}
-   * tblName - either table page type name or layout space primary name
-   * colName - defined column name
+   * @return possible table names:
+   *         1. struct layout space name defined by StructLayoutClass_layoutSpace
+   *         2. table page type name
    */
-  String resolveMacroName(final ColumnConfig colCfg) {
-    Optional<String> tblName = pageTypeResolver.resolvePageTypeReference(context.getCurrentDoc().get())
-        .transform(PageTypeReference::getConfigName);
-    return tblName.or(() -> resolvePrimaryLayoutSpaceName(colCfg.getTableConfig()))
-        + "/col_" + colCfg.getName();
+  List<String> resolvePossibleTableNames(XWikiDocument tableDoc) {
+    ImmutableList.Builder<String> tableNames = new ImmutableList.Builder<>();
+    structDataService.getStructLayoutSpaceRef(tableDoc).toJavaUtil()
+        .map(this::getFirstPartOfLayoutName).ifPresent(tableNames::add);
+    pageTypeResolver.resolvePageTypeReference(tableDoc).toJavaUtil()
+        .map(PageTypeReference::getConfigName).ifPresent(tableNames::add);
+    tableNames.add("");
+    return tableNames.build();
   }
 
-  private String resolvePrimaryLayoutSpaceName(TableConfig tableCfg) {
-    SpaceReference layoutSpaceRef = tableCfg.getDocumentReference().getLastSpaceReference();
-    return Splitter.on(PATTERN_NON_ALPHANUMERIC).split(layoutSpaceRef.getName()).iterator().next();
+  private String getFirstPartOfLayoutName(SpaceReference layoutSpaceRef) {
+    return Splitter.on(PATTERN_NON_ALPHANUMERIC).split(layoutSpaceRef.getName()).iterator()
+        .next();
+  }
+
+  private String getMacroContent(String... paths) {
+    return Strings.nullToEmpty(webUtils.getTranslatedDiscTemplateContent(
+        Stream.of(paths).filter(not(String::isEmpty)).collect(joining("/")),
+        null, null)).trim();
   }
 
   VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,

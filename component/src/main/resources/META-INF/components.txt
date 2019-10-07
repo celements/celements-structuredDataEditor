@@ -20,12 +20,14 @@ com.celements.structEditor.fields.HiddenTagPageType
 com.celements.structEditor.fields.DateTimePickerPageType
 com.celements.structEditor.fields.SubmitLinkPageType
 com.celements.structEditor.fields.TextAreaFieldPageType
+com.celements.structEditor.fields.LabelTagPageType
 com.celements.structEditor.DefaultStructuredDataEditorService
 com.celements.structEditor.SelectAutocompleteRole
 com.celements.struct.DefaultStructDataService
 com.celements.struct.StructDataScriptService
 com.celements.struct.classes.TableClass
 com.celements.struct.classes.TableColumnClass
+com.celements.struct.classes.StructLayoutClass
 com.celements.struct.table.TablePresentationType
 com.celements.struct.table.TableRowPresentationType
 com.celements.struct.table.TablePageType
@@ -33,3 +35,4 @@ com.celements.struct.DefaultSelectTagService
 com.celements.struct.StructUtilService
 com.celements.tinymce4.TinyMce4Config
 com.celements.tinymce4.RteTinyMce4
+com.celements.struct.view.StructuredDataViewPageType

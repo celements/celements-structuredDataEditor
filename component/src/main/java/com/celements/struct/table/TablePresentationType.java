@@ -55,19 +55,17 @@ public class TablePresentationType extends AbstractTablePresentationType {
   private void writeTableContent(ICellWriter writer, DocumentReference tableDocRef,
       TableConfig tableCfg) {
     try {
+      writeHeader(writer, tableDocRef, tableCfg);
+      writer.openLevel(newAttributeBuilder().addCssClasses(CSS_CLASS + "_scroll").build());
+      writer.openLevel("ul", newAttributeBuilder().addCssClasses(CSS_CLASS + "_data").build());
       List<DocumentReference> rows = executeTableQuery(tableCfg);
       if (!rows.isEmpty()) {
-        writeHeader(writer, tableDocRef, tableCfg);
-        writer.openLevel(newAttributeBuilder().addCssClasses(CSS_CLASS + "_scroll").build());
-        writer.openLevel("ul", newAttributeBuilder().addCssClasses(CSS_CLASS + "_data").build());
-        for (DocumentReference resultDocRef : rows) {
-          rowPresentationType.writeNodeContent(writer, resultDocRef, tableCfg);
-        }
-        writer.closeLevel(); // ul
-        writer.closeLevel(); // div
+        rows.forEach(resultDocRef -> rowPresentationType.writeNodeContent(writer, resultDocRef, tableCfg));
       } else {
-        writer.appendContent(webUtils.getAdminMessageTool().get(getEmptyDictionaryKey()));
+        writeEmptyRow(writer, tableDocRef);
       }
+      writer.closeLevel(); // ul
+      writer.closeLevel(); // div
     } catch (XWikiVelocityException | LuceneSearchException exc) {
       LOGGER.warn("writeTableContent - failed for [{}]", tableCfg, exc);
       writer.appendContent("search failed: " + exc.getMessage());
@@ -91,6 +89,16 @@ public class TablePresentationType extends AbstractTablePresentationType {
     rowPresentationType.writeNodeContent(writer, tableDocRef, tableCfg);
     tableCfg.setHeaderMode(false);
     writer.closeLevel();
+  }
+
+  private void writeEmptyRow(ICellWriter writer, DocumentReference tableDocRef) {
+    TableConfig emptyTableCfg = new TableConfig();
+    ColumnConfig emptyColCfg = new ColumnConfig();
+    emptyColCfg.setName("empty");
+    emptyColCfg.setCssClasses(ImmutableList.of("row_span"));
+    emptyColCfg.setContent(webUtils.getAdminMessageTool().get(getEmptyDictionaryKey()));
+    emptyTableCfg.setColumns(ImmutableList.of(emptyColCfg));
+    rowPresentationType.writeNodeContent(writer, tableDocRef, emptyTableCfg);
   }
 
 }

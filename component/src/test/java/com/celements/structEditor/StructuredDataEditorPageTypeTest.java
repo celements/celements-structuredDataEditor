@@ -20,14 +20,13 @@ public class StructuredDataEditorPageTypeTest extends AbstractComponentTest {
   @Before
   public void setUp_StructuredDataEditorPageTypeTest() throws Exception {
     structDataEditPT = (StructuredDataEditorPageType) Utils.getComponent(IJavaPageTypeRole.class,
-        StructuredDataEditorPageType.STRUCURED_DATA_EDITOR_PAGETYPE_NAME);
+        StructuredDataEditorPageType.NAME);
   }
 
   @Test
   public void test_getName() {
     replayDefault();
-    assertEquals(StructuredDataEditorPageType.STRUCURED_DATA_EDITOR_PAGETYPE_NAME,
-        structDataEditPT.getName());
+    assertEquals(StructuredDataEditorPageType.NAME, structDataEditPT.getName());
     verifyDefault();
   }
 
@@ -52,7 +51,8 @@ public class StructuredDataEditorPageTypeTest extends AbstractComponentTest {
   @Test
   public void test_getRenderTemplateForRenderMode_edit() {
     replayDefault();
-    assertEquals(StructuredDataEditorPageType.EDIT_TEMPLATE_NAME,
+    assertEquals("PresentationEdit", structDataEditPT.getEditRenderTemplate());
+    assertEquals(structDataEditPT.getEditRenderTemplate(),
         structDataEditPT.getRenderTemplateForRenderMode("edit"));
     verifyDefault();
   }
@@ -60,7 +60,8 @@ public class StructuredDataEditorPageTypeTest extends AbstractComponentTest {
   @Test
   public void test_getRenderTemplateForRenderMode_view() {
     replayDefault();
-    assertEquals(StructuredDataEditorPageType.VIEW_TEMPLATE_NAME,
+    assertEquals("StructuredDataEditorView", structDataEditPT.getViewRenderTemplate());
+    assertEquals(structDataEditPT.getViewRenderTemplate(),
         structDataEditPT.getRenderTemplateForRenderMode("view"));
     verifyDefault();
   }
