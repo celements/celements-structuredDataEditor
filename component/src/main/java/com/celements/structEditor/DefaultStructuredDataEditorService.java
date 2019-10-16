@@ -246,7 +246,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       int objNb) {
     Optional<BaseObject> ret = Optional.absent();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
-    if (classRef.isPresent()) {
+    if (classRef.isPresent() && (onDoc != null)) {
       ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).first();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
