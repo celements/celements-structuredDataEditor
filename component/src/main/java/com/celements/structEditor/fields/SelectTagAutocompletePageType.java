@@ -1,5 +1,7 @@
 package com.celements.structEditor.fields;
 
+import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
@@ -10,14 +12,11 @@ import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.field.FieldAccessor;
-import com.celements.model.field.FieldGetterFunction;
 import com.celements.model.field.XObjectFieldAccessor;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.struct.SelectTagServiceRole;
-import com.celements.structEditor.SelectAutocompleteRole;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -55,33 +54,22 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
+  public void collectAttributes(final AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      XWikiDocument currDoc = modelContext.getCurrentDoc().orNull();
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
-          cellDoc, modelContext.getDoc()).or(""));
-      FluentIterable<BaseObject> objIter = XWikiObjectFetcher.on(cellDoc).filter(
-          selectTagAutocomplete).iter();
-      Optional<SelectAutocompleteRole> type = Optional.fromJavaUtil(selectTagService.getTypeImpl(
-          cellDocRef));
-      if (type.isPresent()) {
-        attrBuilder.addCssClasses(type.get().getCssClass());
-      }
-      boolean multiselect = objIter.transform(new FieldGetterFunction<>(xObjFieldAccessor,
-          SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_IS_MULTISELECT)).first().or(false);
-      if (multiselect) {
+          cellDoc, currDoc).or(""));
+      XWikiObjectFetcher xObjFetcher = XWikiObjectFetcher.on(cellDoc).filter(selectTagAutocomplete);
+      selectTagService.getTypeImpl(cellDocRef)
+          .ifPresent(type -> attrBuilder.addCssClasses(type.getCssClass()));
+      if (xObjFetcher.fetchField(FIELD_AUTOCOMPLETE_IS_MULTISELECT).first().or(false)) {
         attrBuilder.addNonEmptyAttribute("multiple", "multiple");
       }
-      Optional<String> separator = objIter.transform(new FieldGetterFunction<>(xObjFieldAccessor,
-          SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_SEPARATOR)).first();
-      if ((separator.isPresent())) {
-        attrBuilder.addNonEmptyAttribute("data-separator", separator.get());
-      }
-      Optional<String> docFN = getStructDataEditorService().getCellValueAsString(cellDocRef,
-          modelContext.getDoc());
-      if (docFN.isPresent()) {
-        attrBuilder.addNonEmptyAttribute("data-value", docFN.get());
-      }
+      xObjFetcher.fetchField(FIELD_AUTOCOMPLETE_SEPARATOR).first().toJavaUtil()
+          .ifPresent(separator -> attrBuilder.addNonEmptyAttribute("data-separator", separator));
+      getStructDataEditorService().getCellValueAsString(cellDocRef, currDoc).toJavaUtil()
+          .ifPresent(docFN -> attrBuilder.addNonEmptyAttribute("data-value", docFN));
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("cell doesn't exist '{}'", cellDocRef, exc);
     }

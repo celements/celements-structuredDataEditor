@@ -35,11 +35,11 @@ public interface StructuredDataEditorService {
 
   @NotNull
   Optional<BaseObject> getXObjectInStructEditor(@NotNull XWikiDocument cellDoc,
-      @NotNull XWikiDocument onDoc);
+      @Nullable XWikiDocument onDoc);
 
   @NotNull
   Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,
-      @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
+      @Nullable XWikiDocument onDoc) throws DocumentNotExistsException;
 
   /**
    * since 4.0 instead use {@link SelectTagServiceRole#getSelectCellDocRef}
@@ -52,11 +52,11 @@ public interface StructuredDataEditorService {
 
   @NotNull
   Optional<Date> getCellDateValue(@NotNull DocumentReference cellDocRef,
-      @NotNull XWikiDocument onDoc) throws DocumentNotExistsException;
+      @Nullable XWikiDocument onDoc) throws DocumentNotExistsException;
 
   @NotNull
-  List<String> getCellListValue(@NotNull DocumentReference cellDocRef, @NotNull XWikiDocument onDoc)
-      throws DocumentNotExistsException;
+  List<String> getCellListValue(@NotNull DocumentReference cellDocRef,
+      @Nullable XWikiDocument onDoc) throws DocumentNotExistsException;
 
   @NotNull
   List<String> getSelectTagAutocompleteJsPathList();
