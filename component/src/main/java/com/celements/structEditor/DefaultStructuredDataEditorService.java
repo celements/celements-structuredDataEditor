@@ -3,6 +3,7 @@ package com.celements.structEditor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.DateClass;
@@ -212,12 +214,23 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (obj.isPresent()) {
         value = modelAccess.getProperty(obj.get(), fieldName.get());
       } else if (fieldName.get().equals("title")) {
-        value = Strings.emptyToNull(onDoc.getTitle().trim());
+        value = getTranslatedValue(onDoc, XWikiDocument::getTitle);
       } else if (fieldName.get().equals("content")) {
-        value = Strings.emptyToNull(onDoc.getContent().trim());
+        value = getTranslatedValue(onDoc, XWikiDocument::getContent);
       }
     }
     return value;
+  }
+
+  private String getTranslatedValue(XWikiDocument onDoc,
+      Function<XWikiDocument, String> valueGetter) {
+    try {
+      onDoc = onDoc.getTranslatedDocument(context.getXWikiContext());
+    } catch (XWikiException exc) {
+      // is actually never thrown in #getTranslatedDocument
+      LOGGER.error("getTranslatedValue - [{}]", onDoc, exc);
+    }
+    return Strings.emptyToNull(valueGetter.apply(onDoc).trim());
   }
 
   @Override
