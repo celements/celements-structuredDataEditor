@@ -26,6 +26,9 @@ public class SelectTagEditorClass extends AbstractClassDefinition implements Str
   public static final ClassField<Boolean> FIELD_IS_MULTISELECT = new BooleanField.Builder(
       CLASS_DEF_HINT, "select_tag_is_multiselect").prettyName("Is Multiselect").build();
 
+  public static final ClassField<String> FIELD_BOOTSTRAP_CONFIG = new StringField.Builder(
+      CLASS_DEF_HINT, "select_tag_bootstrap_config").prettyName("Bootstrap Config JSON").build();
+
   @Override
   public String getName() {
     return CLASS_DEF_HINT;

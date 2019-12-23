@@ -46,6 +46,9 @@
     <property name="select_tag_is_multiselect" type="integer">
       <column name="STE_SELECT_TAG_IS_MULTISELECT" />
     </property>
+    <property name="select_tag_bootstrap_config" type="string">
+      <column name="STE_SELECT_TAG_BOOTSTRAP_CONFIG" length="1024"/>
+    </property>
   </class>
   <class entity-name="Celements.SelectTagAutocompleteEditorClass" table="cel_select_tag_autocomplete_edit_field">
     <id name="id" type="long" unsaved-value="undefined">
