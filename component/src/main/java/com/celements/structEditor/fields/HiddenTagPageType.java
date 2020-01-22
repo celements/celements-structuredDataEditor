@@ -2,8 +2,8 @@ package com.celements.structEditor.fields;
 
 import static com.celements.structEditor.classes.HiddenTagEditorClass.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
+
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.velocity.XWikiVelocityException;
@@ -14,8 +14,6 @@ import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(HiddenTagPageType.PAGETYPE_NAME)
 public class HiddenTagPageType extends AbstractStructFieldPageType {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(HiddenTagPageType.class);
 
   public static final String PAGETYPE_NAME = "HiddenTag";
 
@@ -32,8 +30,8 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public com.google.common.base.Optional<String> defaultTagName() {
-    return com.google.common.base.Optional.of("input");
+  public Optional<String> tagName() {
+    return Optional.of("input");
   }
 
   @Override
@@ -49,13 +47,13 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
         value = getStructDataEditorService().getCellValueAsString(cellDocRef,
             modelContext.getCurrentDoc().orNull()).orElse("");
       } else {
-        value = getVelocityFieldValue(cellDoc, FIELD_VALUE).or("");
+        value = getVelocityFieldValue(cellDoc, FIELD_VALUE).orElse("");
         name = modelAccess.getFieldValue(cellDoc, FIELD_NAME).or(cellDocRef.getName());
       }
       attrBuilder.addNonEmptyAttribute("name", name);
       attrBuilder.addNonEmptyAttribute("value", value);
     } catch (DocumentNotExistsException | XWikiVelocityException exc) {
-      LOGGER.error("failed to add all attributes for '{}'", cellDocRef, exc);
+      log.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }
   }
 

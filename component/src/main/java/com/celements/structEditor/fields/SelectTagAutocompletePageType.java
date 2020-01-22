@@ -2,8 +2,8 @@ package com.celements.structEditor.fields;
 
 import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
+
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
@@ -21,8 +21,6 @@ import com.xpn.xwiki.objects.BaseObject;
 
 @Component(SelectTagAutocompletePageType.PAGETYPE_NAME)
 public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(SelectTagAutocompletePageType.class);
 
   public static final String PAGETYPE_NAME = "SelectTagAutocomplete";
 
@@ -48,8 +46,8 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public com.google.common.base.Optional<String> defaultTagName() {
-    return com.google.common.base.Optional.of("select");
+  public Optional<String> tagName() {
+    return Optional.of("select");
   }
 
   @Override
@@ -70,7 +68,7 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
       getStructDataEditorService().getCellValueAsString(cellDocRef, currDoc)
           .ifPresent(docFN -> attrBuilder.addNonEmptyAttribute("data-value", docFN));
     } catch (DocumentNotExistsException exc) {
-      LOGGER.warn("cell doesn't exist '{}'", cellDocRef, exc);
+      log.warn("cell doesn't exist '{}'", cellDocRef, exc);
     }
   }
 

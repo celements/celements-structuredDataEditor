@@ -4,8 +4,6 @@ import static com.celements.structEditor.classes.OptionTagEditorClass.*;
 
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
@@ -16,8 +14,6 @@ import com.celements.struct.SelectTagServiceRole;
 
 @Component(OptionTagPageType.PAGETYPE_NAME)
 public class OptionTagPageType extends AbstractStructFieldPageType {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(OptionTagPageType.class);
 
   public static final String PAGETYPE_NAME = "OptionTag";
 
@@ -37,8 +33,8 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public com.google.common.base.Optional<String> defaultTagName() {
-    return com.google.common.base.Optional.of("option");
+  public Optional<String> tagName() {
+    return Optional.of("option");
   }
 
   @Override
@@ -64,7 +60,7 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
       attrBuilder.addNonEmptyAttribute("label", modelAccess.getFieldValue(cellDocRef,
           FIELD_LABEL).or(""));
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      log.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
   }
 

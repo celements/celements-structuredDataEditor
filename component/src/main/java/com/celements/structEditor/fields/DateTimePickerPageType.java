@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
@@ -25,8 +23,6 @@ import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(DateTimePickerPageType.PAGETYPE_NAME)
 public class DateTimePickerPageType extends AbstractStructFieldPageType {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(DateTimePickerPageType.class);
 
   public static final String PAGETYPE_NAME = "DateTimePicker";
 
@@ -43,8 +39,8 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public com.google.common.base.Optional<String> defaultTagName() {
-    return com.google.common.base.Optional.of("input");
+  public Optional<String> tagName() {
+    return Optional.of("input");
   }
 
   private static final Map<Type, String> PICKER_TYPE_CSS_CLASS_MAP = ImmutableMap.of(
@@ -86,7 +82,7 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
             dataAttr).append("}").toString());
       }
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      log.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
   }
 

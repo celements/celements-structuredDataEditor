@@ -1,5 +1,7 @@
 package com.celements.structEditor.fields;
 
+import java.util.Optional;
+
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
@@ -25,8 +27,8 @@ public class LabelTagPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public com.google.common.base.Optional<String> defaultTagName() {
-    return com.google.common.base.Optional.of("label");
+  public Optional<String> tagName() {
+    return Optional.of("label");
   }
 
   @Override

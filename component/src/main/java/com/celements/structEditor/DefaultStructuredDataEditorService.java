@@ -7,6 +7,7 @@ import static com.google.common.base.Predicates.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
+import org.xwiki.context.Execution;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.velocity.XWikiVelocityException;
@@ -45,6 +47,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private static final Logger LOGGER = LoggerFactory
       .getLogger(DefaultStructuredDataEditorService.class);
+
+  @Requirement
+  private Execution exec;
 
   @Requirement
   private IPageTypeResolverRole ptResolver;
@@ -253,12 +258,31 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Override
   public Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    int objNb = Optional.ofNullable(Ints.tryParse(context.getRequestParameter("objNb").or("")))
-        .orElseGet(() -> computeObjNb(cellDoc).orElse(0));
-    return getXObjectInStructEditor(cellDoc, onDoc, objNb);
+    Optional<BaseObject> ret = Optional.empty();
+    Optional<ClassReference> classRef = getCellClassRef(cellDoc);
+    if (classRef.isPresent() && (onDoc != null)) {
+      int objNb = getNumberFromRequest()
+          .orElseGet(() -> getNumberFromExecutionContext()
+          .orElseGet(() -> getNumberFromComputedField(cellDoc)
+          .orElse(0)));
+      ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).first().toJavaUtil();
+    }
+    LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
+        + "{}", cellDoc, onDoc, classRef.orElse(null), ret.map(BaseObject::getNumber).orElse(null),
+        ret.orElse(null));
+    return ret;
   }
 
-  private Optional<Integer> computeObjNb(XWikiDocument cellDoc) {
+  private Optional<Integer> getNumberFromRequest() {
+    return Optional.ofNullable(Ints.tryParse(context.getRequestParameter("objNb").or("")));
+  }
+
+  private Optional<Integer> getNumberFromExecutionContext() {
+    return Optional.ofNullable(Ints.tryParse(Objects.toString(
+        exec.getContext().getProperty("objNb"))));
+  }
+
+  private Optional<Integer> getNumberFromComputedField(XWikiDocument cellDoc) {
     try {
       return modelAccess.getFieldValue(cellDoc, FIELD_COMPUTED_OBJ_NB).toJavaUtil()
           .map(String::trim).filter(not(String::isEmpty))
@@ -268,18 +292,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       LOGGER.warn("computeObjNb - failed for [{}]", cellDoc, exc);
       return Optional.empty();
     }
-  }
-
-  private Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc,
-      int objNb) {
-    Optional<BaseObject> ret = Optional.empty();
-    Optional<ClassReference> classRef = getCellClassRef(cellDoc);
-    if (classRef.isPresent() && (onDoc != null)) {
-      ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).first().toJavaUtil();
-    }
-    LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
-        + "{}", cellDoc, onDoc, classRef.orElse(null), objNb, ret.orElse(null));
-    return ret;
   }
 
   private Optional<String> getCellFieldName(XWikiDocument cellDoc) {

@@ -2,8 +2,8 @@ package com.celements.structEditor.fields;
 
 import static com.celements.structEditor.classes.SelectTagEditorClass.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
+
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
@@ -13,8 +13,6 @@ import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(SelectTagPageType.PAGETYPE_NAME)
 public class SelectTagPageType extends AbstractStructFieldPageType {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(SelectTagPageType.class);
 
   public static final String PAGETYPE_NAME = "SelectTag";
 
@@ -31,8 +29,8 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public com.google.common.base.Optional<String> defaultTagName() {
-    return com.google.common.base.Optional.of("select");
+  public Optional<String> tagName() {
+    return Optional.of("select");
   }
 
   @Override
@@ -49,7 +47,7 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
         attrBuilder.addCssClasses("celBootstrap");
       }
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      log.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
   }
 
