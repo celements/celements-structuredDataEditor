@@ -105,7 +105,7 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
 
   private static BaseObject createSelectTagObj(XWikiDocument doc) {
     BaseObject obj = new BaseObject();
-    obj.setXClassReference(CLASS_REF);
+    obj.setXClassReference(CLASS_REF.getDocRef(doc.getDocumentReference().getWikiReference()));
     doc.addXObject(obj);
     return obj;
   }
