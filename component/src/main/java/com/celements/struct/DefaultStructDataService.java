@@ -1,6 +1,7 @@
 package com.celements.struct;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,6 @@ import com.celements.struct.classes.TableColumnClass;
 import com.celements.struct.table.ColumnConfig;
 import com.celements.struct.table.TableConfig;
 import com.celements.web.plugin.cmd.PageLayoutCommand;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -60,7 +60,7 @@ public class DefaultStructDataService implements StructDataService, Initializabl
   @Override
   public Optional<TableConfig> loadTableConfig(XWikiDocument cellDoc) {
     Optional<TableConfig> tableCfg = XWikiObjectFetcher.on(cellDoc).filter(
-        tableClass).iter().transform(tableConverter).first();
+        tableClass).iter().transform(tableConverter).first().toJavaUtil();
     if (tableCfg.isPresent()) {
       List<ColumnConfig> columns = XWikiObjectFetcher.on(cellDoc).filter(
           columnClass).iter().transform(columnConverter).toList();
@@ -83,7 +83,7 @@ public class DefaultStructDataService implements StructDataService, Initializabl
         return Optional.of(centralLayoutRef);
       }
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
 }

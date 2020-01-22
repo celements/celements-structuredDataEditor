@@ -5,7 +5,6 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(LabelTagPageType.PAGETYPE_NAME)
@@ -26,8 +25,8 @@ public class LabelTagPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public Optional<String> defaultTagName() {
-    return Optional.of("label");
+  public com.google.common.base.Optional<String> defaultTagName() {
+    return com.google.common.base.Optional.of("label");
   }
 
   @Override
@@ -36,7 +35,7 @@ public class LabelTagPageType extends AbstractStructFieldPageType {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       attrBuilder.addCssClasses("structuredDataEditorLabel");
       attrBuilder.addNonEmptyAttribute("for", getStructDataEditorService().getAttributeName(cellDoc,
-          modelContext.getCurrentDoc().get()).or(""));
+          modelContext.getCurrentDoc().orNull()).orElse(""));
     } catch (DocumentNotExistsException | IllegalStateException exc) {
       log.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }

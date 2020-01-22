@@ -10,7 +10,6 @@ import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(HiddenTagPageType.PAGETYPE_NAME)
@@ -33,8 +32,8 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public Optional<String> defaultTagName() {
-    return Optional.of("input");
+  public com.google.common.base.Optional<String> defaultTagName() {
+    return com.google.common.base.Optional.of("input");
   }
 
   @Override
@@ -45,9 +44,10 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
       String value = "";
       String name = "";
       if (getStructDataEditorService().hasEditField(cellDoc)) {
-        name = getStructDataEditorService().getAttributeName(cellDoc, modelContext.getDoc()).or("");
+        name = getStructDataEditorService().getAttributeName(cellDoc,
+            modelContext.getCurrentDoc().orNull()).orElse("");
         value = getStructDataEditorService().getCellValueAsString(cellDocRef,
-            modelContext.getDoc()).or("");
+            modelContext.getCurrentDoc().orNull()).orElse("");
       } else {
         value = getVelocityFieldValue(cellDoc, FIELD_VALUE).or("");
         name = modelAccess.getFieldValue(cellDoc, FIELD_NAME).or(cellDocRef.getName());

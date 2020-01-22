@@ -13,7 +13,6 @@ import org.xwiki.velocity.XWikiVelocityException;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.structEditor.classes.FormFieldEditorClass.Method;
-import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.xpn.xwiki.doc.XWikiDocument;
 
@@ -37,8 +36,8 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public Optional<String> defaultTagName() {
-    return Optional.of("form");
+  public com.google.common.base.Optional<String> defaultTagName() {
+    return com.google.common.base.Optional.of("form");
   }
 
   @Override

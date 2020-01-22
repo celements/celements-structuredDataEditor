@@ -5,6 +5,8 @@ import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClas
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
@@ -16,7 +18,6 @@ import com.celements.model.access.ModelAccessStrategy;
 import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.celements.struct.SelectTagServiceRole;
 import com.celements.structEditor.StructuredDataEditorService;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.web.Utils;

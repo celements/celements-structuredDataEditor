@@ -2,6 +2,7 @@ package com.celements.struct;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,6 @@ import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
 import com.celements.struct.table.TableConfig;
 import com.celements.struct.table.TablePresentationType;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component("structData")

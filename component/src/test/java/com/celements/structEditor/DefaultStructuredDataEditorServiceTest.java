@@ -5,6 +5,7 @@ import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,6 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.structEditor.fields.FormFieldPageType;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.classes.BaseClass;
@@ -62,9 +62,9 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     final PageTypeReference ptRef = new PageTypeReference(FormFieldPageType.PAGETYPE_NAME, "",
         Collections.<String>emptyList());
     expect(getMock(IPageTypeResolverRole.class).resolvePageTypeReference(same(
-        parentDoc))).andReturn(Optional.of(ptRef)).once();
-    expect(modelAccessMock.getFieldValue(same(parentDoc), same(
-        FormFieldEditorClass.FIELD_PREFIX))).andReturn(Optional.of(prefix)).once();
+        parentDoc))).andReturn(com.google.common.base.Optional.of(ptRef)).once();
+    expect(modelAccessMock.getFieldValue(same(parentDoc), same(FormFieldEditorClass.FIELD_PREFIX)))
+        .andReturn(com.google.common.base.Optional.of(prefix)).once();
     replayDefault();
     Optional<String> ret = service.resolveFormPrefix(cellDoc);
     verifyDefault();
@@ -76,14 +76,14 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   public void test_getXClassPrettyName() throws Exception {
     DocumentReference xClassDocRef = new DocumentReference(wikiName, "Celements", "TestXClassName");
     expect(modelAccessMock.getFieldValue(same(cellDoc), same(
-        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS))).andReturn(Optional.of(
-            xClassDocRef)).once();
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS)))
+            .andReturn(com.google.common.base.Optional.of(xClassDocRef)).once();
     XWikiDocument xClassDoc = new XWikiDocument(xClassDocRef);
     expect(modelAccessMock.getDocument(xClassDocRef)).andReturn(xClassDoc).atLeastOnce();
     String editFieldName = "edit_field";
     expect(modelAccessMock.getFieldValue(same(cellDoc), same(
-        StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME))).andReturn(Optional.of(
-            editFieldName)).once();
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME)))
+            .andReturn(com.google.common.base.Optional.of(editFieldName)).once();
     BaseClass xClass = xClassDoc.getXClass();
     String thePrettyFieldName = "the Pretty Field Name";
     xClass.addTextField(editFieldName, thePrettyFieldName, 30);

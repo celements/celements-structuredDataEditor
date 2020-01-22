@@ -4,7 +4,6 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
-import com.google.common.base.Optional;
 
 @Component(SubmitLinkPageType.PAGETYPE_NAME)
 public class SubmitLinkPageType extends AbstractStructFieldPageType {
@@ -24,8 +23,8 @@ public class SubmitLinkPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public Optional<String> defaultTagName() {
-    return Optional.of("a");
+  public com.google.common.base.Optional<String> defaultTagName() {
+    return com.google.common.base.Optional.of("a");
   }
 
   @Override

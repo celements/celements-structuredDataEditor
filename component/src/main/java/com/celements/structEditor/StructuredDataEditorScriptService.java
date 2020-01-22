@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +22,6 @@ import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
 import com.celements.struct.SelectTagServiceRole;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 
@@ -43,20 +43,15 @@ public class StructuredDataEditorScriptService implements ScriptService {
   @Requirement
   static ModelContext context;
 
-  private static final Function<PropertyClass, com.xpn.xwiki.api.PropertyClass> PROPCLASS_TO_API = new Function<PropertyClass, com.xpn.xwiki.api.PropertyClass>() {
-
-    @Override
-    public com.xpn.xwiki.api.PropertyClass apply(PropertyClass propClass) {
-      return new com.xpn.xwiki.api.PropertyClass(propClass, context.getXWikiContext());
-    }
-  };
+  private static final Function<PropertyClass, com.xpn.xwiki.api.PropertyClass> PROPCLASS_TO_API = 
+      propClass -> new com.xpn.xwiki.api.PropertyClass(propClass, context.getXWikiContext());
 
   public String getAttributeName(DocumentReference cellDocRef) {
     String ret = "";
     if (cellDocRef != null) {
       try {
         XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-        ret = service.getAttributeName(cellDoc, null).or(ret);
+        ret = service.getAttributeName(cellDoc, null).orElse(ret);
       } catch (DocumentNotExistsException exc) {
         LOGGER.info("cell doesn't exist '{}'", cellDocRef, exc);
       }
@@ -68,7 +63,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     String prettyName = "";
     if (cellDocRef != null) {
       try {
-        prettyName = service.getPrettyName(cellDocRef).or("");
+        prettyName = service.getPrettyName(cellDocRef).orElse("");
       } catch (DocumentNotExistsException exc) {
         LOGGER.info("cell doesn't exist '{}'", cellDocRef, exc);
       }
@@ -131,7 +126,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   public String getCellValueAsString(DocumentReference cellDocRef) {
     String ret = "";
     try {
-      ret = service.getCellValueAsString(cellDocRef, context.getDoc()).or("");
+      ret = service.getCellValueAsString(cellDocRef, context.getDoc()).orElse("");
     } catch (DocumentNotExistsException exc) {
       LOGGER.info("cell doesn't exist '{}'", cellDocRef, exc);
     }
@@ -148,7 +143,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     return ret;
   }
 
-  public Optional<com.xpn.xwiki.api.PropertyClass> getCellPropertyClass(
+  public com.google.common.base.Optional<com.xpn.xwiki.api.PropertyClass> getCellPropertyClass(
       DocumentReference cellDocRef) {
     Optional<PropertyClass> propClass;
     try {
@@ -156,9 +151,9 @@ public class StructuredDataEditorScriptService implements ScriptService {
       propClass = service.getCellPropertyClass(cellDoc);
     } catch (DocumentNotExistsException exc) {
       LOGGER.info("cell doesn't exist '{}'", cellDocRef, exc);
-      propClass = Optional.absent();
+      propClass = Optional.empty();
     }
-    return propClass.transform(PROPCLASS_TO_API);
+    return com.google.common.base.Optional.fromJavaUtil(propClass.map(PROPCLASS_TO_API));
   }
 
   public boolean isSelectMultiselect(DocumentReference cellDocRef) {
@@ -175,7 +170,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
     return service.getSelectTagAutocompleteJsPathList();
   }
 
-  public java.util.Optional<SelectAutocompleteRole> getSelectTagAutoCompleteImpl(
+  public Optional<SelectAutocompleteRole> getSelectTagAutoCompleteImpl(
       DocumentReference cellDocRef) {
     return selectTagService.getTypeImpl(cellDocRef);
   }

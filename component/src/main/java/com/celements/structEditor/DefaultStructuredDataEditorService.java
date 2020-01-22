@@ -7,6 +7,7 @@ import static com.google.common.base.Predicates.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -28,9 +29,9 @@ import com.celements.struct.StructUtilServiceRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.structEditor.fields.FormFieldPageType;
+import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -41,7 +42,8 @@ import com.xpn.xwiki.objects.classes.PropertyClass;
 @Component
 public class DefaultStructuredDataEditorService implements StructuredDataEditorService {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(DefaultStructuredDataEditorService.class);
+  private static final Logger LOGGER = LoggerFactory
+      .getLogger(DefaultStructuredDataEditorService.class);
 
   @Requirement
   private IPageTypeResolverRole ptResolver;
@@ -67,6 +69,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Requirement
   private StructUtilServiceRole structUtils;
 
+  @Requirement
+  protected VelocityService velocityService;
+
   @Override
   public Optional<String> getAttributeName(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return getAttributeNameInternal(cellDoc, onDoc);
@@ -88,7 +93,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     }
     String name = Joiner.on('_').join(nameParts);
     LOGGER.info("getAttributeName: '{}' for cell '{}', onDoc '{}'", name, cellDoc, onDoc);
-    return Optional.fromNullable(Strings.emptyToNull(name));
+    return Optional.ofNullable(Strings.emptyToNull(name));
   }
 
   @Override
@@ -96,8 +101,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       throws DocumentNotExistsException {
     String prettyName = "";
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-    String dictKey = Joiner.on('_').skipNulls().join(resolveFormPrefix(cellDoc).orNull(),
-        getAttributeNameInternal(cellDoc, null).orNull());
+    String dictKey = Joiner.on('_').skipNulls().join(resolveFormPrefix(cellDoc).orElse(null),
+        getAttributeNameInternal(cellDoc, null).orElse(null));
     LOGGER.debug("getPrettyName: dictKey '{}' for cell '{}'", dictKey, cellDoc);
     prettyName = webUtils.getAdminMessageTool().get(dictKey);
     if (dictKey.equals(prettyName)) {
@@ -107,7 +112,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       }
     }
     LOGGER.info("getPrettyName: '{}' for cell '{}'", prettyName, cellDoc);
-    return Optional.fromNullable(prettyName);
+    return Optional.ofNullable(prettyName);
   }
 
   @Override
@@ -117,18 +122,19 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<PropertyClass> field = getCellPropertyClass(cellDoc);
     if (field.isPresent() && (field.get() instanceof DateClass)) {
       DateClass dateField = (DateClass) field.get();
-      return Optional.fromNullable(dateField.getDateFormat());
+      return Optional.ofNullable(dateField.getDateFormat());
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   Optional<String> resolveFormPrefix(XWikiDocument cellDoc) {
-    Optional<String> prefix = Optional.absent();
+    Optional<String> prefix = Optional.empty();
     try {
-      Optional<XWikiDocument> formDoc = Optional.fromJavaUtil(structUtils.findParentCell(cellDoc,
-          FormFieldPageType.PAGETYPE_NAME));
+      Optional<XWikiDocument> formDoc = structUtils.findParentCell(cellDoc,
+          FormFieldPageType.PAGETYPE_NAME);
       if (formDoc.isPresent()) {
-        prefix = modelAccess.getFieldValue(formDoc.get(), FormFieldEditorClass.FIELD_PREFIX);
+        prefix = modelAccess.getFieldValue(formDoc.get(), FormFieldEditorClass.FIELD_PREFIX)
+            .toJavaUtil();
       }
       LOGGER.debug("resolveFormPrefix: '{}' for cell '{}'", prefix, cellDoc);
     } catch (DocumentNotExistsException exc) {
@@ -144,17 +150,17 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       prettyName = Strings.emptyToNull(property.get().getPrettyName());
     }
     LOGGER.debug("getXClassPrettyName: '{}' for cell '{}'", prettyName, cellDoc);
-    return Optional.fromNullable(prettyName);
+    return Optional.ofNullable(prettyName);
   }
 
   @Override
   public Optional<ClassReference> getCellClassRef(XWikiDocument cellDoc) {
     Optional<DocumentReference> classDocRef = modelAccess.getFieldValue(cellDoc,
-        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS);
+        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS).toJavaUtil();
     if (classDocRef.isPresent()) {
       return Optional.of(new ClassReference(classDocRef.get()));
     } else {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
@@ -166,14 +172,14 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       try {
         XWikiDocument xClassDoc = modelAccess.getDocument(classRef.get().getDocRef(
             cellDoc.getDocumentReference().getWikiReference()));
-        return Optional.fromNullable((PropertyClass) xClassDoc.getXClass().get(fieldName.get()));
+        return Optional.ofNullable((PropertyClass) xClassDoc.getXClass().get(fieldName.get()));
       } catch (DocumentNotExistsException exc) {
         LOGGER.warn("configured class '{}' on cell '{}' doesn't exist", classRef, cellDoc, exc);
       }
     } else {
       LOGGER.debug("class and field not configured for cell '{}'", cellDoc);
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
@@ -183,7 +189,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     if (value != null) {
       return Optional.of(value.toString());
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
@@ -193,7 +199,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     if (value instanceof Date) {
       return Optional.of((Date) value);
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
@@ -241,7 +247,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Override
   @Deprecated
   public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef) {
-    return Optional.fromJavaUtil(selectTagService.getSelectCellDocRef(cellDocRef));
+    return selectTagService.getSelectCellDocRef(cellDocRef);
   }
 
   @Override
@@ -272,18 +278,19 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc,
       int objNb) {
-    Optional<BaseObject> ret = Optional.absent();
+    Optional<BaseObject> ret = Optional.empty();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
-      ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).first();
+      ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).first().toJavaUtil();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
-        + "{}", cellDoc, onDoc, classRef.orNull(), objNb, ret.orNull());
+        + "{}", cellDoc, onDoc, classRef.orElse(null), objNb, ret.orElse(null));
     return ret;
   }
 
   private Optional<String> getCellFieldName(XWikiDocument cellDoc) {
-    return modelAccess.getFieldValue(cellDoc, StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME);
+    return modelAccess.getFieldValue(cellDoc, StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME)
+        .toJavaUtil();
   }
 
   @Override
