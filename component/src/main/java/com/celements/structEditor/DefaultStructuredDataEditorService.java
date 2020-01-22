@@ -1,5 +1,9 @@
 package com.celements.structEditor;
 
+import static com.celements.common.lambda.LambdaExceptionUtil.*;
+import static com.celements.structEditor.classes.StructuredDataEditorClass.*;
+import static com.google.common.base.Predicates.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +15,7 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
@@ -75,7 +80,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRef(classRef.get()));
         if (onDoc != null) {
-          Optional<BaseObject> obj = getRequestXObjectInStructEditor(cellDoc, onDoc);
+          Optional<BaseObject> obj = getXObjectInStructEditor(cellDoc, onDoc);
           nameParts.add(Integer.toString(obj.isPresent() ? obj.get().getNumber() : -1));
         }
       }
@@ -210,7 +215,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<String> fieldName = getCellFieldName(cellDoc);
     Object value = null;
     if (fieldName.isPresent()) {
-      Optional<BaseObject> obj = getRequestXObjectInStructEditor(cellDoc, onDoc);
+      Optional<BaseObject> obj = getXObjectInStructEditor(cellDoc, onDoc);
       if (obj.isPresent()) {
         value = modelAccess.getProperty(obj.get(), fieldName.get());
       } else if (fieldName.get().equals("title")) {
@@ -241,18 +246,28 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Override
   public Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    return getRequestXObjectInStructEditor(cellDoc, onDoc);
-  }
-
-  private Optional<BaseObject> getRequestXObjectInStructEditor(XWikiDocument cellDoc,
-      XWikiDocument onDoc) {
     int objNb = 0;
     try {
-      objNb = Integer.parseInt(context.getRequestParameter("objNb").or("0"));
+      objNb = Integer.parseInt(context.getRequestParameter("objNb").toJavaUtil()
+          .orElseGet(() -> computeObjNb(cellDoc).orElse("0")));
     } catch (NumberFormatException nfe) {
       LOGGER.debug("unable to parse objNb from request: {}", nfe.getMessage());
     }
     return getXObjectInStructEditor(cellDoc, onDoc, objNb);
+  }
+
+  private Optional<String> computeObjNb(XWikiDocument cellDoc) {
+    Optional<String> content = Optional.empty();
+    try {
+      content = XWikiObjectFetcher.on(cellDoc).fetchField(FIELD_COMPUTED_OBJ_NB)
+          .first().toJavaUtil()
+          .map(String::trim).filter(not(String::isEmpty))
+          .map(rethrowFunction(text -> velocityService.evaluateVelocityText(text)))
+          .map(String::trim).filter(not(String::isEmpty));
+    } catch (XWikiVelocityException exc) {
+      LOGGER.warn("computeObjNb - failed for [{}]", cellDoc, exc);
+    }
+    return content;
   }
 
   private Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc,

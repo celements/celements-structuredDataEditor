@@ -7,6 +7,7 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.ClassField;
+import com.celements.model.classes.fields.LargeStringField;
 import com.celements.model.classes.fields.StringField;
 import com.celements.model.classes.fields.ref.DocumentReferenceField;
 
@@ -24,6 +25,9 @@ public class StructuredDataEditorClass extends AbstractClassDefinition implement
 
   public static final ClassField<String> FIELD_EDIT_FIELD_NAME = new StringField.Builder(
       CLASS_DEF_HINT, "edit_field_name").prettyName("Property Name").build();
+
+  public static final ClassField<String> FIELD_COMPUTED_OBJ_NB = new LargeStringField.Builder(
+      CLASS_DEF_HINT, "select_tag_computed_obj_nb").prettyName("Computed Object Number").build();
 
   @Override
   public String getName() {
