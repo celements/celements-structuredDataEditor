@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.model.reference.ClassReference;
 
 import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.ClassField;
@@ -21,6 +22,7 @@ public class TableColumnClass extends AbstractClassDefinition implements StructD
   public static final String SPACE_NAME = "Celements";
   public static final String DOC_NAME = "StructTableColumnClass";
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
+  public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
   public static final ClassField<String> FIELD_NAME = new StringField.Builder(CLASS_DEF_HINT,
       "name").build();

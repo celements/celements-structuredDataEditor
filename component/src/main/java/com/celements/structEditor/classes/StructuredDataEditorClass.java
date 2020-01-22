@@ -3,6 +3,7 @@ package com.celements.structEditor.classes;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.classes.AbstractClassDefinition;
@@ -19,6 +20,7 @@ public class StructuredDataEditorClass extends AbstractClassDefinition implement
   public static final String SPACE_NAME = "Celements";
   public static final String DOC_NAME = "StructEditFieldClass";
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
+  public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
   public static final ClassField<DocumentReference> FIELD_EDIT_FIELD_CLASS = new DocumentReferenceField.Builder(
       CLASS_DEF_HINT, "edit_field_class_fullname").prettyName("Class Reference").build();
