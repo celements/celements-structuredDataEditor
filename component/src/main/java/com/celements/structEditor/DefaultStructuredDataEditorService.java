@@ -33,6 +33,7 @@ import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.primitives.Ints;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -252,28 +253,21 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Override
   public Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    int objNb = 0;
-    try {
-      objNb = Integer.parseInt(context.getRequestParameter("objNb").toJavaUtil()
-          .orElseGet(() -> computeObjNb(cellDoc).orElse("0")));
-    } catch (NumberFormatException nfe) {
-      LOGGER.debug("unable to parse objNb from request: {}", nfe.getMessage());
-    }
+    int objNb = Optional.ofNullable(Ints.tryParse(context.getRequestParameter("objNb").or("")))
+        .orElseGet(() -> computeObjNb(cellDoc).orElse(0));
     return getXObjectInStructEditor(cellDoc, onDoc, objNb);
   }
 
-  private Optional<String> computeObjNb(XWikiDocument cellDoc) {
-    Optional<String> content = Optional.empty();
+  private Optional<Integer> computeObjNb(XWikiDocument cellDoc) {
     try {
-      content = XWikiObjectFetcher.on(cellDoc).fetchField(FIELD_COMPUTED_OBJ_NB)
-          .first().toJavaUtil()
+      return modelAccess.getFieldValue(cellDoc, FIELD_COMPUTED_OBJ_NB).toJavaUtil()
           .map(String::trim).filter(not(String::isEmpty))
           .map(rethrowFunction(text -> velocityService.evaluateVelocityText(text)))
-          .map(String::trim).filter(not(String::isEmpty));
+          .map(Ints::tryParse);
     } catch (XWikiVelocityException exc) {
       LOGGER.warn("computeObjNb - failed for [{}]", cellDoc, exc);
+      return Optional.empty();
     }
-    return content;
   }
 
   private Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc,
