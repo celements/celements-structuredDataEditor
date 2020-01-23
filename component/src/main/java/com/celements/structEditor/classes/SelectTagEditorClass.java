@@ -7,6 +7,7 @@ import org.xwiki.component.annotation.Component;
 import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.BooleanField;
 import com.celements.model.classes.fields.ClassField;
+import com.celements.model.classes.fields.LargeStringField;
 import com.celements.model.classes.fields.StringField;
 
 @Singleton
@@ -25,6 +26,9 @@ public class SelectTagEditorClass extends AbstractClassDefinition implements Str
 
   public static final ClassField<Boolean> FIELD_IS_MULTISELECT = new BooleanField.Builder(
       CLASS_DEF_HINT, "select_tag_is_multiselect").prettyName("Is Multiselect").build();
+
+  public static final ClassField<String> FIELD_BOOTSTRAP_CONFIG = new LargeStringField.Builder(
+      CLASS_DEF_HINT, "select_tag_bootstrap_config").prettyName("Bootstrap Config JSON").build();
 
   @Override
   public String getName() {
