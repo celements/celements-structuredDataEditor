@@ -3,7 +3,7 @@
 #set($attrMap = $services.structuredDataEditor.getTextAreaAttributes($cellDocRef))
 #set($cssClassesTA = "structEditTextArea")
 #set($cssClassesLabel = "")
-#if($attrMap.isRichtext)
+#if("$!attrMap.isRichtext" == 'true')
   #set($cssClassesTA = "${cssClassesTA} tinyMCE mceEditor tinyMCEV4")
   #set($cssClassesLabel = "${cssClassesLabel} tinyMCELabel mceEditorLabel")
 #end
