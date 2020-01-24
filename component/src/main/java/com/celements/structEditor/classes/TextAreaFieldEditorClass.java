@@ -3,6 +3,7 @@ package com.celements.structEditor.classes;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.model.reference.ClassReference;
 
 import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.BooleanField;
@@ -17,6 +18,7 @@ public class TextAreaFieldEditorClass extends AbstractClassDefinition implements
   public static final String SPACE_NAME = "Celements";
   public static final String DOC_NAME = "TextAreaFieldEditorClass";
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
+  public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
   public static final ClassField<Integer> FIELD_ROWS = new IntField.Builder(CLASS_DEF_HINT,
       "textarea_field_rows").prettyName("Rows").build();

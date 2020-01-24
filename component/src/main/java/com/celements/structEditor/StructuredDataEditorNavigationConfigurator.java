@@ -57,7 +57,7 @@ public class StructuredDataEditorNavigationConfigurator implements JavaNavigatio
     LOGGER.debug("getNavigationConfig - for pageTypeRef [{}]", configReference.getConfigName());
     SpaceReference layoutSpaceRef = structService
         .getStructLayoutSpaceRef(context.getCurrentDoc().get())
-        .or(this::getCalculatedLayoutSpaceRef);
+        .orElseGet(this::getCalculatedLayoutSpaceRef);
     LOGGER.info("layout space: [{}]", layoutSpaceRef);
     return NAV_CFG.overlay(newNavCfgBuilder().nodeSpaceRef(layoutSpaceRef).build());
   }

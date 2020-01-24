@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.apache.velocity.VelocityContext;
 import org.junit.Before;
@@ -21,7 +22,6 @@ import com.celements.search.lucene.ILuceneSearchService;
 import com.celements.struct.StructDataService;
 import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.api.Document;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
@@ -45,7 +45,7 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
   @Test
   public void test_resolvePossibleTableNames_tableName() {
     expect(getMock(StructDataService.class).getStructLayoutSpaceRef(same(doc)))
-        .andReturn(Optional.absent());
+        .andReturn(Optional.empty());
     expectPageTypeRef("tableName");
 
     replayDefault();
@@ -91,12 +91,12 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
 
   private void expectAbsentPageTypeRef() {
     expect(getMock(IPageTypeResolverRole.class).resolvePageTypeReference(same(doc))).andReturn(
-        Optional.<PageTypeReference>absent());
+        com.google.common.base.Optional.<PageTypeReference>absent());
   }
 
   private void expectPageTypeRef(String configName) {
     expect(getMock(IPageTypeResolverRole.class).resolvePageTypeReference(same(doc))).andReturn(
-        Optional.fromNullable(new PageTypeReference(configName, null,
+        com.google.common.base.Optional.fromNullable(new PageTypeReference(configName, null,
             Collections.<String>emptyList())));
   }
 

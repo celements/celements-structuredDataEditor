@@ -1,10 +1,11 @@
 package com.celements.structEditor.fields;
 
+import java.util.Optional;
+
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
-import com.google.common.base.Optional;
 
 @Component(SubmitLinkPageType.PAGETYPE_NAME)
 public class SubmitLinkPageType extends AbstractStructFieldPageType {
@@ -24,7 +25,7 @@ public class SubmitLinkPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public Optional<String> defaultTagName() {
+  public Optional<String> tagName() {
     return Optional.of("a");
   }
 

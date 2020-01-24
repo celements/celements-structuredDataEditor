@@ -1,15 +1,16 @@
 package com.celements.structEditor.fields;
 
+import static com.celements.common.lambda.LambdaExceptionUtil.*;
+
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Requirement;
-import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.model.access.IModelAccessFacade;
-import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;
@@ -18,7 +19,6 @@ import com.celements.pagetype.java.AbstractJavaPageType;
 import com.celements.struct.StructDataService;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.velocity.VelocityService;
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
@@ -72,6 +72,15 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
     return false;
   }
 
+  @Override
+  public com.google.common.base.Optional<String> defaultTagName() {
+    return com.google.common.base.Optional.fromJavaUtil(tagName());
+  }
+
+  public Optional<String> tagName() {
+    return Optional.empty();
+  }
+
   protected abstract String getViewTemplateName();
 
   protected String getEditTemplateName() {
@@ -87,48 +96,10 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
     }
   }
 
-  /**
-   * @deprecated use {@link IModelAccessFacade#getFieldValue()} directly
-   */
-  @Deprecated
-  protected <T> Optional<T> getFieldValue(DocumentReference cellDocRef, ClassField<T> classField)
-      throws DocumentNotExistsException {
-    return modelAccess.getFieldValue(cellDocRef, classField);
-  }
-
-  /**
-   * @deprecated use {@link IModelAccessFacade#getFieldValue()} directly
-   */
-  @Deprecated
-  protected Optional<String> getNotEmptyString(DocumentReference cellDocRef,
-      ClassField<String> classField) throws DocumentNotExistsException {
-    return modelAccess.getFieldValue(cellDocRef, classField);
-  }
-
-  /**
-   * @deprecated use {@link IModelAccessFacade#getFieldValue()} directly
-   */
-  @Deprecated
-  protected <T> Optional<T> getFieldValue(XWikiDocument cellDoc, ClassField<T> classField) {
-    return modelAccess.getFieldValue(cellDoc, classField);
-  }
-
-  /**
-   * @deprecated use {@link IModelAccessFacade#getFieldValue()} directly
-   */
-  @Deprecated
-  protected Optional<String> getNotEmptyString(XWikiDocument cellDoc,
-      ClassField<String> classField) {
-    return modelAccess.getFieldValue(cellDoc, classField);
-  }
-
   protected Optional<String> getVelocityFieldValue(XWikiDocument cellDoc,
       ClassField<String> classField) throws XWikiVelocityException {
-    Optional<String> text = modelAccess.getFieldValue(cellDoc, classField);
-    if (text.isPresent()) {
-      text = Optional.of(velocityService.evaluateVelocityText(text.get()));
-    }
-    return text;
+    return modelAccess.getFieldValue(cellDoc, classField).toJavaUtil()
+        .map(rethrowFunction(velocityService::evaluateVelocityText));
   }
 
   /**

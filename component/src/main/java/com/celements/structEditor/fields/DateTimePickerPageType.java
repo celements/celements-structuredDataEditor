@@ -8,9 +8,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
@@ -18,15 +17,12 @@ import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.structEditor.classes.DateTimePickerEditorClass.Type;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(DateTimePickerPageType.PAGETYPE_NAME)
 public class DateTimePickerPageType extends AbstractStructFieldPageType {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(DateTimePickerPageType.class);
 
   public static final String PAGETYPE_NAME = "DateTimePicker";
 
@@ -43,7 +39,7 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
   }
 
   @Override
-  public Optional<String> defaultTagName() {
+  public Optional<String> tagName() {
     return Optional.of("input");
   }
 
@@ -56,7 +52,7 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
     attrBuilder.addNonEmptyAttribute("type", "text");
     try {
       Optional<Date> cellValue = getStructDataEditorService().getCellDateValue(cellDocRef,
-          modelContext.getDoc());
+          modelContext.getCurrentDoc().orNull());
       if (cellValue.isPresent()) {
         Optional<String> dateFormat = getStructDataEditorService().getDateFormatFromField(
             cellDocRef);
@@ -69,28 +65,24 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       attrBuilder.addNonEmptyAttribute("type", "text");
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
-          cellDoc, modelContext.getDoc()).or(""));
-      List<Type> typeList = getFieldValue(cellDocRef, FIELD_TYPE).or(Collections.<Type>emptyList());
+          cellDoc, modelContext.getCurrentDoc().orNull()).orElse(""));
+      List<Type> typeList = modelAccess.getFieldValue(cellDocRef, FIELD_TYPE)
+          .or(Collections.<Type>emptyList());
       Type pickerType = Iterables.getFirst(typeList, Type.DATE_PICKER);
       attrBuilder.addCssClasses(PICKER_TYPE_CSS_CLASS_MAP.get(pickerType));
-      Optional<String> format = getNotEmptyString(cellDocRef, FIELD_FORMAT);
       List<String> dataValueList = new ArrayList<>();
-      if (format.isPresent()) {
-        String formatStr = new StringBuilder("\"format\" : \"").append(format.get()).append(
-            "\"").toString();
-        dataValueList.add(formatStr);
-      }
-      Optional<String> attributes = getNotEmptyString(cellDocRef, FIELD_ATTRIBUTES);
-      if (attributes.isPresent()) {
-        dataValueList.add(attributes.get());
-      }
+      modelAccess.getFieldValue(cellDocRef, FIELD_FORMAT).toJavaUtil()
+          .map(format -> "\"format\" : \"" + format + "\"")
+          .ifPresent(dataValueList::add);
+      modelAccess.getFieldValue(cellDocRef, FIELD_ATTRIBUTES).toJavaUtil()
+          .ifPresent(dataValueList::add);
       String dataAttr = Joiner.on(',').skipNulls().join(dataValueList);
       if (!dataAttr.isEmpty()) {
         attrBuilder.addNonEmptyAttribute("data-pickerAttr", new StringBuilder("{").append(
             dataAttr).append("}").toString());
       }
     } catch (DocumentNotExistsException exc) {
-      LOGGER.error("cell doesn't exist '{}'", cellDocRef, exc);
+      log.error("cell doesn't exist '{}'", cellDocRef, exc);
     }
   }
 

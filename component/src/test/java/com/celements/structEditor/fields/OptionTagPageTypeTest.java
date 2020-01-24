@@ -6,6 +6,7 @@ import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,6 @@ import com.celements.model.access.IModelAccessFacade;
 import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.celements.struct.SelectTagServiceRole;
 import com.celements.structEditor.StructuredDataEditorService;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
 
@@ -77,9 +77,8 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
     DocumentReference cellDocRef = new DocumentReference(getContext().getDatabase(), "TestSpace",
         "TestPage");
     String myTestValue = "myTestValue";
-    Optional<String> optionConfigValue = Optional.of(myTestValue);
     expect(modelAccessMock.getFieldValue(eq(cellDocRef), eq(FIELD_VALUE))).andReturn(
-        optionConfigValue).atLeastOnce();
+        com.google.common.base.Optional.of(myTestValue)).atLeastOnce();
     DocumentReference parentCell = new DocumentReference(getContext().getDatabase(), "TestSpace",
         "TestParentSelectCell");
     java.util.Optional<DocumentReference> selectCellDocRef = java.util.Optional.of(parentCell);
@@ -88,9 +87,9 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
     expect(structDataEditorSrvMock.getCellValueAsString(eq(parentCell), same(
         currentPageDoc))).andReturn(currentStoredValue);
     expect(modelAccessMock.getFieldValue(eq(cellDocRef), eq(FIELD_DISABLED))).andReturn(
-        Optional.absent());
+        com.google.common.base.Optional.absent());
     expect(modelAccessMock.getFieldValue(eq(cellDocRef), eq(FIELD_LABEL))).andReturn(
-        Optional.absent());
+        com.google.common.base.Optional.absent());
     replayDefault();
     optionTagPT.collectAttributes(attributes, cellDocRef);
     verifyDefault();

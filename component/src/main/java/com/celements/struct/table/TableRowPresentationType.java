@@ -8,6 +8,7 @@ import static java.util.stream.Collectors.*;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -27,7 +28,6 @@ import com.celements.model.field.XDocumentFieldAccessor;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.rights.access.exceptions.NoAccessRightsException;
 import com.celements.velocity.VelocityContextModifier;
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -162,7 +162,7 @@ public class TableRowPresentationType extends AbstractTablePresentationType {
    */
   List<String> resolvePossibleTableNames(XWikiDocument tableDoc) {
     ImmutableList.Builder<String> tableNames = new ImmutableList.Builder<>();
-    structDataService.getStructLayoutSpaceRef(tableDoc).toJavaUtil()
+    structDataService.getStructLayoutSpaceRef(tableDoc)
         .map(this::getFirstPartOfLayoutName).ifPresent(tableNames::add);
     pageTypeResolver.resolvePageTypeReference(tableDoc).toJavaUtil()
         .map(PageTypeReference::getConfigName).ifPresent(tableNames::add);

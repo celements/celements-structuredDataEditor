@@ -2,6 +2,7 @@ package com.celements.structEditor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -12,7 +13,6 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.struct.SelectTagServiceRole;
-import com.google.common.base.Optional;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.PropertyClass;
