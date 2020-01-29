@@ -279,7 +279,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Optional<Integer> getNumberFromExecutionContext() {
-    return Stream.of("objNb", "celements.globalvalues.struct.objNb")
+    return Stream.of("objNb", "celements.globalvalues.cell.number")
         .map(exec.getContext()::getProperty)
         .map(Objects::toString)
         .map(Ints::tryParse)
