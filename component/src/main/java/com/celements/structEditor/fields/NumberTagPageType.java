@@ -40,7 +40,7 @@ public class NumberTagPageType extends AbstractStructFieldPageType {
           modelContext.getCurrentDoc().orNull()).orElse("");
       attrBuilder.addNonEmptyAttribute("name", name);
       String value = getStructDataEditorService().getCellValueAsString(cellDocRef,
-          modelContext.getCurrentDoc().orNull()).orElse("");
+          modelContext.getCurrentDoc().orNull()).orElse("0");
       attrBuilder.addNonEmptyAttribute("value", value);
     } catch (DocumentNotExistsException exc) {
       log.error("failed to add all attributes for '{}'", cellDocRef, exc);
