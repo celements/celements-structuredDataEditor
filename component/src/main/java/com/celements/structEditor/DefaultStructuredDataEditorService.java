@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -278,8 +279,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Optional<Integer> getNumberFromExecutionContext() {
-    return Optional.ofNullable(Ints.tryParse(Objects.toString(
-        exec.getContext().getProperty("objNb"))));
+    return Stream.of("objNb", "celements.globalvalues.cell.number")
+        .map(exec.getContext()::getProperty)
+        .map(Objects::toString)
+        .map(Ints::tryParse)
+        .filter(Objects::nonNull)
+        .findFirst();
   }
 
   private Optional<Integer> getNumberFromComputedField(XWikiDocument cellDoc) {
