@@ -19,6 +19,7 @@
       newEntry.innerHTML = newContent.innerHTML;
       objectList.appendChild(newEntry);
       observeDeleteObject();
+      $(document.body).fire('cel:initMultiselect');
       console.debug('createObject - new object: ', newEntry);
     } else {
       console.warn('createObject - unable to create object in list: ', element);
