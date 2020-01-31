@@ -13,13 +13,15 @@
     event.stop();
     var element = event.element().up('.struct_object_list');
     var objectList = element.down('ul');
-    var newContent = element.down('.struct_object_create .content');
-    if (objectList && newContent) {
+    var template = element.down('.struct_object_create .cel_template');
+    if (objectList && template) {
       var newEntry = document.createElement("li");
-      newEntry.innerHTML = newContent.innerHTML;
+      newEntry.innerHTML = template.innerHTML;
       objectList.appendChild(newEntry);
       observeDeleteObject();
-      $(document.body).fire('cel:initMultiselect');
+      newEntry.fire('celements:contentChanged', {
+        'htmlElem' : newEntry
+      });
       console.debug('createObject - new object: ', newEntry);
     } else {
       console.warn('createObject - unable to create object in list: ', element);
@@ -65,7 +67,15 @@
     return objNb;
   };
 
+
+  var reloadPage = function(event) {
+    location.reload();
+  }
+
   $j(document).ready(observeCreateObject);
   $j(document).ready(observeDeleteObject);
+  $j(document).ready(function() {
+    $(document.body).observe('tabedit:successfulSaved', reloadPage);
+  });
 
 })(window);
