@@ -3,7 +3,7 @@
 
   
   var observeCreateObject = function() {
-    $$('.struct_object_list .struct_object_create a').each(function(link) {
+    $$('.struct_object_list .struct_object_creation a').each(function(link) {
       link.stopObserving('click', createObject);
       link.observe('click', createObject);
     });
