@@ -3,7 +3,7 @@
 
   
   var observeCreateObject = function() {
-    $$('.structObjectList .structCreateObject a').each(function(link) {
+    $$('.struct_object_list .struct_object_create a').each(function(link) {
       link.stopObserving('click', createObject);
       link.observe('click', createObject);
     });
@@ -11,9 +11,9 @@
 
   var createObject = function(event) {
     event.stop();
-    var element = event.element().up('.structObjectList');
+    var element = event.element().up('.struct_object_list');
     var objectList = element.down('ul');
-    var newContent = element.down('.structCreateObject .content');
+    var newContent = element.down('.struct_object_create .content');
     if (objectList && newContent) {
       var newEntry = document.createElement("li");
       newEntry.innerHTML = newContent.innerHTML;
@@ -27,7 +27,7 @@
 
 
   var observeDeleteObject = function() {
-    $$('.structObjectList ul li .structDeleteObject a').each(function(link) {
+    $$('.struct_object_list ul li .struct_object_delete a').each(function(link) {
       link.stopObserving('click', deleteObject);
       link.observe('click', deleteObject);
     });
