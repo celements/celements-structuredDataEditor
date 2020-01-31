@@ -13,9 +13,10 @@
     event.stop();
     var element = event.element().up('.struct_object_list');
     var objectList = element.down('ul');
-    var template = element.down('.struct_object_create .cel_template');
+    var template = element.down('.struct_object_creation .cel_template');
     if (objectList && template) {
       var newEntry = document.createElement("li");
+      newEntry.addClassName('struct_object_created');
       newEntry.innerHTML = template.innerHTML;
       objectList.appendChild(newEntry);
       observeDeleteObject();
