@@ -68,15 +68,15 @@
     return objNb;
   };
 
-
-  var reloadPage = function(event) {
-    location.reload();
-  }
-
   $j(document).ready(observeCreateObject);
   $j(document).ready(observeDeleteObject);
   $j(document).ready(function() {
-    $(document.body).observe('tabedit:successfulSaved', reloadPage);
+    $(document.body).observe('celements:contentChanged', observeCreateObject);
+    $(document.body).observe('celements:contentChanged', observeDeleteObject);
+    $(document.body).observe('tabedit:successfulSaved', function(event) {
+      location.reload();
+    });
   });
+  
 
 })(window);
