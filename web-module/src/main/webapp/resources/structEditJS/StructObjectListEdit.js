@@ -1,8 +1,6 @@
 (function(window, undefined) {
   "use strict";
 
-  var nextCreateObjectNb = -1;
-
   var observeCreateObject = function() {
     $$('.struct_object_list .struct_object_creation a').each(function(link) {
       link.stopObserving('click', createObject);
@@ -30,23 +28,23 @@
     }
   };
 
+  const regexName = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
+  const regexId   = /^(.+_)(-1)$/;       // id="cell:wiki..Space.cell_-1"
+  var nextCreateObjectNb = -2;
+
   var createEntryFrom = function(template) {
     var entry = document.createElement("li");
     entry.addClassName('struct_object_created');
     entry.innerHTML = template.innerHTML;
-    var setObjNbOnce = false;
-    entry.select('input,select,textarea').each(function(objElem) {
-      // name="Space.Class_-1_field"
-      var regex = /^(.+_)(-[1-9][0-9]*)(_.*)?$/;
-      var name = (objElem.getAttribute('name') || '');
-      objElem.setAttribute("name", name.replace(regex, '$1' + nextCreateObjectNb + '$3'));
-      setObjNbOnce = setObjNbOnce || (name !== objElem.getAttribute('name'));
+    var setObjNb = false;    
+    entry.select('input,select,textarea').each(function(objElem) {      
+      var name = objElem.getAttribute('name') || '';
+      objElem.setAttribute("name", name.replace(regexName, '$1' + nextCreateObjectNb + '$3'));
+      setObjNb = setObjNb || (name !== objElem.getAttribute('name'));
     });
-    if (setObjNbOnce) {
+    if (setObjNb) {
       entry.select('.cel_cell').each(function(cellElem) {
-        // id="cell:wiki..Space.cell_-1"
-        var regex = /^(.+_)(-[1-9][0-9]*)$/;
-        cellElem.id = (cellElem.id || '').replace(regex, '$1' + nextCreateObjectNb);
+        cellElem.id = (cellElem.id || '').replace(regexId, '$1' + nextCreateObjectNb);
       });
       nextCreateObjectNb--;
       return entry;
