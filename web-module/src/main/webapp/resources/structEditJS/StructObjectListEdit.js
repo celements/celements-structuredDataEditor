@@ -1,7 +1,8 @@
 (function(window, undefined) {
   "use strict";
 
-  
+  var nextCreateObjectNb = -1;
+
   var observeCreateObject = function() {
     $$('.struct_object_list .struct_object_creation a').each(function(link) {
       link.stopObserving('click', createObject);
@@ -12,20 +13,43 @@
   var createObject = function(event) {
     event.stop();
     var element = event.element().up('.struct_object_list');
-    var objectList = element.down('ul');
     var template = element.down('.struct_object_creation .cel_template');
-    if (objectList && template) {
-      var newEntry = document.createElement("li");
-      newEntry.addClassName('struct_object_created');
-      newEntry.innerHTML = template.innerHTML;
-      objectList.appendChild(newEntry);
-      observeDeleteObject();
-      newEntry.fire('celements:contentChanged', {
-        'htmlElem' : newEntry
-      });
-      console.debug('createObject - new object: ', newEntry);
+    var newEntry = createEntryFrom(template);
+    if (newEntry) {
+      var objectList = element.down('ul');
+      if (objectList) {
+        objectList.appendChild(newEntry);
+        observeDeleteObject();
+        newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
+        console.debug('createObject - new object: ', newEntry);
+      } else {
+        console.warn('createObject - missing ul in: ', element);
+      }
     } else {
-      console.warn('createObject - unable to create object in list: ', element);
+      console.warn('createObject - unable to create entry from template ', template);
+    }
+  };
+
+  var createEntryFrom = function(template) {
+    var entry = document.createElement("li");
+    entry.addClassName('struct_object_created');
+    entry.innerHTML = template.innerHTML;
+    var setObjNbOnce = false;
+    entry.select('input,select,textarea').each(function(objElem) {
+      // name="Space.Class_-1_field"
+      var regex = /^(.+_)(-[1-9][0-9]*)(_.*)?$/;
+      var name = (objElem.getAttribute('name') || '');
+      objElem.setAttribute("name", name.replace(regex, '$1' + nextCreateObjectNb + '$3'));
+      setObjNbOnce = setObjNbOnce || (name !== objElem.getAttribute('name'));
+    });
+    if (setObjNbOnce) {
+      entry.select('.cel_cell').each(function(cellElem) {
+        // id="cell:wiki..Space.cell_-1"
+        var regex = /^(.+_)(-[1-9][0-9]*)$/;
+        cellElem.id = (cellElem.id || '').replace(regex, '$1' + nextCreateObjectNb);
+      });
+      nextCreateObjectNb--;
+      return entry;
     }
   };
 
@@ -54,7 +78,7 @@
 
   var extractAndMarkObjectNb = function(entry) {
     var objNb = NaN;
-    var objElem = entry.down('select,textarea,input');
+    var objElem = entry.down('input,select,textarea');
     if (objElem) {
       // name="Space.Class_1_field"
       var nameParts = (objElem.getAttribute('name') || '').split('_');
