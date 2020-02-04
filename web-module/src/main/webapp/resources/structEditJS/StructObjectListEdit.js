@@ -47,10 +47,10 @@
   var setObjectNbIn = function(entry, selector, key) {
     var changed = false;
     entry.select(selector).each(function(elem) {
-      var oldValue = elem.getAttribute(key) || '';
+      var oldValue = (elem.getAttribute(key) || '');
       var newValue = oldValue.replace(_REGEX_OBJ_NB, '$1' + _nextCreateObjectNb + '$3');
       elem.setAttribute(key, newValue);
-      changed = setObjNb || oldValue !== newValue;
+      changed = (changed || (oldValue !== newValue));
     });
     return changed;
   };
