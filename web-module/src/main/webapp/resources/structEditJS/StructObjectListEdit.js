@@ -1,7 +1,9 @@
 (function(window, undefined) {
   "use strict";
 
-  
+  const _REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
+  var _nextCreateObjectNb = -2;
+
   var observeCreateObject = function() {
     $$('.struct_object_list .struct_object_creation a').each(function(link) {
       link.stopObserving('click', createObject);
@@ -13,20 +15,44 @@
     event.stop();
     var element = event.element().up('.struct_object_list');
     var objectList = element.down('ul');
-    var template = element.down('.struct_object_creation .cel_template');
-    if (objectList && template) {
-      var newEntry = document.createElement("li");
-      newEntry.addClassName('struct_object_created');
-      newEntry.innerHTML = template.innerHTML;
-      objectList.appendChild(newEntry);
-      observeDeleteObject();
-      newEntry.fire('celements:contentChanged', {
-        'htmlElem' : newEntry
-      });
-      console.debug('createObject - new object: ', newEntry);
+    if (objectList) {
+      var template = element.down('.struct_object_creation .cel_template');
+      var newEntry = createEntryFrom(template);
+      if (newEntry) {
+          objectList.appendChild(newEntry);
+          observeDeleteObject();
+          newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
+          console.debug('createObject - new object: ', newEntry);
+      } else {
+        console.warn('createObject - illegal template ', template);
+      }
     } else {
-      console.warn('createObject - unable to create object in list: ', element);
+      console.warn('createObject - missing ul ', element);
     }
+  };
+
+  var createEntryFrom = function(template) {
+    var entry = document.createElement("li");
+    entry.addClassName('struct_object_created');
+    entry.innerHTML = template.innerHTML;
+    var anyObjNbSet = setObjectNbIn(entry, 'input,select,textarea', 'name');
+    if (anyObjNbSet) {
+      setObjectNbIn(entry, '.cel_cell', 'id');
+      setObjectNbIn(entry, 'label', 'for');
+      _nextCreateObjectNb--;
+      return entry;
+    }
+  };
+
+  var setObjectNbIn = function(entry, selector, key) {
+    var changed = false;
+    entry.select(selector).each(function(elem) {
+      var oldValue = (elem.getAttribute(key) || '');
+      var newValue = oldValue.replace(_REGEX_OBJ_NB, '$1' + _nextCreateObjectNb + '$3');
+      elem.setAttribute(key, newValue);
+      changed = (changed || (oldValue !== newValue));
+    });
+    return changed;
   };
 
 
@@ -54,15 +80,15 @@
 
   var extractAndMarkObjectNb = function(entry) {
     var objNb = NaN;
-    var objElem = entry.down('select,textarea,input');
-    if (objElem) {
+    var formElem = entry.down('input,select,textarea');
+    if (formElem) {
       // name="Space.Class_1_field"
-      var nameParts = (objElem.getAttribute('name') || '').split('_');
+      var nameParts = (formElem.getAttribute('name') || '').split('_');
       objNb = parseInt(nameParts[1], 10);
       if (objNb >= 0) {
         // ^ in front of the object number is the delete marker
         nameParts[1] = "^" + nameParts[1];
-        objElem.setAttribute("name", nameParts.join('_'));
+        formElem.setAttribute("name", nameParts.join('_'));
       }
     }    
     return objNb;
