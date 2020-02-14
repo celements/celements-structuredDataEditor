@@ -220,4 +220,12 @@ public class TinyMce4ConfigTest extends AbstractComponentTest {
     verifyDefault();
   }
 
+  @Test
+  public void test_rowLayoutConvert_overwriteWith_none() {
+    replayDefault();
+    assertEquals("", tinyMce4Config.rowLayoutConvert("none"));
+    verifyDefault();
+  }
+
+
 }

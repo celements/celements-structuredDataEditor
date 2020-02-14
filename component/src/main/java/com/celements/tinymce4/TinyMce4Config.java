@@ -79,7 +79,8 @@ public class TinyMce4Config implements RteConfigRole {
       SEPARATOR, "tablesplitcells", "tablemergecells");
   private static final ImmutableList<String> CELIMAGE = ImmutableList.of("celimage");
   private static final ImmutableList<String> CELLINK = ImmutableList.of("cellink");
-  private static final List<String> BUTTONS_BLACKLIST = ImmutableList.of("save", "cancel", "");
+  private static final List<String> BUTTONS_BLACKLIST = ImmutableList.of("save", "cancel", "",
+      "none");
   private static final Map<String, List<String>> BUTTONS_CONVERSIONMAP = initButtonConversionMap();
 
   private static final ImmutableMap<String, List<String>> initButtonConversionMap() {
