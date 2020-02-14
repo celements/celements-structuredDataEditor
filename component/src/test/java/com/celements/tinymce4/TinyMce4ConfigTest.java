@@ -13,6 +13,7 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.reference.RefBuilder;
 import com.celements.rteConfig.RteConfigRole;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.web.Utils;
 
@@ -67,6 +68,43 @@ public class TinyMce4ConfigTest extends AbstractComponentTest {
     expect(rteConfigMock.getRTEConfigField(eq(testPropName))).andReturn("the,Expected,Result");
     replayDefault();
     assertEquals("the Expected Result", tinyMce4Config.getRTEConfigField(testPropName));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_getRTEConfigField_valid_elements() {
+    final String testPropName = "valid_elements";
+    expect(rteConfigMock.getRTEConfigField(eq(testPropName))).andReturn("#p,a[!href],br");
+    replayDefault();
+    assertEquals("#p,a[!href],br", tinyMce4Config.getRTEConfigField(testPropName));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_getRTEConfigField_valid_elements_default() {
+    final String testPropName = "valid_elements";
+    expect(rteConfigMock.getRTEConfigField(eq(testPropName))).andReturn("");
+    replayDefault();
+    assertEquals(TinyMce4Config.VALID_ELEMENTS_DEF, tinyMce4Config.getRTEConfigField(testPropName));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_getRTEConfigField_invalid_elements() {
+    final String testPropName = "invalid_elements";
+    expect(rteConfigMock.getRTEConfigField(eq(testPropName))).andReturn("#p,a[!href],br");
+    replayDefault();
+    assertEquals("#p,a[!href],br", tinyMce4Config.getRTEConfigField(testPropName));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_getRTEConfigField_invalid_elements_default() {
+    final String testPropName = "invalid_elements";
+    expect(rteConfigMock.getRTEConfigField(eq(testPropName))).andReturn("");
+    replayDefault();
+    assertEquals(TinyMce4Config.INVALID_ELEMENTS_DEF, tinyMce4Config.getRTEConfigField(
+        testPropName));
     verifyDefault();
   }
 
@@ -142,6 +180,50 @@ public class TinyMce4ConfigTest extends AbstractComponentTest {
   public void test_rowLayoutConvert_overwriteWith_none() {
     replayDefault();
     assertEquals("", tinyMce4Config.rowLayoutConvert("none"));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_validElementsCheck_default4empty() {
+    replayDefault();
+    assertEquals(TinyMce4Config.VALID_ELEMENTS_DEF, tinyMce4Config.validElementsCheck(""));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_validElementsCheck_default4null() {
+    replayDefault();
+    assertEquals(TinyMce4Config.VALID_ELEMENTS_DEF, tinyMce4Config.validElementsCheck(null));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_validElementsCheck_sanity() {
+    replayDefault();
+    assertFalse(TinyMce4Config.VALID_ELEMENTS_DEF.matches(" "));
+    assertFalse(Strings.isNullOrEmpty(TinyMce4Config.VALID_ELEMENTS_DEF));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_invalidElementsCheck_default4empty() {
+    replayDefault();
+    assertEquals(TinyMce4Config.INVALID_ELEMENTS_DEF, tinyMce4Config.invalidElementsCheck(""));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_invalidElementsCheck_default4null() {
+    replayDefault();
+    assertEquals(TinyMce4Config.INVALID_ELEMENTS_DEF, tinyMce4Config.invalidElementsCheck(null));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_invalidElementsCheck_sanity() {
+    replayDefault();
+    assertFalse(TinyMce4Config.INVALID_ELEMENTS_DEF.matches(" "));
+    assertFalse(Strings.isNullOrEmpty(TinyMce4Config.INVALID_ELEMENTS_DEF));
     verifyDefault();
   }
 
