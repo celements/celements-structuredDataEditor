@@ -35,6 +35,12 @@ $!services.rteconfig.setRteConfigHint("tinymce4")
     #set($availableGalleries = "$!{availableGalleries},${galleryName}=${galleryFN}")
   #end
 #end
+## lookup the rte valid elements in XWiki- and WebPreferences and
+## default back to the standard configuration
+#set($rte_valid_elements = $celementsweb.getRTEConfigField('valid_elements'))
+## lookup the rte invalid elements in XWiki- and WebPreferences and
+## default back to the standard configuration
+#set($rte_invalid_elements = $celementsweb.getRTEConfigField('invalid_elements'))
 ## lookup the rte button layout in XWiki- and WebPreferences and
 ## default back to the standard fields
 #set($rteRows = [])
@@ -94,6 +100,7 @@ $!services.rteconfig.setRteConfigHint("tinymce4")
 #if("$!singleAttachmentDocument" != '')
   #set($filePickerDoc = "$!singleAttachmentDocument")
 #end
+##
 #*
   ##this is wrong in general !!!
   ##29.08.2014 FP: removed to fix problems for Programmzeitung!!!
@@ -127,6 +134,8 @@ $!services.rteconfig.setRteConfigHint("tinymce4")
 $jsonBuilder.openDictionary()##
 $jsonBuilder.addStringProperty("selector", "textarea.tinyMCE,textarea.mceEditor")##
 $jsonBuilder.addStringProperty("language", "$!admin_language")##
+$jsonBuilder.addStringProperty("valid_elements", "$!rte_valid_elements")##
+$jsonBuilder.addStringProperty("invalid_elements", "$!rte_invalid_elements")##
 $jsonBuilder.addStringProperty("theme", "modern")##
 $jsonBuilder.addStringProperty("height", "$!tinyMCE_height")##
 $jsonBuilder.addStringProperty("width", "$!tinyMCE_width")##
