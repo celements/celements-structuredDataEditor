@@ -32,6 +32,7 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.rteConfig.RteConfigRole;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -48,6 +49,22 @@ public class TinyMce4Config implements RteConfigRole {
   @Requirement
   private RteConfigRole rteConfig;
 
+  private static final String VALID_ELEMENTS_NAME = "valid_elements";
+  static final String VALID_ELEMENTS_DEF = "b/strong,caption,hr[class|width|size|noshade],"
+      + "+a[href|class|target|onclick|name|id|title|rel|hreflang],br,i/em,#p[style|class|name|id],"
+      + "#h?[align<center?justify?left?right|class|style|id],-span[class|style|id|title],"
+      + "textformat[blockindent|indent|leading|leftmargin|rightmargin|tabstops],sub[class],"
+      + "sup[class],img[width|height|class|align|style|src|border=0|alt|id|title|usemap],"
+      + "table[align<center?left?right|bgcolor|border|cellpadding|cellspacing|class|height|width"
+      + "|style|id|title],"
+      + "tbody[align<center?char?justify?left?right|class|valign<baseline?bottom?middle?top],"
+      + "#td[align<center?char?justify?left?right|bgcolor|class|colspan|headers|height|nowrap"
+      + "<nowrap|style|rowspan|scope<col?colgroup?row?rowgroup|valign<baseline?bottom?middle?top"
+      + "|width],#th[align<center?char?justify?left?right|bgcolor|class|colspan|headers|height"
+      + "|rowspan|scope<col?colgroup?row?rowgroup|valign<baseline?bottom?middle?top|style|width],"
+      + "thead[align<center?char?justify?left?right|class|valign<baseline?bottom?middle?top],"
+      + "-tr[align<center?char?justify?left?right|bgcolor|class|style|rowspan|valign<baseline"
+      + "?bottom?middle?top|id],-ol[class|type|compact],-ul[class|type|compact],#li[class]";
   private static final String SEPARATOR = "|";
   private static final List<String> ALL_SEPARATOR_LIST = ImmutableList.of(SEPARATOR, "separator");
   private static final ImmutableList<String> TABLE_CONTROLS = ImmutableList.of("table", SEPARATOR,
@@ -81,11 +98,21 @@ public class TinyMce4Config implements RteConfigRole {
   @Override
   public String getRTEConfigField(String name) {
     String rteConfigField = rteConfig.getRTEConfigField(name);
-    if (ROW_LAYOUT_REGEX.matcher(name).matches()) {
+    if (VALID_ELEMENTS_NAME.equals(name)) {
+      LOGGER.info("getRTEConfigField validElementsCheck '{}' for '{}'", rteConfigField, name);
+      rteConfigField = validElementsCheck(rteConfigField);
+    } else if (ROW_LAYOUT_REGEX.matcher(name).matches()) {
       LOGGER.info("getRTEConfigField converting value '{}' for '{}'", rteConfigField, name);
       rteConfigField = rowLayoutConvert(rteConfigField);
     }
     LOGGER.debug("getRTEConfigField for '{}': returning '{}'", name, rteConfigField);
+    return rteConfigField;
+  }
+
+  String validElementsCheck(String rteConfigField) {
+    if (Strings.isNullOrEmpty(rteConfigField)) {
+      return VALID_ELEMENTS_DEF;
+    }
     return rteConfigField;
   }
 
