@@ -90,6 +90,25 @@ public class TinyMce4ConfigTest extends AbstractComponentTest {
   }
 
   @Test
+  public void test_getRTEConfigField_invalid_elements() {
+    final String testPropName = "invalid_elements";
+    expect(rteConfigMock.getRTEConfigField(eq(testPropName))).andReturn("#p,a[!href],br");
+    replayDefault();
+    assertEquals("#p,a[!href],br", tinyMce4Config.getRTEConfigField(testPropName));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_getRTEConfigField_invalid_elements_default() {
+    final String testPropName = "invalid_elements";
+    expect(rteConfigMock.getRTEConfigField(eq(testPropName))).andReturn("");
+    replayDefault();
+    assertEquals(TinyMce4Config.INVALID_ELEMENTS_DEF, tinyMce4Config.getRTEConfigField(
+        testPropName));
+    verifyDefault();
+  }
+
+  @Test
   public void test_rowLayoutConvert_trailingSeparator() {
     replayDefault();
     assertEquals("list | bold italic celimage cellink", tinyMce4Config.rowLayoutConvert(
@@ -176,6 +195,28 @@ public class TinyMce4ConfigTest extends AbstractComponentTest {
     replayDefault();
     assertFalse(TinyMce4Config.VALID_ELEMENTS_DEF.matches(" "));
     assertFalse(Strings.isNullOrEmpty(TinyMce4Config.VALID_ELEMENTS_DEF));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_invalidElementsCheck_default4empty() {
+    replayDefault();
+    assertEquals(TinyMce4Config.INVALID_ELEMENTS_DEF, tinyMce4Config.invalidElementsCheck(""));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_invalidElementsCheck_default4null() {
+    replayDefault();
+    assertEquals(TinyMce4Config.INVALID_ELEMENTS_DEF, tinyMce4Config.invalidElementsCheck(null));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_invalidElementsCheck_sanity() {
+    replayDefault();
+    assertFalse(TinyMce4Config.INVALID_ELEMENTS_DEF.matches(" "));
+    assertFalse(Strings.isNullOrEmpty(TinyMce4Config.INVALID_ELEMENTS_DEF));
     verifyDefault();
   }
 

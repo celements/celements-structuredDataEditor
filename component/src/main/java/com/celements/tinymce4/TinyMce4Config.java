@@ -49,6 +49,12 @@ public class TinyMce4Config implements RteConfigRole {
   @Requirement
   private RteConfigRole rteConfig;
 
+  private static final String INVALID_ELEMENTS_NAME = "invalid_elements";
+  static final String INVALID_ELEMENTS_DEF = "blockquote,body,button,center,cite,code,col,colgroup,"
+      + "dd,del,dfn,dir,div,dl,dt,fieldset,font,form,frame,frameset,head,html,iframe,input,ins,kbd,"
+      + "isindex,label,legend,link,map,menu,meta,noframes,noscript,object,optgroup,option,param,"
+      + "pre/listing/plaintext/xmp,q,s,samp,script,select,small,strike,textarea,tfoot,tt,u,var";
+
   private static final String VALID_ELEMENTS_NAME = "valid_elements";
   static final String VALID_ELEMENTS_DEF = "b/strong,caption,hr[class|width|size|noshade],"
       + "+a[href|class|target|onclick|name|id|title|rel|hreflang],br,i/em,#p[style|class|name|id],"
@@ -101,6 +107,9 @@ public class TinyMce4Config implements RteConfigRole {
     if (VALID_ELEMENTS_NAME.equals(name)) {
       LOGGER.info("getRTEConfigField validElementsCheck '{}' for '{}'", rteConfigField, name);
       rteConfigField = validElementsCheck(rteConfigField);
+    } else if (INVALID_ELEMENTS_NAME.equals(name)) {
+      LOGGER.info("getRTEConfigField invalidElementsCheck '{}' for '{}'", rteConfigField, name);
+      rteConfigField = invalidElementsCheck(rteConfigField);
     } else if (ROW_LAYOUT_REGEX.matcher(name).matches()) {
       LOGGER.info("getRTEConfigField converting value '{}' for '{}'", rteConfigField, name);
       rteConfigField = rowLayoutConvert(rteConfigField);
@@ -112,6 +121,13 @@ public class TinyMce4Config implements RteConfigRole {
   String validElementsCheck(String rteConfigField) {
     if (Strings.isNullOrEmpty(rteConfigField)) {
       return VALID_ELEMENTS_DEF;
+    }
+    return rteConfigField;
+  }
+
+  String invalidElementsCheck(String rteConfigField) {
+    if (Strings.isNullOrEmpty(rteConfigField)) {
+      return INVALID_ELEMENTS_DEF;
     }
     return rteConfigField;
   }
