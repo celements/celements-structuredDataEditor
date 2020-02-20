@@ -13,6 +13,12 @@
     <property name="edit_field_name" type="string">
       <column name="SEF_EDIT_FIELD_NAME" length="64" />
     </property>
+    <property name="computed_obj_nb" type="text">
+      <column name="SEF_COMPUTED_OBJ_NB" />
+    </property>
+    <property name="data_attr_event" type="string">
+      <column name="SEF_DATA_ATTR_EVENT" length="1024" />
+    </property>
   </class>
   <class entity-name="Celements.FormFieldEditorClass" table="cel_form_field_edit_field">
     <id name="id" type="long" unsaved-value="undefined">

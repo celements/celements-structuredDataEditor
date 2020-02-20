@@ -7,6 +7,8 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
+import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(CheckboxTagPageType.PAGETYPE_NAME)
@@ -42,6 +44,11 @@ public class CheckboxTagPageType extends AbstractStructFieldPageType {
       String value = getStructDataEditorService().getCellValueAsString(cellDocRef,
           modelContext.getCurrentDoc().orNull()).orElse("0");
       attrBuilder.addNonEmptyAttribute("value", value);
+      XWikiObjectFetcher.on(cellDoc).fetchField(StructuredDataEditorClass.FIELD_EVENT_DATA_ATTR)
+          .stream().findFirst().ifPresent(eventDataAttrValue -> {
+            attrBuilder.addCssClasses("celOnEvent");
+            attrBuilder.addAttribute("data-cel-event", eventDataAttrValue);
+          });
     } catch (DocumentNotExistsException exc) {
       log.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }

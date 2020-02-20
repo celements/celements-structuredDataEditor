@@ -29,7 +29,10 @@ public class StructuredDataEditorClass extends AbstractClassDefinition implement
       CLASS_DEF_HINT, "edit_field_name").prettyName("Property Name").build();
 
   public static final ClassField<String> FIELD_COMPUTED_OBJ_NB = new LargeStringField.Builder(
-      CLASS_DEF_HINT, "select_tag_computed_obj_nb").prettyName("Computed Object Number").build();
+      CLASS_DEF_HINT, "computed_obj_nb").prettyName("Computed Object Number").build();
+
+  public static final ClassField<String> FIELD_EVENT_DATA_ATTR = new StringField.Builder(
+      CLASS_DEF_HINT, "event_data_attr").prettyName("Event-JS Data Attribute").build();
 
   @Override
   public String getName() {
