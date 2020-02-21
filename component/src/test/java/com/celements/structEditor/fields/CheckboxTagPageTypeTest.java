@@ -71,10 +71,11 @@ public class CheckboxTagPageTypeTest extends AbstractComponentTest {
     pageType.collectAttributes(attributes, cellDoc.getDocumentReference());
     verifyDefault();
 
-    assertEquals(4, attributes.build().size());
+    assertEquals(5, attributes.build().size());
     assertAttribute(attributes, "type", "checkbox");
     assertAttribute(attributes, "name", "Space.Class_1_field");
     assertAttribute(attributes, "value", "1");
+    assertAttribute(attributes, "onclick", "this.value = this.checked ? 1 : 0");
     assertAttribute(attributes, "checked", "");
   }
 
