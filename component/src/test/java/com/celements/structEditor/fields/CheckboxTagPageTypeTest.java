@@ -64,17 +64,18 @@ public class CheckboxTagPageTypeTest extends AbstractComponentTest {
     expect(structDataEditorSrvMock.getAttributeName(same(cellDoc), same(getContext().getDoc())))
         .andReturn(Optional.of("Space.Class_1_field"));
     expect(structDataEditorSrvMock.getCellValueAsString(eq(cellDoc.getDocumentReference()),
-        same(getContext().getDoc()))).andReturn(Optional.of("3421"));
+        same(getContext().getDoc()))).andReturn(Optional.of("1"));
     AttributeBuilder attributes = new DefaultAttributeBuilder();
 
     replayDefault();
     pageType.collectAttributes(attributes, cellDoc.getDocumentReference());
     verifyDefault();
 
-    assertEquals(3, attributes.build().size());
+    assertEquals(4, attributes.build().size());
     assertAttribute(attributes, "type", "checkbox");
     assertAttribute(attributes, "name", "Space.Class_1_field");
-    assertAttribute(attributes, "value", "3421");
+    assertAttribute(attributes, "value", "1");
+    assertAttribute(attributes, "checked", "");
   }
 
   @Test
