@@ -23,35 +23,21 @@ public class StructuredDataEditorClass extends AbstractClassDefinition implement
   public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
   public static final ClassField<DocumentReference> FIELD_EDIT_FIELD_CLASS = new DocumentReferenceField.Builder(
-      CLASS_DEF_HINT, "edit_field_class_fullname").prettyName("Class Reference").build();
+      CLASS_REF, "edit_field_class_fullname").prettyName("Class Reference").build();
 
   public static final ClassField<String> FIELD_EDIT_FIELD_NAME = new StringField.Builder(
-      CLASS_DEF_HINT, "edit_field_name").prettyName("Property Name").build();
+      CLASS_REF, "edit_field_name").prettyName("Property Name").build();
 
   public static final ClassField<String> FIELD_COMPUTED_OBJ_NB = new LargeStringField.Builder(
-      CLASS_DEF_HINT, "computed_obj_nb").prettyName("Computed Object Number").build();
+      CLASS_REF, "computed_obj_nb").prettyName("Computed Object Number").build();
 
-  public static final ClassField<String> FIELD_EVENT_DATA_ATTR = new StringField.Builder(
-      CLASS_DEF_HINT, "event_data_attr").prettyName("Event-JS Data Attribute").build();
-
-  @Override
-  public String getName() {
-    return CLASS_DEF_HINT;
+  public StructuredDataEditorClass() {
+    super(CLASS_REF);
   }
 
   @Override
   public boolean isInternalMapping() {
     return true;
-  }
-
-  @Override
-  protected String getClassSpaceName() {
-    return SPACE_NAME;
-  }
-
-  @Override
-  protected String getClassDocName() {
-    return DOC_NAME;
   }
 
 }
