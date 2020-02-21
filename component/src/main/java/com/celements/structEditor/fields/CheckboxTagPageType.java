@@ -40,11 +40,11 @@ public class CheckboxTagPageType extends AbstractStructFieldPageType {
       String name = getStructDataEditorService().getAttributeName(cellDoc,
           modelContext.getCurrentDoc().orNull()).orElse("");
       attrBuilder.addNonEmptyAttribute("name", name);
+      attrBuilder.addNonEmptyAttribute("value", "1");
+      attrBuilder.addNonEmptyAttribute("data-unchecked-value", "0");
       String valueStr = getStructDataEditorService().getCellValueAsString(cellDocRef,
           modelContext.getCurrentDoc().orNull()).orElse("0");
       Integer value = Optional.ofNullable(Ints.tryParse(valueStr)).orElse(0);
-      attrBuilder.addNonEmptyAttribute("value", value.toString());
-      attrBuilder.addNonEmptyAttribute("onclick", "this.value = this.checked ? 1 : 0");
       if (value > 0) {
         attrBuilder.addEmptyAttribute("checked");
       }
