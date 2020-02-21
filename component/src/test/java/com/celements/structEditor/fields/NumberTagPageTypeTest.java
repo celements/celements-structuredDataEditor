@@ -25,7 +25,7 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
   private StructuredDataEditorService structDataEditorSrvMock;
 
   @Before
-  public void setUp_OptionTagPageTypeTest() throws Exception {
+  public void prepareTest() throws Exception {
     registerComponentMock(ModelAccessStrategy.class);
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
     pageType = (NumberTagPageType) Utils.getComponent(IJavaPageTypeRole.class,
