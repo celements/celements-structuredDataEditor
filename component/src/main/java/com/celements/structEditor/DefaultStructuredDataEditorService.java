@@ -272,8 +272,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     if (classRef.isPresent() && (onDoc != null)) {
       int objNb = getNumberFromRequest()
           .orElseGet(() -> getNumberFromExecutionContext()
-              .orElseGet(() -> getNumberFromComputedField(cellDoc)
-                  .orElse(0)));
+          .orElseGet(() -> getNumberFromComputedField(cellDoc)
+          .orElse(0)));
       ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).first().toJavaUtil();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
