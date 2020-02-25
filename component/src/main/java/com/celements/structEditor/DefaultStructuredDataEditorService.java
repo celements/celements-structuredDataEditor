@@ -30,6 +30,7 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.struct.SelectTagServiceRole;
 import com.celements.struct.StructUtilServiceRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
+import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.structEditor.fields.FormFieldPageType;
 import com.celements.velocity.VelocityService;
@@ -108,8 +109,10 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       throws DocumentNotExistsException {
     String prettyName = "";
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-    String dictKey = Joiner.on('_').skipNulls().join(resolveFormPrefix(cellDoc).orElse(null),
-        getAttributeNameInternal(cellDoc, null).orElse(null));
+    String dictKey = Joiner.on('_').skipNulls().join(
+        resolveFormPrefix(cellDoc).orElse(null),
+        getAttributeNameInternal(cellDoc, null).orElse(null),
+        getOptionTagValue(cellDoc).orElse(null));
     LOGGER.debug("getPrettyName: dictKey '{}' for cell '{}'", dictKey, cellDoc);
     prettyName = webUtils.getAdminMessageTool().get(dictKey);
     if (dictKey.equals(prettyName)) {
@@ -120,6 +123,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     }
     LOGGER.info("getPrettyName: '{}' for cell '{}'", prettyName, cellDoc);
     return Optional.ofNullable(prettyName);
+  }
+
+  private Optional<String> getOptionTagValue(XWikiDocument cellDoc) {
+    return XWikiObjectFetcher.on(cellDoc).fetchField(OptionTagEditorClass.FIELD_VALUE)
+        .stream().findFirst();
   }
 
   @Override
