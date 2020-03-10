@@ -8,7 +8,7 @@
 #end
 #set($objectRowLayoutSpaceRef = $services.model.resolveDocument("$!{objectRowLayoutName}.WebHome").lastSpaceReference)
 #if($services.layout.canRenderLayout($objectRowLayoutSpaceRef))
-  <!-- layout: $!services.model.serialize($objectRowLayoutSpaceRef) -->
+  <!-- objectRowLayoutName: $!services.model.serialize($objectRowLayoutSpaceRef) -->
   <li class="struct_object_creation">
     <label class="struct_object_label">$adminMsg.get($services.model.serialize($classRef))</label>
     <a href="#"><i class="icon fa fa-2x fa-plus" title="create"></i></a>
@@ -35,3 +35,4 @@
 #else ## canRenderLayout
   <li>No valid Layout found at '$!services.model.serialize($objectRowLayoutSpaceRef)'</li>
 #end
+#set($objectRowLayoutName = '')
