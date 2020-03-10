@@ -2,6 +2,7 @@
 #if("$!celldoc" != '')
   #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null).docRef)
 #end
+<!-- classRef: $!services.model.serialize($classRef) -->
 #if("$!objectRowLayoutName" == '')
   #set($objectRowLayoutName = "$!{classRef.name.replace('Class','')}-EditFields")
 #end
@@ -21,8 +22,10 @@
     #set($fieldName = $services.structuredDataEditor.getCellFieldName($celldoc.documentReference).orElse(''))
   #end
   #set($asc = !$fieldName.startsWith('-'))
-  #set($fieldName = $fieldName.replaceFirst('-', ''))
-  #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef, $fieldName, $asc))
+  #set($sortFieldName  = $fieldName.replaceFirst('-', ''))
+  <!-- sortFieldName: $!sortFieldName -->
+  <!-- asc: $!asc -->
+  #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef, $sortFieldName, $asc))
   <li>
     $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
     $!services.layout.renderPageLayout($objectRowLayoutSpaceRef)

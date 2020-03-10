@@ -19,7 +19,7 @@
             .getAttribute('data-struct-class') || '';
         template.classList.add(objectClassName.replace('.', '_'));
         form.after(template);
-        console.warn('moveTemplatesOutOfForm - moved ', template);
+        console.debug('moveTemplatesOutOfForm - moved ', template);
       }
     });
   };
@@ -39,6 +39,7 @@
       var newEntry = createEntryFor(objectClassName);
       if (newEntry) {
           objectList.appendChild(newEntry);
+          $j(newEntry).fadeIn();
           observeDeleteObject();
           newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
           console.debug('createObject - new object for ', objectClassName, ': ', newEntry);
@@ -56,6 +57,7 @@
     if (template) {
       var entry = document.createElement("li");
       entry.addClassName('struct_object_created');
+      entry.style.display = "none";
       entry.innerHTML = template.innerHTML;
       var objectNb = _nextCreateObjectNbMap[objectClassName] || -2;
       var anyObjNbSet = setObjectNbIn(entry, 'input,select,textarea', 'name', objectNb);
@@ -94,10 +96,10 @@
     if (isNaN(objNb)) {
       console.warn('deleteObject - unable to extract objNb on: ', entry);
     } else if (objNb >= 0) {
-      entry.hide();
+      $j(entry).fadeOut();
       console.debug('deleteObject - marked: ', entry);
     } else {
-      entry.remove();
+      $j(entry).fadeOut(400, function() { entry.remove(); });
       console.debug('deleteObject - removed: ', entry);
     }
   };
