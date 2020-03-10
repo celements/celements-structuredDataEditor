@@ -2,10 +2,10 @@
 #if("$!celldoc" != '')
   #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null).docRef)
 #end
-#if("$!layoutName" == '')
-  #set($layoutName = "$!{classRef.name.replace('Class','')}-EditFields")
+#if("$!objectRowLayoutName" == '')
+  #set($objectRowLayoutName = "$!{classRef.name.replace('Class','')}-EditFields")
 #end
-#set($editorLayoutSpaceRef = $services.model.resolveDocument("$!{layoutName}.WebHome").lastSpaceReference)
+#set($editorLayoutSpaceRef = $services.model.resolveDocument("$!{objectRowLayoutName}.WebHome").lastSpaceReference)
 #if($services.layout.canRenderLayout($editorLayoutSpaceRef))
   <!-- layout: $!services.model.serialize($editorLayoutSpaceRef) -->
   <li class="struct_object_creation">
