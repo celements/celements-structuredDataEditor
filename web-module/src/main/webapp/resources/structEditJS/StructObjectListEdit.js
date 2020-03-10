@@ -2,7 +2,7 @@
   "use strict";
 
   const _REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
-  var _nextCreateObjectNb = -2;
+  var _nextCreateObjectNbMap = {};
 
   var observeCreateObject = function() {
     $$('.struct_object_list .struct_object_creation a').each(function(link) {
@@ -16,39 +16,44 @@
     var element = event.element().up('.struct_object_list');
     var objectList = element.down('ul');
     if (objectList) {
-      var template = element.down('.struct_object_creation .cel_template');
-      var newEntry = createEntryFrom(template);
+      var objectClassName = element.getAttribute('data-struct-class');
+      var newEntry = createEntryFor(objectClassName);
       if (newEntry) {
           objectList.appendChild(newEntry);
           observeDeleteObject();
           newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
-          console.debug('createObject - new object: ', newEntry);
+          console.debug('createObject - new object for ', objectClassName, ': ', newEntry);
       } else {
-        console.warn('createObject - illegal template ', template);
+        console.warn('createObject - illegal template for ', objectClassName);
       }
     } else {
       console.warn('createObject - missing ul ', element);
     }
   };
 
-  var createEntryFrom = function(template) {
-    var entry = document.createElement("li");
-    entry.addClassName('struct_object_created');
-    entry.innerHTML = template.innerHTML;
-    var anyObjNbSet = setObjectNbIn(entry, 'input,select,textarea', 'name');
-    if (anyObjNbSet) {
-      setObjectNbIn(entry, '.cel_cell', 'id');
-      setObjectNbIn(entry, 'label', 'for');
-      _nextCreateObjectNb--;
-      return entry;
+  var createEntryFor = function(objectClassName) {
+    var objCssClass = '.' (objectClassName.replace('.', '_') || 'none');
+    var template = document.querySelector('.cel_template' + objCssClass);
+    if (template) {
+      var entry = document.createElement("li");
+      entry.addClassName('struct_object_created');
+      entry.innerHTML = template.innerHTML;
+      var objectNb = _nextCreateObjectNbMap[objectClassName] || -2;
+      var anyObjNbSet = setObjectNbIn(entry, 'input,select,textarea', 'name', objectNb);
+      if (anyObjNbSet) {
+        setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
+        setObjectNbIn(entry, 'label', 'for', objectNb);
+        _nextCreateObjectNbMap[objectClassName] = --objectNb;
+        return entry;
+      }
     }
   };
 
-  var setObjectNbIn = function(entry, selector, key) {
+  var setObjectNbIn = function(entry, selector, key, objectNb) {
     var changed = false;
     entry.select(selector).each(function(elem) {
       var oldValue = (elem.getAttribute(key) || '');
-      var newValue = oldValue.replace(_REGEX_OBJ_NB, '$1' + _nextCreateObjectNb + '$3');
+      var newValue = oldValue.replace(_REGEX_OBJ_NB, '$1' + objectNb + '$3');
       elem.setAttribute(key, newValue);
       changed = (changed || (oldValue !== newValue));
     });
@@ -94,11 +99,28 @@
     return objNb;
   };
 
-  $j(document).ready(observeCreateObject);
-  $j(document).ready(observeDeleteObject);
+  var moveTemplatesOutOfForm = function() {
+    document.querySelectorAll('.struct_object_list .struct_object_creation').forEach(element => {
+      var template = element.querySelector('.cel_template');
+      var form = element.closest('form');
+      if (template && form) {
+        var objectClassName = element.closest('.struct_object_list')
+            .getAttribute('data-struct-class') || '';
+        template.classList.add(objectClassName.replace('.', '_'));
+        form.after(template);
+      }
+    });
+  };
+  
+  var init_structObjectListEdit = function() {
+    moveTemplatesOutOfForm();
+    observeCreateObject();
+    observeDeleteObject();
+  };
+
+  $j(document).ready(init_structObjectListEdit);
   $j(document).ready(function() {
-    $(document.body).observe('celements:contentChanged', observeCreateObject);
-    $(document.body).observe('celements:contentChanged', observeDeleteObject);
+    $(document.body).observe('celements:contentChanged', init_structObjectListEdit);
     $(document.body).observe('tabedit:successfulSaved', function(event) {
       location.reload();
     });
