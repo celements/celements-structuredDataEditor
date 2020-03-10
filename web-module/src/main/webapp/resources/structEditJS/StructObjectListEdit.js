@@ -11,11 +11,11 @@
   };
 
   var moveTemplatesOutOfForm = function() {
-    document.querySelectorAll('.struct_object_list .struct_object_creation').forEach(element => {
+    document.querySelectorAll('ul.struct_object li.struct_object_creation').forEach(element => {
       var template = element.querySelector('.cel_template');
       var form = element.closest('form');
       if (template && form) {
-        var objectClassName = element.closest('.struct_object_list')
+        var objectClassName = element.closest('ul.struct_object')
             .getAttribute('data-struct-class') || '';
         template.classList.add(objectClassName.replace('.', '_'));
         form.after(template);
@@ -25,7 +25,7 @@
   };
 
   var observeCreateObject = function() {
-    $$('.struct_object_list .struct_object_creation a').each(function(link) {
+    $$('ul.struct_object li.struct_object_creation a').each(function(link) {
       link.stopObserving('click', createObject);
       link.observe('click', createObject);
     });
@@ -33,7 +33,7 @@
 
   var createObject = function(event) {
     event.stop();
-    var element = event.element().up('.struct_object_list');
+    var element = event.element().up('ul.struct_object');
     var objectList = element.down('ul');
     if (objectList) {
       var objectClassName = element.getAttribute('data-struct-class');
@@ -82,7 +82,7 @@
 
 
   var observeDeleteObject = function() {
-    $$('.struct_object_list ul li .struct_object_delete a').each(function(link) {
+    $$('ul.struct_object li .struct_object_delete a').each(function(link) {
       link.stopObserving('click', deleteObject);
       link.observe('click', deleteObject);
     });

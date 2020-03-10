@@ -1,5 +1,7 @@
 package com.celements.structEditor.fields;
 
+import java.util.Optional;
+
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
@@ -23,10 +25,15 @@ public class ObjectListPageType extends AbstractStructFieldPageType {
   }
 
   @Override
+  public Optional<String> tagName() {
+    return Optional.of("ul");
+  }
+
+  @Override
   public void collectAttributes(final AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      attrBuilder.addCssClasses("struct_object_list");
+      attrBuilder.addCssClasses("struct_object");
       getStructDataEditorService().getCellClassRef(cellDoc)
           .ifPresent(classRef -> attrBuilder.addNonEmptyAttribute("data-struct-class",
               classRef.serialize().replace('.', '_')));
