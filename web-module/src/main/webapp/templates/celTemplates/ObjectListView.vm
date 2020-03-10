@@ -8,10 +8,8 @@
 #set($objectRowLayoutSpaceRef = $services.model.resolveDocument("$!{objectRowLayoutName}.WebHome").lastSpaceReference)
 #if($services.layout.canRenderLayout($objectRowLayoutSpaceRef))
   <!-- layout: $!services.model.serialize($objectRowLayoutSpaceRef) -->
-  <li class="struct_object_label">
-    #parse('celMacros/struct/renderLabel.vm')
-  </li>
   <li class="struct_object_creation">
+    <label class="struct_object_label">$adminMsg.get($services.model.serialize($classRef))</label>
     <a href="#"><i class="icon fa fa-2x fa-plus" title="create"></i></a>
     <div class="cel_template">
       $!services.celementsweb.setGlobalContextValue('cell.number', -1)
