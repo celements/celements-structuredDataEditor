@@ -13,6 +13,7 @@
     <div class="cel_template">
       $!services.celementsweb.setGlobalContextValue('cell.number', -1)
       $!services.layout.renderPageLayout($editorLayoutSpaceRef)
+      <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
     </div>
   </li>
   #if("$!celldoc" != '')
@@ -24,6 +25,7 @@
   <li>
     $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
     $!services.layout.renderPageLayout($editorLayoutSpaceRef)
+    <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
   </li>
   #end
 #else ## canRenderLayout
