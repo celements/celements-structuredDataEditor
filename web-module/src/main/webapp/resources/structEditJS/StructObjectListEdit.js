@@ -32,7 +32,7 @@
   };
 
   var createEntryFor = function(objectClassName) {
-    var objCssClass = '.' (objectClassName.replace('.', '_') || 'none');
+    var objCssClass = '.' + (objectClassName.replace('.', '_') || 'none');
     var template = document.querySelector('.cel_template' + objCssClass);
     if (template) {
       var entry = document.createElement("li");
@@ -108,6 +108,7 @@
             .getAttribute('data-struct-class') || '';
         template.classList.add(objectClassName.replace('.', '_'));
         form.after(template);
+        console.warn('moveTemplatesOutOfForm - moved ', template);
       }
     });
   };
