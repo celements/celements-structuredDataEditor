@@ -51,9 +51,6 @@ public class StructuredDataEditorScriptService implements ScriptService {
   @Requirement
   static ModelContext context;
 
-  private static final Function<PropertyClass, com.xpn.xwiki.api.PropertyClass> PROPCLASS_TO_API = propClass -> new com.xpn.xwiki.api.PropertyClass(
-      propClass, context.getXWikiContext());
-
   public String getAttributeName(DocumentReference cellDocRef) {
     return getFromCellDoc(cellDocRef, cellDoc -> service.getAttributeName(cellDoc, null))
         .orElse("");
@@ -123,9 +120,9 @@ public class StructuredDataEditorScriptService implements ScriptService {
 
   public com.google.common.base.Optional<com.xpn.xwiki.api.PropertyClass> getCellPropertyClass(
       DocumentReference cellDocRef) {
-    return com.google.common.base.Optional.fromJavaUtil(
-        getFromCellDoc(cellDocRef, service::getCellPropertyClass)
-            .map(PROPCLASS_TO_API));
+    Optional<PropertyClass> propClass = getFromCellDoc(cellDocRef, service::getCellPropertyClass);
+    return com.google.common.base.Optional.fromJavaUtil(propClass
+        .map(prop -> new com.xpn.xwiki.api.PropertyClass(prop, context.getXWikiContext())));
   }
 
   public Optional<ClassReference> getCellClassRef(DocumentReference cellDocRef) {

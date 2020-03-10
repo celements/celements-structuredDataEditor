@@ -3,6 +3,26 @@
 
   const _REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
   var _nextCreateObjectNbMap = {};
+  
+  var init_structObjectListEdit = function() {
+    moveTemplatesOutOfForm();
+    observeCreateObject();
+    observeDeleteObject();
+  };
+
+  var moveTemplatesOutOfForm = function() {
+    document.querySelectorAll('.struct_object_list .struct_object_creation').forEach(element => {
+      var template = element.querySelector('.cel_template');
+      var form = element.closest('form');
+      if (template && form) {
+        var objectClassName = element.closest('.struct_object_list')
+            .getAttribute('data-struct-class') || '';
+        template.classList.add(objectClassName.replace('.', '_'));
+        form.after(template);
+        console.warn('moveTemplatesOutOfForm - moved ', template);
+      }
+    });
+  };
 
   var observeCreateObject = function() {
     $$('.struct_object_list .struct_object_creation a').each(function(link) {
@@ -97,26 +117,6 @@
       }
     }    
     return objNb;
-  };
-
-  var moveTemplatesOutOfForm = function() {
-    document.querySelectorAll('.struct_object_list .struct_object_creation').forEach(element => {
-      var template = element.querySelector('.cel_template');
-      var form = element.closest('form');
-      if (template && form) {
-        var objectClassName = element.closest('.struct_object_list')
-            .getAttribute('data-struct-class') || '';
-        template.classList.add(objectClassName.replace('.', '_'));
-        form.after(template);
-        console.warn('moveTemplatesOutOfForm - moved ', template);
-      }
-    });
-  };
-  
-  var init_structObjectListEdit = function() {
-    moveTemplatesOutOfForm();
-    observeCreateObject();
-    observeDeleteObject();
   };
 
   $j(document).ready(init_structObjectListEdit);
