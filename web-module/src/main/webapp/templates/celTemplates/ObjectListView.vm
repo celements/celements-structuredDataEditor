@@ -1,0 +1,27 @@
+<!-- ObjectListView -->
+#set($cellDocRef = $celldoc.getDocumentReference())
+#set($classRef = $services.structuredDataEditor.getCellClassRef($cellDocRef).orElse($null))
+#set($editorLayoutSpaceRef = $services.model.resolveDocument("$!{classRef.name}-EditFields.WebHome").lastSpaceReference)
+#if(!$services.layout.canRenderLayout($editorLayoutSpaceRef))
+  <p>No valid Layout found at '$!services.model.serialize($editorLayoutSpaceRef)'</p>
+#else
+<ul>
+  #set($fieldName = $services.structuredDataEditor.getCellFieldName($cellDocRef).orElse(''))
+  #set($asc = !$fieldName.startsWith('-'))
+  #set($fieldName = $fieldName.replaceFirst('-', ''))
+  #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef.docRef, $fieldName, $asc))
+    <li>
+      #set($objNb = $obj.getNumber())
+      $services.celementsweb.setGlobalContextValue('cell.number', $objNb)
+      $services.layout.renderPageLayout($editorLayoutSpaceRef)
+    </li>
+  #end
+</ul>
+<div class="struct_object_creation">
+  <a href="#"><i class="icon fa fa-2x fa-plus" title="create"></i></a>
+  <div class="cel_template">
+    $services.celementsweb.setGlobalContextValue('cell.number', -1)
+    $services.layout.renderPageLayout($editorLayoutSpaceRef)
+  </div>
+</div>
+#end ## canRenderLayout
