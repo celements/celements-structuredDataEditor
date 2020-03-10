@@ -5,14 +5,17 @@
 #if("$!objectRowLayoutName" == '')
   #set($objectRowLayoutName = "$!{classRef.name.replace('Class','')}-EditFields")
 #end
-#set($editorLayoutSpaceRef = $services.model.resolveDocument("$!{objectRowLayoutName}.WebHome").lastSpaceReference)
-#if($services.layout.canRenderLayout($editorLayoutSpaceRef))
-  <!-- layout: $!services.model.serialize($editorLayoutSpaceRef) -->
+#set($objectRowLayoutSpaceRef = $services.model.resolveDocument("$!{objectRowLayoutName}.WebHome").lastSpaceReference)
+#if($services.layout.canRenderLayout($objectRowLayoutSpaceRef))
+  <!-- layout: $!services.model.serialize($objectRowLayoutSpaceRef) -->
+  <li class="struct_object_label">
+    #parse('celMacros/struct/renderLabel.vm')
+  </li>
   <li class="struct_object_creation">
     <a href="#"><i class="icon fa fa-2x fa-plus" title="create"></i></a>
     <div class="cel_template">
       $!services.celementsweb.setGlobalContextValue('cell.number', -1)
-      $!services.layout.renderPageLayout($editorLayoutSpaceRef)
+      $!services.layout.renderPageLayout($objectRowLayoutSpaceRef)
       <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
     </div>
   </li>
@@ -24,10 +27,10 @@
   #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef, $fieldName, $asc))
   <li>
     $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
-    $!services.layout.renderPageLayout($editorLayoutSpaceRef)
+    $!services.layout.renderPageLayout($objectRowLayoutSpaceRef)
     <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
   </li>
   #end
 #else ## canRenderLayout
-  <li>No valid Layout found at '$!services.model.serialize($editorLayoutSpaceRef)'</li>
+  <li>No valid Layout found at '$!services.model.serialize($objectRowLayoutSpaceRef)'</li>
 #end
