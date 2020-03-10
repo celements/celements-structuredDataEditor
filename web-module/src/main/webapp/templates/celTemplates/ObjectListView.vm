@@ -1,7 +1,8 @@
 <!-- ObjectListView -->
 #set($cellDocRef = $celldoc.getDocumentReference())
 #set($classRef = $services.structuredDataEditor.getCellClassRef($cellDocRef).orElse($null))
-#set($editorLayoutSpaceRef = $services.model.resolveDocument("$!{classRef.name}-EditFields.WebHome").lastSpaceReference)
+#set($layoutName = "$!{classRef.name.replace('Class','')}-EditFields")
+#set($editorLayoutSpaceRef = $services.model.resolveDocument("$!{layoutName}.WebHome").lastSpaceReference)
 #if(!$services.layout.canRenderLayout($editorLayoutSpaceRef))
   <p>No valid Layout found at '$!services.model.serialize($editorLayoutSpaceRef)'</p>
 #else
