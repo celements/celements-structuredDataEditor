@@ -3,6 +3,10 @@
   #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null).docRef)
 #end
 <!-- classRef: $!services.model.serialize($classRef) -->
+#if("$!celldoc" != '')
+  #set($fieldName = $services.structuredDataEditor.getCellFieldName($celldoc.documentReference).orElse(''))
+#end
+<!-- fieldName: $!fieldName -->
 #if("$!objectRowLayoutName" == '')
   #set($objectRowLayoutName = "$!{classRef.name.replace('Class','')}-EditFields")
 #end
@@ -18,9 +22,6 @@
       <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
     </div>
   </li>
-  #if("$!celldoc" != '')
-    #set($fieldName = $services.structuredDataEditor.getCellFieldName($celldoc.documentReference).orElse(''))
-  #end
   #set($asc = !$fieldName.startsWith('-'))
   #set($sortFieldName  = $fieldName.replaceFirst('-', ''))
   <!-- sortFieldName: $!sortFieldName -->
