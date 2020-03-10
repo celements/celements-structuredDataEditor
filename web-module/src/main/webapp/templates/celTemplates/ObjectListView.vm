@@ -1,6 +1,7 @@
 <!-- ObjectListView -->
-#set($cellDocRef = $celldoc.getDocumentReference())
-#set($classRef = $services.structuredDataEditor.getCellClassRef($cellDocRef).orElse($null))
+#if("$!celldoc" != '')
+  #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null))
+#end
 #set($layoutName = "$!{classRef.name.replace('Class','')}-EditFields")
 #set($editorLayoutSpaceRef = $services.model.resolveDocument("$!{layoutName}.WebHome").lastSpaceReference)
 #if($services.layout.canRenderLayout($editorLayoutSpaceRef))
@@ -12,7 +13,9 @@
       $!services.layout.renderPageLayout($editorLayoutSpaceRef)
     </div>
   </li>
-  #set($fieldName = $services.structuredDataEditor.getCellFieldName($cellDocRef).orElse(''))
+  #if("$!celldoc" != '')
+    #set($fieldName = $services.structuredDataEditor.getCellFieldName($celldoc.documentReference).orElse(''))
+  #end
   #set($asc = !$fieldName.startsWith('-'))
   #set($fieldName = $fieldName.replaceFirst('-', ''))
   #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef.docRef, $fieldName, $asc))

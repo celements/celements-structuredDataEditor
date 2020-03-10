@@ -33,10 +33,9 @@
 
   var createObject = function(event) {
     event.stop();
-    var element = event.element().up('ul.struct_object');
-    var objectList = element.down('ul');
+    var objectList = event.element().up('ul.struct_object');
     if (objectList) {
-      var objectClassName = element.getAttribute('data-struct-class');
+      var objectClassName = objectList.getAttribute('data-struct-class');
       var newEntry = createEntryFor(objectClassName);
       if (newEntry) {
           objectList.appendChild(newEntry);
@@ -47,7 +46,7 @@
         console.warn('createObject - illegal template for ', objectClassName);
       }
     } else {
-      console.warn('createObject - missing ul ', element);
+      console.warn('createObject - missing list ', objectList);
     }
   };
 
