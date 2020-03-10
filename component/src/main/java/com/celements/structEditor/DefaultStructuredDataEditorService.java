@@ -170,13 +170,15 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Override
   public Optional<ClassReference> getCellClassRef(XWikiDocument cellDoc) {
-    Optional<DocumentReference> classDocRef = modelAccess.getFieldValue(cellDoc,
-        StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS).toJavaUtil();
-    if (classDocRef.isPresent()) {
-      return Optional.of(new ClassReference(classDocRef.get()));
-    } else {
-      return Optional.empty();
-    }
+    return modelAccess.getFieldValue(cellDoc, StructuredDataEditorClass.FIELD_EDIT_FIELD_CLASS)
+        .toJavaUtil()
+        .map(ClassReference::new);
+  }
+
+  @Override
+  public Optional<String> getCellFieldName(XWikiDocument cellDoc) {
+    return modelAccess.getFieldValue(cellDoc, StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME)
+        .toJavaUtil();
   }
 
   @Override
@@ -305,11 +307,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       LOGGER.warn("computeObjNb - failed for [{}]", cellDoc, exc);
       return Optional.empty();
     }
-  }
-
-  private Optional<String> getCellFieldName(XWikiDocument cellDoc) {
-    return modelAccess.getFieldValue(cellDoc, StructuredDataEditorClass.FIELD_EDIT_FIELD_NAME)
-        .toJavaUtil();
   }
 
   @Override

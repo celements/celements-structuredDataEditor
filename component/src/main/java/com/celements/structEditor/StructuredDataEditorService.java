@@ -31,6 +31,9 @@ public interface StructuredDataEditorService {
   Optional<ClassReference> getCellClassRef(@NotNull XWikiDocument cellDoc);
 
   @NotNull
+  Optional<String> getCellFieldName(@NotNull XWikiDocument cellDoc);
+
+  @NotNull
   Optional<PropertyClass> getCellPropertyClass(@NotNull XWikiDocument cellDoc);
 
   @NotNull
