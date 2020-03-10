@@ -81,7 +81,7 @@
 
 
   var observeDeleteObject = function() {
-    $$('ul.struct_object li .struct_object_delete a').each(function(link) {
+    $$('ul.struct_object li a.struct_object_delete').each(function(link) {
       link.stopObserving('click', deleteObject);
       link.observe('click', deleteObject);
     });

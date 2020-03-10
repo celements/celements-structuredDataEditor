@@ -1,8 +1,10 @@
 <!-- ObjectListView -->
 #if("$!celldoc" != '')
-  #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null))
+  #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null).docRef)
 #end
-#set($layoutName = "$!{classRef.name.replace('Class','')}-EditFields")
+#if("$!layoutName" == '')
+  #set($layoutName = "$!{classRef.name.replace('Class','')}-EditFields")
+#end
 #set($editorLayoutSpaceRef = $services.model.resolveDocument("$!{layoutName}.WebHome").lastSpaceReference)
 #if($services.layout.canRenderLayout($editorLayoutSpaceRef))
   <!-- layout: $!services.model.serialize($editorLayoutSpaceRef) -->
@@ -18,7 +20,7 @@
   #end
   #set($asc = !$fieldName.startsWith('-'))
   #set($fieldName = $fieldName.replaceFirst('-', ''))
-  #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef.docRef, $fieldName, $asc))
+  #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef, $fieldName, $asc))
   <li>
     $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
     $!services.layout.renderPageLayout($editorLayoutSpaceRef)
