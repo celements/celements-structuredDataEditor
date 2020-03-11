@@ -49,7 +49,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   private IRightsAccessFacadeRole rightsAccess;
 
   @Requirement
-  static ModelContext context;
+  private ModelContext context;
 
   public String getAttributeName(DocumentReference cellDocRef) {
     return getFromCellDoc(cellDocRef, cellDoc -> service.getAttributeName(cellDoc, null))
