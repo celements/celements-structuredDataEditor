@@ -1,0 +1,39 @@
+<!-- ObjectListView -->
+#if("$!celldoc" != '')
+  #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null).docRef)
+#end
+<!-- classRef: $!services.model.serialize($classRef) -->
+#if("$!celldoc" != '')
+  #set($fieldName = $services.structuredDataEditor.getCellFieldName($celldoc.documentReference).orElse(''))
+#end
+<!-- fieldName: $!fieldName -->
+#if("$!objectRowLayoutName" == '')
+  #set($objectRowLayoutName = "$!{classRef.name.replace('Class','')}-EditFields")
+#end
+#set($objectRowLayoutSpaceRef = $services.model.resolveDocument("$!{objectRowLayoutName}.WebHome").lastSpaceReference)
+#if($services.layout.canRenderLayout($objectRowLayoutSpaceRef))
+  <!-- objectRowLayoutName: $!services.model.serialize($objectRowLayoutSpaceRef) -->
+  <li class="struct_object_creation">
+    <label class="struct_object_label">$adminMsg.get($services.model.serialize($classRef))</label>
+    <a href="#"><i class="icon fa fa-2x fa-plus" title="create"></i></a>
+    <div class="cel_template">
+      $!services.celementsweb.setGlobalContextValue('cell.number', -1)
+      $!services.layout.renderPageLayout($objectRowLayoutSpaceRef)
+      <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
+    </div>
+  </li>
+  #set($asc = !$fieldName.startsWith('-'))
+  #set($sortFieldName  = $fieldName.replaceFirst('-', ''))
+  <!-- sortFieldName: $!sortFieldName -->
+  <!-- asc: $!asc -->
+  #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef, $sortFieldName, $asc))
+  <li>
+    $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
+    $!services.layout.renderPageLayout($objectRowLayoutSpaceRef)
+    <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
+  </li>
+  #end
+#else ## canRenderLayout
+  <li>No valid Layout found at '$!services.model.serialize($objectRowLayoutSpaceRef)'</li>
+#end
+#set($objectRowLayoutName = '')

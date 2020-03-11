@@ -22,6 +22,7 @@ com.celements.structEditor.fields.SubmitLinkPageType
 com.celements.structEditor.fields.TextAreaFieldPageType
 com.celements.structEditor.fields.LabelTagPageType
 com.celements.structEditor.fields.NumberTagPageType
+com.celements.structEditor.fields.ObjectListPageType
 com.celements.structEditor.DefaultStructuredDataEditorService
 com.celements.structEditor.SelectAutocompleteRole
 com.celements.struct.DefaultStructDataService
