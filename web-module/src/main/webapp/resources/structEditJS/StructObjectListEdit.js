@@ -95,11 +95,12 @@
     var objNb = extractAndMarkObjectNb(entry);
     if (isNaN(objNb)) {
       console.warn('deleteObject - unable to extract objNb on: ', entry);
-    } else if (objNb >= 0) {
-      $j(entry).fadeOut();
-      console.debug('deleteObject - marked: ', entry);
-    } else {
-      $j(entry).fadeOut(400, function() { entry.remove(); });
+    } else if (confirm("Wirklich löschen?")) {
+      $j(entry).fadeOut(400, function() {
+        if (objNb < 0) {
+          entry.remove();
+        }
+      });
       console.debug('deleteObject - removed: ', entry);
     }
   };
