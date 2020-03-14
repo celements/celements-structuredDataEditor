@@ -33,6 +33,7 @@
     <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
   </li>
   #end
+  $!services.celementsweb.setGlobalContextValue('cell.number', $null)
 #else ## canRenderLayout
   <li>No valid Layout found at '$!services.model.serialize($objectRowLayoutSpaceRef)'</li>
 #end
