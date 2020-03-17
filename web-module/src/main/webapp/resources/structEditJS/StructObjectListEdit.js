@@ -95,7 +95,7 @@
     var objNb = extractAndMarkObjectNb(entry);
     if (isNaN(objNb)) {
       console.warn('deleteObject - unable to extract objNb on: ', entry);
-    } else if (confirm("Wirklich löschen?")) {
+    } else if (confirm(window.celMessages.structEditor.objectRemoveConfirm)) {
       $j(entry).fadeOut(400, function() {
         if (objNb < 0) {
           entry.remove();

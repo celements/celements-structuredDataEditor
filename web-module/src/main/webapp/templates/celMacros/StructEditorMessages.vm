@@ -10,4 +10,5 @@ $jsonBuilder.addStringProperty('savingDialogHeader', "$!adminMsg.get('cel_tm_sav
 $jsonBuilder.addStringProperty('savingFailed', "$!adminMsg.get('cel_tm_saving_failed')")
 $jsonBuilder.addStringProperty('savingFailedDialogHeader', "$!adminMsg.get('cel_tm_saving_failed_dialog_header')")
 $jsonBuilder.addStringProperty('savingFailedDialogText', "$!adminMsg.get('cel_tm_saving_failed_dialog_text')")
+$jsonBuilder.addStringProperty('objectRemoveConfirm', "$!adminMsg.get('cel_objectedit_removeobject')?")
 $jsonBuilder.closeDictionary()
