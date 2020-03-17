@@ -13,13 +13,15 @@
 #set($objectRowLayoutSpaceRef = $services.model.resolveDocument("$!{objectRowLayoutName}.WebHome").lastSpaceReference)
 #if($services.layout.canRenderLayout($objectRowLayoutSpaceRef))
   <!-- objectRowLayoutName: $!services.model.serialize($objectRowLayoutSpaceRef) -->
+  #if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings icon-plus") #end
+  #if("$!iconDeleteCssClass" == '') #set($iconDeleteCssClass = "halflings icon-trash") #end
   <li class="struct_object_creation">
     <label class="struct_object_label">$adminMsg.get($services.model.serialize($classRef))</label>
-    <a href="#"><i class="icon fa fa-2x fa-plus" title="create"></i></a>
+    <a href="#"><i class="icon $!{iconCreateCssClass}" title="create"></i></a>
     <div class="cel_template">
       $!services.celementsweb.setGlobalContextValue('cell.number', -1)
       $!services.layout.renderPageLayout($objectRowLayoutSpaceRef)
-      <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
+      <a class="struct_object_delete" href="#"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
     </div>
   </li>
   #set($asc = !$fieldName.startsWith('-'))
@@ -30,7 +32,7 @@
   <li>
     $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
     $!services.layout.renderPageLayout($objectRowLayoutSpaceRef)
-    <a class="struct_object_delete" href="#"><i class="icon fa fa-2x fa-trash" title="delete"></i></a>
+    <a class="struct_object_delete" href="#"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
   </li>
   #end
   $!services.celementsweb.setGlobalContextValue('cell.number', $null)
