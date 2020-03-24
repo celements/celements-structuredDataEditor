@@ -4,7 +4,8 @@
  * $structDataEditorSpaceRef : required, editor layout space reference
  * $activateJsCheckUnsaved : optional, boolean
 ***************************************************************#
-#set($structDataEditorCfgDocRef = $services.model.resolveDocument('', 'default', $structDataEditorSpaceRef))
+#set($layout = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
+#set($structDataEditorCfgDocRef = $layout.layoutConfigDocRef)
 #set($structDataEditorSpace = $structDataEditorSpaceRef.name)
 #if($isSuperAdmin)
 <!--
@@ -15,10 +16,13 @@
 #foreach($path in $services.structData.getJavaScriptFiles($structDataEditorCfgDocRef))
   $services.javascript.addExtJSfileOnce("$!{path}", 'file')
 #end
+#if(!$skipRenderEditLayoutCssIncludes)
+#set($skipRenderEditLayoutCssIncludes = true)
 <link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':celJS/yui/assets/skins/sam/container.css', 'file')">
 <link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':celJS/yui/assets/skins/sam/button.css', 'file')">
 <link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':structEditRes/structEdit.css', 'file')">
 <link rel="stylesheet" type="text/css" href="$services.celementsweb.getSkinFile(':structEditRes/select2/select2.min.css', 'file')">
+#end
 #if($activateJsCheckUnsaved)
   $services.javascript.addExtJSfileOnce(':celJS/yui/utilities/utilities.js', 'file')
   $services.javascript.addExtJSfileOnce(':celJS/yui/dom/dom-min.js', 'file')
@@ -59,14 +63,9 @@
 #set($structCmCssClass = $structDataEditorNav.getCssClass())
 <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:"##
  class="structDataEditor $!{structCmCssClass}">
-#if($services.layout.canRenderLayout($structDataEditorSpaceRef))
-  #set($layoutApi = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
-  #if($layoutApi.isEditorLayoutType())
-    $services.layout.renderPageLayout($structDataEditorSpaceRef)
-  #else
-    <p>Wrong Editor Layout Type (${layoutApi.getLayoutType()}) for '${structDataEditorSpace}'!</p>
-  #end
+#if($services.layout.canRenderLayout($layout.layoutSpaceRef) && $layout.isEditorLayoutType())
+  $!services.layout.renderPageLayout($layout.layoutSpaceRef)
 #else
-  <p>Editor Layout for '${structDataEditorSpace}' is missing!</p>
+  <p>No Editor Layout found for ${structDataEditorSpace} (${layout.getLayoutType()})</p>
 #end
 </div>
