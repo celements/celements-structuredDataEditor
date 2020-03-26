@@ -46,7 +46,7 @@
 ## include CSS defined on struct layout
 #set($structDataEditorCfgDoc = $services.modelAccess.getDocument($structDataEditorCfgDocRef))
 #foreach($cssObj in $structDataEditorCfgDoc.getObjects('Skins.UserCSS'))
-  #set($cssFile = $services.celementsweb.getSkinFile("$!cssObj.cssname", 'file'))
+  #set($cssFile = $services.celementsweb.getSkinFile($!cssObj.getProperty('cssname').value, 'file'))
   #if ("$!cssFile" != '')
     <link rel="stylesheet" type="text/css" href="$!cssFile">
   #end
