@@ -4,4 +4,4 @@
 #end
 #set($xredirect = $escapetool.url($xredirect))
 #set($url = $services.url.getURL($rowdoc.documentReference, 'delete', "xredirect=${xredirect}"))
-<a class="icon-link" href="$!url"><i class="icon fa fa-2x fa-trash-o" title="delete"></i></a>
+<a class="icon-link" href="$!url"><i class="icon halflings icon-trash" title="delete"></i></a>
