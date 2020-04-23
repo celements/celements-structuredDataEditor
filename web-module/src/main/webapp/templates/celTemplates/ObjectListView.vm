@@ -10,9 +10,9 @@
 #if("$!objectRowLayoutName" == '')
   #set($objectRowLayoutName = "$!{classRef.name.replace('Class','')}-EditFields")
 #end
-#set($objectRowLayoutSpaceRef = $services.model.resolveDocument("$!{objectRowLayoutName}.WebHome").lastSpaceReference)
-#if($services.layout.canRenderLayout($objectRowLayoutSpaceRef))
-  <!-- objectRowLayoutName: $!services.model.serialize($objectRowLayoutSpaceRef) -->
+#set($objectRowLayout = $services.layout.getPageLayoutApiForRef($services.reference.create().space($objectRowLayoutName).build()))
+#if($services.layout.canRenderLayout($layout.layoutSpaceRef))
+  <!-- objectRowLayout: $!objectRowLayout.layoutSpaceRef -->
   #if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings icon-plus") #end
   #if("$!iconDeleteCssClass" == '') #set($iconDeleteCssClass = "halflings icon-trash") #end
   <li class="struct_object_creation">
@@ -20,7 +20,7 @@
     <a href="#"><i class="icon $!{iconCreateCssClass}" title="create"></i></a>
     <div class="cel_template">
       $!services.celementsweb.setGlobalContextValue('cell.number', -1)
-      $!services.layout.renderPageLayout($objectRowLayoutSpaceRef)
+      $!services.layout.renderPageLayout($objectRowLayout.layoutSpaceRef)
       <a class="struct_object_delete" href="#"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
     </div>
   </li>
@@ -31,12 +31,12 @@
   #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef, $sortFieldName, $asc))
   <li>
     $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
-    $!services.layout.renderPageLayout($objectRowLayoutSpaceRef)
+    $!services.layout.renderPageLayout($objectRowLayout.layoutSpaceRef)
     <a class="struct_object_delete" href="#"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
   </li>
   #end
   $!services.celementsweb.setGlobalContextValue('cell.number', $null)
 #else ## canRenderLayout
-  <li>No valid Layout found at '$!services.model.serialize($objectRowLayoutSpaceRef)'</li>
+  <li>No valid Layout found at '$!services.model.serialize($objectRowLayout.layoutSpaceRef)'</li>
 #end
 #set($objectRowLayoutName = '')
