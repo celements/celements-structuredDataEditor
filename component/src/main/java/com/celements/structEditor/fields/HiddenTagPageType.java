@@ -39,19 +39,19 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
     attrBuilder.addNonEmptyAttribute("type", "hidden");
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      String value = getVelocityFieldValue(cellDoc, FIELD_VALUE).orElse("");
-      String name = modelAccess.getFieldValue(cellDoc, FIELD_NAME).or(cellDocRef.getName());
+      Optional<String> name = modelAccess.getFieldValue(cellDoc, FIELD_NAME).toJavaUtil();
+      Optional<String> value = getVelocityFieldValue(cellDoc, FIELD_VALUE);
       if (getStructDataEditorService().hasEditField(cellDoc)) {
         XWikiDocument onDoc = modelContext.getCurrentDoc().orNull();
-        if (name.isEmpty()) {
-          name = getStructDataEditorService().getAttributeName(cellDoc, onDoc).orElse("");
+        if (!name.isPresent()) {
+          name = getStructDataEditorService().getAttributeName(cellDoc, onDoc);
         }
-        if (value.isEmpty()) {
-          value = getStructDataEditorService().getCellValueAsString(cellDocRef, onDoc).orElse("");
+        if (!value.isPresent()) {
+          value = getStructDataEditorService().getCellValueAsString(cellDocRef, onDoc);
         }
       }
-      attrBuilder.addNonEmptyAttribute("name", name);
-      attrBuilder.addNonEmptyAttribute("value", value);
+      attrBuilder.addNonEmptyAttribute("name", name.orElse(cellDocRef.getName()));
+      attrBuilder.addNonEmptyAttribute("value", value.orElse(""));
     } catch (DocumentNotExistsException | XWikiVelocityException exc) {
       log.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }
