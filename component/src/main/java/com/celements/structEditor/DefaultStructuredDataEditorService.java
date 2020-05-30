@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
+import org.xwiki.component.manager.ComponentLookupException;
 import org.xwiki.context.Execution;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
@@ -23,6 +24,9 @@ import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.classes.ClassDefinition;
+import com.celements.model.classes.fields.ClassField;
+import com.celements.model.classes.fields.CustomClassField;
 import com.celements.model.context.ModelContext;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.util.ModelUtils;
@@ -43,6 +47,7 @@ import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.DateClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
+import com.xpn.xwiki.web.Utils;
 
 @Component
 public class DefaultStructuredDataEditorService implements StructuredDataEditorService {
@@ -199,14 +204,40 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return Optional.empty();
   }
 
+  private Optional<ClassField<?>> getCellClassField(DocumentReference cellDocRef)
+      throws DocumentNotExistsException {
+    XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+    try {
+      ClassDefinition classDef = Utils.getComponentManager().lookup(ClassDefinition.class,
+          getCellClassRef(cellDoc).map(ClassReference::serialize).orElse(""));
+      return classDef.getField(getCellFieldName(cellDoc).orElse("")).toJavaUtil();
+    } catch (ComponentLookupException exc) {
+      return Optional.empty();
+    }
+  }
+
   @Override
   public Optional<String> getCellValueAsString(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
-    Object value = getCellValue(cellDocRef, onDoc);
-    if (value != null) {
-      return Optional.of(value.toString());
+    return Optional.ofNullable(getCellValue(cellDocRef, onDoc))
+        .map(rethrowFunction(value -> (value instanceof String) ? value
+            : trySerializeForCustomClassField(cellDocRef, value)))
+        .map(Objects::toString);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Object trySerializeForCustomClassField(DocumentReference cellDocRef, Object value)
+      throws DocumentNotExistsException {
+    ClassField<?> field = getCellClassField(cellDocRef).orElse(null);
+    if (field instanceof CustomClassField) {
+      try {
+        return ((CustomClassField<Object>) field).serialize(value);
+      } catch (ClassCastException cce) {
+        LOGGER.warn("trySerializeForCustomClassField: unable to cast [{}] for [{}] on [{}]",
+            value, field, cellDocRef);
+      }
     }
-    return Optional.empty();
+    return value;
   }
 
   @Override
@@ -276,7 +307,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
           .orElseGet(() -> getNumberFromExecutionContext()
           .orElseGet(() -> getNumberFromComputedField(cellDoc)
           .orElse(0)));
-      ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).first().toJavaUtil();
+      ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).stream().findFirst();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
         + "{}", cellDoc, onDoc, classRef.orElse(null), ret.map(BaseObject::getNumber).orElse(null),
