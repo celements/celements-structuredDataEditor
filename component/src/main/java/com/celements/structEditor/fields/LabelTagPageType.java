@@ -6,6 +6,8 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
+import com.celements.cells.classes.CellClass;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
 
 @Component(LabelTagPageType.PAGETYPE_NAME)
 public class LabelTagPageType extends AbstractStructFieldPageType {
@@ -32,7 +34,12 @@ public class LabelTagPageType extends AbstractStructFieldPageType {
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     attrBuilder.addCssClasses("structuredDataEditorLabel");
-    attrBuilder.addNonEmptyAttribute("for", attrBuilder.getAttribute("id").orElse(""));
+    XWikiObjectFetcher.on(modelAccess.getOrCreateDocument(cellDocRef))
+        .fetchField(CellClass.FIELD_ID_NAME)
+        .stream().findFirst().ifPresent(id -> {
+          attrBuilder.addId(id + "_Label");
+          attrBuilder.addNonEmptyAttribute("for", id);
+        });
   }
 
 }
