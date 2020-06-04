@@ -537,6 +537,15 @@
       _me._rootElem.select('form.celementsCheckUnsaved').each(_me._resetOneFormDiffBind);
     },
 
+    getFormIds : function() {
+      var _me = this;
+      var formIds = [];
+      _me._formDiffsMap.each(function(formEntry) {
+        formIds.push(formEntry.key);
+      });
+      return formIds;
+    },
+
     getDirtyFormIds : function() {
       var _me = this;
       var dirtyFormIds = new Array();
