@@ -101,6 +101,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         if (onDoc != null) {
           int objNb = getStructXObjectNumber(cellDoc).orElse(-1);
           if ((objNb >= 0) && !getXObject(onDoc, classRef.get(), objNb).isPresent()) {
+            LOGGER.debug("getAttributeName: no obj for objNb [{}], hence using -1", objNb);
             objNb = -1;
           }
           nameParts.add(Integer.toString(objNb));
@@ -324,6 +325,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         () -> getNumberFromRequest(),
         () -> getNumberFromExecutionContext(),
         () -> getNumberFromComputedField(cellDoc))
+        .peek(nb -> LOGGER.debug("getStructXObjectNumber: got [{}] for [{}]", nb, cellDoc))
         .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
         .findFirst();
   }
