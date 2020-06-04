@@ -99,7 +99,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRef(classRef.get()));
         if (onDoc != null) {
-          int objNb = getStructXObjectNumber(cellDoc).orElse(-1);
+          int objNb = getStructXObjectNumber(cellDoc).orElse(0);
           if ((objNb >= 0) && !getXObject(onDoc, classRef.get(), objNb).isPresent()) {
             LOGGER.debug("getAttributeName: no obj for objNb [{}], hence using -1", objNb);
             objNb = -1;
