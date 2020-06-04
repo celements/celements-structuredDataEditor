@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -98,8 +99,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRef(classRef.get()));
         if (onDoc != null) {
-          Optional<BaseObject> obj = getXObjectInStructEditor(cellDoc, onDoc);
-          nameParts.add(Integer.toString(obj.isPresent() ? obj.get().getNumber() : -1));
+          int objNb = getStructXObjectNumber(cellDoc).orElse(-1);
+          if ((objNb >= 0) && !getXObject(onDoc, classRef.get(), objNb).isPresent()) {
+            LOGGER.debug("getAttributeName: no obj for objNb [{}], hence using -1", objNb);
+            objNb = -1;
+          }
+          nameParts.add(Integer.toString(objNb));
         }
       }
       nameParts.add(fieldName.get());
@@ -303,16 +308,26 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<BaseObject> ret = Optional.empty();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
-      int objNb = getNumberFromRequest()
-          .orElseGet(() -> getNumberFromExecutionContext()
-          .orElseGet(() -> getNumberFromComputedField(cellDoc)
-          .orElse(0)));
-      ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).stream().findFirst();
+      ret = getXObject(onDoc, classRef.get(), getStructXObjectNumber(cellDoc).orElse(0));
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
         + "{}", cellDoc, onDoc, classRef.orElse(null), ret.map(BaseObject::getNumber).orElse(null),
         ret.orElse(null));
     return ret;
+  }
+
+  private Optional<BaseObject> getXObject(XWikiDocument onDoc, ClassReference classRef, int objNb) {
+    return XWikiObjectFetcher.on(onDoc).filter(classRef).filter(objNb).stream().findFirst();
+  }
+
+  private Optional<Integer> getStructXObjectNumber(XWikiDocument cellDoc) {
+    return Stream.<Supplier<Optional<Integer>>>of(
+        () -> getNumberFromRequest(),
+        () -> getNumberFromExecutionContext(),
+        () -> getNumberFromComputedField(cellDoc))
+        .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
+        .peek(nb -> LOGGER.debug("getStructXObjectNumber: got [{}] for [{}]", nb, cellDoc))
+        .findFirst();
   }
 
   private Optional<Integer> getNumberFromRequest() {
