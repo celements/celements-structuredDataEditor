@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -98,8 +99,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRef(classRef.get()));
         if (onDoc != null) {
-          Optional<BaseObject> obj = getXObjectInStructEditor(cellDoc, onDoc);
-          nameParts.add(Integer.toString(obj.isPresent() ? obj.get().getNumber() : -1));
+          nameParts.add(Integer.toString(getStructObjNb(cellDoc).orElse(-1)));
         }
       }
       nameParts.add(fieldName.get());
@@ -303,16 +303,23 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<BaseObject> ret = Optional.empty();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
-      int objNb = getNumberFromRequest()
-          .orElseGet(() -> getNumberFromExecutionContext()
-          .orElseGet(() -> getNumberFromComputedField(cellDoc)
-          .orElse(0)));
-      ret = XWikiObjectFetcher.on(onDoc).filter(classRef.get()).filter(objNb).stream().findFirst();
+      ret = XWikiObjectFetcher.on(onDoc)
+          .filter(classRef.get())
+          .filter(getStructObjNb(cellDoc).orElse(0))
+          .stream().findFirst();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
         + "{}", cellDoc, onDoc, classRef.orElse(null), ret.map(BaseObject::getNumber).orElse(null),
         ret.orElse(null));
     return ret;
+  }
+
+  private Optional<Integer> getStructObjNb(XWikiDocument cellDoc) {
+    Stream<Supplier<Optional<Integer>>> stream = Stream.of(
+        () -> getNumberFromRequest(),
+        () -> getNumberFromExecutionContext(),
+        () -> getNumberFromComputedField(cellDoc));
+    return stream.map(Supplier::get).filter(Optional::isPresent).map(Optional::get).findFirst();
   }
 
   private Optional<Integer> getNumberFromRequest() {
