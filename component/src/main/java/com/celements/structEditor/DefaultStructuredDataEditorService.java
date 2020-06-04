@@ -325,8 +325,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         () -> getNumberFromRequest(),
         () -> getNumberFromExecutionContext(),
         () -> getNumberFromComputedField(cellDoc))
-        .peek(nb -> LOGGER.debug("getStructXObjectNumber: got [{}] for [{}]", nb, cellDoc))
         .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
+        .peek(nb -> LOGGER.debug("getStructXObjectNumber: got [{}] for [{}]", nb, cellDoc))
         .findFirst();
   }
 
