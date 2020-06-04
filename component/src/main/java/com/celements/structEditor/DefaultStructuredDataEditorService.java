@@ -320,11 +320,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Optional<Integer> getStructXObjectNumber(XWikiDocument cellDoc) {
-    Stream<Supplier<Optional<Integer>>> stream = Stream.of(
+    return Stream.<Supplier<Optional<Integer>>>of(
         () -> getNumberFromRequest(),
         () -> getNumberFromExecutionContext(),
-        () -> getNumberFromComputedField(cellDoc));
-    return stream.map(Supplier::get).filter(Optional::isPresent).map(Optional::get).findFirst();
+        () -> getNumberFromComputedField(cellDoc))
+        .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
+        .findFirst();
   }
 
   private Optional<Integer> getNumberFromRequest() {
