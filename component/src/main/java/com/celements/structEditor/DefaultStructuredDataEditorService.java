@@ -99,7 +99,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRef(classRef.get()));
         if (onDoc != null) {
-          nameParts.add(Integer.toString(getStructObjNb(cellDoc).orElse(-1)));
+          int objNb = getStructXObjectNumber(cellDoc).orElse(-1);
+          if ((objNb >= 0) && !getXObject(onDoc, classRef.get(), objNb).isPresent()) {
+            objNb = -1;
+          }
+          nameParts.add(Integer.toString(objNb));
         }
       }
       nameParts.add(fieldName.get());
@@ -303,10 +307,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<BaseObject> ret = Optional.empty();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
-      ret = XWikiObjectFetcher.on(onDoc)
-          .filter(classRef.get())
-          .filter(getStructObjNb(cellDoc).orElse(0))
-          .stream().findFirst();
+      ret = getXObject(onDoc, classRef.get(), getStructXObjectNumber(cellDoc).orElse(0));
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
         + "{}", cellDoc, onDoc, classRef.orElse(null), ret.map(BaseObject::getNumber).orElse(null),
@@ -314,7 +315,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return ret;
   }
 
-  private Optional<Integer> getStructObjNb(XWikiDocument cellDoc) {
+  private Optional<BaseObject> getXObject(XWikiDocument onDoc, ClassReference classRef, int objNb) {
+    return XWikiObjectFetcher.on(onDoc).filter(classRef).filter(objNb).stream().findFirst();
+  }
+
+  private Optional<Integer> getStructXObjectNumber(XWikiDocument cellDoc) {
     Stream<Supplier<Optional<Integer>>> stream = Stream.of(
         () -> getNumberFromRequest(),
         () -> getNumberFromExecutionContext(),
