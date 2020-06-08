@@ -99,11 +99,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRef(classRef.get()));
         if (onDoc != null) {
-          int objNb = getStructXObjectNumber(cellDoc).orElse(-1);
-          if ((objNb >= 0) && !getXObject(onDoc, classRef.get(), objNb).isPresent()) {
-            LOGGER.debug("getAttributeName: no obj for objNb [{}], hence using -1", objNb);
-            objNb = -1;
-          }
+          final XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(onDoc).filter(classRef.get());
+          int objNb = getStructXObjectNumber(cellDoc)
+              .map(nb -> ((nb < 0) || fetcher.filter(nb).exists()) ? nb : -1)
+              .orElseGet(() -> fetcher.stream().findFirst().map(BaseObject::getNumber)
+              .orElse(-1));
           nameParts.add(Integer.toString(objNb));
         }
       }
@@ -308,16 +308,14 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<BaseObject> ret = Optional.empty();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
-      ret = getXObject(onDoc, classRef.get(), getStructXObjectNumber(cellDoc).orElse(0));
+      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(onDoc).filter(classRef.get());
+      getStructXObjectNumber(cellDoc).ifPresent(fetcher::filter);
+      ret = fetcher.stream().findFirst();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
         + "{}", cellDoc, onDoc, classRef.orElse(null), ret.map(BaseObject::getNumber).orElse(null),
         ret.orElse(null));
     return ret;
-  }
-
-  private Optional<BaseObject> getXObject(XWikiDocument onDoc, ClassReference classRef, int objNb) {
-    return XWikiObjectFetcher.on(onDoc).filter(classRef).filter(objNb).stream().findFirst();
   }
 
   private Optional<Integer> getStructXObjectNumber(XWikiDocument cellDoc) {
