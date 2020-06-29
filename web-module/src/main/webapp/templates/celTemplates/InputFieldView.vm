@@ -3,7 +3,7 @@
 #set($attrMap = $services.structuredDataEditor.getTextAttributes($cellDocRef))
 #parse('celMacros/struct/renderLabel.vm')
 <input##
-#set($requestValue = $request.getParameter("$!{$attrMap.get('name')}"))
+#set($requestValue = $request.getParameter("$!{attrMap.get('name')}"))
 #if("$!requestValue" != '')
  value="$requestValue"##
 #else
