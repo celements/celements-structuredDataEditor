@@ -50,6 +50,11 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
           value = getStructDataEditorService().getCellValueAsString(cellDocRef, onDoc);
         }
       }
+      if (!value.isPresent() && name.isPresent()) {
+        final String paramName = name.get();
+        value = modelContext.getRequest().toJavaUtil().map(
+            request -> request.getParameter(paramName));
+      }
       attrBuilder.addNonEmptyAttribute("name", name.orElse(cellDocRef.getName()));
       attrBuilder.addNonEmptyAttribute("value", value.orElse(""));
     } catch (DocumentNotExistsException | XWikiVelocityException exc) {

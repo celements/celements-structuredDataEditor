@@ -2,8 +2,14 @@
 #set($cellDocRef = $celldoc.getDocumentReference())
 #set($attrMap = $services.structuredDataEditor.getTextAttributes($cellDocRef))
 #parse('celMacros/struct/renderLabel.vm')
-<input value="$!services.structuredDataEditor.getCellValueAsString($cellDocRef)"##
+<input##
+#set($requestValue = $request.getParameter("$!{attrMap.get('name')}"))
+#if("$!requestValue" != '')
+ value="$requestValue"##
+#else
+ value="$!services.structuredDataEditor.getCellValueAsString($cellDocRef)"##
+#end
 #foreach($attrEntry in $attrMap.entrySet())
-  ${attrEntry.key}="$!{attrEntry.value}"
+ ${attrEntry.key}="$!{attrEntry.value}"##
 #end
 >
