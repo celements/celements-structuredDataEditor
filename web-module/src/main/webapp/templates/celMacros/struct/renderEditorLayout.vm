@@ -4,15 +4,15 @@
  * $structDataEditorSpaceRef : required, editor layout space reference
  * $activateJsCheckUnsaved : optional, boolean
 ***************************************************************#
-#set($layout = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
-#set($structDataEditorCfgDocRef = $layout.layoutConfigDocRef)
-#set($structDataEditorSpace = $structDataEditorSpaceRef.name)
-#if($isSuperAdmin)
-<!--
-  structDataEditorCfg: $!{services.model.serialize($structDataEditorCfgDocRef)}
--->
-#end
 
+#if("$!$structDataEditorSpaceRef" != '')
+ #set($structDataEditorSpaceRef = $services.reference.create().space($structDataEditorSpace).build())
+#end
+#set($structDataEditorSpace = $structDataEditorSpaceRef.name)
+#set($layout = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
+#if($services.layout.canRenderLayout($layout.layoutSpaceRef))
+
+#set($structDataEditorCfgDocRef = $layout.layoutConfigDocRef)
 #foreach($path in $services.structData.getJavaScriptFiles($structDataEditorCfgDocRef))
   $services.javascript.addExtJSfileOnce("$!{path}", 'file')
 #end
@@ -57,17 +57,8 @@
 #set($overwritePresCmCssClass = '')
 #set($overwriteNavCMcssClass = 'cel_cm_structured_data_editor_element')
 #set($emptyDictKeySuffix = '_strucured_data_editor')
-#if("$!structDataEditorPresentationCount" == '')
-  #set($structDataEditorPresentationCount = 0)
+$!services.layout.renderPageLayout($layout.layoutSpaceRef)
+
+#elseif($isSuperAdmin) ## canRenderLayout && isEditorLayoutType
+  <p>No Editor Layout found for ${structDataEditorSpaceRef}</p>
 #end
-#set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
-#set($structDataEditorNav = $services.treeNode.getJavaNavigation('StructuredDataEditor'))
-#set($structCmCssClass = $structDataEditorNav.getCssClass())
-<div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:"##
- class="structDataEditor $!{structCmCssClass}">
-#if($services.layout.canRenderLayout($layout.layoutSpaceRef) && $layout.isEditorLayoutType())
-  $!services.layout.renderPageLayout($layout.layoutSpaceRef)
-#else
-  <p>No Editor Layout found for ${structDataEditorSpace} (${layout.getLayoutType()})</p>
-#end
-</div>
