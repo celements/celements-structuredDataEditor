@@ -14,11 +14,15 @@
   #end
   #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
   #set($structDataEditorNav = $services.treeNode.getJavaNavigation('StructuredDataEditor'))
-  #if(("$!structDataEditorSpaceRef" == '') && ("$!structDataEditorSpace" == ''))
+  #if("$!structDataEditorSpace" != '')
+    #set($structDataEditorSpaceRef = $services.reference.create().space($structDataEditorSpace).build())
+  #end
+  #if("$!structDataEditorSpaceRef" == ''))
     ##TODO move editor layout space computation out of Navigation Configuration!!!
     #set($structDataEditorSpaceRef = $structDataEditorNav.getNodeSpaceRef())
   #end
-  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpaceRef.name}:"##
+  #set($structDataEditorSpace = $structDataEditorSpaceRef.name)
+  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:"##
    class="structDataEditor $!{structDataEditorNav.cssClass}">
   #parse('celMacros/struct/renderEditorLayout.vm')
   </div>
