@@ -5,7 +5,7 @@
  * $activateJsCheckUnsaved : optional, boolean
 ***************************************************************#
 
-#if("$!$structDataEditorSpaceRef" != '')
+#if("$!$structDataEditorSpaceRef" == '')
  #set($structDataEditorSpaceRef = $services.reference.create().space($structDataEditorSpace).build())
 #end
 #set($structDataEditorSpace = $structDataEditorSpaceRef.name)
@@ -60,5 +60,5 @@
 $!services.layout.renderPageLayout($layout.layoutSpaceRef)
 
 #elseif($isSuperAdmin) ## canRenderLayout && isEditorLayoutType
-  <p>No Editor Layout found for ${structDataEditorSpaceRef}</p>
+  <p>No Editor Layout found for: ${structDataEditorSpaceRef}</p>
 #end
