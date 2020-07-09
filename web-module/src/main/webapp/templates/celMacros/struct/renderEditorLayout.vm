@@ -5,7 +5,7 @@
  * $activateJsCheckUnsaved : optional, boolean
 ***************************************************************#
 
-#if("$!$structDataEditorSpaceRef" == '')
+#if("$!structDataEditorSpaceRef" == '')
  #set($structDataEditorSpaceRef = $services.reference.create().space($structDataEditorSpace).build())
 #end
 #set($structDataEditorSpace = $structDataEditorSpaceRef.name)
@@ -58,6 +58,8 @@
 #set($overwriteNavCMcssClass = 'cel_cm_structured_data_editor_element')
 #set($emptyDictKeySuffix = '_strucured_data_editor')
 $!services.layout.renderPageLayout($layout.layoutSpaceRef)
+#set($structDataEditorSpaceRef = $null)
+#set($structDataEditorSpace = $null)
 
 #elseif($isSuperAdmin) ## canRenderLayout && isEditorLayoutType
   <p>No Editor Layout found for: ${structDataEditorSpaceRef}</p>
