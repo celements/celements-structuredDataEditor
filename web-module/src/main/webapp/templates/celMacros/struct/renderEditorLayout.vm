@@ -1,11 +1,11 @@
 <!-- renderEditorLayout -->
 #**************************************************************
  * INPUT Parameters
- * $structDataEditorSpaceRef : required, editor layout space reference
+ * $structDataEditorSpace(Ref) : required, editor layout space reference
  * $activateJsCheckUnsaved : optional, boolean
 ***************************************************************#
 
-#if("$!structDataEditorSpaceRef" == '')
+#if("$!structDataEditorSpace" != '')
  #set($structDataEditorSpaceRef = $services.reference.create().space($structDataEditorSpace).build())
 #end
 #set($structDataEditorSpace = $structDataEditorSpaceRef.name)
