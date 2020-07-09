@@ -9,17 +9,17 @@
 #end
 #set($ptConfig = $services.pageType.getPageTypeConfig("$page_type"))
 #if("$!page_type" != 'StructuredDataEditor')
-  ##TODO move editor layout space computation out of Navigation Configuration!!!
-  #set($structDataEditorNav = $services.treeNode.getJavaNavigation("StructuredDataEditor"))
-  #set($structDataEditorSpaceRef = $structDataEditorNav.getNodeSpaceRef())
   #if("$!structDataEditorPresentationCount" == '')
-  #set($structDataEditorPresentationCount = 0)
+    #set($structDataEditorPresentationCount = 0)
   #end
   #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
   #set($structDataEditorNav = $services.treeNode.getJavaNavigation('StructuredDataEditor'))
-  #set($structCmCssClass = $structDataEditorNav.getCssClass())
+  #if(("$!structDataEditorSpaceRef" == '') && ("$!structDataEditorSpace" == ''))
+    ##TODO move editor layout space computation out of Navigation Configuration!!!
+    #set($structDataEditorSpaceRef = $structDataEditorNav.getNodeSpaceRef())
+  #end
   <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpaceRef.name}:"##
-   class="structDataEditor $!{structCmCssClass}">
+   class="structDataEditor $!{structDataEditorNav.cssClass}">
   #parse('celMacros/struct/renderEditorLayout.vm')
   </div>
 #else
