@@ -9,10 +9,23 @@
 #end
 #set($ptConfig = $services.pageType.getPageTypeConfig("$page_type"))
 #if("$!page_type" != 'StructuredDataEditor')
-  ##TODO move editor layout space computation out of Navigation Configuration!!!
-  #set($structDataEditorNav = $services.treeNode.getJavaNavigation("StructuredDataEditor"))
-  #set($structDataEditorSpaceRef = $structDataEditorNav.getNodeSpaceRef())
+  #if("$!structDataEditorPresentationCount" == '')
+    #set($structDataEditorPresentationCount = 0)
+  #end
+  #set($structDataEditorPresentationCount = $structDataEditorPresentationCount + 1)
+  #set($structDataEditorNav = $services.treeNode.getJavaNavigation('StructuredDataEditor'))
+  #if("$!structDataEditorSpace" != '')
+    #set($structDataEditorSpaceRef = $services.reference.create().space($structDataEditorSpace).build())
+  #end
+  #if("$!structDataEditorSpaceRef" == ''))
+    ##TODO move editor layout space computation out of Navigation Configuration!!!
+    #set($structDataEditorSpaceRef = $structDataEditorNav.getNodeSpaceRef())
+  #end
+  #set($structDataEditorSpace = $structDataEditorSpaceRef.name)
+  <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:"##
+   class="structDataEditor $!{structDataEditorNav.cssClass}">
   #parse('celMacros/struct/renderEditorLayout.vm')
+  </div>
 #else
   <p>
     Please create a page-type with View-Template: '$ptConfig.getRenderTemplateForRenderMode('view')'
