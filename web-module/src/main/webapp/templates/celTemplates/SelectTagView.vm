@@ -19,8 +19,9 @@
   #if($isMultiselect)
     #set($celValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
   #else
-    #set($celValues = $services.structuredDataEditor.getCellValueAsString($cellDocRef))
+    #set($celValues = [$services.structuredDataEditor.getCellValueAsString($cellDocRef)])
   #end
+  <!-- celValues: $!celValues -->
   #set($valueMap = $propClass.get().getMapValues())
   #foreach($keyValue in $propClass.get().getListValues())
     #set($keyValueNoSpaces = $keyValue.replaceAll(" ", "-"))
@@ -32,10 +33,6 @@
     #if("$!displayValue" == "")
       #set($displayValue = $keyValue)
     #end
-    #if($isMultiselect)
-      <option value="$!keyValue" #if($celValues.contains($keyValue)) selected #end>$!displayValue</option>
-    #else
-      <option value="$!keyValue" #if("$celValues" == "$keyValue") selected #end>$!displayValue</option>
-    #end
+    <option value="$!keyValue" #if($celValues.contains($keyValue))selected#end>$!displayValue</option>
   #end
 #end
