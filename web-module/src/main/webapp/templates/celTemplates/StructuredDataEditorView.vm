@@ -17,7 +17,7 @@
   #if("$!structDataEditorSpace" != '')
     #set($structDataEditorSpaceRef = $services.reference.create().space($structDataEditorSpace).build())
   #end
-  #if("$!structDataEditorSpaceRef" == ''))
+  #if("$!structDataEditorSpaceRef" == '')
     ##TODO move editor layout space computation out of Navigation Configuration!!!
     #set($structDataEditorSpaceRef = $structDataEditorNav.getNodeSpaceRef())
   #end
