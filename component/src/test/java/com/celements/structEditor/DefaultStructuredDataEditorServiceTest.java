@@ -12,15 +12,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReference;
+import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.context.ModelContext;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.fields.FormFieldPageType;
 import com.celements.velocity.VelocityService;
+import com.google.common.base.Strings;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -39,7 +42,7 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   @Before
   public void prepareTest() throws Exception {
     registerComponentMocks(IModelAccessFacade.class, IPageTypeResolverRole.class,
-        VelocityService.class);
+        VelocityService.class, ModelContext.class);
     service = (DefaultStructuredDataEditorService) Utils.getComponent(
         StructuredDataEditorService.class);
     modelAccessMock = getMock(IModelAccessFacade.class);
@@ -94,9 +97,10 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_none() throws Exception {
-    expect(getContext().getRequest().get("objNb")).andReturn("");
-    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_COMPUTED_OBJ_NB)))
-        .andReturn(com.google.common.base.Optional.absent());
+    expectRequest("");
+    expectComputed("");
+    expectMultilingual("");
+
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     expectClass();
 
@@ -109,30 +113,28 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_default() throws Exception {
-    expect(getContext().getRequest().get("objNb")).andReturn("");
-    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_COMPUTED_OBJ_NB)))
-        .andReturn(com.google.common.base.Optional.absent());
+    expectRequest("");
+    expectComputed("");
+    expectMultilingual("");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     DocumentReference classDocRef = expectClass().getDocumentReference();
-    createObj(onDoc, classDocRef);
-    createObj(onDoc, classDocRef);
+    createObj(onDoc, classDocRef, "");
+    createObj(onDoc, classDocRef, "");
 
     replayDefault();
     Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
     verifyDefault();
 
-    assertTrue(obj.isPresent());
-    assertEquals(classDocRef, obj.get().getXClassReference());
-    assertEquals(0, obj.get().getNumber());
+    assertObj(classDocRef, 0, obj);
   }
 
   @Test
   public void test_getXObjectInStructEditor_request() throws Exception {
-    expect(getContext().getRequest().get("objNb")).andReturn("1");
+    expectRequest("1");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     DocumentReference classDocRef = expectClass().getDocumentReference();
-    createObj(onDoc, classDocRef);
-    createObj(onDoc, classDocRef);
+    createObj(onDoc, classDocRef, "");
+    createObj(onDoc, classDocRef, "");
 
     replayDefault();
     Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
@@ -145,77 +147,181 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_request_invalid() throws Exception {
-    expect(getContext().getRequest().get("objNb")).andReturn("asdf");
-    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_COMPUTED_OBJ_NB)))
-        .andReturn(com.google.common.base.Optional.absent());
+    expectRequest("asdf");
+    expectComputed("");
+    expectMultilingual("");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     DocumentReference classDocRef = expectClass().getDocumentReference();
-    createObj(onDoc, classDocRef);
-    createObj(onDoc, classDocRef);
+    createObj(onDoc, classDocRef, "");
+    createObj(onDoc, classDocRef, "");
 
     replayDefault();
     Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
     verifyDefault();
 
-    assertTrue(obj.isPresent());
-    assertEquals(classDocRef, obj.get().getXClassReference());
-    assertEquals(0, obj.get().getNumber());
+    assertObj(classDocRef, 0, obj);
   }
 
   @Test
   public void test_getXObjectInStructEditor_computed() throws Exception {
-    expect(getContext().getRequest().get("objNb")).andReturn("");
-    String text = "1";
-    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_COMPUTED_OBJ_NB)))
-        .andReturn(com.google.common.base.Optional.of(text));
-    expect(getMock(VelocityService.class).evaluateVelocityText(text)).andReturn(text);
+    expectRequest("");
+    int expNb = 1;
+    expectComputed(Integer.toString(expNb));
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     DocumentReference classDocRef = expectClass().getDocumentReference();
-    createObj(onDoc, classDocRef);
-    createObj(onDoc, classDocRef);
+    createObj(onDoc, classDocRef, "");
+    createObj(onDoc, classDocRef, "");
 
     replayDefault();
     Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
     verifyDefault();
 
-    assertTrue(obj.isPresent());
-    assertEquals(classDocRef, obj.get().getXClassReference());
-    assertEquals(1, obj.get().getNumber());
+    assertObj(classDocRef, expNb, obj);
   }
 
   @Test
   public void test_getXObjectInStructEditor_computed_invalid() throws Exception {
-    expect(getContext().getRequest().get("objNb")).andReturn("");
+    expectRequest("");
     String text = "invalid";
-    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_COMPUTED_OBJ_NB)))
-        .andReturn(com.google.common.base.Optional.of(text));
-    expect(getMock(VelocityService.class).evaluateVelocityText(text)).andReturn(text);
+    expectComputed(text);
+    expectMultilingual("");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     DocumentReference classDocRef = expectClass().getDocumentReference();
-    createObj(onDoc, classDocRef);
-    createObj(onDoc, classDocRef);
+    createObj(onDoc, classDocRef, "");
+    createObj(onDoc, classDocRef, "");
 
     replayDefault();
     Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
     verifyDefault();
 
-    assertTrue(obj.isPresent());
-    assertEquals(classDocRef, obj.get().getXClassReference());
-    assertEquals(0, obj.get().getNumber());
+    assertObj(classDocRef, 0, obj);
+  }
+
+  @Test
+  public void test_getXObjectInStructEditor_lang() throws Exception {
+    expectRequest("");
+    expectComputed("");
+    expectMultilingual("de");
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
+    DocumentReference classDocRef = expectClass().getDocumentReference();
+    createObj(onDoc, classDocRef, "fr");
+    createObj(onDoc, classDocRef, "");
+    int expNb = createObj(onDoc, classDocRef, "de").getNumber();
+
+    replayDefault();
+    Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
+    verifyDefault();
+
+    assertObj(classDocRef, expNb, obj);
+  }
+
+  @Test
+  public void test_getXObjectInStructEditor_lang_noObjWithLang() throws Exception {
+    expectRequest("");
+    expectComputed("");
+    expectMultilingual("de");
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
+    DocumentReference classDocRef = expectClass().getDocumentReference();
+    createObj(onDoc, classDocRef, "");
+    createObj(onDoc, classDocRef, "");
+
+    replayDefault();
+    Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
+    verifyDefault();
+
+    assertObj(classDocRef, 0, obj);
+  }
+
+  @Test
+  public void test_getXObjectInStructEditor_multilingual_defaultLang() throws Exception {
+    expectRequest("");
+    expectComputed("");
+    expectMultilingual(true, "");
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
+    expect(getMock(ModelContext.class).getDefaultLanguage(onDoc.getDocumentReference()))
+        .andReturn("de").atLeastOnce();
+    DocumentReference classDocRef = expectClass().getDocumentReference();
+    createObj(onDoc, classDocRef, "fr");
+    createObj(onDoc, classDocRef, "en");
+    int expNb = createObj(onDoc, classDocRef, "de").getNumber();
+
+    replayDefault();
+    Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
+    verifyDefault();
+
+    assertObj(classDocRef, expNb, obj);
+  }
+
+  @Test
+  public void test_getXObjectInStructEditor_multilingual_emptyLangDefault() throws Exception {
+    expectRequest("");
+    expectComputed("");
+    expectMultilingual(true, "");
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
+    expect(getMock(ModelContext.class).getDefaultLanguage(onDoc.getDocumentReference()))
+        .andReturn("de").atLeastOnce();
+    DocumentReference classDocRef = expectClass().getDocumentReference();
+    createObj(onDoc, classDocRef, "fr");
+    int expNb = createObj(onDoc, classDocRef, "").getNumber();
+    createObj(onDoc, classDocRef, "en");
+
+    replayDefault();
+    Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
+    verifyDefault();
+
+    assertObj(classDocRef, expNb, obj);
+  }
+
+  private void expectRequest(String nb) {
+    expect(getMock(ModelContext.class).getRequestParameter("objNb"))
+        .andReturn(com.google.common.base.Optional.fromNullable(Strings.emptyToNull(nb)))
+        .once();
+  }
+
+  private void expectComputed(String text) throws XWikiVelocityException {
+    text = Strings.emptyToNull(text);
+    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_COMPUTED_OBJ_NB)))
+        .andReturn(com.google.common.base.Optional.fromNullable(text));
+    if (text != null) {
+      expect(getMock(VelocityService.class).evaluateVelocityText(text)).andReturn(text);
+    }
+  }
+
+  private void expectMultilingual(String contextLang) {
+    boolean isMultilingual = !Strings.nullToEmpty(contextLang).isEmpty();
+    expectMultilingual(isMultilingual, contextLang);
+  }
+
+  private void expectMultilingual(boolean isMultilingual, String contextLang) {
+    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_MULTILINGUAL)))
+        .andReturn(com.google.common.base.Optional.of(isMultilingual));
+    if (isMultilingual) {
+      expect(getMock(ModelContext.class).getRequestParameter("lang"))
+          .andReturn(com.google.common.base.Optional.fromNullable(Strings.emptyToNull(contextLang)))
+          .atLeastOnce();
+    }
   }
 
   private BaseClass expectClass() throws DocumentNotExistsException {
     DocumentReference xClassDocRef = new DocumentReference(wikiName, "Celements", "TestXClassName");
     expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_EDIT_FIELD_CLASS)))
-        .andReturn(com.google.common.base.Optional.of(xClassDocRef)).once();
+        .andReturn(com.google.common.base.Optional.of(xClassDocRef)).atLeastOnce();
     XWikiDocument xClassDoc = new XWikiDocument(xClassDocRef);
     expect(modelAccessMock.getDocument(xClassDocRef)).andReturn(xClassDoc).anyTimes();
     return xClassDoc.getXClass();
   }
 
-  private static BaseObject createObj(XWikiDocument doc, DocumentReference classDocRef) {
+  private void assertObj(DocumentReference classDocRef, int expNb, Optional<BaseObject> obj) {
+    assertTrue(obj.isPresent());
+    assertEquals(classDocRef, obj.get().getXClassReference());
+    assertEquals(expNb, obj.get().getNumber());
+  }
+
+  private static BaseObject createObj(XWikiDocument doc, DocumentReference classDocRef,
+      String lang) {
     BaseObject obj = new BaseObject();
     obj.setXClassReference(classDocRef);
+    obj.setStringValue("lang", lang);
     doc.addXObject(obj);
     return obj;
   }

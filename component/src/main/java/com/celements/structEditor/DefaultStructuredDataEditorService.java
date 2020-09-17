@@ -42,6 +42,7 @@ import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -99,8 +100,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRef(classRef.get()));
         if (onDoc != null) {
-          final XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(onDoc).filter(classRef.get());
-          int objNb = getStructXObjectNumber(cellDoc)
+          final XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
+          int objNb = getStructXObjectNumber(cellDoc, onDoc)
               .map(nb -> ((nb < 0) || fetcher.filter(nb).exists()) ? nb : -1)
               .orElseGet(() -> fetcher.stream().findFirst().map(BaseObject::getNumber)
               .orElse(-1));
@@ -308,8 +309,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<BaseObject> ret = Optional.empty();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
-      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(onDoc).filter(classRef.get());
-      getStructXObjectNumber(cellDoc).ifPresent(fetcher::filter);
+      XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
+      getStructXObjectNumber(cellDoc, onDoc).ifPresent(fetcher::filter);
       ret = fetcher.stream().findFirst();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
@@ -318,11 +319,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return ret;
   }
 
-  private Optional<Integer> getStructXObjectNumber(XWikiDocument cellDoc) {
+  private Optional<Integer> getStructXObjectNumber(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return Stream.<Supplier<Optional<Integer>>>of(
         () -> getNumberFromRequest(),
         () -> getNumberFromExecutionContext(),
-        () -> getNumberFromComputedField(cellDoc))
+        () -> getNumberFromComputedField(cellDoc),
+        () -> getNumberForMultilingual(cellDoc, onDoc))
         .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
         .peek(nb -> LOGGER.debug("getStructXObjectNumber: got [{}] for [{}]", nb, cellDoc))
         .findFirst();
@@ -353,6 +355,25 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     }
   }
 
+  private Optional<Integer> getNumberForMultilingual(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return modelAccess.getFieldValue(cellDoc, FIELD_MULTILINGUAL).toJavaUtil()
+        .filter(isMultilingual -> isMultilingual)
+        .map(isMultilingual -> newXObjFetcher(cellDoc, onDoc)
+            .filter(this::isOfRequestLang)
+            .stream())
+        .orElse(Stream.empty())
+        .map(BaseObject::getNumber)
+        .findFirst();
+  }
+
+  private boolean isOfRequestLang(BaseObject xObj) {
+    ImmutableSet<String> langs = context.getRequestParameter("lang").toJavaUtil()
+        .map(ImmutableSet::of)
+        .orElseGet(() -> ImmutableSet.of("",
+            context.getDefaultLanguage(xObj.getDocumentReference())));
+    return langs.contains(xObj.getStringValue("lang"));
+  }
+
   @Override
   public List<String> getSelectTagAutocompleteJsPathList() {
     List<String> roles = new ArrayList<>();
@@ -365,6 +386,15 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Override
   public boolean hasEditField(XWikiDocument cellDoc) {
     return getCellFieldName(cellDoc).isPresent();
+  }
+
+  private XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return Optional.ofNullable(onDoc)
+        .map(XWikiObjectFetcher::on)
+        .map(fetcher -> getCellClassRef(cellDoc)
+            .map(fetcher::filter))
+        .filter(Optional::isPresent).map(Optional::get)
+        .orElseGet(XWikiObjectFetcher::empty);
   }
 
 }
