@@ -296,7 +296,7 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_MULTILINGUAL)))
         .andReturn(com.google.common.base.Optional.of(isMultilingual));
     if (isMultilingual) {
-      expect(getMock(ModelContext.class).getRequestParameter("lang"))
+      expect(getMock(ModelContext.class).getRequestParameter("language"))
           .andReturn(com.google.common.base.Optional.fromNullable(Strings.emptyToNull(contextLang)))
           .atLeastOnce();
     }
