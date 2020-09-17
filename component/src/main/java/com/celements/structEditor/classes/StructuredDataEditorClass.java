@@ -7,6 +7,7 @@ import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.classes.AbstractClassDefinition;
+import com.celements.model.classes.fields.BooleanField;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.classes.fields.LargeStringField;
 import com.celements.model.classes.fields.StringField;
@@ -27,6 +28,9 @@ public class StructuredDataEditorClass extends AbstractClassDefinition implement
 
   public static final ClassField<String> FIELD_EDIT_FIELD_NAME = new StringField.Builder(
       CLASS_REF, "edit_field_name").prettyName("Property Name").build();
+
+  public static final ClassField<Boolean> FIELD_MULTILINGUAL = new BooleanField.Builder(
+      CLASS_REF, "multilingual").build();
 
   public static final ClassField<String> FIELD_COMPUTED_OBJ_NB = new LargeStringField.Builder(
       CLASS_REF, "computed_obj_nb").prettyName("Computed Object Number").build();
