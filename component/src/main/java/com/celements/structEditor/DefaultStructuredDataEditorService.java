@@ -104,7 +104,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
           int objNb = getStructXObjectNumber(cellDoc, onDoc)
               .map(nb -> ((nb < 0) || fetcher.filter(nb).exists()) ? nb : -1)
               .orElseGet(() -> fetcher.stream().findFirst().map(BaseObject::getNumber)
-                  .orElse(-1));
+              .orElse(-1));
           nameParts.add(Integer.toString(objNb));
         }
       }
