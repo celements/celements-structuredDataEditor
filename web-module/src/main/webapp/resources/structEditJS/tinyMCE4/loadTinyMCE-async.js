@@ -33,7 +33,7 @@
     var hrefSearch = window.location.search;
     var templateRegEx = new RegExp('^(\\?|(.*&)+)?template=([^=&]*).*$');
     if (hrefSearch.match(templateRegEx)) {
-      params['template'] = window.location.search.replace(templateRegEx, '$3');
+      params['template'] = unescape(window.location.search.replace(templateRegEx, '$3'));
     }
     console.log('initCelRTE4: before Ajax tinymce');
     new Ajax.Request(getCelHost(), {
