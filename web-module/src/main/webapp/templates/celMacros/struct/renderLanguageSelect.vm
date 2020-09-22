@@ -1,31 +1,42 @@
-<div id="con_langBar" class="editblock">
-    <div class="docLangs">
-  #if("$!docTransList" == '')
-    #set($docTransList = $doc.getTranslationList())
-  #end
-  #foreach($transLang in $services.webUtils.getAllowedLanguages())
-    #set($transCssClass = '')
-    #if("$!transLang" == "$!{doc.getDefaultLanguage()}")
-      #set($transCssClass = "$!{transCssClass} defaultLanguage transExists")
-    #elseif($docTransList.contains("$!transLang"))
-      #set($transCssClass = "$!{transCssClass} transExists")
-    #else
-      #set($transCssClass = "$!{transCssClass} transNotExists")
+<div class="languageVersions">
+#set($xredStrBuffer = "${request.getRequestURL()}?$!{request.getQueryString()}")
+#set($allowedLanguages = $services.webUtils.getAllowedLanguages())
+#if($isAdmin)
+  <!-- _renderSupportedLanguages.vm -->
+  <!-- allowedLanguages : $!allowedLanguages -->
+#end
+<ul class="languageList">
+  #foreach($transLang in $allowedLanguages)
+    #set($titleLanguagePlaceholderKey = "cel_${transLang}")
+    #set($titleLanguagePlaceholder = $adminMsg.get($titleLanguagePlaceholderKey))
+    #set($activeLanguageClass = "")
+    #if("$language" == "$!transLang")
+      #set($activeLanguageClass = "active")
     #end
-      <span class="$!{transCssClass.trim()}" ##
-       title="$!adminMsg.get("cel_$!{transLang}")">##
-      $!{transLang}</span>
-  #end
-  #set($docTransList = '')
-    </div>
-    $adminMsg.get('cel_tm_edit_translation'):
-    <input type="hidden" id="langbar-initialEditorLanguage" name="initialEditorLanguage" value="$!language" />
-    <select name="language" size="1" style="width:100px;"> 
-##TODO move to StructEditor.js
-##  onchange="var langSelect = this; getCelementsTabEditor().changeEditLanguage(langSelect.value, function() { langSelect.value=$('langbar-initialEditorLanguage').value; }); return false;">
-      #foreach($dl in $langs)
-        <option #if("$!language" == "$dl")selected="selected"#end value="$dl"##
-         label="$adminMsg.get("cel_${dl}")">$adminMsg.get("cel_$dl")</option>
+    #if("$!request.language" != "")
+      #set($viewLangURL = $xredStrBuffer.replaceAll("(&|\?)(language=).*?(&|$)", "$1$2$!{transLang}$3"))
+    #else
+      #set($viewLangURL = "$!{xredStrBuffer}&language=${transLang}")
+    #end
+    #if(($langDoc.getWiki() == $context.getDatabase()) && ($docTransList.contains("$!transLang"))) ## if D
+      #set($titleMainLanguage = "")
+      #set($mainLanguageClass = "")
+      #if("$!default_language" == "$!transLang")
+        #set($titleMainLanguage = "$adminMsg.get('progon_org_helper_main_issue')")
+        #set($mainLanguageClass = "mainLanguage")
       #end
-    </select>
-</div><!-- /con_langBar -->
+      <li class="languageListElement $activeLanguageClass $mainLanguageClass">
+        <a class="view transNotExists" title="$!titleMainLanguage" href="$viewLangURL">
+          <span class="viewLanguageVersion">$transLang</span>
+        </a>
+      </li>
+    #else
+      <li class="languageListElement $activeLanguageClass transNotExists">
+        <a class="view" title="$!titleMainLanguage" href="$viewLangURL">
+          <span class="viewLanguageVersion transNotExists">$transLang</span>
+        </a>
+      </li>
+    #end
+  #end ## foreach
+</ul>
+</div>

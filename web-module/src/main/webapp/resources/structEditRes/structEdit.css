@@ -123,7 +123,7 @@ input[type=number]::-webkit-inner-spin-button {
   display: block;
   width: 23px;
   height: 20px;
-  float: left;
+  float: none;
   padding-top: 1px;
   color: white;
   text-align: center;
@@ -150,7 +150,7 @@ input[type=number]::-webkit-inner-spin-button {
   text-align: center;
 }
 .structEditorRoot .languageVersions ul li {
-  float: left;
+  float: none;
   position: relative;
   padding-bottom: 2px;
   margin-left: 2px;
@@ -161,44 +161,4 @@ input[type=number]::-webkit-inner-spin-button {
 .structEditorRoot .languageVersions ul li.languageListElement.active {
   padding-top: 5px;
   border-top: 2px solid #555;
-}
-.structEditorRoot .languageVersions li ul {
-  display: none;
-  position: absolute;
-  width: 65px;
-  top: 26px;
-  background: #fff;
-  border: 1px solid black;
-  padding: 3px 2px 0px;
-  left: 0px;
-}
-.structEditorRoot .languageVersions li ul.twoIcons {
-  width: 46px;
-}
-.structEditorRoot .languageVersions li ul.oneIcon {
-  width: 19px;
-}
-.structEditorRoot .languageVersions li:hover ul {
-  display: block;
-}
-.structEditorRoot .languageVersions li li {
-  padding-left: 4px;
-  margin-left: 0px;
-}
-.structEditorRoot .languageVersions li li + li {
-  margin-left: 8px;
-  padding-left: 0px;
-}
-.structEditorRoot .languageVersions li li a i {
-  color: black;
-}
-.structEditorRoot .languageVersions li li a:hover i {
-  color: #900;
-}
-.structEditorRoot .languageVersions .languageListElement.active .twoIcons {
-  top: 26px;
-  left: 0px;
-}
-.structEditorRoot .languageVersions .languageList .mainLanguage .view {
-  padding-bottom: 0px;
 }
