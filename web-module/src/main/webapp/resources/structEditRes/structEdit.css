@@ -110,6 +110,9 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 /** celements language bar **/
+.structEditorRoot .languageSelectorBar {
+  position: relative;
+}
 .structEditorRoot .languageVersions {
   position: absolute;
   right: 20px;
