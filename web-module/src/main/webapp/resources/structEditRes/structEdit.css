@@ -107,3 +107,43 @@ input[type=number]::-webkit-inner-spin-button {
   font-style: inherit;
   color: inherit;
 }
+
+/** celements language bar **/
+.structEditorRoot #con_langBar .docLangs {
+  text-align: right;
+  position: absolute;
+  top: 1px;
+  right: 0px;
+}
+.structEditorRoot #con_langBar .docLangs {
+  top: 14px;
+  right: 13px;
+}
+.structEditorRoot #con_langBar .docLangs a,
+.structEditorRoot #con_langBar .docLangs span {
+  display: block;
+  float: left;
+  width: 20px;
+  padding-top: 1px;
+  color: white;
+  text-align: center;
+  border: 1px solid black;
+  text-decoration: none;
+  background-color: #555;
+}
+.structEditorRoot #con_langBar .docLangs a + a,
+.structEditorRoot #con_langBar .docLangs span + span {
+  margin-left: 1px;
+}
+.structEditorRoot #con_langBar .docLangs a.defaultLanguage,
+.structEditorRoot #con_langBar .docLangs span.defaultLanguage {
+  font-weight: bold;
+}
+.structEditorRoot #con_langBar .docLangs a.transNotExists,
+.structEditorRoot #con_langBar .docLangs span.transNotExists {
+  background-color: white;
+  color: black;
+}
+.structEditorRoot #con_langBar .docLangs a:hover {
+  background-color: #ccc;
+}
