@@ -167,9 +167,9 @@ input[type=number]::-webkit-inner-spin-button {
   margin-left: 2px;
 }
 .structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement {
-  padding-top: 7px;
+  border-top: 2px solid transparent;
+  padding-top: 5px;
 }
 .structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.active {
-  padding-top: 5px;
   border-top: 2px solid #555;
 }
