@@ -110,16 +110,16 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 /** celements language bar **/
-.structEditorRoot .languageSelectorBar {
+.structEditorRoot .languageSelectorBar .languageSelectorBar {
   position: relative;
 }
-.structEditorRoot .languageVersions {
+.structEditorRoot .languageSelectorBar .languageVersions {
   position: absolute;
   right: 20px;
   z-index: 3;
 }
-.structEditorRoot .languageVersions .viewTranslation,
-.structEditorRoot .languageVersions .viewLanguageVersion {
+.structEditorRoot .languageSelectorBar .languageVersions .viewTranslation,
+.structEditorRoot .languageSelectorBar .languageVersions .viewLanguageVersion {
   display: block;
   width: 23px;
   height: 20px;
@@ -130,35 +130,46 @@ input[type=number]::-webkit-inner-spin-button {
   text-decoration: none;
   background-color: #555;
 }
-.structEditorRoot .languageVersions .mainLanguage {
+.structEditorRoot .languageSelectorBar .languageVersions .mainLanguage {
   font-weight: bold;
 }
-.structEditorRoot .languageVersions li:hover .viewLanguageVersion,
-.structEditorRoot .languageVersions li:hover .transNotExists {
+.structEditorRoot .languageSelectorBar .languageVersions li:hover .viewLanguageVersion,
+.structEditorRoot .languageSelectorBar .languageVersions li:hover .transNotExists {
   background-color: #015470;
   color: white;
   cursor: pointer;
 }
-.structEditorRoot .languageVersions .transNotExists {
+.structEditorRoot .languageSelectorBar .languageVersions .transNotExists {
   background-color: white;
   color: black;
 }
-.structEditorRoot .languageVersions ul {
+.structEditorRoot .languageSelectorBar .languageVersions ul {
   list-style: none;
   margin: 0px;
   padding: 0px;
   text-align: center;
+  /** flex **/
+  display: box; /** old browsers **/
+  display: flexbox; /** for IE10 **/
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-wrap: wrap; /** for IE10 **/
+  -webkit-flex-wrap: wrap; /** Safari 6.1+ **/
+  flex-wrap: wrap;
 }
-.structEditorRoot .languageVersions ul li {
+.structEditorRoot .languageSelectorBar .languageVersions ul li {
   float: none;
   position: relative;
   padding-bottom: 2px;
   margin-left: 2px;
 }
-.structEditorRoot .languageVersions ul li.languageListElement {
+.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement {
   padding-top: 7px;
 }
-.structEditorRoot .languageVersions ul li.languageListElement.active {
+.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.active {
   padding-top: 5px;
   border-top: 2px solid #555;
 }
