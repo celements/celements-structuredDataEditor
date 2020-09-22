@@ -160,15 +160,13 @@ input[type=number]::-webkit-inner-spin-button {
   -webkit-flex-wrap: wrap; /** Safari 6.1+ **/
   flex-wrap: wrap;
 }
-.structEditorRoot .languageSelectorBar .languageVersions ul li {
+.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement {
   float: none;
   position: relative;
-  padding-bottom: 2px;
-  margin-left: 2px;
-}
-.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement {
-  border-top: 2px solid transparent;
   padding-top: 5px;
+  padding-bottom: 2px;
+  margin-left: 5px;
+  border-top: 2px solid transparent;
 }
 .structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.active {
   border-top: 2px solid #555;
