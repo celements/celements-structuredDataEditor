@@ -42,7 +42,6 @@ import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -373,10 +372,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private boolean isOfRequestOrDefaultLang(BaseObject xObj) {
     String xObjLang = asOptional(xObj.getStringValue("lang"))
         .orElseGet(() -> xObj.getStringValue("language"));
-    return context.getRequestParameter("language").toJavaUtil().map(ImmutableSet::of)
-        .orElseGet(() -> ImmutableSet.of(context.getDefaultLanguage(xObj.getDocumentReference()),
-            ""))
-        .contains(xObjLang);
+    return context.getLanguage()
+        .orElseGet(() -> context.getDefaultLanguage(xObj.getDocumentReference()))
+        .equals(xObjLang);
   }
 
   @Override

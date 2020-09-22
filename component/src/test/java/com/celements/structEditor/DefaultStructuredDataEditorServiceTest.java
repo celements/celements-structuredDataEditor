@@ -252,26 +252,6 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     assertObj(classDocRef, expNb, obj);
   }
 
-  @Test
-  public void test_getXObjectInStructEditor_multilingual_emptyLangDefault() throws Exception {
-    expectRequest("");
-    expectComputed("");
-    expectMultilingual(true, "");
-    XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
-    expect(getMock(ModelContext.class).getDefaultLanguage(onDoc.getDocumentReference()))
-        .andReturn("de").atLeastOnce();
-    DocumentReference classDocRef = expectClass().getDocumentReference();
-    createObj(onDoc, classDocRef, "fr");
-    int expNb = createObj(onDoc, classDocRef, "").getNumber();
-    createObj(onDoc, classDocRef, "en");
-
-    replayDefault();
-    Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
-    verifyDefault();
-
-    assertObj(classDocRef, expNb, obj);
-  }
-
   private void expectRequest(String nb) {
     expect(getMock(ModelContext.class).getRequestParameter("objNb"))
         .andReturn(com.google.common.base.Optional.fromNullable(Strings.emptyToNull(nb)))
@@ -296,8 +276,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_MULTILINGUAL)))
         .andReturn(com.google.common.base.Optional.of(isMultilingual));
     if (isMultilingual) {
-      expect(getMock(ModelContext.class).getRequestParameter("language"))
-          .andReturn(com.google.common.base.Optional.fromNullable(Strings.emptyToNull(contextLang)))
+      expect(getMock(ModelContext.class).getLanguage())
+          .andReturn(Optional.ofNullable(Strings.emptyToNull(contextLang)))
           .atLeastOnce();
     }
   }
