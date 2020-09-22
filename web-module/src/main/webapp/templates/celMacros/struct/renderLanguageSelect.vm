@@ -30,16 +30,21 @@
         #set($titleMainLanguage = "$adminMsg.get('progon_org_helper_main_issue')")
         #set($mainLanguageClass = "mainLanguage")
       #end
+      #if($services.modelAccess.exists($doc.documentReference))
+        #set($linkTag = "a")
+      #else
+        #set($linkTag = "span")
+      #end
       <li class="languageListElement $activeLanguageClass $mainLanguageClass">
-        <a class="view transNotExists" title="$!titleMainLanguage" href="$viewLangURL">
+        <${linkTag} class="view transNotExists" title="$!titleMainLanguage" href="$viewLangURL">
           <span class="viewLanguageVersion">$transLang</span>
-        </a>
+        </${linkTag}>
       </li>
     #else
       <li class="languageListElement $activeLanguageClass transNotExists">
-        <a class="view" title="$!titleMainLanguage" href="$viewLangURL">
+        <${linkTag} class="view" title="$!titleMainLanguage" href="$viewLangURL">
           <span class="viewLanguageVersion transNotExists">$transLang</span>
-        </a>
+        </${linkTag}>
       </li>
     #end
   #end ## foreach
