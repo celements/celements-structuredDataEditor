@@ -1,11 +1,16 @@
 <div class="languageVersions">
 #set($xredStrBuffer = "${request.getRequestURL()}?$!{request.getQueryString()}")
 #set($allowedLanguages = $services.webUtils.getAllowedLanguages())
-#if($isAdmin)
+#if($isSuperAdmin)
   <!-- _renderSupportedLanguages.vm -->
   <!-- allowedLanguages : $!allowedLanguages -->
 #end
 <ul class="languageList">
+  #set($docTransList = [$doc.getDefaultLanguage()])
+  #set($devNull = $docTransList.addAll($doc.getTranslationList()))
+  #if($isSuperAdmin)
+      <!-- docTransList : $!docTransList -->
+  #end
   #foreach($transLang in $allowedLanguages)
     #set($titleLanguagePlaceholderKey = "cel_${transLang}")
     #set($titleLanguagePlaceholder = $adminMsg.get($titleLanguagePlaceholderKey))
@@ -18,7 +23,7 @@
     #else
       #set($viewLangURL = "$!{xredStrBuffer}&language=${transLang}")
     #end
-    #if(($langDoc.getWiki() == $context.getDatabase()) && ($docTransList.contains("$!transLang"))) ## if D
+    #if(($doc.getWiki() == $context.getDatabase()) && ($docTransList.contains("$!transLang"))) ## if D
       #set($titleMainLanguage = "")
       #set($mainLanguageClass = "")
       #if("$!default_language" == "$!transLang")
