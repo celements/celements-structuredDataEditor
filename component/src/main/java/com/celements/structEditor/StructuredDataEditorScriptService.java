@@ -52,7 +52,17 @@ public class StructuredDataEditorScriptService implements ScriptService {
   private ModelContext context;
 
   public String getAttributeName(DocumentReference cellDocRef) {
-    return getFromCellDoc(cellDocRef, cellDoc -> service.getAttributeName(cellDoc, null))
+    return getAttributeName(cellDocRef, null);
+  }
+
+  public String getAttributeNameForCurrentDoc(DocumentReference cellDocRef) {
+    return context.getCurrentDoc().toJavaUtil()
+        .map(onDoc -> getAttributeName(cellDocRef, onDoc))
+        .orElse("");
+  }
+
+  private String getAttributeName(DocumentReference cellDocRef, XWikiDocument onDoc) {
+    return getFromCellDoc(cellDocRef, cellDoc -> service.getAttributeName(cellDoc, onDoc))
         .orElse("");
   }
 
@@ -67,7 +77,8 @@ public class StructuredDataEditorScriptService implements ScriptService {
     getFromCellDoc(cellDocRef, cellDoc -> {
       retMap.put("type", "text");
       addNameAttributeToMap(retMap, cellDoc);
-      retMap.put("value", context.getDoc().getTemplate());
+      retMap.put("value", context.getCurrentDoc().toJavaUtil()
+          .map(XWikiDocument::getTemplate).orElse(""));
       return Optional.empty();
     });
     return retMap;
@@ -93,29 +104,31 @@ public class StructuredDataEditorScriptService implements ScriptService {
 
   private void addAttributeToMap(Map<String, String> map, String attrName, XWikiDocument cellDoc,
       ClassField<?> field) {
-    Object val = modelAccess.getProperty(cellDoc, field);
-    if (val != null) {
-      map.put(attrName, val.toString());
-    }
+    modelAccess.getFieldValue(cellDoc, field).toJavaUtil()
+        .map(Object::toString)
+        .ifPresent(val -> map.put(attrName, val));
   }
 
   private void addNameAttributeToMap(Map<String, String> map, XWikiDocument cellDoc) {
-    Optional<String> val = service.getAttributeName(cellDoc, context.getDoc());
-    if (val.isPresent()) {
-      map.put("name", val.get());
-    }
+    service.getAttributeName(cellDoc, context.getCurrentDoc().orNull())
+        .ifPresent(val -> map.put("name", val));
   }
 
   public String getCellValueAsString(DocumentReference cellDocRef) {
     return getFromCellDocRef(cellDocRef,
-        ref -> service.getCellValueAsString(cellDocRef, context.getDoc()))
+        ref -> service.getCellValueAsString(cellDocRef, context.getCurrentDoc().orNull()))
             .orElse(Optional.empty())
             .orElse("");
   }
 
+  public String getCellValueFromRequest(DocumentReference cellDocRef) {
+    String name = getAttributeNameForCurrentDoc(cellDocRef);
+    return context.getRequestParameter(name).toJavaUtil().orElse("");
+  }
+
   public List<String> getCellListValue(DocumentReference cellDocRef) {
-    return getFromCellDocRef(cellDocRef, ref -> service.getCellListValue(ref, context.getDoc()))
-        .orElseGet(ArrayList::new);
+    return getFromCellDocRef(cellDocRef, ref -> service.getCellListValue(ref,
+        context.getCurrentDoc().orNull())).orElseGet(ArrayList::new);
   }
 
   public com.google.common.base.Optional<com.xpn.xwiki.api.PropertyClass> getCellPropertyClass(
