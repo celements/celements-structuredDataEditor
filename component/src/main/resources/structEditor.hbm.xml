@@ -13,6 +13,9 @@
     <property name="edit_field_name" type="string">
       <column name="SEF_EDIT_FIELD_NAME" length="64" />
     </property>
+    <property name="multilingual" type="integer">
+      <column name="SEF_MULTILINGUAL" />
+    </property>
     <property name="computed_obj_nb" type="text">
       <column name="SEF_COMPUTED_OBJ_NB" />
     </property>

@@ -99,8 +99,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       if (classRef.isPresent()) {
         nameParts.add(modelUtils.serializeRef(classRef.get()));
         if (onDoc != null) {
-          final XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(onDoc).filter(classRef.get());
-          int objNb = getStructXObjectNumber(cellDoc)
+          final XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
+          int objNb = getStructXObjectNumber(cellDoc, onDoc)
               .map(nb -> ((nb < 0) || fetcher.filter(nb).exists()) ? nb : -1)
               .orElseGet(() -> fetcher.stream().findFirst().map(BaseObject::getNumber)
               .orElse(-1));
@@ -111,7 +111,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     }
     String name = Joiner.on('_').join(nameParts);
     LOGGER.info("getAttributeName: '{}' for cell '{}', onDoc '{}'", name, cellDoc, onDoc);
-    return Optional.ofNullable(Strings.emptyToNull(name));
+    return asOptional(name);
   }
 
   @Override
@@ -288,13 +288,17 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private String getTranslatedValue(XWikiDocument onDoc,
       Function<XWikiDocument, String> valueGetter) {
-    try {
-      onDoc = onDoc.getTranslatedDocument(context.getXWikiContext());
-    } catch (XWikiException exc) {
-      // is actually never thrown in #getTranslatedDocument
-      LOGGER.error("getTranslatedValue - [{}]", onDoc, exc);
+    String value = null;
+    if (onDoc != null) {
+      try {
+        onDoc = onDoc.getTranslatedDocument(context.getXWikiContext());
+      } catch (XWikiException exc) {
+        // is actually never thrown in #getTranslatedDocument
+        LOGGER.error("getTranslatedValue - [{}]", onDoc, exc);
+      }
+      value = Strings.emptyToNull(valueGetter.apply(onDoc).trim());
     }
-    return Strings.emptyToNull(valueGetter.apply(onDoc).trim());
+    return value;
   }
 
   @Override
@@ -308,8 +312,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<BaseObject> ret = Optional.empty();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
-      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(onDoc).filter(classRef.get());
-      getStructXObjectNumber(cellDoc).ifPresent(fetcher::filter);
+      XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
+      getStructXObjectNumber(cellDoc, onDoc).ifPresent(fetcher::filter);
       ret = fetcher.stream().findFirst();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
@@ -318,11 +322,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return ret;
   }
 
-  private Optional<Integer> getStructXObjectNumber(XWikiDocument cellDoc) {
+  private Optional<Integer> getStructXObjectNumber(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return Stream.<Supplier<Optional<Integer>>>of(
         () -> getNumberFromRequest(),
         () -> getNumberFromExecutionContext(),
-        () -> getNumberFromComputedField(cellDoc))
+        () -> getNumberFromComputedField(cellDoc),
+        () -> getNumberForMultilingual(cellDoc, onDoc))
         .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
         .peek(nb -> LOGGER.debug("getStructXObjectNumber: got [{}] for [{}]", nb, cellDoc))
         .findFirst();
@@ -353,6 +358,25 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     }
   }
 
+  private Optional<Integer> getNumberForMultilingual(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return modelAccess.getFieldValue(cellDoc, FIELD_MULTILINGUAL).toJavaUtil()
+        .filter(isMultilingual -> isMultilingual)
+        .map(isMultilingual -> newXObjFetcher(cellDoc, onDoc)
+            .filter(this::isOfRequestOrDefaultLang)
+            .stream())
+        .orElse(Stream.empty())
+        .map(BaseObject::getNumber)
+        .findFirst();
+  }
+
+  private boolean isOfRequestOrDefaultLang(BaseObject xObj) {
+    String xObjLang = asOptional(xObj.getStringValue("lang"))
+        .orElseGet(() -> xObj.getStringValue("language"));
+    return context.getLanguage()
+        .orElseGet(() -> context.getDefaultLanguage(xObj.getDocumentReference()))
+        .equals(xObjLang);
+  }
+
   @Override
   public List<String> getSelectTagAutocompleteJsPathList() {
     List<String> roles = new ArrayList<>();
@@ -365,6 +389,19 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Override
   public boolean hasEditField(XWikiDocument cellDoc) {
     return getCellFieldName(cellDoc).isPresent();
+  }
+
+  private XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return Optional.ofNullable(onDoc)
+        .map(XWikiObjectFetcher::on)
+        .map(fetcher -> getCellClassRef(cellDoc)
+            .map(fetcher::filter))
+        .filter(Optional::isPresent).map(Optional::get)
+        .orElseGet(XWikiObjectFetcher::empty);
+  }
+
+  private static Optional<String> asOptional(String str) {
+    return Optional.ofNullable(Strings.emptyToNull(str.trim()));
   }
 
 }
