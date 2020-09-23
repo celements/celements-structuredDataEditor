@@ -38,3 +38,4 @@ com.celements.struct.StructUtilService
 com.celements.tinymce4.TinyMce4Config
 com.celements.tinymce4.RteTinyMce4
 com.celements.struct.view.StructuredDataViewPageType
+com.celements.structEditor.fields.LanguageSelectorPageType
