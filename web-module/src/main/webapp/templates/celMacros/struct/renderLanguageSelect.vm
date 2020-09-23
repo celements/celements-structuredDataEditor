@@ -15,6 +15,7 @@
     #set($titleLanguagePlaceholderKey = "cel_${transLang}")
     #set($titleLanguagePlaceholder = $adminMsg.get($titleLanguagePlaceholderKey))
     #set($activeLanguageClass = "")
+    #set($isActivatedClass = "activated")
     #if("$language" == "$!transLang")
       #set($activeLanguageClass = "active")
     #end
@@ -23,25 +24,26 @@
     #else
       #set($viewLangURL = "$!{xredStrBuffer}&language=${transLang}")
     #end
+    #set($titleMainLanguage = "")
+    #set($mainLanguageClass = "")
+    #if("$!default_language" == "$!transLang")
+      #set($titleMainLanguage = "$adminMsg.get('progon_org_helper_main_issue')")
+      #set($mainLanguageClass = "mainLanguage")
+    #end
+    #if($services.modelAccess.exists($doc.documentReference))
+      #set($linkTag = "a")
+      #set($isActivatedClass = "activated")
+    #else
+      #set($linkTag = "span")
+    #end
     #if(($doc.getWiki() == $context.getDatabase()) && ($docTransList.contains("$!transLang"))) ## if D
-      #set($titleMainLanguage = "")
-      #set($mainLanguageClass = "")
-      #if("$!default_language" == "$!transLang")
-        #set($titleMainLanguage = "$adminMsg.get('progon_org_helper_main_issue')")
-        #set($mainLanguageClass = "mainLanguage")
-      #end
-      #if($services.modelAccess.exists($doc.documentReference))
-        #set($linkTag = "a")
-      #else
-        #set($linkTag = "span")
-      #end
-      <li class="languageListElement $activeLanguageClass $mainLanguageClass">
+      <li class="languageListElement $activeLanguageClass $mainLanguageClass $!{isActivatedClass}">
         <${linkTag} class="view transNotExists" title="$!titleMainLanguage" href="$viewLangURL">
           <span class="viewLanguageVersion">$transLang</span>
         </${linkTag}>
       </li>
     #else
-      <li class="languageListElement $activeLanguageClass transNotExists">
+      <li class="languageListElement $activeLanguageClass transNotExists $!{isActivatedClass}">
         <${linkTag} class="view" title="$!titleMainLanguage" href="$viewLangURL">
           <span class="viewLanguageVersion transNotExists">$transLang</span>
         </${linkTag}>
