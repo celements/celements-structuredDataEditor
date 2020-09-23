@@ -139,17 +139,16 @@ input[type=number]::-webkit-inner-spin-button {
   color: white;
   cursor: pointer;
 }
+.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.deactivated:hover,
 .structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.deactivated:hover span {
   cursor: default;
 }
 .structEditorRoot .languageSelectorBar .languageVersions .viewTranslation,
-.structEditorRoot .languageSelectorBar .languageVersions .viewLanguageVersion,
-.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.deactivated:hover span {
+.structEditorRoot .languageSelectorBar .languageVersions .viewLanguageVersion {
   background-color: #555;
   color: white;
 }
-.structEditorRoot .languageSelectorBar .languageVersions .transNotExists,
-.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.deactivated:hover span {
+.structEditorRoot .languageSelectorBar .languageVersions .transNotExists {
   background-color: white;
   color: black;
 }
