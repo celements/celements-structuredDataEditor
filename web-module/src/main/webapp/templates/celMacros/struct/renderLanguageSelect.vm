@@ -34,7 +34,7 @@
       #set($linkTag = "a")
     #else
       #set($linkTag = "span")
-      #set($isActivatedClass = "")
+      #set($isActivatedClass = "deactivated")
     #end
     #if(($doc.getWiki() == $context.getDatabase()) && ($docTransList.contains("$!transLang"))) ## if D
       <li class="languageListElement $activeLanguageClass $mainLanguageClass $!{isActivatedClass}">
