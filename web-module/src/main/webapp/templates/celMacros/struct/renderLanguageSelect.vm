@@ -1,0 +1,54 @@
+<div class="languageVersions">
+#set($xredStrBuffer = "${request.getRequestURL()}?$!{request.getQueryString()}")
+#set($allowedLanguages = $services.webUtils.getAllowedLanguages())
+#if($isSuperAdmin)
+  <!-- _renderSupportedLanguages.vm -->
+  <!-- allowedLanguages : $!allowedLanguages -->
+#end
+<ul class="languageList">
+  #set($docTransList = [$doc.getDefaultLanguage()])
+  #set($devNull = $docTransList.addAll($doc.getTranslationList()))
+  #if($isSuperAdmin)
+      <!-- docTransList : $!docTransList -->
+  #end
+  #foreach($transLang in $allowedLanguages)
+    #set($titleLanguagePlaceholderKey = "cel_${transLang}")
+    #set($titleLanguagePlaceholder = $adminMsg.get($titleLanguagePlaceholderKey))
+    #set($activeLanguageClass = "")
+    #set($isActivatedClass = "activated")
+    #if("$language" == "$!transLang")
+      #set($activeLanguageClass = "active")
+    #end
+    #if("$!request.language" != "")
+      #set($viewLangURL = $xredStrBuffer.replaceAll("(&|\?)(language=).*?(&|$)", "$1$2$!{transLang}$3"))
+    #else
+      #set($viewLangURL = "$!{xredStrBuffer}&language=${transLang}")
+    #end
+    #set($titleMainLanguage = "")
+    #set($mainLanguageClass = "")
+    #if("$!default_language" == "$!transLang")
+      #set($titleMainLanguage = "$adminMsg.get('progon_org_helper_main_issue')")
+      #set($mainLanguageClass = "mainLanguage")
+    #end
+    #if($services.modelAccess.exists($doc.documentReference))
+      #set($linkTag = "a")
+    #else
+      #set($linkTag = "span")
+      #set($isActivatedClass = "deactivated")
+    #end
+    #if(($doc.getWiki() == $context.getDatabase()) && ($docTransList.contains("$!transLang"))) ## if D
+      <li class="languageListElement $activeLanguageClass $mainLanguageClass $!{isActivatedClass}">
+        <${linkTag} class="view transNotExists" title="$!titleMainLanguage" href="$viewLangURL">
+          <span class="viewLanguageVersion">$transLang</span>
+        </${linkTag}>
+      </li>
+    #else
+      <li class="languageListElement $activeLanguageClass transNotExists $!{isActivatedClass}">
+        <${linkTag} class="view" title="$!titleMainLanguage" href="$viewLangURL">
+          <span class="viewLanguageVersion transNotExists">$transLang</span>
+        </${linkTag}>
+      </li>
+    #end
+  #end ## foreach
+</ul>
+</div>

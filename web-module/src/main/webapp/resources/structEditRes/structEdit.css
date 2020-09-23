@@ -86,6 +86,7 @@ input[type=number]::-webkit-inner-spin-button {
 
 .struct_table .struct_table_cell.row_span {
   width: 100%;
+  padding-top: 14px;
 }	
 
 .struct_table .struct_table_cell.edit,
@@ -106,4 +107,75 @@ input[type=number]::-webkit-inner-spin-button {
   font: inherit;
   font-style: inherit;
   color: inherit;
+}
+
+/** celements language bar **/
+.structEditorRoot .languageSelectorBar {
+  position: relative;
+  height: 30px;
+  padding-top: 10px;
+
+}
+.structEditorRoot .languageSelectorBar .languageVersions {
+  position: absolute;
+  right: 20px;
+  z-index: 3;
+}
+.structEditorRoot .languageSelectorBar .languageVersions .viewTranslation,
+.structEditorRoot .languageSelectorBar .languageVersions .viewLanguageVersion {
+  display: block;
+  width: 23px;
+  height: 19px;
+  float: none;
+  padding-top: 1px;
+  text-align: center;
+  text-decoration: none;
+}
+.structEditorRoot .languageSelectorBar .languageVersions .mainLanguage {
+  font-weight: bold;
+}
+.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.activated:hover span {
+  background-color: #015470;
+  color: white;
+  cursor: pointer;
+}
+.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.deactivated:hover,
+.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.deactivated:hover span {
+  cursor: default;
+}
+.structEditorRoot .languageSelectorBar .languageVersions .viewTranslation,
+.structEditorRoot .languageSelectorBar .languageVersions .viewLanguageVersion {
+  background-color: #555;
+  color: white;
+}
+.structEditorRoot .languageSelectorBar .languageVersions .transNotExists {
+  background-color: white;
+  color: black;
+}
+.structEditorRoot .languageSelectorBar .languageVersions ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+  text-align: center;
+  /** flex **/
+  display: box; /** old browsers **/
+  display: flexbox; /** for IE10 **/
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-wrap: wrap; /** for IE10 **/
+  -webkit-flex-wrap: wrap; /** Safari 6.1+ **/
+  flex-wrap: wrap;
+}
+.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement {
+  float: none;
+  position: relative;
+  padding-top: 5px;
+  padding-bottom: 2px;
+  border-top: 2px solid transparent;
+}
+.structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.active {
+  border-top: 2px solid #555;
 }
