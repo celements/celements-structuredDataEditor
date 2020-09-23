@@ -32,9 +32,9 @@
     #end
     #if($services.modelAccess.exists($doc.documentReference))
       #set($linkTag = "a")
-      #set($isActivatedClass = "activated")
     #else
       #set($linkTag = "span")
+      #set($isActivatedClass = "")
     #end
     #if(($doc.getWiki() == $context.getDatabase()) && ($docTransList.contains("$!transLang"))) ## if D
       <li class="languageListElement $activeLanguageClass $mainLanguageClass $!{isActivatedClass}">
