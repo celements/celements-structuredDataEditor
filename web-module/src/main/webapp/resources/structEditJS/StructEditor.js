@@ -160,15 +160,17 @@
     _checkBeforeUnloadBind : undefined,
     _saveAllEditorsAsyncBind : undefined,
     _buttonHandler : undefined,
+    _languageSelector : undefined,
     _startFinished : undefined,
 
-    initialize : function(buttonHandler) {
+    initialize : function(buttonHandler, langSelector) {
       var _me = this;
       _me._initStructEditorHandlerBind = _me._initStructEditorHandler.bind(_me);
       _me._checkBeforeUnloadBind = _me._checkBeforeUnload.bind(_me);
       _me._saveAllEditorsAsyncBind = _me.saveAllEditorsAsync.bind(_me);
       window.onbeforeunload = _me._checkBeforeUnloadBind;
       _me._buttonHandler = buttonHandler || new CELEMENTS.structEdit.CelementsButtonHandler();
+      _me._languageSelector = langSelector || new CELEMENTS.structEdit.LanguageSelector(_me);
       _me._startFinished = false;
     },
 
@@ -195,6 +197,7 @@
       var _me = this;
       _me.registerListener();
       _me._initButtons();
+      //TODO init language selector
       _me._initStructEditors();
       _me._startFinished = true;
       _me.celFire('structEdit:finishedLoading');
@@ -757,9 +760,9 @@
 
   });
 
-  /************************************
+  /***************************************
    * CelementsFormSaver class definition *
-   ************************************/
+   ***************************************/
   window.CELEMENTS.structEdit.CelementsFormSaver = Class.create({
     _jsonResponses : undefined,
     _saveCallback : undefined,
@@ -848,5 +851,31 @@
   });
   CELEMENTS.structEdit.CelementsFormSaver.prototype = Object.extend(
       CELEMENTS.structEdit.CelementsFormSaver.prototype, CELEMENTS.mixins.Observable);
+
+  /*************************************
+   * LanguageSelector class definition *
+   *************************************/
+  window.CELEMENTS.structEdit.LanguageSelector = Class.create({
+    _editorManager : undefined,
+
+    initialize : function(editorManager) {
+      var _me = this;
+      _me._editorManager = editorManager;
+    },
+
+   changeEditLanguage : function(newEditLanguage, execCancelCallback) {
+     var _me = this;
+     _me._editorManager.checkUnsavedChanges(function(jsonResponses, failed) {
+       var successful = (typeof failed === 'undefined') || !failed;
+       if (successful) {
+         window.location.href = '?language=' + newEditLanguage + '&'
+             + window.location.search.replace(/^\?/, '').replace(/language=[^&]*&?/g, '');
+       } else {
+         execCancelCallback();
+       }
+     }, execCancelCallback);
+   }
+
+  });
 
 })(window);
