@@ -118,7 +118,7 @@ input[type=number]::-webkit-inner-spin-button {
 }
 .structEditorRoot .languageSelectorBar .languageVersions {
   position: absolute;
-  right: 20px;
+  left: 20px;
   z-index: 3;
 }
 .structEditorRoot .languageSelectorBar .languageVersions .viewTranslation,
