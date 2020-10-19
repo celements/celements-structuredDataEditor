@@ -539,22 +539,14 @@
 
     getFormIds : function() {
       var _me = this;
-      var formIds = [];
-      _me._formDiffsMap.each(function(formEntry) {
-        formIds.push(formEntry.key);
-      });
-      return formIds;
+      return _me._formDiffsMap.keys().sort();
     },
 
     getDirtyFormIds : function() {
       var _me = this;
-      var dirtyFormIds = new Array();
-      _me._formDiffsMap.each(function(formEntry) {
-        if (formEntry.value.isDirty()) {
-          dirtyFormIds.push(formEntry.key);
-        }
+      return _me.getFormIds().filter(function(formId) {
+        return _me._formDiffsMap.get(formId).isDirty();
       });
-      return dirtyFormIds;
     },
 
     isDirty : function() {
@@ -831,6 +823,7 @@
        var _me = this;
        if (allDirtyFormIds.size() > 0) {
          var formId = allDirtyFormIds.pop();
+         console.debug('saving form:', formId);
          var remainingDirtyFormIds = allDirtyFormIds;
          _me._saveAndContinueAjax(formId, {
            onComplete : function(transport) {
