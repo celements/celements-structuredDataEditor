@@ -66,4 +66,6 @@ public interface StructuredDataEditorService {
 
   boolean hasEditField(@NotNull XWikiDocument cellDoc);
 
+  boolean isMultilingual(@NotNull XWikiDocument cellDoc);
+
 }

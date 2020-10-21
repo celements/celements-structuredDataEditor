@@ -1,7 +1,5 @@
 package com.celements.structEditor;
 
-import static com.celements.structEditor.classes.SelectTagEditorClass.*;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,6 +24,7 @@ import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
 import com.celements.struct.SelectTagServiceRole;
+import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.classes.PropertyClass;
@@ -147,9 +146,8 @@ public class StructuredDataEditorScriptService implements ScriptService {
   }
 
   public boolean isSelectMultiselect(DocumentReference cellDocRef) {
-    return getFromCellDoc(cellDocRef, cellDoc -> XWikiObjectFetcher.on(cellDoc)
-        .fetchField(FIELD_IS_MULTISELECT).stream().findFirst())
-            .orElse(false);
+    return getFromCellDoc(cellDocRef, cellDoc -> Optional.of(service.isMultilingual(cellDoc)))
+        .orElse(false);
   }
 
   public List<String> getSelectTagAutocompleteJsPathList() {
@@ -159,6 +157,12 @@ public class StructuredDataEditorScriptService implements ScriptService {
   public Optional<SelectAutocompleteRole> getSelectTagAutoCompleteImpl(
       DocumentReference cellDocRef) {
     return selectTagService.getTypeImpl(cellDocRef);
+  }
+
+  public boolean isMultilingual(DocumentReference cellDocRef) {
+    return getFromCellDoc(cellDocRef, cellDoc -> XWikiObjectFetcher.on(cellDoc)
+        .fetchField(StructuredDataEditorClass.FIELD_MULTILINGUAL).stream().findFirst())
+            .orElse(false);
   }
 
   private <T> Optional<T> getFromCellDocRef(DocumentReference cellDocRef,
