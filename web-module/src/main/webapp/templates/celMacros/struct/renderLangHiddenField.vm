@@ -1,5 +1,5 @@
 #if($services.structuredDataEditor.isMultilingual($cellDocRef))
-#set($attrName = $services.structuredDataEditor.getAttributeName($cellDocRef))
+#set($attrName = $services.structuredDataEditor.getAttributeNameForCurrentDoc($cellDocRef))
 #set($fieldName = $services.structuredDataEditor.getCellFieldName($cellDocRef))
 #if($fieldName.isPresent())
 <input type="hidden" name="$!attrName.replace($fieldName.get(), 'lang')" value="$!language" />
