@@ -1,5 +1,5 @@
-#if($structService.isMultilingual($cellDocRef))
-#set($attrName = $structService.getAttributeName($cellDocRef).orElse(''))
-#set($fieldName = $structService.getCellFieldName($cellDocRef).orElse(''))
+#if($services.structuredDataEditor.isMultilingual($cellDocRef))
+#set($attrName = $services.structuredDataEditor.getAttributeName($cellDocRef).orElse(''))
+#set($fieldName = $services.structuredDataEditor.getCellFieldName($cellDocRef).orElse(''))
 <input type="hidden" name="$attrName.replace($fieldName, 'lang')" value="$!language" />
 #end
