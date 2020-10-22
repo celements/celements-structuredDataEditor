@@ -13,3 +13,4 @@
  ${attrEntry.key}="$!{attrEntry.value}"##
 #end
 >
+#parse('celMacros/struct/renderLangHiddenField.vm')
