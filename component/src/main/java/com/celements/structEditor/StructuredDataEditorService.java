@@ -13,12 +13,16 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.struct.SelectTagServiceRole;
+import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 
 @ComponentRole
 public interface StructuredDataEditorService {
+
+  ImmutableList<String> LANG_FIELDS = ImmutableList.of("lang", "language");
 
   @NotNull
   Optional<String> getAttributeName(@NotNull XWikiDocument cellDoc, @Nullable XWikiDocument onDoc);
@@ -32,6 +36,9 @@ public interface StructuredDataEditorService {
 
   @NotNull
   Optional<String> getCellFieldName(@NotNull XWikiDocument cellDoc);
+
+  @NotNull
+  Optional<BaseClass> getCellXClass(@NotNull XWikiDocument cellDoc);
 
   @NotNull
   Optional<PropertyClass> getCellPropertyClass(@NotNull XWikiDocument cellDoc);
@@ -67,5 +74,9 @@ public interface StructuredDataEditorService {
   boolean hasEditField(@NotNull XWikiDocument cellDoc);
 
   boolean isMultilingual(@NotNull XWikiDocument cellDoc);
+
+  @NotNull
+  Optional<String> getLangNameAttribute(@NotNull XWikiDocument cellDoc,
+      @Nullable XWikiDocument onDoc);
 
 }

@@ -1,5 +1,6 @@
 package com.celements.structEditor;
 
+import static com.celements.common.MoreObjectsCel.*;
 import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.StructuredDataEditorClass.*;
 import static com.google.common.base.Predicates.*;
@@ -46,6 +47,7 @@ import com.google.common.primitives.Ints;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.DateClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 import com.xpn.xwiki.web.Utils;
@@ -88,10 +90,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Override
   public Optional<String> getAttributeName(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    return getAttributeNameInternal(cellDoc, onDoc);
-  }
-
-  private Optional<String> getAttributeNameInternal(XWikiDocument cellDoc, XWikiDocument onDoc) {
     List<String> nameParts = new ArrayList<>();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     Optional<String> fieldName = getCellFieldName(cellDoc);
@@ -133,7 +131,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
     String dictKey = Joiner.on('_').skipNulls().join(
         resolveFormPrefix(cellDoc).orElse(null),
-        getAttributeNameInternal(cellDoc, null).orElse(null),
+        getAttributeName(cellDoc, null).orElse(null),
         getOptionTagValue(cellDoc).orElse(null));
     LOGGER.debug("getPrettyName: dictKey '{}' for cell '{}'", dictKey, cellDoc);
     prettyName = webUtils.getAdminMessageTool().get(dictKey);
@@ -204,21 +202,20 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
+  public Optional<BaseClass> getCellXClass(XWikiDocument cellDoc) {
+    return getCellClassRef(cellDoc)
+        .map(classRef -> classRef.getDocRef(cellDoc.getDocumentReference().getWikiReference()))
+        .map(modelAccess::getOrCreateDocument)
+        .filter(not(XWikiDocument::isNew))
+        .map(XWikiDocument::getXClass);
+  }
+
+  @Override
   public Optional<PropertyClass> getCellPropertyClass(XWikiDocument cellDoc) {
-    Optional<ClassReference> classRef = getCellClassRef(cellDoc);
-    Optional<String> fieldName = getCellFieldName(cellDoc);
-    if (classRef.isPresent() && fieldName.isPresent()) {
-      try {
-        XWikiDocument xClassDoc = modelAccess.getDocument(classRef.get().getDocRef(
-            cellDoc.getDocumentReference().getWikiReference()));
-        return Optional.ofNullable((PropertyClass) xClassDoc.getXClass().get(fieldName.get()));
-      } catch (DocumentNotExistsException exc) {
-        LOGGER.warn("configured class '{}' on cell '{}' doesn't exist", classRef, cellDoc, exc);
-      }
-    } else {
-      LOGGER.debug("class and field not configured for cell '{}'", cellDoc);
-    }
-    return Optional.empty();
+    return getCellXClass(cellDoc)
+        .flatMap(xClass -> getCellFieldName(cellDoc)
+            .map(xClass::get))
+        .flatMap(prop -> tryCast(prop, PropertyClass.class));
   }
 
   private Optional<ClassField<?>> getCellClassField(DocumentReference cellDocRef)
@@ -380,11 +377,18 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private boolean isOfRequestOrDefaultLang(BaseObject xObj) {
-    String xObjLang = asOptional(xObj.getStringValue("lang"))
-        .orElseGet(() -> xObj.getStringValue("language"));
+    String xObjLang = getLangDependent(name -> Strings.emptyToNull(xObj.getStringValue(name)))
+        .orElse("");
     return context.getLanguage()
         .orElseGet(() -> context.getDefaultLanguage(xObj.getDocumentReference()))
         .equals(xObjLang);
+  }
+
+  private <T> Optional<T> getLangDependent(Function<String, T> func) {
+    return LANG_FIELDS.stream()
+        .map(func)
+        .filter(Objects::nonNull)
+        .findFirst();
   }
 
   @Override
@@ -405,6 +409,17 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   public boolean isMultilingual(XWikiDocument cellDoc) {
     return modelAccess.getFieldValue(cellDoc, FIELD_MULTILINGUAL).toJavaUtil()
         .orElse(false);
+  }
+
+  @Override
+  public Optional<String> getLangNameAttribute(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return Optional.of(cellDoc)
+        .filter(this::isMultilingual)
+        .flatMap(this::getCellXClass)
+        .flatMap(xClass -> getLangDependent(xClass::get))
+        .flatMap(prop -> getAttributeName(cellDoc, onDoc)
+            .flatMap(attrName -> getCellFieldName(cellDoc)
+                .map(fieldName -> attrName.replace("fieldName", prop.getName()))));
   }
 
   private XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
