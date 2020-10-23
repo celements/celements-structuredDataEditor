@@ -1,7 +1,7 @@
-#if($services.structuredDataEditor.isMultilingual($cellDocRef))
-#set($attrName = $services.structuredDataEditor.getAttributeNameForCurrentDoc($cellDocRef))
-#set($fieldName = $services.structuredDataEditor.getCellFieldName($cellDocRef))
-#if($fieldName.isPresent())
-<input type="hidden" name="$!attrName.replace($fieldName.get(), 'lang')" value="$!language" />
-#end
+#set($attrName = $services.structuredDataEditor.getLangNameAttributeForCurrentDoc($cellDocRef))
+#set($docFn = $services.model.serialize($doc.documentReference, 'default'))
+#set($ctxKey = "renderLangHiddenField_$!{docFn}_$!{attrName.orElse('')}")
+#if($attrName.isPresent() && !$services.celementsweb.getGlobalContextValue($ctxKey))
+<input type="hidden" name="$!attrName.get()" value="$!language" />
+$!services.celementsweb.setGlobalContextValue($ctxKey, true)
 #end

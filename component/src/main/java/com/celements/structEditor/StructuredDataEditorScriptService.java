@@ -165,6 +165,11 @@ public class StructuredDataEditorScriptService implements ScriptService {
         .orElse(false);
   }
 
+  public Optional<String> getLangNameAttributeForCurrentDoc(DocumentReference cellDocRef) {
+    return getFromCellDoc(cellDocRef, cellDoc -> context.getCurrentDoc().toJavaUtil()
+        .flatMap(onDoc -> service.getLangNameAttribute(cellDoc, onDoc)));
+  }
+
   private <T> Optional<T> getFromCellDocRef(DocumentReference cellDocRef,
       ThrowingFunction<DocumentReference, T, DocumentNotExistsException> func) {
     try {

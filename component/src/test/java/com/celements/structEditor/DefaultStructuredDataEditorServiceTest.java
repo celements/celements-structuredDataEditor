@@ -16,7 +16,6 @@ import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
-import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.context.ModelContext;
 import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
@@ -282,12 +281,13 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     }
   }
 
-  private BaseClass expectClass() throws DocumentNotExistsException {
+  private BaseClass expectClass() {
     DocumentReference xClassDocRef = new DocumentReference(wikiName, "Celements", "TestXClassName");
     expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_EDIT_FIELD_CLASS)))
         .andReturn(com.google.common.base.Optional.of(xClassDocRef)).atLeastOnce();
     XWikiDocument xClassDoc = new XWikiDocument(xClassDocRef);
-    expect(modelAccessMock.getDocument(xClassDocRef)).andReturn(xClassDoc).anyTimes();
+    xClassDoc.setNew(false);
+    expect(modelAccessMock.getOrCreateDocument(xClassDocRef)).andReturn(xClassDoc).anyTimes();
     return xClassDoc.getXClass();
   }
 
