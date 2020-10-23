@@ -1,4 +1,7 @@
 #set($attrName = $services.structuredDataEditor.getLangNameAttributeForCurrentDoc($cellDocRef))
-#if($attrName.isPresent())
+#set($docFn = $services.model.serialize($doc.documentReference, 'default'))
+#set($ctxKey = "renderLangHiddenField_$!{docFn}_$!{attrName.orElse('')}")
+#if($attrName.isPresent() && !$services.celementsweb.getGlobalContextValue($ctxKey))
 <input type="hidden" name="$!attrName.get()" value="$!language" />
+$!services.celementsweb.setGlobalContextValue($ctxKey, true)
 #end
