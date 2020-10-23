@@ -419,7 +419,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .flatMap(xClass -> getLangDependent(xClass::get))
         .flatMap(prop -> getAttributeName(cellDoc, onDoc)
             .flatMap(attrName -> getCellFieldName(cellDoc)
-                .map(fieldName -> attrName.replace("fieldName", prop.getName()))));
+                .map(fieldName -> attrName.replace(fieldName, prop.getName()))));
   }
 
   private XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
