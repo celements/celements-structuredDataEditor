@@ -81,8 +81,9 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
   public void test_collectAttributes_cellDocNotExists() throws Exception {
     XWikiDocument cellDoc = new XWikiDocument(new DocumentReference(
         getContext().getDatabase(), "Layout", "Cell"));
-    expect(getMock(ModelAccessStrategy.class).exists(cellDoc.getDocumentReference(), ""))
-        .andReturn(false);
+    cellDoc.setNew(true);
+    expect(getMock(ModelAccessStrategy.class).getDocument(cellDoc.getDocumentReference(), ""))
+        .andReturn(cellDoc);
     AttributeBuilder attributes = new DefaultAttributeBuilder();
 
     replayDefault();
@@ -95,8 +96,7 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
 
   private static final XWikiDocument expectDoc(DocumentReference docRef) {
     XWikiDocument doc = new XWikiDocument(docRef);
-    expect(getMock(ModelAccessStrategy.class).exists(doc.getDocumentReference(), ""))
-        .andReturn(true);
+    doc.setNew(false);
     expect(getMock(ModelAccessStrategy.class).getDocument(doc.getDocumentReference(), ""))
         .andReturn(doc);
     return doc;
