@@ -96,8 +96,7 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
 
   private static final XWikiDocument expectDoc(DocumentReference docRef) {
     XWikiDocument doc = new XWikiDocument(docRef);
-    expect(getMock(ModelAccessStrategy.class).exists(doc.getDocumentReference(), ""))
-        .andReturn(true);
+    doc.setNew(false);
     expect(getMock(ModelAccessStrategy.class).getDocument(doc.getDocumentReference(), ""))
         .andReturn(doc);
     return doc;

@@ -224,7 +224,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     try {
       ClassDefinition classDef = Utils.getComponentManager().lookup(ClassDefinition.class,
           getCellClassRef(cellDoc).map(ClassReference::serialize).orElse(""));
-      return classDef.getField(getCellFieldName(cellDoc).orElse("")).toJavaUtil();
+      return classDef.getField(getCellFieldName(cellDoc).orElse(""));
     } catch (ComponentLookupException exc) {
       return Optional.empty();
     }
@@ -385,7 +385,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private <T> Optional<T> getLangDependent(Function<String, T> func) {
-    return LANG_FIELDS.stream()
+    return ClassDefinition.LANG_FIELD_NAMES.stream()
         .map(func)
         .filter(Objects::nonNull)
         .findFirst();
