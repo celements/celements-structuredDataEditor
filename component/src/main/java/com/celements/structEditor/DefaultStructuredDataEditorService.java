@@ -231,7 +231,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return Optional.ofNullable(getCellValue(cellDocRef, onDoc))
         .flatMap(rethrowFunction(value -> (value instanceof String) ? Optional.of(value)
             : trySerializeForCustomClassField(cellDocRef, value)))
-        .flatMap(rethrowFunction(value -> trySerializeForCustomClassField(cellDocRef, value)))
         .map(Object::toString).filter(not(String::isEmpty));
   }
 
