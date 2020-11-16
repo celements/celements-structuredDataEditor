@@ -229,14 +229,16 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   public Optional<String> getCellValueAsString(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
     return Optional.ofNullable(getCellValue(cellDocRef, onDoc))
-        .flatMap(rethrowFunction(value -> (value instanceof String) ? Optional.of(value)
-            : trySerializeForCustomClassField(cellDocRef, value)))
-        .map(Object::toString).filter(not(String::isEmpty));
+        .flatMap(rethrowFunction(value -> trySerializeForCustomClassField(cellDocRef, value)))
+        .map(Objects::toString).filter(not(String::isEmpty));
   }
 
   @SuppressWarnings("unchecked")
   private Optional<?> trySerializeForCustomClassField(DocumentReference cellDocRef, Object value)
       throws DocumentNotExistsException {
+    if (value instanceof String) {
+      return Optional.of(value);
+    }
     ClassField<?> field = getCellClassField(cellDocRef).orElse(null);
     try {
       if (field instanceof CustomClassField) {
