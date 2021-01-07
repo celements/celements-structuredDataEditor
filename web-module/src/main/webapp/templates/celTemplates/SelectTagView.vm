@@ -33,9 +33,9 @@
       #set($displayValue = $keyValue)
     #end
     #if($isMultiselect)
-      <option value="$!keyValue" #if($celValues.contains($keyValue)) selected #end>$!displayValue</option>
+      <option value="$!xwiki.getFormEncoded($keyValue)" #if($celValues.contains($keyValue)) selected #end>$!displayValue</option>
     #else
-      <option value="$!keyValue" #if("$celValues" == "$keyValue") selected #end>$!displayValue</option>
+      <option value="$!xwiki.getFormEncoded($keyValue)" #if("$celValues" == "$keyValue") selected #end>$!displayValue</option>
     #end
   #end
 #end

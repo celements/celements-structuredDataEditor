@@ -11,8 +11,9 @@
   #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef))
   #if($currentDocRefValue.isPresent())
     #set($jsonBuilder = $!autoComplete.getJsonForValue($!currentDocRefValue.get()))
+    #set($value = $services.model.serialize($!currentDocRefValue.get(), 'default'))
     <option selected="selected" data-cel-selected-json="$escapetool.html($jsonBuilder.getJSON())"##
- value="$services.model.serialize($!currentDocRefValue.get(), 'default')"></option>
+        value="$!xwiki.getFormEncoded($value)"></option>
   #else
   <!-- currentDocRefValue is empty!! -->
   #end
