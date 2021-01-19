@@ -151,10 +151,6 @@ public class StructuredDataEditorScriptService implements ScriptService {
             .orElse(false);
   }
 
-  public List<String> getSelectTagAutocompleteJsPathList() {
-    return service.getSelectTagAutocompleteJsPathList();
-  }
-
   public Optional<SelectAutocompleteRole> getSelectTagAutoCompleteImpl(
       DocumentReference cellDocRef) {
     return selectTagService.getTypeImpl(cellDocRef);

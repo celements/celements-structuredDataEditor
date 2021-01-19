@@ -65,9 +65,6 @@ public interface StructuredDataEditorService {
   List<String> getCellListValue(@NotNull DocumentReference cellDocRef,
       @Nullable XWikiDocument onDoc) throws DocumentNotExistsException;
 
-  @NotNull
-  List<String> getSelectTagAutocompleteJsPathList();
-
   boolean hasEditField(@NotNull XWikiDocument cellDoc);
 
   boolean isMultilingual(@NotNull XWikiDocument cellDoc);
