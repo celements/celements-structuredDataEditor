@@ -38,9 +38,6 @@
   $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/de.js', 'file')
   $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/fr.js', 'file')
   $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/en.js', 'file')
-  #foreach($path in $services.structuredDataEditor.getSelectTagAutocompleteJsPathList())
-    $services.javascript.addExtJSfileOnce(":${path}", 'file')
-  #end
   #set($lazyAdd = false)
   #parse("celMacros/includeCelementsRTE.vm")
 #end ## activateJsCheckUnsaved
