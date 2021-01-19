@@ -3,6 +3,8 @@ $jsonBuilder.openDictionary()##
 #set($cellDocRef = $services.model.resolveDocument($request.cellRef))##
 #set($autoComplete = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef).orElse($null))##
 #if($services.rightsAccess.isLoggedIn() && "$!autoComplete" != '')##
+  $jsonBuilder.addProperty('type', "$!autoComplete.name")##
+  $jsonBuilder.addProperty('searchterm', "$!request.searchterm")##
   #set($offset = $util.parseInt("$!request.offset"))##
   #if($offset < 0) #set($offset = 0) #end##
   $jsonBuilder.addProperty('offset', $offset)##
