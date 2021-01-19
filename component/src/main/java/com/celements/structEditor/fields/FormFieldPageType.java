@@ -7,12 +7,15 @@ import java.util.Collection;
 import java.util.Optional;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.classes.ClassDefinition;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
+import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.FormFieldEditorClass.Method;
 import com.xpn.xwiki.doc.XWikiDocument;
 
@@ -22,6 +25,9 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
   public static final String PAGETYPE_NAME = "FormField";
 
   static final String VIEW_TEMPLATE_NAME = "FormFieldView";
+
+  @Requirement(FormFieldEditorClass.CLASS_DEF_HINT)
+  private ClassDefinition classDef;
 
   @Override
   public String getName() {
@@ -43,13 +49,13 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
     attrBuilder.addCssClasses("celAddValidationToForm inactive");
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc);
-      if (fetcher.fetchField(FIELD_SEND_DATA_ENCODED).stream().anyMatch(TRUE::equals)) {
+      XWikiObjectFetcher objFetcher = XWikiObjectFetcher.on(cellDoc).filter(classDef);
+      if (objFetcher.fetchField(FIELD_SEND_DATA_ENCODED).stream().anyMatch(TRUE::equals)) {
         attrBuilder.addNonEmptyAttribute("enctype", "multipart/form-data");
       }
       attrBuilder.addNonEmptyAttribute("action", getVelocityFieldValue(cellDoc, FIELD_ACTION)
           .orElse("?"));
-      attrBuilder.addNonEmptyAttribute("method", fetcher.fetchField(FIELD_METHOD)
+      attrBuilder.addNonEmptyAttribute("method", objFetcher.fetchField(FIELD_METHOD)
           .stream().flatMap(Collection::stream)
           .findFirst().orElse(Method.POST)
           .name());
