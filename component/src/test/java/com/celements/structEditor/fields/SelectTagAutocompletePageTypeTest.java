@@ -85,15 +85,14 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
         .andReturn(Optional.of("Space.Class"));
     expect(selectTagSrvMock.getTypeImpl(cellDoc.getDocumentReference()))
         .andReturn(Optional.of(autocompleteMock));
-    expect(autocompleteMock.getName()).andReturn("impl");
-    expect(autocompleteMock.getCssClass()).andReturn("implClass");
+    expect(autocompleteMock.getName()).andReturn("impl").anyTimes();
 
     replayDefault();
     pageType.collectAttributes(attributes, cellDoc.getDocumentReference());
     verifyDefault();
 
     assertEquals(6, attributes.build().size());
-    assertAttribute(attributes, "class", "structAutocomplete implClass");
+    assertAttribute(attributes, "class", "structAutocomplete impl");
     assertAttribute(attributes, "name", "anyName");
     assertAttribute(attributes, "multiple", "multiple");
     assertAttribute(attributes, "data-autocomplete-type", "impl");

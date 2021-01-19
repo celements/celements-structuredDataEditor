@@ -55,7 +55,7 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
       attrBuilder.addCssClasses("structAutocomplete");
       XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc).filter(classDef);
       selectTagService.getTypeImpl(cellDocRef).ifPresent(type -> {
-        attrBuilder.addCssClasses(type.getCssClass());
+        attrBuilder.addCssClasses(type.getName());
         attrBuilder.addNonEmptyAttribute("data-autocomplete-type", type.getName());
       });
       if (fetcher.fetchField(FIELD_AUTOCOMPLETE_IS_MULTISELECT).stream().anyMatch(TRUE::equals)) {
