@@ -22,26 +22,11 @@
         || 'de';
     document.querySelectorAll('.structAutocomplete').forEach(selectElem => {
       console.log('initAutocomplete:', selectElem, language)
-      preparePreSelection(selectElem);
       const type = selectElem.dataset.autocompleteType || '';
       const cellRef = selectElem.dataset.cellRef || '';
-      $j(selectElem).select2(buildSelect2Config(type, cellRef, language))
+      $j(selectElem).select2(buildSelect2Config(type, language, cellRef))
       $j(selectElem).on('select2:unselect', clearSelectOptions);
     });
-  };
-
-  const preparePreSelection = function(selectElem) {
-    try {
-      selectElem.querySelectorAll('option[selected=selected]').forEach(option => {
-        const selectedJson = option.dataset.celSelectedJson || '';
-        if (selectedJson && selectedJson.isJSON()) {
-          option.update(templateSelection(processData(selectedJson.evalJSON())));
-          console.debug('preparePreSelection: updated', option);
-        }
-      });
-    } catch(exp) {
-      console.error('preparePreSelection: failed for', selectElem, exp);
-    }
   };
 
   /**
@@ -52,23 +37,20 @@
    */
   const processResults = function (response, params) {
     params.page = params.page || 1;
-    $A(response.results).forEach(processData);
     return {
-      results: response.results,
+      results: response.results.map(elem => {
+        elem.id = elem.fullName;
+        elem.text = elem.name;
+        return elem;
+      }),
       pagination: {
-        more: response.countAfter > 0
+        more: response.hasMore
       }
     };
   };
 
-  const processData = function(elem) {
-    elem.id = elem.fullName;
-    elem.text = elem.name;
-    return elem;
-  };
-
   const templateSelection = function(data) {
-    return data.text || data.name || data.fullName || data.id;
+    return data.text || data.id;
   };
 
   const getTemplateSupplier = function(type) {

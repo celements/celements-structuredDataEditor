@@ -8,15 +8,15 @@
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
 #if("$!autoComplete" != '')
   $services.javascript.addExtJSfileOnce(":structEditJS/autocomplete.js", 'file')
-  #if($autoComplete.jsFilePath.isPresent())
-    $services.javascript.addExtJSfileOnce(":${autoComplete.jsFilePath.get()}", 'file')
+  #if("$!autoComplete.jsFilePath" != '')
+    $services.javascript.addExtJSfileOnce(":${autoComplete.jsFilePath}", 'file')
   #end
-  #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef))
-  #if($currentDocRefValue.isPresent())
-    #set($jsonBuilder = $!autoComplete.getJsonForValue($!currentDocRefValue.get()))
-    #set($value = $services.model.serialize($!currentDocRefValue.get(), 'default'))
-    <option selected="selected" data-cel-selected-json="$escapetool.html($jsonBuilder.getJSON())"##
-        value="$!xwiki.getFormEncoded($value)"></option>
+  #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef).orElse($null))
+  #if("$!currentDocRefValue" != '')
+    #set($value = $services.model.serialize($!currentDocRefValue, 'default'))
+    <option selected="selected" value="$!xwiki.getFormEncoded($value)">
+      $!autoComplete.displayNameForValue($!currentDocRefValue)
+    </option>
   #else
   <!-- currentDocRefValue is empty!! -->
   #end

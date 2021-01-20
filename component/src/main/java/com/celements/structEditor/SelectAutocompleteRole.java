@@ -18,7 +18,7 @@ public interface SelectAutocompleteRole {
   String getName();
 
   @NotNull
-  Optional<String> getJsFilePath();
+  String getJsFilePath();
 
   @NotNull
   LuceneSearchResult search(@Nullable String searchTerm);
@@ -28,5 +28,8 @@ public interface SelectAutocompleteRole {
 
   @NotNull
   JsonBuilder getJsonForValue(@NotNull DocumentReference valueDocRef);
+
+  @NotNull
+  String displayNameForValue(@NotNull DocumentReference valueDocRef);
 
 }
