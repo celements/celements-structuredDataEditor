@@ -34,10 +34,6 @@
   $services.javascript.addExtJSfileOnce(':celJS/yui/container/container-min.js', 'file')
   $services.javascript.addExtJSfileOnce(':structEditJS/StructEditor.js', 'file')
   $services.javascript.addExtJSfileOnce(':structEditJS/initStructEditor.js', 'file')
-  $services.javascript.addExtJSfileOnce(':structEditJS/select2/select2.full.min.js', 'file')
-  $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/de.js', 'file')
-  $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/fr.js', 'file')
-  $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/en.js', 'file')
   #set($lazyAdd = false)
   #parse("celMacros/includeCelementsRTE.vm")
 #end ## activateJsCheckUnsaved
