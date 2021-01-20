@@ -39,10 +39,10 @@
     params.page = params.page || 1;
     return {
       results: response.results.map(elem => {
-        elem.id = elem.fullName;
-        elem.text = elem.name;
-        return elem;
-      }),
+          elem.id = elem.fullName;
+          elem.text = elem.name;
+          return elem;
+        }).filter(elem => elem.id && elem.text),
       pagination: {
         more: response.hasMore
       }
