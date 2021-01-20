@@ -7,6 +7,7 @@
 #set($autoComplete = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef).orElse($null))
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
 #if("$!autoComplete" != '')
+  $services.javascript.addExtJSfileOnce(":structEditJS/autocomplete.js", 'file')
   #if($autoComplete.jsFilePath.isPresent())
     $services.javascript.addExtJSfileOnce(":${autoComplete.jsFilePath.get()}", 'file')
   #end
