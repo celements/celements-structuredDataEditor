@@ -20,37 +20,26 @@ public class TextAreaFieldEditorClass extends AbstractClassDefinition implements
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
   public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
-  public static final ClassField<Integer> FIELD_ROWS = new IntField.Builder(CLASS_DEF_HINT,
-      "textarea_field_rows").prettyName("Rows").build();
+  public static final ClassField<Integer> FIELD_ROWS = new IntField.Builder(
+      CLASS_REF, "textarea_field_rows").prettyName("Rows").build();
 
-  public static final ClassField<Integer> FIELD_COLS = new IntField.Builder(CLASS_DEF_HINT,
-      "textarea_field_cols").prettyName("Columns").build();
+  public static final ClassField<Integer> FIELD_COLS = new IntField.Builder(
+      CLASS_REF, "textarea_field_cols").prettyName("Columns").build();
 
-  public static final ClassField<String> FIELD_VALUE = new LargeStringField.Builder(CLASS_DEF_HINT,
-      "textarea_field_value").rows(7).prettyName("Executional Code").build();
+  public static final ClassField<String> FIELD_VALUE = new LargeStringField.Builder(
+      CLASS_REF, "textarea_field_value").rows(7).prettyName("Executional Code").build();
 
   public static final ClassField<Boolean> FIELD_IS_RICHTEXT = new BooleanField.Builder(
-      CLASS_DEF_HINT, "textarea_field_is_richtext").prettyName("Is RichText").displayType(
-          "yesno").build();
+      CLASS_REF, "textarea_field_is_richtext").prettyName("Is RichText").displayType("yesno")
+          .build();
 
-  @Override
-  public String getName() {
-    return CLASS_DEF_HINT;
+  public TextAreaFieldEditorClass() {
+    super(CLASS_REF);
   }
 
   @Override
   public boolean isInternalMapping() {
     return true;
-  }
-
-  @Override
-  protected String getClassSpaceName() {
-    return SPACE_NAME;
-  }
-
-  @Override
-  protected String getClassDocName() {
-    return DOC_NAME;
   }
 
 }

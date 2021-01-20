@@ -27,33 +27,21 @@ public class DateTimePickerEditorClass extends AbstractClassDefinition implement
   }
 
   public static final ClassField<List<Type>> FIELD_TYPE = new EnumListField.Builder<>(
-      CLASS_DEF_HINT, "datetimepicker_type", Type.class).prettyName("type").multiSelect(
-          false).build();
+      CLASS_REF, "datetimepicker_type", Type.class).prettyName("type").multiSelect(false).build();
 
-  public static final ClassField<String> FIELD_FORMAT = new StringField.Builder(CLASS_DEF_HINT,
-      "datetimepicker_format").prettyName("format").build();
+  public static final ClassField<String> FIELD_FORMAT = new StringField.Builder(
+      CLASS_REF, "datetimepicker_format").prettyName("format").build();
 
-  public static final ClassField<String> FIELD_ATTRIBUTES = new StringField.Builder(CLASS_DEF_HINT,
-      "datetimepicker_attributes").prettyName("Picker Attributes").build();
+  public static final ClassField<String> FIELD_ATTRIBUTES = new StringField.Builder(
+      CLASS_REF, "datetimepicker_attributes").prettyName("Picker Attributes").build();
 
-  @Override
-  public String getName() {
-    return CLASS_DEF_HINT;
+  public DateTimePickerEditorClass() {
+    super(CLASS_REF);
   }
 
   @Override
   public boolean isInternalMapping() {
     return true;
-  }
-
-  @Override
-  protected String getClassSpaceName() {
-    return SPACE_NAME;
-  }
-
-  @Override
-  protected String getClassDocName() {
-    return DOC_NAME;
   }
 
 }
