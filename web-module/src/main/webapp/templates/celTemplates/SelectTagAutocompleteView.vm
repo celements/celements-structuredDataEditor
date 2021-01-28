@@ -4,15 +4,23 @@
 #set($cellDocRef = $celldoc.getDocumentReference())
 #set($supportedClasses = ['ListClass','StaticListClass','DBListClass','DBTreeListClass','UsersClass','GroupsClass','LevelsClass'])
 #set($supportedDisplayTypes = ['select'])
-#set($autoCompleteImpl = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef))
+#set($autoComplete = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef).orElse($null))
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
-#if($autoCompleteImpl.isPresent())
-  #set($autoComplete = $autoCompleteImpl.get())
-  #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef))
-  #if($currentDocRefValue.isPresent())
-    #set($jsonBuilder = $!autoComplete.getJsonForValue($!currentDocRefValue.get()))
-    <option selected="selected" data-cel-selected-json="$escapetool.html($jsonBuilder.getJSON())"##
- value="$services.model.serialize($!currentDocRefValue.get(), 'default')"></option>
+#if("$!autoComplete" != '')
+  $services.javascript.addExtJSfileOnce(':structEditJS/select2/select2.full.min.js', 'file')
+  $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/de.js', 'file')
+  $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/fr.js', 'file')
+  $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/en.js', 'file')
+  $services.javascript.addExtJSfileOnce(":structEditJS/autocomplete.js", 'file')
+  #if("$!autoComplete.jsFilePath" != '')
+    $services.javascript.addExtJSfileOnce(":${autoComplete.jsFilePath}", 'file')
+  #end
+  #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef).orElse($null))
+  #if("$!currentDocRefValue" != '')
+    #set($value = $services.model.serialize($!currentDocRefValue, 'default'))
+    <option selected="selected" value="$!xwiki.getFormEncoded($value)">
+      $!autoComplete.displayNameForValue($!currentDocRefValue)
+    </option>
   #else
   <!-- currentDocRefValue is empty!! -->
   #end

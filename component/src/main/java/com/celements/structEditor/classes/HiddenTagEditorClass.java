@@ -18,30 +18,19 @@ public class HiddenTagEditorClass extends AbstractClassDefinition implements Str
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
   public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
-  public static final ClassField<String> FIELD_NAME = new StringField.Builder(CLASS_DEF_HINT,
-      "hidden_tag_name").prettyName("name").build();
+  public static final ClassField<String> FIELD_NAME = new StringField.Builder(
+      CLASS_REF, "hidden_tag_name").prettyName("name").build();
 
-  public static final ClassField<String> FIELD_VALUE = new StringField.Builder(CLASS_DEF_HINT,
-      "hidden_tag_value").prettyName("value").build();
+  public static final ClassField<String> FIELD_VALUE = new StringField.Builder(
+      CLASS_REF, "hidden_tag_value").prettyName("value").build();
 
-  @Override
-  public String getName() {
-    return CLASS_DEF_HINT;
+  public HiddenTagEditorClass() {
+    super(CLASS_REF);
   }
 
   @Override
   public boolean isInternalMapping() {
     return true;
-  }
-
-  @Override
-  protected String getClassSpaceName() {
-    return SPACE_NAME;
-  }
-
-  @Override
-  protected String getClassDocName() {
-    return DOC_NAME;
   }
 
 }

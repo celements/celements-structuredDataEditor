@@ -19,36 +19,25 @@ public class OptionTagEditorClass extends AbstractClassDefinition implements Str
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
   public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
-  public static final ClassField<String> FIELD_VALUE = new StringField.Builder(CLASS_DEF_HINT,
-      "option_tag_value").prettyName("value").build();
+  public static final ClassField<String> FIELD_VALUE = new StringField.Builder(
+      CLASS_REF, "option_tag_value").prettyName("value").build();
 
-  public static final ClassField<String> FIELD_LABEL = new StringField.Builder(CLASS_DEF_HINT,
-      "option_tag_label").prettyName("label").build();
+  public static final ClassField<String> FIELD_LABEL = new StringField.Builder(
+      CLASS_REF, "option_tag_label").prettyName("label").build();
 
-  public static final ClassField<Boolean> FIELD_SELECTED = new BooleanField.Builder(CLASS_DEF_HINT,
-      "option_tag_is_selected").prettyName("Is Selected").build();
+  public static final ClassField<Boolean> FIELD_SELECTED = new BooleanField.Builder(
+      CLASS_REF, "option_tag_is_selected").prettyName("Is Selected").build();
 
-  public static final ClassField<Boolean> FIELD_DISABLED = new BooleanField.Builder(CLASS_DEF_HINT,
-      "option_tag_is_disabled").prettyName("Is Disabled").build();
+  public static final ClassField<Boolean> FIELD_DISABLED = new BooleanField.Builder(
+      CLASS_REF, "option_tag_is_disabled").prettyName("Is Disabled").build();
 
-  @Override
-  public String getName() {
-    return CLASS_DEF_HINT;
+  public OptionTagEditorClass() {
+    super(CLASS_REF);
   }
 
   @Override
   public boolean isInternalMapping() {
     return true;
-  }
-
-  @Override
-  protected String getClassSpaceName() {
-    return SPACE_NAME;
-  }
-
-  @Override
-  protected String getClassDocName() {
-    return DOC_NAME;
   }
 
 }

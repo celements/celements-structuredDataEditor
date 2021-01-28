@@ -1,5 +1,9 @@
 package com.celements.struct;
 
+import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
+import static com.celements.structEditor.fields.SelectTagPageType.*;
+
+import java.util.Collection;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -10,26 +14,14 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.model.classes.ClassDefinition;
-import com.celements.model.field.FieldAccessor;
-import com.celements.model.field.XObjectFieldAccessor;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.structEditor.SelectAutocompleteRole;
-import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
-import com.celements.structEditor.fields.SelectTagPageType;
 import com.xpn.xwiki.doc.XWikiDocument;
-import com.xpn.xwiki.objects.BaseObject;
 
 @Component
-final public class DefaultSelectTagService implements SelectTagServiceRole {
+public class DefaultSelectTagService implements SelectTagServiceRole {
 
-  final private static Logger LOGGER = LoggerFactory.getLogger(DefaultSelectTagService.class);
-
-  @Requirement(SelectTagAutocompleteEditorClass.CLASS_DEF_HINT)
-  private ClassDefinition selectTagAutocomplete;
-
-  @Requirement(XObjectFieldAccessor.NAME)
-  private FieldAccessor<BaseObject> xObjFieldAccessor;
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSelectTagService.class);
 
   @Requirement
   private IModelAccessFacade modelAccess;
@@ -40,11 +32,10 @@ final public class DefaultSelectTagService implements SelectTagServiceRole {
   @Override
   public Optional<SelectAutocompleteRole> getTypeImpl(DocumentReference cellDocRef) {
     try {
-      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      return XWikiObjectFetcher.on(cellDoc)
-          .fetchField(SelectTagAutocompleteEditorClass.FIELD_AUTOCOMPLETE_TYPE)
-          .first().toJavaUtil()
-          .flatMap(list -> list.stream().findFirst());
+      return XWikiObjectFetcher.on(modelAccess.getDocument(cellDocRef))
+          .fetchField(FIELD_AUTOCOMPLETE_TYPE)
+          .stream().flatMap(Collection::stream)
+          .findFirst();
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("cell doesn't exist '{}'", cellDocRef, exc);
     }
@@ -55,8 +46,9 @@ final public class DefaultSelectTagService implements SelectTagServiceRole {
   public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef) {
     Optional<DocumentReference> selectCellDocRef = Optional.empty();
     try {
-      selectCellDocRef = structUtils.findParentCell(modelAccess.getDocument(cellDocRef),
-          SelectTagPageType.PAGETYPE_NAME).map(selectDoc -> selectDoc.getDocumentReference());
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      selectCellDocRef = structUtils.findParentCell(cellDoc, PAGETYPE_NAME)
+          .map(XWikiDocument::getDocumentReference);
       LOGGER.debug("getSelectCellDocRef: '{}' for cell '{}'", selectCellDocRef, cellDocRef);
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("parent on doc '{}' doesn't exist", cellDocRef, exc);

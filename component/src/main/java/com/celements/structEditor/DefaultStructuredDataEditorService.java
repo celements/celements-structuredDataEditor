@@ -391,15 +391,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public List<String> getSelectTagAutocompleteJsPathList() {
-    List<String> roles = new ArrayList<>();
-    for (SelectAutocompleteRole role : selectAutocompleteRole) {
-      roles.add(role.getJsFilePath());
-    }
-    return roles;
-  }
-
-  @Override
   public boolean hasEditField(XWikiDocument cellDoc) {
     return getCellFieldName(cellDoc).isPresent();
   }

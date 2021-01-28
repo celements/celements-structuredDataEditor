@@ -17,6 +17,7 @@ import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.ModelAccessStrategy;
 import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.celements.struct.SelectTagServiceRole;
+import com.celements.structEditor.SelectAutocompleteRole;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -27,12 +28,14 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
   private SelectTagAutocompletePageType pageType;
   private SelectTagServiceRole selectTagSrvMock;
   private StructuredDataEditorService structDataEditorSrvMock;
+  private SelectAutocompleteRole autocompleteMock;
 
   @Before
   public void setUp_OptionTagPageTypeTest() throws Exception {
     registerComponentMock(ModelAccessStrategy.class);
     selectTagSrvMock = registerComponentMock(SelectTagServiceRole.class);
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
+    autocompleteMock = createMockAndAddToDefault(SelectAutocompleteRole.class);
     pageType = (SelectTagAutocompletePageType) Utils.getComponent(IJavaPageTypeRole.class,
         SelectTagAutocompletePageType.PAGETYPE_NAME);
   }
@@ -81,17 +84,21 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
     expect(structDataEditorSrvMock.getCellValueAsString(cellDoc.getDocumentReference(), currentDoc))
         .andReturn(Optional.of("Space.Class"));
     expect(selectTagSrvMock.getTypeImpl(cellDoc.getDocumentReference()))
-        .andReturn(java.util.Optional.empty());
+        .andReturn(Optional.of(autocompleteMock));
+    expect(autocompleteMock.getName()).andReturn("impl").anyTimes();
 
     replayDefault();
     pageType.collectAttributes(attributes, cellDoc.getDocumentReference());
     verifyDefault();
 
-    assertEquals(4, attributes.build().size());
+    assertEquals(6, attributes.build().size());
+    assertAttribute(attributes, "class", "structAutocomplete impl");
     assertAttribute(attributes, "name", "anyName");
     assertAttribute(attributes, "multiple", "multiple");
+    assertAttribute(attributes, "data-autocomplete-type", "impl");
     assertAttribute(attributes, "data-separator", "|");
     assertAttribute(attributes, "data-value", "Space.Class");
+
   }
 
   private static final XWikiDocument expectDoc(DocumentReference docRef) {
