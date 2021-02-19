@@ -28,6 +28,8 @@
   if(typeof window.CELEMENTS.structEdit.autocomplete.templates=="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
 
   const checkInitAutocomplete = function() {
+    $(document.body).stopObserving('structEdit:initAutocomplete',  initAutocomplete);
+    $(document.body).observe('structEdit:initAutocomplete',  initAutocomplete);
     if (!celMessages.progMsg) {
       console.debug('observe cel:messagesLoaded for initAutocomplete ');
       $(document.body).stopObserving('cel:messagesLoaded',  initAutocomplete);
