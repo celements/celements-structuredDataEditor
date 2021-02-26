@@ -28,7 +28,7 @@
     <artifactId>celementsweb</artifactId>
     <version>5.0-SNAPSHOT</version>
   </parent>
-  <modelVersion>5.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
   <artifactId>structuredDataEditor-web</artifactId>
   <packaging>war</packaging>
   <name>Celements Structured Data Editor Web-Module</name>
