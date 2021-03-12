@@ -1,3 +1,22 @@
+/*
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 (function(window, undefined) {
   'use strict';
   
@@ -332,32 +351,43 @@
         super();
         const _me = this;
         _me.attachShadow({mode: 'open'});
+        _me.addCssFilesToParent();
         _me.addCssFiles();
         _me.addInputFields();
         _me.addPickerIcons();
+      }
+
+      addCssFilesToParent() {
+        //HACK be sure to load the glyphicons-halflings.css in the html-page too.
+        //HACK Because font-face will not work in shadow dom otherwise.
+        const cssFiles = [ 'celRes/images/glyphicons-halflings/css/glyphicons-halflings.css' ];
+        cssFiles.forEach(function(cssFile) {
+          const cssElem = new Element('link', {
+            'rel' : 'stylesheet',
+            'media' : 'all',
+            'type' : 'text/css',
+            'href' : '/file/resources/' + cssFile + '?version=' + versionTimeStamp
+          });
+          document.head.append(cssElem);
+        });
       }
 
       addCssFiles() {
         const _me = this;
         //HACK be sure to load the glyphicons-halflings.css in the html-page too.
         //HACK Because font-face will not work in shadow dom otherwise.
-        const cssFiles = [ 'celJS/prototype.js',
-          'celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
+        const cssFiles = [ 'celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
           'celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css'
         ];
         cssFiles.forEach(function(cssFile) {
-          const prototypeJsElem = new Element('link', {
+          const cssElem = new Element('link', {
             'rel' : 'stylesheet',
             'media' : 'all',
             'type' : 'text/css',
             'href' : '/file/resources/' + cssFile + '?version=' + versionTimeStamp
           });
-          _me.shadowRoot.appendChild(prototypeJsElem);
+          _me.shadowRoot.appendChild(cssElem);
         });
-        const glyphCssElem = new Element('link', {
-          'href' : '/file/resources/'
-        });
-        _me.shadowRoot.appendChild(glyphCssElem);
         const dateTimeCssElem = new Element('link', {
           'rel' : 'stylesheet',
             'media' : 'all',
