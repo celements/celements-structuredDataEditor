@@ -1,0 +1,8 @@
+input.dateInputField {
+    width: 75px;
+    min-width: 0;
+}
+input.timeInputField {
+    width: 38px;
+    min-width: 0;
+}

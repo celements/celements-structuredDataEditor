@@ -1,0 +1,4 @@
+<!-- SelectTagAutocompleteView -->
+<link rel="stylesheet" href="$services.celementsweb.getSkinFile(':structEditRes/dateTime/celements-date-time-field.css', 'file')">
+<span class='cel_lazyloadJS' style='display: none;'>structEditJS/dateTime/celements-date-time-field.js</span>
+$services.javascript.addExtJSfileOnce(':structEditJS/dateTime/celements-date-time-field.js', 'file')
