@@ -152,7 +152,7 @@
         const value = currentValue ? $j.format.date(currentValue, _me._defaultFormat) : "";
         let prototypejsEle = $(data[0]);
         prototypejsEle.value = value;
-        console.debug('_onChangeField: ', prototypejsEle, value);
+        console.debug('_onChangeField: ', value);
         _me._onChanged();
       }
 
