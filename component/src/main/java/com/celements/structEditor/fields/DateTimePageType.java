@@ -63,8 +63,9 @@ public class DateTimePageType extends AbstractStructFieldPageType {
   }
 
   private static final Map<Type, String> PICKER_TYPE_CSS_CLASS_MAP = ImmutableMap.of(
-      Type.DATE_PICKER, "cel_datePicker", Type.TIME_PICKER, "cel_timePicker", Type.DATE_TIME_PICKER,
-      "cel_dateTimePicker");
+      Type.DATE_PICKER, "cel_datePicker",
+      Type.TIME_PICKER, "cel_timePicker",
+      Type.DATE_TIME_PICKER, "cel_dateTimePicker");
 
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
