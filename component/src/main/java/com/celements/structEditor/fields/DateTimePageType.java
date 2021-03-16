@@ -86,9 +86,10 @@ public class DateTimePageType extends AbstractStructFieldPageType {
       attrBuilder.addNonEmptyAttribute("type", "text");
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
           cellDoc, modelContext.getCurrentDoc().orNull()).orElse(""));
-      List<Type> typeList = modelAccess.getFieldValue(cellDocRef, FIELD_TYPE)
-          .or(Collections.<Type>emptyList());
-      Type pickerType = Iterables.getFirst(typeList, Type.DATE_PICKER);
+      Type pickerType = XWikiObjectFetcher.on(cellDoc)
+          .fetchField(FIELD_TYPE)
+          .stream().flatMap(List::stream)
+          .findFirst().orElse(Type.DATE_PICKER);
       attrBuilder.addCssClasses(PICKER_TYPE_CSS_CLASS_MAP.get(pickerType));
       List<String> dataValueList = new ArrayList<>();
       modelAccess.getFieldValue(cellDocRef, FIELD_FORMAT).toJavaUtil()
