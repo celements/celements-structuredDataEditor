@@ -44,7 +44,7 @@
 
       initialize : function(inputField, buttonCssSelector,
           defaultFormat, pickerConfigObj, fieldValidator){
-        var _me = this;
+        const _me = this;
         _me._inputField = inputField;
         _me._buttonCssSelector = buttonCssSelector;
         _me._defaultFormat = defaultFormat;
@@ -59,9 +59,9 @@
       },
 
       _initPickerConfig : function(configObj) {
-        var _me = this;
+        const _me = this;
         // FIXME [CELDEV-904] DateTimePicker Language timing issue
-        var lang = Validation.messages.get("admin-language");
+        const lang = Validation.messages.get("admin-language");
         console.debug('lang: ', lang);
         _me._pickerConfigObj = Object.assign({
           'lang' : lang || 'de',
@@ -73,13 +73,13 @@
       },
 
       _registerInputField : function() {
-        var _me = this;
+        const _me = this;
         _me._inputField.stopObserving('change', _me._onChangedBind);
         _me._inputField.observe('change', _me._onChangedBind);
       },
 
       _registerPickerButton : function() {
-        var _me = this;
+        const _me = this;
         if (!_me._inputField) {
           console.warn('_registerPickerButton no inputField');
           return;
@@ -97,46 +97,46 @@
       },
 
       getHtmlElem : function() {
-        var _me = this;
+        const _me = this;
         return _me._inputField;
       },
 
       getValue : function() {
-        var _me = this;
+        const _me = this;
         return $F(_me._inputField);
       },
 
       setValue : function(newValue) {
-        var _me = this;
+        const _me = this;
         _me._inputField.value = newValue;
       },
 
       _pickerButtonClickHandler : function(event) {
-        var _me = this;
+        const _me = this;
         event.stop();
         _me.openPicker();
       },
 
       openPicker : function() {
-        var _me = this;
+        const _me = this;
         _me._openPickerNow = true;
         $j(_me._inputField).trigger('open');
       },
 
       _onShow : function(currentTime, data) {
-        var _me = this;
-        var prototypejsEle = $(data[0]);
-        var showNow = _me._openPickerNow;
+        const _me = this;
+        const prototypejsEle = $(data[0]);
+        const showNow = _me._openPickerNow;
         console.debug('_onShow: ', showNow, currentTime, data, prototypejsEle);
         _me._openPickerNow = false;
         return showNow;
       },
 
       _onChanged : function() {
-        var _me = this;
-        var newValue = _me.getValue();
+        const _me = this;
+        const newValue = _me.getValue();
         console.log("_onChanged", newValue);
-        var validatedValue = _me._fieldValidator(newValue);
+        const validatedValue = _me._fieldValidator(newValue);
         _me._inputField.classList.toggle('validation-failed', !validatedValue);
         if (newValue !== validatedValue) {
           _me._inputField.value = validatedValue;
@@ -149,9 +149,9 @@
       },
 
       _onChangeField : function(currentValue, data){
-        var _me = this;
-        var value = currentValue ? $j.format.date(currentValue, _me._defaultFormat) : "";
-        var prototypejsEle = $(data[0]);
+        const _me = this;
+        const value = currentValue ? $j.format.date(currentValue, _me._defaultFormat) : "";
+        let prototypejsEle = $(data[0]);
         prototypejsEle.value = value;
         console.debug('_onChangeField: ', prototypejsEle, value);
         _me._onChanged();
@@ -166,8 +166,8 @@
     window.CELEMENTS.structEdit.DateOrTimePickerFactory = Class.create({
 
       createDatePickerField : function(dateInputField) {
-        var _me = this;
-        var pickerConfigObj = {
+        const _me = this;
+        const pickerConfigObj = {
             'allowBlank' : true,
             'dayOfWeekStart' : 1,
             'format' : 'd.m.Y',
@@ -180,21 +180,21 @@
       _dateFieldValidator : function(value) {
         console.debug("dateFieldValidator - from", value);
         value = (value || "").toString().trim().replace(/[,-]/g, '.');
-        var split = value.split(".")
+        const split = value.split(".")
             .filter(function(elem) { return elem; }); // filter falsy elements
-        var day = Number(split[0]);
-        var month = Number(split[1]);
-        var year = Number(split[2]);
+        const day = Number(split[0]);
+        const month = Number(split[1]);
+        let year = Number(split[2]);
         if (year < 100) {
           year += Math.floor(new Date().getFullYear() / 100) * 100; // 21 -> 2021
         }
-        var validated = "";
+        let validated = "";
         if (value
             && (!split[0] || (!isNaN(day) && (day > 0) && (day <= 31)))
             && (!split[1] || (!isNaN(month) && (month > 0) && (month <= 12)))
             && (!split[2] || (!isNaN(year) && (year > 100) && (year <= 9999)))) {
-          var curDate = new Date();
-          var date = new Date(year || curDate.getFullYear(), (month || (curDate.getMonth() + 1)) - 1,
+          const curDate = new Date();
+          const date = new Date(year || curDate.getFullYear(), (month || (curDate.getMonth() + 1)) - 1,
             day || curDate.getDate());
           validated = $j.format.date(date, "dd.MM.y");
         }
@@ -203,8 +203,8 @@
       },
 
       createTimePickerField : function(timeInputField) {
-        var _me = this;
-        var pickerConfigObj = {
+        const _me = this;
+        const pickerConfigObj = {
             'allowBlank' : true,
             'datepicker' : false,
             'format' : 'H:i',
@@ -217,18 +217,18 @@
       _timeFieldValidator : function(value) {
         console.debug("timeFieldValidator - from", value);
         value = (value || "").toString().trim().replace(/[\.,]/g, ':');
-        var split = value.split(":")
+        const split = value.split(":")
             .filter(function(elem) { return elem; }); // filter falsy elements
-        var hours = Number(split[0]);
-        var minutes = Number(split[1]);
+        const hours = Number(split[0]);
+        let minutes = Number(split[1]);
         if (minutes < 6 && split[1].trim().length == 1) {
           minutes *= 10; // :5 -> 50 minutes
         }
-        var validated = "";
+        let validated = "";
         if (value
             && (!split[0] || (!isNaN(hours) && (hours >= 0) && (hours < 24)))
             && (!split[1] || (!isNaN(minutes) && (minutes >= 0) && (minutes < 60)))) {
-          var date = new Date();
+          let date = new Date();
           date.setHours(hours || 0);
           date.setMinutes(minutes || 0);
           validated = $j.format.date(date, "HH:mm");
@@ -252,7 +252,7 @@
       _dateOrTimePickerFactory : new CELEMENTS.structEdit.DateOrTimePickerFactory(),
 
       initialize : function(dateTimeComponent) {
-        var _me = this;
+        const _me = this;
         _me._dateTimeComponent = dateTimeComponent;
         _me._updateVisibleFromHiddenBind = _me._updateVisibleFromHidden.bind(_me);
         _me._allDayChangedHandlerBind = _me._allDayChangedHandler.bind(_me);
@@ -267,7 +267,7 @@
       },
 
       _initDateField : function() {
-        var _me = this;
+        const _me = this;
         try {
           _me._inputDateField = _me._dateOrTimePickerFactory.createDatePickerField(
               _me._dateTimeComponent._datePart);
@@ -281,7 +281,7 @@
       },
 
       _initTimeField : function() {
-        var _me = this;
+        const _me = this;
         try {
           _me._inputTimeField = _me._dateOrTimePickerFactory.createTimePickerField(
               _me._dateTimeComponent._timePart);
@@ -295,50 +295,50 @@
       },
 
       isFromDate : function() {
-        var _me = this;
+        const _me = this;
         return _me._hiddenDateTimeField.hasClassName('fromDateInput');        
       },
 
       getTimeValue : function() {
-        var _me = this;
-        var dateTimeValues = $F(_me._hiddenDateTimeField).split(' ');
-        var timeValue = dateTimeValues[1] || "00:00";
+        const _me = this;
+        const dateTimeValues = $F(_me._hiddenDateTimeField).split(' ');
+        const timeValue = dateTimeValues[1] || "00:00";
         console.log('getTimeValue: ', timeValue);
         return timeValue;
       },
 
       getDateValue : function() {
-        var _me = this;
-        var dateTimeValues = $F(_me._hiddenDateTimeField).split(' ');
-        var dateValue = dateTimeValues[0];
+        const _me = this;
+        const dateTimeValues = $F(_me._hiddenDateTimeField).split(' ');
+        const dateValue = dateTimeValues[0];
         console.log('getDateValue: ', dateValue);
         return dateValue;
       },
 
       _updateVisibleFromHidden : function() {
-        var _me = this;
-        var dateValue = _me.getDateValue();
+        const _me = this;
+        const dateValue = _me.getDateValue();
         _me._inputDateField.setValue(dateValue);
-        var timeValue = _me.getTimeValue();
+        const timeValue = _me.getTimeValue();
         _me._inputTimeField.setValue(timeValue);
         console.log("_updateVisibleFromHidden", _me._hiddenDateTimeField, dateValue, timeValue);
         _me._updateHiddenFromVisible();
       },
 
       _updateHiddenFromVisible : function() {
-        var _me = this;
-        var dateValue = _me._inputDateField.getValue();
-        var timeValue = _me._inputTimeField.getValue();
+        const _me = this;
+        const dateValue = _me._inputDateField.getValue();
+        const timeValue = _me._inputTimeField.getValue();
         // if (_me._isAllDayFnc()) {
           // timeValue = "00:00";
         // }
-        var dateTimeValues = dateValue + " " + timeValue;
+        const dateTimeValues = dateValue + " " + timeValue;
         _me._hiddenDateTimeField.value = dateTimeValues;
         console.log("_updateHiddenFromVisible", dateTimeValues);
       },
 
       _allDayChangedHandler : function(event) {
-        var _me = this;
+        const _me = this;
         _me._updateHiddenFromVisible();
       }
 
