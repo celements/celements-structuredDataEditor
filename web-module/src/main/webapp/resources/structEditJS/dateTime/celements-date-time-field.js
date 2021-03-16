@@ -103,7 +103,7 @@
 
       getValue : function() {
         const _me = this;
-        return $F(_me._inputField);
+        return _me._inputField.value;
       },
 
       setValue : function(newValue) {
@@ -301,7 +301,7 @@
 
       getTimeValue : function() {
         const _me = this;
-        const dateTimeValues = $F(_me._hiddenDateTimeField).split(' ');
+        const dateTimeValues = _me._hiddenDateTimeField.value.split(' ');
         const timeValue = dateTimeValues[1] || "00:00";
         console.log('getTimeValue: ', timeValue);
         return timeValue;
@@ -309,7 +309,7 @@
 
       getDateValue : function() {
         const _me = this;
-        const dateTimeValues = $F(_me._hiddenDateTimeField).split(' ');
+        const dateTimeValues = _me._hiddenDateTimeField.value.split(' ');
         const dateValue = dateTimeValues[0];
         console.log('getDateValue: ', dateValue);
         return dateValue;
