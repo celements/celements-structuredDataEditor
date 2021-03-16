@@ -101,8 +101,7 @@ public class DateTimePageType extends AbstractStructFieldPageType {
           .ifPresent(dataValueList::add);
       String dataAttr = Joiner.on(',').skipNulls().join(dataValueList);
       if (!dataAttr.isEmpty()) {
-        attrBuilder.addNonEmptyAttribute("data-pickerAttr", new StringBuilder("{").append(
-            dataAttr).append("}").toString());
+        attrBuilder.addNonEmptyAttribute("data-pickerAttr", "{" + dataAttr + "}");
       }
     } catch (DocumentNotExistsException exc) {
       log.error("cell doesn't exist '{}'", cellDocRef, exc);
