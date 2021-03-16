@@ -125,9 +125,8 @@
 
       _onShow : function(currentTime, data) {
         const _me = this;
-        const prototypejsEle = $(data[0]);
         const showNow = _me._openPickerNow;
-        console.debug('_onShow: ', showNow, currentTime, data, prototypejsEle);
+        console.debug('_onShow: ', showNow, currentTime, data);
         _me._openPickerNow = false;
         return showNow;
       },
