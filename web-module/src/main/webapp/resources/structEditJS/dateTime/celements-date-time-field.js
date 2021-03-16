@@ -456,6 +456,6 @@
 
     }
 
-    customElements.define( 'cel-date-time', CelementsDateTimeField );
+    customElements.define( 'cel-input-date-time', CelementsDateTimeField );
   }
 })(window)

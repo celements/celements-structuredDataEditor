@@ -58,7 +58,7 @@ public class DateTimePageType extends AbstractStructFieldPageType {
 
   @Override
   public Optional<String> tagName() {
-    return Optional.of("cel-date-time");
+    return Optional.of("cel-input-date-time");
   }
 
   private static final Map<Type, String> PICKER_TYPE_CSS_CLASS_MAP = ImmutableMap.of(
