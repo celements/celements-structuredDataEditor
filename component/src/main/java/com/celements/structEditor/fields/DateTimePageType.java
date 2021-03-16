@@ -96,7 +96,8 @@ public class DateTimePageType extends AbstractStructFieldPageType {
           .stream().findFirst()
           .map(format -> "\"format\" : \"" + format + "\"")
           .ifPresent(dataValueList::add);
-      modelAccess.getFieldValue(cellDocRef, FIELD_ATTRIBUTES).toJavaUtil()
+      XWikiObjectFetcher.on(cellDoc).fetchField(FIELD_ATTRIBUTES)
+          .stream().findFirst()
           .ifPresent(dataValueList::add);
       String dataAttr = Joiner.on(',').skipNulls().join(dataValueList);
       if (!dataAttr.isEmpty()) {
