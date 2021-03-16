@@ -23,7 +23,6 @@ import static com.celements.structEditor.classes.DateTimePickerEditorClass.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +33,10 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.structEditor.classes.DateTimePickerEditorClass.Type;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(DateTimePageType.PAGETYPE_NAME)
