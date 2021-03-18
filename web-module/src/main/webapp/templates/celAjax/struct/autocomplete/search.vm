@@ -1,7 +1,6 @@
 #set($jsonBuilder = $services.json.newBuilder())##
 $jsonBuilder.openDictionary()##
-#set($cellDocRef = $services.model.resolveDocument($request.cellRef))##
-#set($autoComplete = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef).orElse($null))##
+#set($autoComplete = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($request.type).orElse($null))##
 #if($services.rightsAccess.isLoggedIn() && "$!autoComplete" != '')##
   $jsonBuilder.addProperty('type', "$!autoComplete.name")##
   $jsonBuilder.addProperty('searchterm', "$!request.searchterm")##
