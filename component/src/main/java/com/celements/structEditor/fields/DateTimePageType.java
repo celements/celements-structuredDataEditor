@@ -21,7 +21,6 @@ package com.celements.structEditor.fields;
 
 import static com.celements.structEditor.classes.DateTimePickerEditorClass.*;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +31,7 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
+import com.celements.common.date.DateFormat;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.structEditor.classes.DateTimePickerEditorClass.Type;
@@ -77,7 +77,7 @@ public class DateTimePageType extends AbstractStructFieldPageType {
             cellDocRef);
         String value = null;
         if (dateFormat.isPresent()) {
-          value = new SimpleDateFormat(dateFormat.get()).format(cellValue.get());
+          value = DateFormat.formatter(dateFormat.get()).apply(cellValue.get().toInstant());
         }
         attrBuilder.addNonEmptyAttribute("value", value);
       }
