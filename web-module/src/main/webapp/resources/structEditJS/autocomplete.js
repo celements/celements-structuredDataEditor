@@ -28,6 +28,8 @@
   if(typeof window.CELEMENTS.structEdit.autocomplete.templates=="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
 
   const checkInitAutocomplete = function() {
+    $(document.body).stopObserving('structEdit:initAutocomplete',  initAutocomplete);
+    $(document.body).observe('structEdit:initAutocomplete',  initAutocomplete);
     if (!celMessages.progMsg) {
       console.debug('observe cel:messagesLoaded for initAutocomplete ');
       $(document.body).stopObserving('cel:messagesLoaded',  initAutocomplete);
@@ -45,8 +47,7 @@
     document.querySelectorAll('.structAutocomplete').forEach(selectElem => {
       console.log('initAutocomplete:', selectElem, language)
       const type = selectElem.dataset.autocompleteType || '';
-      const cellRef = selectElem.dataset.cellRef || '';
-      $j(selectElem).select2(buildSelect2Config(type, language, cellRef))
+      $j(selectElem).select2(buildSelect2Config(type, language))
       $j(selectElem).on('select2:unselect', clearSelectOptions);
     });
   };
@@ -60,7 +61,8 @@
   const processResults = function (response, params) {
     params.page = params.page || 1;
     return {
-      results: response.results.map(elem => {
+      results: (response.results || [])
+        .map(elem => {
           elem.id = elem.fullName;
           elem.text = elem.name;
           return elem;
@@ -89,14 +91,14 @@
     selectElem.innerHTML = '<option selected="selected" value="">delete</option>';
   };
 
-  const buildSelect2Config = function(type, language, cellRef) {
+  const buildSelect2Config = function(type, language) {
     return {
       language: language,
       placeholder: celMessages.progMsg.select2["cel_select2_autocomplete_placeholder_" + type],
       allowClear: true,
       selectionCssClass: "structSelectContainer " + type + "SelectContainer",
       dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown",
-      ajax: buildSelect2Request(cellRef),
+      ajax: buildSelect2Request(type),
       escapeMarkup: function (markup) {
         // default Utils.escapeMarkup is HTML-escaping the value. Because
         // we formated the value using HTML it must not be further escaped.
@@ -108,7 +110,7 @@
     };
   };
 
-  const buildSelect2Request = function(cellRef, limit = 10) {
+  const buildSelect2Request = function(type, limit = 10) {
     return {
       url: "/OrgExport/REST",
       dataType: 'json',
@@ -123,7 +125,7 @@
           'ajax' : 1,
           'xpage' : 'celements_ajax',
           'ajax_mode' : 'struct/autocomplete/search',
-          'cellRef' : cellRef,
+          'type' : type,
           'searchterm' : params.term,
           'page' : page,
           'limit' : limit,
