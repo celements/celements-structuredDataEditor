@@ -1,3 +1,22 @@
+/*
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package com.celements.struct.table;
 
 import static com.google.common.base.MoreObjects.*;
@@ -60,7 +79,8 @@ public class TablePresentationType extends AbstractTablePresentationType {
       writer.openLevel("ul", newAttributeBuilder().addCssClasses(CSS_CLASS + "_data").build());
       List<DocumentReference> rows = executeTableQuery(tableCfg);
       if (!rows.isEmpty()) {
-        rows.forEach(resultDocRef -> rowPresentationType.writeNodeContent(writer, resultDocRef, tableCfg));
+        rows.forEach(
+            resultDocRef -> rowPresentationType.writeNodeContent(writer, resultDocRef, tableCfg));
       } else {
         writeEmptyRow(writer, tableDocRef);
       }
@@ -76,7 +96,8 @@ public class TablePresentationType extends AbstractTablePresentationType {
       throws XWikiVelocityException, LuceneSearchException {
     int offset = firstNonNull(Ints.tryParse(context.getRequestParameter("offset").or("")), 0);
     String query = velocityService.evaluateVelocityText(tableCfg.getQuery());
-    LuceneSearchResult result = searchService.search(query, tableCfg.getSortFields(), ImmutableList.of());
+    LuceneSearchResult result = searchService.search(query, tableCfg.getSortFields(),
+        ImmutableList.of());
     LOGGER.debug("executeTableQuery - [{}]", result);
     return result.getResults(offset, tableCfg.getResultLimit(), DocumentReference.class);
   }
