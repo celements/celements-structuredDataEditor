@@ -1,3 +1,22 @@
+/*
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package com.celements.struct.table;
 
 import static com.celements.common.test.CelementsTestUtils.*;
@@ -108,8 +127,9 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
       expect(getMock(VelocityService.class).evaluateVelocityText(same(tableDoc), eq(col.getTitle()),
           anyObject(VelocityContextModifier.class))).andReturn(col.getTitle());
       for (XWikiDocument dataDoc : docs) {
-        expect(getMock(VelocityService.class).evaluateVelocityText(same(dataDoc), eq(col.getContent()),
-            anyObject(VelocityContextModifier.class))).andReturn(col.getContent());
+        expect(
+            getMock(VelocityService.class).evaluateVelocityText(same(dataDoc), eq(col.getContent()),
+                anyObject(VelocityContextModifier.class))).andReturn(col.getContent());
       }
     }
   }
@@ -158,7 +178,8 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
   private void expectLuceneSearch(TableConfig table, List<DocumentReference> result, int offset)
       throws LuceneSearchException, XWikiVelocityException {
     String queryEvaluated = table.getQuery() + "Evaluated";
-    expect(getMock(VelocityService.class).evaluateVelocityText(table.getQuery())).andReturn(queryEvaluated);
+    expect(getMock(VelocityService.class).evaluateVelocityText(table.getQuery()))
+        .andReturn(queryEvaluated);
     LuceneSearchResult resultMock = createMockAndAddToDefault(LuceneSearchResult.class);
     expect(getMock(ILuceneSearchService.class).search(queryEvaluated, table.getSortFields(),
         ImmutableList.<String>of())).andReturn(resultMock);
