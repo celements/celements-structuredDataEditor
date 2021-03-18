@@ -1,9 +1,27 @@
+/*
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package com.celements.structEditor.fields;
 
 import static com.celements.structEditor.classes.DateTimePickerEditorClass.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,18 +33,18 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.common.date.DateFormat;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.structEditor.classes.DateTimePickerEditorClass.Type;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.xpn.xwiki.doc.XWikiDocument;
 
-@Component(DateTimePickerPageType.PAGETYPE_NAME)
-public class DateTimePickerPageType extends AbstractStructFieldPageType {
+@Component(DateTimePageType.PAGETYPE_NAME)
+public class DateTimePageType extends AbstractStructFieldPageType {
 
-  public static final String PAGETYPE_NAME = "DateTimePicker";
+  public static final String PAGETYPE_NAME = "DateTime";
 
-  static final String VIEW_TEMPLATE_NAME = "DateTimePickerView";
+  static final String VIEW_TEMPLATE_NAME = "DateTimeView";
 
   @Override
   public String getName() {
@@ -40,12 +58,13 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
 
   @Override
   public Optional<String> tagName() {
-    return Optional.of("input");
+    return Optional.of("cel-input-date-time");
   }
 
   private static final Map<Type, String> PICKER_TYPE_CSS_CLASS_MAP = ImmutableMap.of(
-      Type.DATE_PICKER, "cel_datePicker", Type.TIME_PICKER, "cel_timePicker", Type.DATE_TIME_PICKER,
-      "cel_dateTimePicker");
+      Type.DATE_PICKER, "cel_datePicker",
+      Type.TIME_PICKER, "cel_timePicker",
+      Type.DATE_TIME_PICKER, "cel_dateTimePicker");
 
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
@@ -66,20 +85,22 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
       attrBuilder.addNonEmptyAttribute("type", "text");
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
           cellDoc, modelContext.getCurrentDoc().orNull()).orElse(""));
-      List<Type> typeList = modelAccess.getFieldValue(cellDocRef, FIELD_TYPE)
-          .or(Collections.<Type>emptyList());
-      Type pickerType = Iterables.getFirst(typeList, Type.DATE_PICKER);
+      Type pickerType = XWikiObjectFetcher.on(cellDoc)
+          .fetchField(FIELD_TYPE)
+          .stream().flatMap(List::stream)
+          .findFirst().orElse(Type.DATE_PICKER);
       attrBuilder.addCssClasses(PICKER_TYPE_CSS_CLASS_MAP.get(pickerType));
       List<String> dataValueList = new ArrayList<>();
-      modelAccess.getFieldValue(cellDocRef, FIELD_FORMAT).toJavaUtil()
+      XWikiObjectFetcher.on(cellDoc).fetchField(FIELD_FORMAT)
+          .stream().findFirst()
           .map(format -> "\"format\" : \"" + format + "\"")
           .ifPresent(dataValueList::add);
-      modelAccess.getFieldValue(cellDocRef, FIELD_ATTRIBUTES).toJavaUtil()
+      XWikiObjectFetcher.on(cellDoc).fetchField(FIELD_ATTRIBUTES)
+          .stream().findFirst()
           .ifPresent(dataValueList::add);
       String dataAttr = Joiner.on(',').skipNulls().join(dataValueList);
       if (!dataAttr.isEmpty()) {
-        attrBuilder.addNonEmptyAttribute("data-pickerAttr", new StringBuilder("{").append(
-            dataAttr).append("}").toString());
+        attrBuilder.addNonEmptyAttribute("data-pickerAttr", "{" + dataAttr + "}");
       }
     } catch (DocumentNotExistsException exc) {
       log.error("cell doesn't exist '{}'", cellDocRef, exc);
