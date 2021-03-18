@@ -1,0 +1,5 @@
+<!-- DateTimeView -->
+<span class='cel_lazyloadJS' style='display: none;'>celJS/jquery-format/jquery.format-1.3.min.js</span>
+$services.javascript.addExtJSfileOnce(':celJS/jquery-format/jquery.format-1.3.min.js', 'file')
+<span class='cel_lazyloadJS' style='display: none;'>structEditJS/dateTime/celements-date-time-field.js</span>
+$services.javascript.addExtJSfileOnce(':structEditJS/dateTime/celements-date-time-field.js', 'file')
