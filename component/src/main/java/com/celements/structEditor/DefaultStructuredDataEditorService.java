@@ -95,9 +95,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private ModelContext context;
 
   @Requirement
-  private List<SelectAutocompleteRole> selectAutocompleteRole;
-
-  @Requirement
   private SelectTagServiceRole selectTagService;
 
   @Requirement
@@ -236,9 +233,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .flatMap(prop -> tryCast(prop, PropertyClass.class));
   }
 
-  private Optional<ClassField<?>> getCellClassField(DocumentReference cellDocRef)
-      throws DocumentNotExistsException {
-    XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+  private Optional<ClassField<?>> getCellClassField(XWikiDocument cellDoc) {
     return getCellClassRef(cellDoc)
         .flatMap(ClassIdentity::getClassDefinition)
         .flatMap(classDef -> classDef.getField(getCellFieldName(cellDoc).orElse("")));
@@ -247,18 +242,22 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Override
   public Optional<String> getCellValueAsString(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
-    return Optional.ofNullable(getCellValue(cellDocRef, onDoc))
-        .flatMap(rethrowFunction(value -> trySerializeForCustomClassField(cellDocRef, value)))
+    return getCellValueAsString(modelAccess.getDocument(cellDocRef), onDoc);
+  }
+
+  @Override
+  public Optional<String> getCellValueAsString(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return Optional.ofNullable(getCellValue(cellDoc, onDoc))
+        .flatMap(value -> trySerializeForCustomClassField(cellDoc, value))
         .map(Objects::toString).filter(not(String::isEmpty));
   }
 
   @SuppressWarnings("unchecked")
-  private Optional<?> trySerializeForCustomClassField(DocumentReference cellDocRef, Object value)
-      throws DocumentNotExistsException {
+  private Optional<?> trySerializeForCustomClassField(XWikiDocument cellDoc, Object value) {
     if (value instanceof String) {
       return Optional.of(value);
     }
-    ClassField<?> field = getCellClassField(cellDocRef).orElse(null);
+    ClassField<?> field = getCellClassField(cellDoc).orElse(null);
     try {
       if (field instanceof CustomClassField) {
         return ((CustomClassField<Object>) field).serialize(value);
@@ -267,7 +266,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       }
     } catch (ClassCastException cce) {
       LOGGER.warn("trySerializeForCustomClassField: unable to cast [{}] for [{}] on [{}]",
-          value, field, cellDocRef);
+          value, field, cellDoc.getDocumentReference());
       return Optional.empty();
     }
   }
@@ -275,7 +274,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Override
   public Optional<Date> getCellDateValue(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
-    Object value = getCellValue(cellDocRef, onDoc);
+    Object value = getCellValue(modelAccess.getDocument(cellDocRef), onDoc);
     if (value instanceof Date) {
       return Optional.of((Date) value);
     }
@@ -286,7 +285,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   public List<String> getCellListValue(DocumentReference cellDocRef, XWikiDocument onDoc)
       throws DocumentNotExistsException {
     List<String> ret = new ArrayList<>();
-    Object value = getCellValue(cellDocRef, onDoc);
+    Object value = getCellValue(modelAccess.getDocument(cellDocRef), onDoc);
     if (value instanceof List) {
       for (Object elem : (List<?>) value) {
         ret.add(elem != null ? elem.toString() : "");
@@ -295,9 +294,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return ret;
   }
 
-  private Object getCellValue(DocumentReference cellDocRef, XWikiDocument onDoc)
-      throws DocumentNotExistsException {
-    XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+  private Object getCellValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
     Optional<String> fieldName = getCellFieldName(cellDoc);
     Object value = null;
     if (fieldName.isPresent()) {
