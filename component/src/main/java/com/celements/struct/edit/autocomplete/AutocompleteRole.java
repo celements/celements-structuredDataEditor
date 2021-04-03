@@ -17,7 +17,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package com.celements.structEditor;
+package com.celements.struct.edit.autocomplete;
 
 import java.util.Optional;
 
@@ -31,7 +31,7 @@ import com.celements.sajson.JsonBuilder;
 import com.celements.search.lucene.LuceneSearchResult;
 
 @ComponentRole
-public interface SelectAutocompleteRole {
+public interface AutocompleteRole {
 
   @NotNull
   String getName();

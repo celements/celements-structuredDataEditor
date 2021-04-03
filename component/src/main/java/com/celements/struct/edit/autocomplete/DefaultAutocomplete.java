@@ -21,13 +21,12 @@ import com.celements.model.util.ModelUtils;
 import com.celements.sajson.JsonBuilder;
 import com.celements.search.lucene.LuceneSearchResult;
 import com.celements.search.web.IWebSearchService;
-import com.celements.structEditor.SelectAutocompleteRole;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component
-public class DefaultSelectAutocomplete implements SelectAutocompleteRole {
+public class DefaultAutocomplete implements AutocompleteRole {
 
   protected final Logger log = LoggerFactory.getLogger(this.getClass());
 

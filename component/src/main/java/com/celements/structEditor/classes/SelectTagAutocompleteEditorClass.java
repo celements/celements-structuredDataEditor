@@ -31,7 +31,7 @@ import com.celements.model.classes.fields.BooleanField;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.classes.fields.StringField;
 import com.celements.model.classes.fields.list.ComponentListField;
-import com.celements.structEditor.SelectAutocompleteRole;
+import com.celements.struct.edit.autocomplete.AutocompleteRole;
 
 @Singleton
 @Component(SelectTagAutocompleteEditorClass.CLASS_DEF_HINT)
@@ -47,8 +47,8 @@ public class SelectTagAutocompleteEditorClass extends AbstractClassDefinition
   public static final ClassField<String> FIELD_AUTOCOMPLETE_SEPARATOR = new StringField.Builder(
       CLASS_REF, "select_tag_autocomplete_separator").prettyName("Separator").build();
 
-  public static final ClassField<List<SelectAutocompleteRole>> FIELD_AUTOCOMPLETE_TYPE = new ComponentListField.Builder<>(
-      CLASS_REF, "select_tag_autocomplete_type", SelectAutocompleteRole.class)
+  public static final ClassField<List<AutocompleteRole>> FIELD_AUTOCOMPLETE_TYPE = new ComponentListField.Builder<>(
+      CLASS_REF, "select_tag_autocomplete_type", AutocompleteRole.class)
           .multiSelect(false).separator("|").prettyName("Autocomplete Type").build();
 
   public static final ClassField<Boolean> FIELD_AUTOCOMPLETE_IS_MULTISELECT = new BooleanField.Builder(

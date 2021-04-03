@@ -34,7 +34,7 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
-import com.celements.structEditor.SelectAutocompleteRole;
+import com.celements.struct.edit.autocomplete.AutocompleteRole;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component
@@ -49,7 +49,7 @@ public class DefaultSelectTagService implements SelectTagServiceRole {
   private StructUtilServiceRole structUtils;
 
   @Override
-  public Optional<SelectAutocompleteRole> getTypeImpl(DocumentReference cellDocRef) {
+  public Optional<AutocompleteRole> getTypeImpl(DocumentReference cellDocRef) {
     try {
       return XWikiObjectFetcher.on(modelAccess.getDocument(cellDocRef))
           .fetchField(FIELD_AUTOCOMPLETE_TYPE)

@@ -43,6 +43,7 @@ import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
 import com.celements.struct.SelectTagServiceRole;
+import com.celements.struct.edit.autocomplete.AutocompleteRole;
 import com.celements.structEditor.classes.SelectTagEditorClass;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -170,7 +171,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
             .orElse(false);
   }
 
-  public Optional<SelectAutocompleteRole> getSelectTagAutoCompleteImpl(
+  public Optional<AutocompleteRole> getSelectTagAutoCompleteImpl(
       DocumentReference cellDocRef) {
     return selectTagService.getTypeImpl(cellDocRef);
   }
