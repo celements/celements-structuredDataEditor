@@ -40,11 +40,18 @@ public interface SelectAutocompleteRole {
   String getJsFilePath();
 
   @NotNull
-  LuceneSearchResult search(@Nullable String searchTerm);
+  LuceneSearchResult search(@Nullable DocumentReference cellDocRef, @Nullable String searchTerm);
 
   @NotNull
-  Optional<DocumentReference> getSelectedValue(@NotNull DocumentReference selectCellDocRef);
+  Optional<DocumentReference> getSelectedValue(@NotNull DocumentReference cellDocRef);
 
+  /**
+   * The returned JSON is used to link and display results client side. It must contain at least
+   * the properties 'fullName' and 'name', but additional properties may exists.
+   * Properties can be rendered in the default JS result template by aggregating the desired
+   * property names to 'templateProps'. It may contain arbitrarily nested arrays/objects/maps,
+   * whereas array elements will be translated to span-tags and object/map elements to div-tags.
+   */
   @NotNull
   JsonBuilder getJsonForValue(@NotNull DocumentReference valueDocRef);
 

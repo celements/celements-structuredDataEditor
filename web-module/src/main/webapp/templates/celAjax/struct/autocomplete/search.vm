@@ -11,7 +11,7 @@ $jsonBuilder.openDictionary()##
   #set($limit = $util.parseInt("$!request.limit"))##
   #if($limit <= 0) #set($limit = 10) #end##
   $jsonBuilder.addProperty('limit', $limit)##
-  #set($luceneSearchResult = $autoComplete.search($request.searchterm))##
+  #set($luceneSearchResult = $autoComplete.search($cellDocRef, $request.searchterm))##
   #set($hasMore = $luceneSearchResult.getSize() > ($offset + $limit))##
   $jsonBuilder.addProperty('hasMore', $hasMore)##
   #set($stfu = $luceneSearchResult.setLimit($limit))##

@@ -25,7 +25,22 @@
 
   if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={}}
   if(typeof window.CELEMENTS.structEdit.autocomplete=="undefined"){window.CELEMENTS.structEdit.autocomplete={};}
+
+  // templates for rendering autocomplete results may be defined within this object
   if(typeof window.CELEMENTS.structEdit.autocomplete.templates=="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
+  if(typeof window.CELEMENTS.structEdit.autocomplete.templates.default=="undefined"){
+    window.CELEMENTS.structEdit.autocomplete.templates.default = function templateDefault(data,
+          prop = { 'result': data.templateProps || ['name'] }) {
+      if (!prop)
+        return '';
+      else if (prop instanceof Array)
+        return prop.map(p => templateDefault(data, p)).join('');
+      else if (typeof prop === "object")
+        return Object.keys(prop).map(k => `<div class='${k}'>${templateDefault(data, prop[k])}</div>`).join('');
+      else
+        return `<span class='${prop}'>${data[prop] || ''}</span>`
+    };
+  }
 
   const checkInitAutocomplete = function() {
     $(document.body).stopObserving('structEdit:initAutocomplete',  initAutocomplete);
@@ -80,8 +95,9 @@
   const getTemplateSupplier = function(type) {
     return function(data) {
       if (data.loading) return data.text;
-      const templateBuilder = window.CELEMENTS.structEdit.autocomplete.templates[type];
-      return templateBuilder ? templateBuilder(data) : templateSelection(data);
+      const templates = window.CELEMENTS.structEdit.autocomplete.templates;
+      const templateBuilder = templates[type] || templates.default;
+      return templateBuilder(data);
     };
   };
 
