@@ -1,7 +1,5 @@
 package com.celements.struct.edit.autocomplete;
 
-import static com.celements.common.MoreObjectsCel.*;
-
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -21,8 +19,10 @@ import com.celements.model.util.ModelUtils;
 import com.celements.sajson.JsonBuilder;
 import com.celements.search.lucene.LuceneSearchResult;
 import com.celements.search.web.IWebSearchService;
+import com.celements.search.web.classes.WebSearchConfigClass;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.structEditor.classes.OptionTagEditorClass;
+import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component
@@ -52,9 +52,13 @@ public class DefaultAutocomplete implements AutocompleteRole {
 
   @Override
   public String getJsFilePath() {
-    return "";
+    return ""; // no additional JS required for default implementation
   }
 
+  /**
+   * default implementation may be configured like any web search on the layout cell doc,
+   * see {@link WebSearchConfigClass}
+   */
   @Override
   public @NotNull LuceneSearchResult search(DocumentReference cellDocRef, String searchTerm) {
     return webSearchService.webSearch(searchTerm, (cellDocRef == null) ? null
@@ -74,7 +78,8 @@ public class DefaultAutocomplete implements AutocompleteRole {
   @Override
   public String displayNameForValue(DocumentReference valueDocRef) {
     String lang = context.getLanguage().orElse("");
-    return asOptNonBlank(modelAccess.getOrCreateDocument(valueDocRef, lang).getTitle())
+    String title = modelAccess.getOrCreateDocument(valueDocRef, lang).getTitle();
+    return Optional.ofNullable(Strings.emptyToNull(title.trim()))
         .orElseGet(() -> modelUtils.serializeRefLocal(valueDocRef));
   }
 
