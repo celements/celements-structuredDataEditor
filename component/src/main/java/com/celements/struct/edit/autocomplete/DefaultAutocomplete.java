@@ -78,22 +78,27 @@ public class DefaultAutocomplete implements AutocompleteRole {
   public JsonBuilder getJsonForValue(DocumentReference onDocRef, DocumentReference cellDocRef) {
     JsonBuilder jsonBuilder = new JsonBuilder();
     jsonBuilder.openDictionary();
-    jsonBuilder.addProperty("fullName", modelUtils.serializeRef(onDocRef));
-    jsonBuilder.addProperty("name", displayNameForValue(onDocRef, cellDocRef));
-    renderResultFromCell(cellDocRef, FIELD_RESULT_HTML, onDocRef)
-        .ifPresent(html -> jsonBuilder.addProperty("html", html));
+    if (onDocRef != null) {
+      jsonBuilder.addProperty("fullName", modelUtils.serializeRef(onDocRef));
+      jsonBuilder.addProperty("name", displayNameForValue(onDocRef, cellDocRef));
+      renderResultFromCell(cellDocRef, FIELD_RESULT_HTML, onDocRef)
+          .ifPresent(html -> jsonBuilder.addProperty("html", html));
+    }
     jsonBuilder.closeDictionary();
     return jsonBuilder;
   }
 
   @Override
   public String displayNameForValue(DocumentReference onDocRef, DocumentReference cellDocRef) {
-    return Stream.<Supplier<Optional<String>>>of(
-        () -> renderResultFromCell(cellDocRef, FIELD_RESULT_NAME, onDocRef),
-        () -> displayTitle(onDocRef))
-        .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
-        .findFirst()
-        .orElseGet(onDocRef::getName);
+    if (onDocRef != null) {
+      return Stream.<Supplier<Optional<String>>>of(
+          () -> renderResultFromCell(cellDocRef, FIELD_RESULT_NAME, onDocRef),
+          () -> displayTitle(onDocRef))
+          .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
+          .findFirst()
+          .orElseGet(onDocRef::getName);
+    }
+    return "";
   }
 
   private Optional<String> displayTitle(DocumentReference onDocRef) {
@@ -104,32 +109,35 @@ public class DefaultAutocomplete implements AutocompleteRole {
 
   private Optional<String> renderResultFromCell(DocumentReference cellDocRef,
       ClassField<String> field, DocumentReference onDocRef) {
-    try {
-      return XWikiObjectFetcher.on(modelAccess.getOrCreateDocument(cellDocRef))
-          .fetchField(field)
-          .stream().findFirst()
-          .map(rethrowFunction(text -> velocityService.evaluateVelocityText(text, vContext -> {
-            vContext.put("resultDocRef", onDocRef);
-            return vContext;
-          })));
-    } catch (XWikiVelocityException exc) {
-      log.warn("renderResultFromCell - failed building json for cell [{}] and doc [{}]",
-          cellDocRef, onDocRef, exc);
-      return Optional.empty();
+    if (cellDocRef != null) {
+      try {
+        return XWikiObjectFetcher.on(modelAccess.getOrCreateDocument(cellDocRef))
+            .fetchField(field)
+            .stream().findFirst()
+            .map(rethrowFunction(text -> velocityService.evaluateVelocityText(text, vContext -> {
+              vContext.put("resultDocRef", onDocRef);
+              return vContext;
+            })));
+      } catch (XWikiVelocityException exc) {
+        log.warn("renderResultFromCell - failed building json for cell [{}] and doc [{}]",
+            cellDocRef, onDocRef, exc);
+      }
     }
+    return Optional.empty();
   }
 
   @Override
   public Optional<DocumentReference> getSelectedValue(DocumentReference cellDocRef) {
-    XWikiDocument cellDoc = modelAccess.getOrCreateDocument(cellDocRef);
-    return getValueResolvers(cellDoc)
-        .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
-        .findFirst()
+    return Optional.ofNullable(cellDocRef)
+        .map(modelAccess::getOrCreateDocument)
+        .flatMap(cellDoc -> getValueResolvers(cellDoc)
+            .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
+            .findFirst())
         .flatMap(this::resolve);
   }
 
   protected Stream<Supplier<Optional<String>>> getValueResolvers(XWikiDocument cellDoc) {
-    return Stream.of(
+    return Stream.<Supplier<Optional<String>>>of(
         () -> getValueFromRequest(cellDoc),
         () -> getValueOnDoc(cellDoc),
         () -> getDefaultValue(cellDoc));

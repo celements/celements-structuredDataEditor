@@ -43,7 +43,7 @@ public interface AutocompleteRole {
   LuceneSearchResult search(@Nullable DocumentReference cellDocRef, @Nullable String searchTerm);
 
   @NotNull
-  Optional<DocumentReference> getSelectedValue(@NotNull DocumentReference cellDocRef);
+  Optional<DocumentReference> getSelectedValue(@Nullable DocumentReference cellDocRef);
 
   /**
    * The returned JSON is used to link and display results client side. It must contain the
@@ -52,11 +52,11 @@ public interface AutocompleteRole {
    * listing.
    */
   @NotNull
-  JsonBuilder getJsonForValue(@NotNull DocumentReference onDocRef,
+  JsonBuilder getJsonForValue(@Nullable DocumentReference onDocRef,
       @Nullable DocumentReference cellDocRef);
 
   @NotNull
-  String displayNameForValue(@NotNull DocumentReference onDocRef,
+  String displayNameForValue(@Nullable DocumentReference onDocRef,
       @Nullable DocumentReference cellDocRef);
 
 }

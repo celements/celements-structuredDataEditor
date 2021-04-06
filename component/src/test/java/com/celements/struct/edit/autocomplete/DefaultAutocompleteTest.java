@@ -99,8 +99,14 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
         .andReturn(doc).once();
 
     replayDefault();
-    assertEquals("doc", autocomplete.displayNameForValue(
-        doc.getDocumentReference(), cellDoc.getDocumentReference()));
+    assertEquals("doc", autocomplete.displayNameForValue(doc.getDocumentReference(), null));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_displayNameForValue_null() throws Exception {
+    replayDefault();
+    assertEquals("", autocomplete.displayNameForValue(null, null));
     verifyDefault();
   }
 
@@ -127,6 +133,13 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
     verifyDefault();
     assertEquals(doc.getDocumentReference(), vContextModCpt.getValue().apply(new VelocityContext())
         .get("resultDocRef"));
+  }
+
+  @Test
+  public void test_getJsonForValue_null() throws Exception {
+    replayDefault();
+    assertEquals("{}", autocomplete.getJsonForValue(null, null).getJSON());
+    verifyDefault();
   }
 
   @Test
@@ -265,7 +278,14 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
     verifyDefault();
   }
 
-  private ModelUtils getUtils() {
+  @Test
+  public void test_getSelectedValue_null() throws Exception {
+    replayDefault();
+    assertFalse(autocomplete.getSelectedValue(null).isPresent());
+    verifyDefault();
+  }
+
+  private static final ModelUtils getUtils() {
     return Utils.getComponent(ModelUtils.class);
   }
 
