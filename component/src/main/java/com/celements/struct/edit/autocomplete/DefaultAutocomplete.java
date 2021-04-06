@@ -1,5 +1,8 @@
 package com.celements.struct.edit.autocomplete;
 
+import static com.celements.common.lambda.LambdaExceptionUtil.*;
+import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
+
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -11,8 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.model.access.IModelAccessFacade;
+import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.util.ModelUtils;
@@ -22,6 +27,7 @@ import com.celements.search.web.IWebSearchService;
 import com.celements.search.web.classes.WebSearchConfigClass;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.structEditor.classes.OptionTagEditorClass;
+import com.celements.velocity.VelocityService;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
 
@@ -35,6 +41,9 @@ public class DefaultAutocomplete implements AutocompleteRole {
 
   @Requirement
   private IWebSearchService webSearchService;
+
+  @Requirement
+  private VelocityService velocityService;
 
   @Requirement
   protected IModelAccessFacade modelAccess;
@@ -66,21 +75,48 @@ public class DefaultAutocomplete implements AutocompleteRole {
   }
 
   @Override
-  public JsonBuilder getJsonForValue(DocumentReference valueDocRef) {
-    JsonBuilder json = new JsonBuilder();
-    json.openDictionary();
-    json.addProperty("fullName", modelUtils.serializeRef(valueDocRef));
-    json.addProperty("name", displayNameForValue(valueDocRef));
-    json.closeDictionary();
-    return json;
+  public JsonBuilder getJsonForValue(DocumentReference onDocRef, DocumentReference cellDocRef) {
+    JsonBuilder jsonBuilder = new JsonBuilder();
+    jsonBuilder.openDictionary();
+    jsonBuilder.addProperty("fullName", modelUtils.serializeRef(onDocRef));
+    jsonBuilder.addProperty("name", displayNameForValue(onDocRef, cellDocRef));
+    renderResultFromCell(cellDocRef, FIELD_RESULT_HTML, onDocRef)
+        .ifPresent(html -> jsonBuilder.addProperty("html", html));
+    jsonBuilder.closeDictionary();
+    return jsonBuilder;
   }
 
   @Override
-  public String displayNameForValue(DocumentReference valueDocRef) {
+  public String displayNameForValue(DocumentReference onDocRef, DocumentReference cellDocRef) {
+    return Stream.<Supplier<Optional<String>>>of(
+        () -> renderResultFromCell(cellDocRef, FIELD_RESULT_NAME, onDocRef),
+        () -> displayTitle(onDocRef))
+        .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
+        .findFirst()
+        .orElseGet(onDocRef::getName);
+  }
+
+  private Optional<String> displayTitle(DocumentReference onDocRef) {
     String lang = context.getLanguage().orElse("");
-    String title = modelAccess.getOrCreateDocument(valueDocRef, lang).getTitle();
-    return Optional.ofNullable(Strings.emptyToNull(title.trim()))
-        .orElseGet(() -> modelUtils.serializeRefLocal(valueDocRef));
+    String title = modelAccess.getOrCreateDocument(onDocRef, lang).getTitle();
+    return Optional.ofNullable(Strings.emptyToNull(title.trim()));
+  }
+
+  private Optional<String> renderResultFromCell(DocumentReference cellDocRef,
+      ClassField<String> field, DocumentReference onDocRef) {
+    try {
+      return XWikiObjectFetcher.on(modelAccess.getOrCreateDocument(cellDocRef))
+          .fetchField(field)
+          .stream().findFirst()
+          .map(rethrowFunction(text -> velocityService.evaluateVelocityText(text, vContext -> {
+            vContext.put("resultDocRef", onDocRef);
+            return vContext;
+          })));
+    } catch (XWikiVelocityException exc) {
+      log.warn("renderResultFromCell - failed building json for cell [{}] and doc [{}]",
+          cellDocRef, onDocRef, exc);
+      return Optional.empty();
+    }
   }
 
   @Override

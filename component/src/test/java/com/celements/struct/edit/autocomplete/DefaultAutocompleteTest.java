@@ -1,21 +1,27 @@
 package com.celements.struct.edit.autocomplete;
 
 import static com.celements.common.test.CelementsTestUtils.*;
-import static com.celements.structEditor.classes.OptionTagEditorClass.*;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 import java.util.Optional;
 
+import org.apache.velocity.VelocityContext;
+import org.easymock.Capture;
 import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
+import com.celements.model.classes.fields.ClassField;
 import com.celements.model.util.ModelUtils;
 import com.celements.search.web.IWebSearchService;
 import com.celements.structEditor.StructuredDataEditorService;
+import com.celements.structEditor.classes.OptionTagEditorClass;
+import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
+import com.celements.velocity.VelocityContextModifier;
+import com.celements.velocity.VelocityService;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.web.Utils;
@@ -33,7 +39,7 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
   @Before
   public void prepare() throws Exception {
     registerComponentMocks(IModelAccessFacade.class, StructuredDataEditorService.class,
-        IWebSearchService.class);
+        IWebSearchService.class, VelocityService.class);
     structMock = getMock(StructuredDataEditorService.class);
     getContext().setRequest(createMockAndAddToDefault(XWikiRequest.class));
     doc = new XWikiDocument(new DocumentReference("wiki", "space", "doc"));
@@ -60,14 +66,41 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
   }
 
   @Test
-  public void test_displayNameForValue() throws Exception {
+  public void test_displayNameForValue_cellRendered() throws Exception {
+    addCellDocValue(SelectTagAutocompleteEditorClass.FIELD_RESULT_NAME, "velo");
+    Capture<VelocityContextModifier> vContextModCpt = newCapture();
+    expect(getMock(VelocityService.class).evaluateVelocityText(eq("velo"),
+        capture(vContextModCpt))).andReturn("name");
+
+    replayDefault();
+    assertEquals("name", autocomplete.displayNameForValue(
+        doc.getDocumentReference(), cellDoc.getDocumentReference()));
+    verifyDefault();
+    assertEquals(doc.getDocumentReference(), vContextModCpt.getValue().apply(new VelocityContext())
+        .get("resultDocRef"));
+  }
+
+  @Test
+  public void test_displayNameForValue_title() throws Exception {
     getContext().setLanguage("en");
     doc.setTitle("name");
     expect(getMock(IModelAccessFacade.class).getOrCreateDocument(doc.getDocumentReference(), "en"))
         .andReturn(doc).once();
 
     replayDefault();
-    assertEquals("name", autocomplete.displayNameForValue(doc.getDocumentReference()));
+    assertEquals("name", autocomplete.displayNameForValue(
+        doc.getDocumentReference(), cellDoc.getDocumentReference()));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_displayNameForValue_docName() throws Exception {
+    expect(getMock(IModelAccessFacade.class).getOrCreateDocument(doc.getDocumentReference(), "de"))
+        .andReturn(doc).once();
+
+    replayDefault();
+    assertEquals("doc", autocomplete.displayNameForValue(
+        doc.getDocumentReference(), cellDoc.getDocumentReference()));
     verifyDefault();
   }
 
@@ -77,12 +110,23 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
     doc.setTitle("name");
     expect(getMock(IModelAccessFacade.class).getOrCreateDocument(doc.getDocumentReference(), "fr"))
         .andReturn(doc).once();
+    addCellDocValue(SelectTagAutocompleteEditorClass.FIELD_RESULT_HTML, "velo");
+    Capture<VelocityContextModifier> vContextModCpt = newCapture();
+    expect(getMock(VelocityService.class).evaluateVelocityText(eq("velo"),
+        capture(vContextModCpt))).andReturn("<div class=\"html\">some html</div>");
 
     replayDefault();
-    String json = "{\"fullName\" : \"wiki:space.doc\", "
-        + "\"name\" : \"name\"}";
-    assertEquals(json, autocomplete.getJsonForValue(doc.getDocumentReference()).getJSON());
+    String json = "{"
+        + "\"fullName\" : \"wiki:space.doc\", "
+        + "\"name\" : \"name\", "
+        + "\"html\" : \"<div class=\\\"html\\\">some html</div>\""
+        + "}";
+    assertEquals(json, autocomplete.getJsonForValue(
+        doc.getDocumentReference(), cellDoc.getDocumentReference())
+        .getJSON());
     verifyDefault();
+    assertEquals(doc.getDocumentReference(), vContextModCpt.getValue().apply(new VelocityContext())
+        .get("resultDocRef"));
   }
 
   @Test
@@ -168,7 +212,7 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
   public void test_getSelectedValue_defaultValue() throws Exception {
     expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.empty());
     expect(structMock.getCellValueAsString(same(cellDoc), same(doc))).andReturn(Optional.empty());
-    addDefaultValue(selected);
+    addCellDocValue(OptionTagEditorClass.FIELD_VALUE, selected);
 
     replayDefault();
     assertEquals(selected, getUtils().serializeRef(
@@ -178,7 +222,7 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   @Test
   public void test_getDefaultValue() throws Exception {
-    addDefaultValue(selected);
+    addCellDocValue(OptionTagEditorClass.FIELD_VALUE, selected);
     replayDefault();
     assertEquals(selected, autocomplete.getDefaultValue(cellDoc).orElse(null));
     verifyDefault();
@@ -191,12 +235,13 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
     verifyDefault();
   }
 
-  private void addDefaultValue(String value) {
+  private BaseObject addCellDocValue(ClassField<String> field, String value) {
     BaseObject obj = new BaseObject();
     obj.setDocumentReference(cellDoc.getDocumentReference());
-    obj.setXClassReference(CLASS_REF);
-    obj.setStringValue(FIELD_VALUE.getName(), value);
+    obj.setXClassReference(field.getClassReference());
+    obj.setStringValue(field.getName(), value);
     cellDoc.addXObject(obj);
+    return obj;
   }
 
   @Test

@@ -17,9 +17,9 @@
   #end
   #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef).orElse($null))
   #if("$!currentDocRefValue" != '')
-    #set($value = $services.model.serialize($!currentDocRefValue, 'default'))
+    #set($value = $services.model.serialize($currentDocRefValue, 'default'))
     <option selected="selected" value="$!xwiki.getFormEncoded($value)">
-      $!autoComplete.displayNameForValue($!currentDocRefValue)
+      $!autoComplete.displayNameForValue($currentDocRefValue, $cellDocRef)
     </option>
   #else
   <!-- currentDocRefValue is empty!! -->

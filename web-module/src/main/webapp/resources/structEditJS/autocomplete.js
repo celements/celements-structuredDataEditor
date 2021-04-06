@@ -23,22 +23,14 @@
 
   //TODO [CELDEV-937] Struct autocomplete.js refactoring to Class 
 
-  if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={}}
-  if(typeof window.CELEMENTS.structEdit.autocomplete=="undefined"){window.CELEMENTS.structEdit.autocomplete={};}
+  if(typeof window.CELEMENTS.structEdit==="undefined"){window.CELEMENTS.structEdit={}}
+  if(typeof window.CELEMENTS.structEdit.autocomplete==="undefined"){window.CELEMENTS.structEdit.autocomplete={};}
 
   // templates for rendering autocomplete results may be defined within this object
-  if(typeof window.CELEMENTS.structEdit.autocomplete.templates=="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
-  if(typeof window.CELEMENTS.structEdit.autocomplete.templates.default=="undefined"){
-    window.CELEMENTS.structEdit.autocomplete.templates.default = function templateDefault(data,
-          prop = { 'result': data.templateProps || ['name'] }) {
-      if (!prop)
-        return '';
-      else if (prop instanceof Array)
-        return prop.map(p => templateDefault(data, p)).join('');
-      else if (typeof prop === "object")
-        return Object.keys(prop).map(k => `<div class='${k}'>${templateDefault(data, prop[k])}</div>`).join('');
-      else
-        return `<span class='${prop}'>${data[prop] || ''}</span>`
+  if(typeof window.CELEMENTS.structEdit.autocomplete.templates==="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
+  if(typeof window.CELEMENTS.structEdit.autocomplete.templates.default==="undefined"){
+    window.CELEMENTS.structEdit.autocomplete.templates.default = function templateDefault(data) {
+      return data.html || `<div class="result">${data.name}</div>`
     };
   }
 

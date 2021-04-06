@@ -18,7 +18,7 @@ $jsonBuilder.openDictionary()##
   #set($stfu = $luceneSearchResult.setOffset($offset))##
   $jsonBuilder.openArray('results')##
   #foreach ($resultDocRef in $luceneSearchResult.getResults())##
-   $jsonBuilder.addValue($autoComplete.getJsonForValue($resultDocRef))##
+    $jsonBuilder.addValue($autoComplete.getJsonForValue($resultDocRef, $cellDocRef))##
   #end##
   $jsonBuilder.closeArray()##
 #end##
