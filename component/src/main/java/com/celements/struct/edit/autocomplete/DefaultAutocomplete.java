@@ -37,13 +37,13 @@ public class DefaultAutocomplete implements AutocompleteRole {
   protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Requirement
-  private StructuredDataEditorService structEditService;
+  protected StructuredDataEditorService structEditService;
 
   @Requirement
-  private IWebSearchService webSearchService;
+  protected IWebSearchService webSearchService;
 
   @Requirement
-  private VelocityService velocityService;
+  protected VelocityService velocityService;
 
   @Requirement
   protected IModelAccessFacade modelAccess;
@@ -91,12 +91,10 @@ public class DefaultAutocomplete implements AutocompleteRole {
   @Override
   public String displayNameForValue(DocumentReference onDocRef, DocumentReference cellDocRef) {
     if (onDocRef != null) {
-      return Stream.<Supplier<Optional<String>>>of(
+      return findFirstPresent(
           () -> renderResultFromCell(cellDocRef, FIELD_RESULT_NAME, onDocRef),
           () -> displayTitle(onDocRef))
-          .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
-          .findFirst()
-          .orElseGet(onDocRef::getName);
+              .orElseGet(onDocRef::getName);
     }
     return "";
   }
@@ -130,17 +128,11 @@ public class DefaultAutocomplete implements AutocompleteRole {
   public Optional<DocumentReference> getSelectedValue(DocumentReference cellDocRef) {
     return Optional.ofNullable(cellDocRef)
         .map(modelAccess::getOrCreateDocument)
-        .flatMap(cellDoc -> getValueResolvers(cellDoc)
-            .map(Supplier::get).filter(Optional::isPresent).map(Optional::get)
-            .findFirst())
+        .flatMap(cellDoc -> findFirstPresent(
+            () -> getValueFromRequest(cellDoc),
+            () -> getValueOnDoc(cellDoc),
+            () -> getDefaultValue(cellDoc)))
         .flatMap(this::resolve);
-  }
-
-  protected Stream<Supplier<Optional<String>>> getValueResolvers(XWikiDocument cellDoc) {
-    return Stream.<Supplier<Optional<String>>>of(
-        () -> getValueFromRequest(cellDoc),
-        () -> getValueOnDoc(cellDoc),
-        () -> getDefaultValue(cellDoc));
   }
 
   protected final Optional<String> getValueFromRequest(XWikiDocument cellDoc) {
@@ -167,6 +159,13 @@ public class DefaultAutocomplete implements AutocompleteRole {
       log.debug("unable to resolve ref: {}", exc.getMessage(), exc);
       return Optional.empty();
     }
+  }
+
+  @SafeVarargs
+  private static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {
+    return Stream.of(suppliers).map(Supplier::get)
+        .filter(Optional::isPresent).map(Optional::get)
+        .findFirst();
   }
 
 }

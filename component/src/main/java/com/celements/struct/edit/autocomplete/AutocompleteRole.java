@@ -48,8 +48,7 @@ public interface AutocompleteRole {
   /**
    * The returned JSON is used to link and display results client side. It must contain the
    * properties 'fullName' (=id) and 'name' (=pretty name, normally {@link #displayNameForValue}).
-   * Additionally, the property 'html' * may be provided to be displayed in the detail result
-   * listing.
+   * Additionally, the property 'html' may be provided to be displayed in the detail result listing.
    */
   @NotNull
   JsonBuilder getJsonForValue(@Nullable DocumentReference onDocRef,
