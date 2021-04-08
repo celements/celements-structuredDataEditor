@@ -26,13 +26,13 @@ import javax.validation.constraints.NotNull;
 import org.xwiki.component.annotation.ComponentRole;
 import org.xwiki.model.reference.DocumentReference;
 
-import com.celements.structEditor.SelectAutocompleteRole;
+import com.celements.struct.edit.autocomplete.AutocompleteRole;
 
 @ComponentRole
 public interface SelectTagServiceRole {
 
   @NotNull
-  Optional<SelectAutocompleteRole> getTypeImpl(@NotNull DocumentReference cellDocRef);
+  Optional<AutocompleteRole> getTypeImpl(@NotNull DocumentReference cellDocRef);
 
   /**
    * returns the DocumentReference of the SelectTag parent cell. If the <param>optionDocRef</param>

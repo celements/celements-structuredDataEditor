@@ -33,7 +33,7 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.reference.RefBuilder;
-import com.celements.structEditor.SelectAutocompleteRole;
+import com.celements.struct.edit.autocomplete.AutocompleteRole;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -57,7 +57,7 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(cellDoc);
     replayDefault();
-    Optional<SelectAutocompleteRole> typeImpl = selectTagServ.getTypeImpl(cellDocRef);
+    Optional<AutocompleteRole> typeImpl = selectTagServ.getTypeImpl(cellDocRef);
     assertFalse(typeImpl.isPresent());
     verifyDefault();
   }
@@ -70,7 +70,7 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
     addXObject(cellDoc, SelectTagAutocompleteEditorClass.CLASS_REF);
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(cellDoc);
     replayDefault();
-    Optional<SelectAutocompleteRole> typeImpl = selectTagServ.getTypeImpl(cellDocRef);
+    Optional<AutocompleteRole> typeImpl = selectTagServ.getTypeImpl(cellDocRef);
     assertFalse(typeImpl.isPresent());
     verifyDefault();
   }

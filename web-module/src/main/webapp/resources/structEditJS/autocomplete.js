@@ -23,9 +23,16 @@
 
   //TODO [CELDEV-937] Struct autocomplete.js refactoring to Class 
 
-  if(typeof window.CELEMENTS.structEdit=="undefined"){window.CELEMENTS.structEdit={}}
-  if(typeof window.CELEMENTS.structEdit.autocomplete=="undefined"){window.CELEMENTS.structEdit.autocomplete={};}
-  if(typeof window.CELEMENTS.structEdit.autocomplete.templates=="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
+  if(typeof window.CELEMENTS.structEdit==="undefined"){window.CELEMENTS.structEdit={}}
+  if(typeof window.CELEMENTS.structEdit.autocomplete==="undefined"){window.CELEMENTS.structEdit.autocomplete={};}
+
+  // templates for rendering autocomplete results may be defined within this object
+  if(typeof window.CELEMENTS.structEdit.autocomplete.templates==="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
+  if(typeof window.CELEMENTS.structEdit.autocomplete.templates.default==="undefined"){
+    window.CELEMENTS.structEdit.autocomplete.templates.default = function templateDefault(data) {
+      return data.html || `<div class="result">${data.name}</div>`
+    };
+  }
 
   const checkInitAutocomplete = function() {
     $(document.body).stopObserving('structEdit:initAutocomplete',  initAutocomplete);
@@ -80,8 +87,9 @@
   const getTemplateSupplier = function(type) {
     return function(data) {
       if (data.loading) return data.text;
-      const templateBuilder = window.CELEMENTS.structEdit.autocomplete.templates[type];
-      return templateBuilder ? templateBuilder(data) : templateSelection(data);
+      const templates = window.CELEMENTS.structEdit.autocomplete.templates;
+      const templateBuilder = templates[type] || templates.default;
+      return templateBuilder(data);
     };
   };
 

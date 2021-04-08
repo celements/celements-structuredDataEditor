@@ -67,6 +67,10 @@ public interface StructuredDataEditorService {
   Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,
       @Nullable XWikiDocument onDoc) throws DocumentNotExistsException;
 
+  @NotNull
+  Optional<String> getCellValueAsString(@NotNull XWikiDocument cellDoc,
+      @Nullable XWikiDocument onDoc);
+
   /**
    * since 4.0 instead use {@link SelectTagServiceRole#getSelectCellDocRef}
    */

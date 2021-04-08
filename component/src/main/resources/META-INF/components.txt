@@ -23,7 +23,6 @@ com.celements.structEditor.fields.SubmitLinkPageType
 com.celements.structEditor.fields.TextFieldPageType
 com.celements.structEditor.fields.TextAreaFieldPageType
 com.celements.structEditor.DefaultStructuredDataEditorService
-com.celements.structEditor.SelectAutocompleteRole
 com.celements.structEditor.StructuredDataEditorPageType
 com.celements.structEditor.StructuredDataEditorNavigationConfigurator
 com.celements.structEditor.StructuredDataEditorScriptService
@@ -40,3 +39,4 @@ com.celements.struct.StructUtilService
 com.celements.tinymce4.TinyMce4Config
 com.celements.tinymce4.RteTinyMce4
 com.celements.struct.view.StructuredDataViewPageType
+com.celements.struct.edit.autocomplete.DefaultAutocomplete

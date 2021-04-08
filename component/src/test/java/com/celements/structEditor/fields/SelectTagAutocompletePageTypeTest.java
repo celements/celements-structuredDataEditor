@@ -36,7 +36,7 @@ import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.ModelAccessStrategy;
 import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.celements.struct.SelectTagServiceRole;
-import com.celements.structEditor.SelectAutocompleteRole;
+import com.celements.struct.edit.autocomplete.AutocompleteRole;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -47,14 +47,14 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
   private SelectTagAutocompletePageType pageType;
   private SelectTagServiceRole selectTagSrvMock;
   private StructuredDataEditorService structDataEditorSrvMock;
-  private SelectAutocompleteRole autocompleteMock;
+  private AutocompleteRole autocompleteMock;
 
   @Before
   public void setUp_OptionTagPageTypeTest() throws Exception {
     registerComponentMock(ModelAccessStrategy.class);
     selectTagSrvMock = registerComponentMock(SelectTagServiceRole.class);
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
-    autocompleteMock = createMockAndAddToDefault(SelectAutocompleteRole.class);
+    autocompleteMock = createMockAndAddToDefault(AutocompleteRole.class);
     pageType = (SelectTagAutocompletePageType) Utils.getComponent(IJavaPageTypeRole.class,
         SelectTagAutocompletePageType.PAGETYPE_NAME);
   }

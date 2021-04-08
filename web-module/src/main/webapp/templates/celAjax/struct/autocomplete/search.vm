@@ -11,14 +11,14 @@ $jsonBuilder.openDictionary()##
   #set($limit = $util.parseInt("$!request.limit"))##
   #if($limit <= 0) #set($limit = 10) #end##
   $jsonBuilder.addProperty('limit', $limit)##
-  #set($luceneSearchResult = $autoComplete.search($request.searchterm))##
+  #set($luceneSearchResult = $autoComplete.search($cellDocRef, $request.searchterm))##
   #set($hasMore = $luceneSearchResult.getSize() > ($offset + $limit))##
   $jsonBuilder.addProperty('hasMore', $hasMore)##
   #set($stfu = $luceneSearchResult.setLimit($limit))##
   #set($stfu = $luceneSearchResult.setOffset($offset))##
   $jsonBuilder.openArray('results')##
   #foreach ($resultDocRef in $luceneSearchResult.getResults())##
-   $jsonBuilder.addValue($autoComplete.getJsonForValue($resultDocRef))##
+    $jsonBuilder.addValue($autoComplete.getJsonForValue($resultDocRef, $cellDocRef))##
   #end##
   $jsonBuilder.closeArray()##
 #end##

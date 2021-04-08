@@ -17,7 +17,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package com.celements.structEditor;
+package com.celements.struct.edit.autocomplete;
 
 import java.util.Optional;
 
@@ -31,7 +31,7 @@ import com.celements.sajson.JsonBuilder;
 import com.celements.search.lucene.LuceneSearchResult;
 
 @ComponentRole
-public interface SelectAutocompleteRole {
+public interface AutocompleteRole {
 
   @NotNull
   String getName();
@@ -40,15 +40,22 @@ public interface SelectAutocompleteRole {
   String getJsFilePath();
 
   @NotNull
-  LuceneSearchResult search(@Nullable String searchTerm);
+  LuceneSearchResult search(@Nullable DocumentReference cellDocRef, @Nullable String searchTerm);
 
   @NotNull
-  Optional<DocumentReference> getSelectedValue(@NotNull DocumentReference selectCellDocRef);
+  Optional<DocumentReference> getSelectedValue(@Nullable DocumentReference cellDocRef);
+
+  /**
+   * The returned JSON is used to link and display results client side. It must contain the
+   * properties 'fullName' (=id) and 'name' (=pretty name, normally {@link #displayNameForValue}).
+   * Additionally, the property 'html' may be provided to be displayed in the detail result listing.
+   */
+  @NotNull
+  JsonBuilder getJsonForValue(@Nullable DocumentReference onDocRef,
+      @Nullable DocumentReference cellDocRef);
 
   @NotNull
-  JsonBuilder getJsonForValue(@NotNull DocumentReference valueDocRef);
-
-  @NotNull
-  String displayNameForValue(@NotNull DocumentReference valueDocRef);
+  String displayNameForValue(@Nullable DocumentReference onDocRef,
+      @Nullable DocumentReference cellDocRef);
 
 }
