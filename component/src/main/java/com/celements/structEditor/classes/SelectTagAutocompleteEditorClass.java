@@ -19,8 +19,6 @@
  */
 package com.celements.structEditor.classes;
 
-import java.util.List;
-
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
@@ -31,7 +29,7 @@ import com.celements.model.classes.fields.BooleanField;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.classes.fields.LargeStringField;
 import com.celements.model.classes.fields.StringField;
-import com.celements.model.classes.fields.list.ComponentListField;
+import com.celements.model.classes.fields.list.single.ComponentSingleListField;
 import com.celements.struct.edit.autocomplete.AutocompleteRole;
 
 @Singleton
@@ -48,9 +46,9 @@ public class SelectTagAutocompleteEditorClass extends AbstractClassDefinition
   public static final ClassField<String> FIELD_AUTOCOMPLETE_SEPARATOR = new StringField.Builder(
       CLASS_REF, "select_tag_autocomplete_separator").prettyName("Separator").build();
 
-  public static final ClassField<List<AutocompleteRole>> FIELD_AUTOCOMPLETE_TYPE = new ComponentListField.Builder<>(
+  public static final ClassField<AutocompleteRole> FIELD_AUTOCOMPLETE_TYPE = new ComponentSingleListField.Builder<>(
       CLASS_REF, "select_tag_autocomplete_type", AutocompleteRole.class)
-          .multiSelect(false).separator("|").prettyName("Autocomplete Type").build();
+          .prettyName("Autocomplete Type").build();
 
   public static final ClassField<Boolean> FIELD_AUTOCOMPLETE_IS_MULTISELECT = new BooleanField.Builder(
       CLASS_REF, "select_tag_autocomplete_is_multiselect").prettyName("Is Multiselect").build();
