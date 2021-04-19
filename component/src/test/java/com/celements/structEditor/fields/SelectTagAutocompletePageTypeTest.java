@@ -28,10 +28,12 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
+import com.celements.cells.classes.CellClass;
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.ModelAccessStrategy;
 import com.celements.pagetype.java.IJavaPageTypeRole;
@@ -95,11 +97,15 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
     AttributeBuilder attributes = new DefaultAttributeBuilder();
     XWikiDocument cellDoc = expectDoc(new DocumentReference(
         getContext().getDatabase(), "Layout", "Cell"));
-    BaseObject obj = createSelectTagObj(cellDoc);
+    BaseObject obj = createObj(cellDoc, CLASS_REF);
     obj.setIntValue(FIELD_AUTOCOMPLETE_IS_MULTISELECT.getName(), 1);
     obj.setStringValue(FIELD_AUTOCOMPLETE_SEPARATOR.getName(), "|");
+    obj = createObj(cellDoc, CellClass.CLASS_REF);
+    obj.setStringValue(CellClass.FIELD_CSS_CLASSES.getName(), "css");
     expect(structDataEditorSrvMock.getAttributeName(cellDoc, currentDoc))
-        .andReturn(Optional.of("anyName"));
+        .andReturn(Optional.of("Space.Class_0_field"));
+    expect(structDataEditorSrvMock.getAttributeName(cellDoc, null))
+        .andReturn(Optional.of("Space.Class_field"));
     expect(structDataEditorSrvMock.getCellValueAsString(cellDoc.getDocumentReference(), currentDoc))
         .andReturn(Optional.of("Space.Class"));
     expect(selectTagSrvMock.getTypeImpl(cellDoc.getDocumentReference()))
@@ -110,11 +116,13 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
     pageType.collectAttributes(attributes, cellDoc.getDocumentReference());
     verifyDefault();
 
-    assertEquals(6, attributes.build().size());
+    assertEquals(8, attributes.build().size());
     assertAttribute(attributes, "class", "structAutocomplete impl");
-    assertAttribute(attributes, "name", "anyName");
+    assertAttribute(attributes, "name", "Space.Class_0_field");
     assertAttribute(attributes, "multiple", "multiple");
+    assertAttribute(attributes, "data-class-field", "Space.Class_field");
     assertAttribute(attributes, "data-autocomplete-type", "impl");
+    assertAttribute(attributes, "data-autocomplete-css", "css");
     assertAttribute(attributes, "data-separator", "|");
     assertAttribute(attributes, "data-value", "Space.Class");
 
@@ -128,9 +136,9 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
     return doc;
   }
 
-  private static BaseObject createSelectTagObj(XWikiDocument doc) {
+  private static BaseObject createObj(XWikiDocument doc, ClassReference classRef) {
     BaseObject obj = new BaseObject();
-    obj.setXClassReference(CLASS_REF.getDocRef(doc.getDocumentReference().getWikiReference()));
+    obj.setXClassReference(classRef);
     doc.addXObject(obj);
     return obj;
   }
