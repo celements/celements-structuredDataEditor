@@ -57,9 +57,9 @@
         || 'de';
     document.querySelectorAll('.structAutocomplete:not(.initialised)').forEach(selectElem => {
       try {
+        selectElem.classList.add('initialised');
         $j(selectElem).select2(buildSelect2Config(selectElem, language))
         $j(selectElem).on('select2:unselect', clearSelectOptions);
-        selectElem.classList.add('initialised');
         console.debug('initAutocomplete: done', selectElem, language)
       } catch (exc) {
         console.error('initAutocomplete: failed', selectElem, exc);
