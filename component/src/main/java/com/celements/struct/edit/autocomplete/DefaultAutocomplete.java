@@ -2,6 +2,7 @@ package com.celements.struct.edit.autocomplete;
 
 import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
+import static com.google.common.base.Predicates.*;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -115,7 +116,8 @@ public class DefaultAutocomplete implements AutocompleteRole {
             .map(rethrowFunction(text -> velocityService.evaluateVelocityText(text, vContext -> {
               vContext.put("resultDocRef", onDocRef);
               return vContext;
-            })));
+            }).trim()))
+            .filter(not(String::isEmpty));
       } catch (XWikiVelocityException exc) {
         log.warn("renderResultFromCell - failed building json for cell [{}] and doc [{}]",
             cellDocRef, onDocRef, exc);

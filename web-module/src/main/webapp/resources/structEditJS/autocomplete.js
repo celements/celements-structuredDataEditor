@@ -37,7 +37,11 @@
   const checkInitAutocomplete = function() {
     $(document.body).stopObserving('structEdit:initAutocomplete',  initAutocomplete);
     $(document.body).observe('structEdit:initAutocomplete',  initAutocomplete);
-    if (!celMessages.progMsg) {
+    $(document.body).stopObserving("celements:contentChanged", initAutocomplete);
+    $(document.body).observe("celements:contentChanged", initAutocomplete);
+    $(document.body).stopObserving("cel_yuiOverlay:contentChanged", initAutocomplete);
+    $(document.body).observe("cel_yuiOverlay:contentChanged", initAutocomplete);
+    if (!celMessages) {
       console.debug('observe cel:messagesLoaded for initAutocomplete ');
       $(document.body).stopObserving('cel:messagesLoaded',  initAutocomplete);
       $(document.body).observe('cel:messagesLoaded',  initAutocomplete);
@@ -51,12 +55,15 @@
     const language = ((window.celMessages && window.celMessages.celmeta)
         ? window.celMessages.celmeta.language : '')
         || 'de';
-    document.querySelectorAll('.structAutocomplete').forEach(selectElem => {
-      console.log('initAutocomplete:', selectElem, language)
-      const type = selectElem.dataset.autocompleteType || '';
-      const cellRef = selectElem.dataset.cellRef || '';
-      $j(selectElem).select2(buildSelect2Config(type, language, cellRef))
-      $j(selectElem).on('select2:unselect', clearSelectOptions);
+    document.querySelectorAll('.structAutocomplete:not(.initialised)').forEach(selectElem => {
+      try {
+        selectElem.classList.add('initialised');
+        $j(selectElem).select2(buildSelect2Config(selectElem, language))
+        $j(selectElem).on('select2:unselect', clearSelectOptions);
+        console.debug('initAutocomplete: done', selectElem, language)
+      } catch (exc) {
+        console.error('initAutocomplete: failed', selectElem, exc);
+      }
     });
   };
 
@@ -99,13 +106,19 @@
     selectElem.innerHTML = '<option selected="selected" value="">delete</option>';
   };
 
-  const buildSelect2Config = function(type, language, cellRef) {
+  const buildSelect2Config = function(selectElem, language) {
+    const cellRef = selectElem.dataset.cellRef || '';
+    const classField = selectElem.dataset.classField || ''; 
+    const type = selectElem.dataset.autocompleteType || '';
+    const cssClasses = selectElem.dataset.autocompleteCss || '';
     return {
       language: language,
-      placeholder: celMessages.progMsg.select2["cel_select2_autocomplete_placeholder_" + type],
+      placeholder: celMessages.structEditor.select2['placeholder_' + classField]
+                || celMessages.structEditor.select2['placeholder_' + type]
+                || '',
       allowClear: true,
-      selectionCssClass: "structSelectContainer " + type + "SelectContainer",
-      dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown",
+      selectionCssClass: "structSelectContainer " + type + "SelectContainer " + cssClasses,
+      dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown " + cssClasses,
       ajax: buildSelect2Request(cellRef),
       escapeMarkup: function (markup) {
         // default Utils.escapeMarkup is HTML-escaping the value. Because

@@ -29,6 +29,7 @@ import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
+import com.celements.cells.classes.CellClass;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
@@ -69,14 +70,18 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       XWikiDocument currDoc = modelContext.getCurrentDoc().orNull();
+      attrBuilder.addCssClasses("structAutocomplete");
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
           cellDoc, currDoc).orElse(""));
-      attrBuilder.addCssClasses("structAutocomplete");
-      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc).filter(classDef);
+      getStructDataEditorService().getAttributeName(cellDoc, null)
+          .ifPresent(name -> attrBuilder.addNonEmptyAttribute("data-class-field", name));
       selectTagService.getTypeImpl(cellDocRef).ifPresent(type -> {
         attrBuilder.addCssClasses(type.getName());
         attrBuilder.addNonEmptyAttribute("data-autocomplete-type", type.getName());
       });
+      XWikiObjectFetcher.on(cellDoc).fetchField(CellClass.FIELD_CSS_CLASSES).stream().findFirst()
+          .ifPresent(css -> attrBuilder.addNonEmptyAttribute("data-autocomplete-css", css));
+      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc).filter(classDef);
       if (fetcher.fetchField(FIELD_AUTOCOMPLETE_IS_MULTISELECT).stream().anyMatch(TRUE::equals)) {
         attrBuilder.addNonEmptyAttribute("multiple", "multiple");
       }

@@ -22,7 +22,6 @@ package com.celements.struct;
 import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
 import static com.celements.structEditor.fields.SelectTagPageType.*;
 
-import java.util.Collection;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -53,8 +52,7 @@ public class DefaultSelectTagService implements SelectTagServiceRole {
     try {
       return XWikiObjectFetcher.on(modelAccess.getDocument(cellDocRef))
           .fetchField(FIELD_AUTOCOMPLETE_TYPE)
-          .stream().flatMap(Collection::stream)
-          .findFirst();
+          .stream().findFirst();
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("cell doesn't exist '{}'", cellDocRef, exc);
     }
