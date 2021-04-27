@@ -11,7 +11,7 @@
   #set($objectRowLayoutName = "$!{classRef.name.replace('Class','')}-EditFields")
 #end
 #set($objectRowLayout = $services.layout.getPageLayoutApiForRef($services.reference.create().space($objectRowLayoutName).build()))
-#if($services.layout.canRenderLayout($layout.layoutSpaceRef))
+#if($services.layout.canRenderLayout($objectRowLayout.layoutSpaceRef))
   <!-- objectRowLayout: $!objectRowLayout.layoutSpaceRef -->
   #if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings icon-plus") #end
   #if("$!iconDeleteCssClass" == '') #set($iconDeleteCssClass = "halflings icon-trash") #end
