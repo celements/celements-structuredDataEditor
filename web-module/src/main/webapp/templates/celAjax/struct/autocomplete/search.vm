@@ -12,6 +12,9 @@ $jsonBuilder.openDictionary()##
   #if($limit <= 0) #set($limit = 10) #end##
   $jsonBuilder.addProperty('limit', $limit)##
   #set($luceneSearchResult = $autoComplete.search($cellDocRef, $request.searchterm))##
+  #if($isSuperAdmin)##
+    $jsonBuilder.addProperty('luceneSearchResult', $luceneSearchResult)##
+  #end##
   #set($hasMore = $luceneSearchResult.getSize() > ($offset + $limit))##
   $jsonBuilder.addProperty('hasMore', $hasMore)##
   #set($stfu = $luceneSearchResult.setLimit($limit))##

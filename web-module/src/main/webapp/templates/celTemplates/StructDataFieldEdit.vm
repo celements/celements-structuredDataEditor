@@ -14,16 +14,18 @@
     <input type="hidden" name="ajax_mode" value="saveDocumentWithValidation" />
     <input type="hidden" name="createIfNotExists" value="true" />
     <div id="editablecode_container">
-      #set($structFieldObj = "")
-      #set($structFieldObj = $celldoc.getObject('Celements.StructEditFieldClass', true))
+      #set($cel_editobj_classname = 'Celements.StructEditFieldClass')
+      #set($structFieldObj = $celldoc.getObject($cel_editobj_classname, true))
       #set($cel_editobj_dict_prefix = 'cel_structEditor_edit_' )
       #set($cel_embedded_editobj = true)
-      #set($cel_editobj_classname = "Celements.StructEditFieldClass")
       #set($createIfNotExists = true)
       #set($cel_editobj_nb = $structFieldObj.getNumber())
       #set($cel_editobj_hasObjRemoveLink = false)
       #set($cel_editobj_externalForm = true)
-      #set($cel_editobj_properties = 'edit_field_class_fullname,edit_field_name')
+      #set($cel_editobj_properties = '')
+      #foreach($prop in $services.modelAccess.getDocument($cel_editobj_classname).xWikiClass.properties)
+        #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
+      #end
       #set($cel_editobj_readonly_properties = '')
       #parse("celTemplates/ObjectEdit.vm")
     </div>

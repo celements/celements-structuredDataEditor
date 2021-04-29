@@ -1,7 +1,7 @@
 #set($cel_editobj_dict_prefix = 'cel_selectTagAutocompleteEditor_edit_' )
 #set($cel_embedded_editobj = true)
 #set($cel_editobj_classname = 'Celements.SelectTagAutocompleteEditorClass')
-#set($obj = $celldoc.getObject($cel_editobj_classname))
+#set($obj = $celldoc.getObject($cel_editobj_classname, true))
 #set($cel_editobj_nb = $obj.getNumber())
 #set($createIfNotExists = true)
 #set($cel_editobj_hasObjRemoveLink = false)
@@ -18,7 +18,7 @@
   #set($cel_editobj_dict_prefix = 'cel_search_edit_' )
   #set($cel_editobj_classname = 'Celements2.WebSearchConfigClass')
   <h2>$adminMsg.get("${cel_editobj_dict_prefix}${cel_editobj_classname}")</h2>
-  #set($obj = $celldoc.getObject($cel_editobj_classname))
+  #set($obj = $celldoc.getObject($cel_editobj_classname, true))
   #set($cel_editobj_nb = $obj.getNumber())
   #set($cel_editobj_properties = '')
   #foreach($prop in $services.modelAccess.getDocument($cel_editobj_classname).xWikiClass.properties)
