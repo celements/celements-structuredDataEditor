@@ -41,7 +41,7 @@
     $(document.body).observe("celements:contentChanged", initAutocomplete);
     $(document.body).stopObserving("cel_yuiOverlay:contentChanged", initAutocomplete);
     $(document.body).observe("cel_yuiOverlay:contentChanged", initAutocomplete);
-    if (!celMessages) {
+    if (!celMessages.isLoaded) {
       console.debug('observe cel:messagesLoaded for initAutocomplete ');
       $(document.body).stopObserving('cel:messagesLoaded',  initAutocomplete);
       $(document.body).observe('cel:messagesLoaded',  initAutocomplete);
