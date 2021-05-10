@@ -94,7 +94,9 @@ public class DefaultAutocomplete implements AutocompleteRole {
     return findFirstPresent(Stream.concat(
         Stream.of(() -> renderResultFromCell(cellDocRef, FIELD_RESULT_NAME, onDocRef)),
         getDisplayNameSuppliers(onDocRef, cellDocRef)))
-            .orElseGet(onDocRef::getName);
+            .orElseGet(() -> Optional.ofNullable(onDocRef)
+                .map(DocumentReference::getName)
+                .orElse(""));
   }
 
   /**

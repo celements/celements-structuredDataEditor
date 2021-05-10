@@ -11,6 +11,7 @@ import org.easymock.Capture;
 import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.ImmutableDocumentReference;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
@@ -33,7 +34,8 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   private XWikiDocument doc;
   private XWikiDocument cellDoc;
-  private final String selected = "wiki:space.target";
+  private final DocumentReference selectedDocRef = new ImmutableDocumentReference("wiki", "space",
+      "target");
   private StructuredDataEditorService structMock;
 
   @Before
@@ -153,21 +155,21 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
   @Test
   public void test_getSelectedValue_fromRequest() throws Exception {
     expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.of("key"));
-    expect(getContext().getRequest().get("key")).andReturn(selected);
+    expect(getContext().getRequest().get("key")).andReturn(getUtils().serializeRef(selectedDocRef));
 
     replayDefault();
-    assertEquals(selected, getUtils().serializeRef(
-        autocomplete.getSelectedValue(cellDoc.getDocumentReference()).orElse(null)));
+    assertEquals(selectedDocRef, autocomplete.getSelectedValue(cellDoc.getDocumentReference())
+        .orElse(null));
     verifyDefault();
   }
 
   @Test
   public void test_getValueFromRequest() throws Exception {
     expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.of("key"));
-    expect(getContext().getRequest().get("key")).andReturn(selected);
+    expect(getContext().getRequest().get("key")).andReturn(getUtils().serializeRef(selectedDocRef));
 
     replayDefault();
-    assertEquals(selected, autocomplete.getValueFromRequest(cellDoc).orElse(null));
+    assertEquals(selectedDocRef, autocomplete.getValueFromRequest(cellDoc).orElse(null));
     verifyDefault();
   }
 
@@ -194,21 +196,21 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
   public void test_getSelectedValue_onDoc() throws Exception {
     expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.empty());
     expect(structMock.getCellValueAsString(same(cellDoc), same(doc)))
-        .andReturn(Optional.of(selected));
+        .andReturn(Optional.of(getUtils().serializeRef(selectedDocRef)));
 
     replayDefault();
-    assertEquals(selected, getUtils().serializeRef(
-        autocomplete.getSelectedValue(cellDoc.getDocumentReference()).orElse(null)));
+    assertEquals(selectedDocRef, autocomplete.getSelectedValue(cellDoc.getDocumentReference())
+        .orElse(null));
     verifyDefault();
   }
 
   @Test
   public void test_getValueOnDoc() throws Exception {
     expect(structMock.getCellValueAsString(same(cellDoc), same(doc)))
-        .andReturn(Optional.of(selected));
+        .andReturn(Optional.of(getUtils().serializeRef(selectedDocRef)));
 
     replayDefault();
-    assertEquals(selected, autocomplete.getValueOnDoc(cellDoc).orElse(null));
+    assertEquals(selectedDocRef, autocomplete.getValueOnDoc(cellDoc).orElse(null));
     verifyDefault();
   }
 
@@ -225,19 +227,19 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
   public void test_getSelectedValue_defaultValue() throws Exception {
     expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.empty());
     expect(structMock.getCellValueAsString(same(cellDoc), same(doc))).andReturn(Optional.empty());
-    addCellDocValue(OptionTagEditorClass.FIELD_VALUE, selected);
+    addCellDocValue(OptionTagEditorClass.FIELD_VALUE, getUtils().serializeRef(selectedDocRef));
 
     replayDefault();
-    assertEquals(selected, getUtils().serializeRef(
-        autocomplete.getSelectedValue(cellDoc.getDocumentReference()).orElse(null)));
+    assertEquals(selectedDocRef, autocomplete.getSelectedValue(cellDoc.getDocumentReference())
+        .orElse(null));
     verifyDefault();
   }
 
   @Test
   public void test_getDefaultValue() throws Exception {
-    addCellDocValue(OptionTagEditorClass.FIELD_VALUE, selected);
+    addCellDocValue(OptionTagEditorClass.FIELD_VALUE, getUtils().serializeRef(selectedDocRef));
     replayDefault();
-    assertEquals(selected, autocomplete.getDefaultValue(cellDoc).orElse(null));
+    assertEquals(selectedDocRef, autocomplete.getDefaultValue(cellDoc).orElse(null));
     verifyDefault();
   }
 
