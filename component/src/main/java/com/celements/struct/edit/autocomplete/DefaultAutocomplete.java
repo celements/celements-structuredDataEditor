@@ -91,19 +91,25 @@ public class DefaultAutocomplete implements AutocompleteRole {
 
   @Override
   public String displayNameForValue(DocumentReference onDocRef, DocumentReference cellDocRef) {
-    if (onDocRef != null) {
-      return findFirstPresent(
-          () -> renderResultFromCell(cellDocRef, FIELD_RESULT_NAME, onDocRef),
-          () -> displayTitle(onDocRef))
-              .orElseGet(onDocRef::getName);
-    }
-    return "";
+    return findFirstPresent(Stream.concat(
+        Stream.of(() -> renderResultFromCell(cellDocRef, FIELD_RESULT_NAME, onDocRef)),
+        getDisplayNameSuppliers(onDocRef, cellDocRef)))
+            .orElseGet(onDocRef::getName);
   }
 
-  private Optional<String> displayTitle(DocumentReference onDocRef) {
-    String lang = context.getLanguage().orElse("");
-    String title = modelAccess.getOrCreateDocument(onDocRef, lang).getTitle();
-    return Optional.ofNullable(Strings.emptyToNull(title.trim()));
+  /**
+   * extension point: override to provide different display name suppliers
+   */
+  protected Stream<Supplier<Optional<String>>> getDisplayNameSuppliers(
+      DocumentReference onDocRef, DocumentReference cellDocRef) {
+    return Stream.of(() -> displayTitle(onDocRef));
+  }
+
+  protected final Optional<String> displayTitle(DocumentReference onDocRef) {
+    return Optional.ofNullable(onDocRef)
+        .map(docRef -> modelAccess.getOrCreateDocument(docRef, context.getLanguage().orElse("")))
+        .map(doc -> doc.getTitle().trim())
+        .filter(not(Strings::isNullOrEmpty));
   }
 
   private Optional<String> renderResultFromCell(DocumentReference cellDocRef,
@@ -130,31 +136,41 @@ public class DefaultAutocomplete implements AutocompleteRole {
   public Optional<DocumentReference> getSelectedValue(DocumentReference cellDocRef) {
     return Optional.ofNullable(cellDocRef)
         .map(modelAccess::getOrCreateDocument)
-        .flatMap(cellDoc -> findFirstPresent(
-            () -> getValueFromRequest(cellDoc),
-            () -> getValueOnDoc(cellDoc),
-            () -> getDefaultValue(cellDoc)))
+        .map(this::getValueSuppliers)
+        .flatMap(this::findFirstPresent);
+  }
+
+  /**
+   * extension point: override to provide different value suppliers
+   */
+  protected Stream<Supplier<Optional<DocumentReference>>> getValueSuppliers(XWikiDocument cellDoc) {
+    return Stream.of(
+        () -> getValueFromRequest(cellDoc),
+        () -> getValueOnDoc(cellDoc),
+        () -> getDefaultValue(cellDoc));
+  }
+
+  protected final Optional<DocumentReference> getValueFromRequest(XWikiDocument cellDoc) {
+    return context.getCurrentDoc().toJavaUtil()
+        .flatMap(onDoc -> structEditService.getAttributeName(cellDoc, onDoc))
+        .flatMap(name -> context.getRequestParameter(name).toJavaUtil())
         .flatMap(this::resolve);
   }
 
-  protected final Optional<String> getValueFromRequest(XWikiDocument cellDoc) {
+  protected final Optional<DocumentReference> getValueOnDoc(XWikiDocument cellDoc) {
     return context.getCurrentDoc().toJavaUtil()
-        .flatMap(onDoc -> structEditService.getAttributeName(cellDoc, onDoc))
-        .flatMap(name -> context.getRequestParameter(name).toJavaUtil());
+        .flatMap(onDoc -> structEditService.getCellValueAsString(cellDoc, onDoc))
+        .flatMap(this::resolve);
   }
 
-  protected final Optional<String> getValueOnDoc(XWikiDocument cellDoc) {
-    return context.getCurrentDoc().toJavaUtil()
-        .flatMap(onDoc -> structEditService.getCellValueAsString(cellDoc, onDoc));
-  }
-
-  protected final Optional<String> getDefaultValue(XWikiDocument cellDoc) {
+  protected final Optional<DocumentReference> getDefaultValue(XWikiDocument cellDoc) {
     return XWikiObjectFetcher.on(cellDoc)
         .fetchField(OptionTagEditorClass.FIELD_VALUE)
-        .stream().findFirst();
+        .stream().findFirst()
+        .flatMap(this::resolve);
   }
 
-  private Optional<DocumentReference> resolve(String fullName) {
+  protected final Optional<DocumentReference> resolve(String fullName) {
     try {
       return Optional.of(modelUtils.resolveRef(fullName, DocumentReference.class));
     } catch (IllegalArgumentException exc) {
@@ -163,9 +179,8 @@ public class DefaultAutocomplete implements AutocompleteRole {
     }
   }
 
-  @SafeVarargs
-  private static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {
-    return Stream.of(suppliers).map(Supplier::get)
+  private <T> Optional<T> findFirstPresent(Stream<Supplier<Optional<T>>> suppliers) {
+    return suppliers.map(Supplier::get)
         .filter(Optional::isPresent).map(Optional::get)
         .findFirst();
   }
