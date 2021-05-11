@@ -66,6 +66,7 @@
         _me._pickerConfigObj = Object.assign({
           'lang': lang || 'de',
           'closeOnDateSelect': true,
+          'scrollInput': false,
           'onChangeDateTime': _me._onChangeFieldBind,
           'onShow': _me._onShowBind,
           'onClose': function () { }
