@@ -181,9 +181,9 @@ public class StructuredDataEditorScriptService implements ScriptService {
     return selectTagService.getTypeImpl(cellDocRef);
   }
 
-  public Optional<SelectAutocompleteRole> getSelectTagAutoCompleteImpl(String type) {
+  public Optional<AutocompleteRole> getSelectTagAutoCompleteImpl(String type) {
     try {
-      return Optional.of(componentManager.lookup(SelectAutocompleteRole.class, type));
+      return Optional.of(componentManager.lookup(AutocompleteRole.class, type));
     } catch (ComponentLookupException exc) {
       return Optional.empty();
     }
