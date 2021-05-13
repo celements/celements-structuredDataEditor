@@ -113,9 +113,9 @@
     const cssClasses = selectElem.dataset.autocompleteCss || '';
     return {
       language: language,
-      placeholder: celMessages.structEditor.select2['placeholder_' + classField]
-                || celMessages.structEditor.select2['placeholder_' + type]
-                || '',
+      placeholder: celMessages.structEditor.autocomplete['placeholder_' + classField]
+                || celMessages.structEditor.autocomplete['placeholder_' + type]
+                || celMessages.structEditor.autocomplete['placeholder_default'],
       allowClear: true,
       selectionCssClass: "structSelectContainer " + type + "SelectContainer " + cssClasses,
       dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown " + cssClasses,
