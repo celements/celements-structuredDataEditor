@@ -76,7 +76,8 @@
   const processResults = function (response, params) {
     params.page = params.page || 1;
     return {
-      results: response.results.map(elem => {
+      results: (response.results || [])
+        .map(elem => {
           elem.id = elem.fullName;
           elem.text = elem.name;
           return elem;
@@ -119,7 +120,7 @@
       allowClear: true,
       selectionCssClass: "structSelectContainer " + type + "SelectContainer " + cssClasses,
       dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown " + cssClasses,
-      ajax: buildSelect2Request(cellRef),
+      ajax: buildSelect2Request(type),
       escapeMarkup: function (markup) {
         // default Utils.escapeMarkup is HTML-escaping the value. Because
         // we formated the value using HTML it must not be further escaped.
@@ -131,7 +132,7 @@
     };
   };
 
-  const buildSelect2Request = function(cellRef, limit = 10) {
+  const buildSelect2Request = function(type, limit = 10) {
     return {
       url: "/OrgExport/REST",
       dataType: 'json',
@@ -146,7 +147,7 @@
           'ajax' : 1,
           'xpage' : 'celements_ajax',
           'ajax_mode' : 'struct/autocomplete/search',
-          'cellRef' : cellRef,
+          'type' : type,
           'searchterm' : params.term,
           'page' : page,
           'limit' : limit,

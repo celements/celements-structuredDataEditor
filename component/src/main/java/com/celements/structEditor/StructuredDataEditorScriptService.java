@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
+import org.xwiki.component.manager.ComponentLookupException;
+import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.script.service.ScriptService;
@@ -69,6 +71,9 @@ public class StructuredDataEditorScriptService implements ScriptService {
 
   @Requirement
   private ModelContext context;
+
+  @Requirement
+  private ComponentManager componentManager;
 
   public String getAttributeName(DocumentReference cellDocRef) {
     return getAttributeName(cellDocRef, null);
@@ -174,6 +179,14 @@ public class StructuredDataEditorScriptService implements ScriptService {
   public Optional<AutocompleteRole> getSelectTagAutoCompleteImpl(
       DocumentReference cellDocRef) {
     return selectTagService.getTypeImpl(cellDocRef);
+  }
+
+  public Optional<SelectAutocompleteRole> getSelectTagAutoCompleteImpl(String type) {
+    try {
+      return Optional.of(componentManager.lookup(SelectAutocompleteRole.class, type));
+    } catch (ComponentLookupException exc) {
+      return Optional.empty();
+    }
   }
 
   public boolean isMultilingual(DocumentReference cellDocRef) {
