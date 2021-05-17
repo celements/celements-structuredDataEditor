@@ -13,6 +13,10 @@
     ${attrEntry.key}="$!{attrEntry.value}"##
   #end##
 >##
-$!services.structuredDataEditor.getCellValueAsString($cellDocRef)##
+#set($value = $services.structuredDataEditor.getCellValueFromRequest($cellDocRef))##
+#if("$!value" == '')##
+  #set($value = $services.structuredDataEditor.getCellValueAsString($cellDocRef))##
+#end##
+$!value##
 </textarea>
 #parse('celMacros/struct/renderLangHiddenField.vm')
