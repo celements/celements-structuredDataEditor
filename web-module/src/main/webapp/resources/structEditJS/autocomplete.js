@@ -120,7 +120,7 @@
       allowClear: true,
       selectionCssClass: "structSelectContainer " + type + "SelectContainer " + cssClasses,
       dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown " + cssClasses,
-      ajax: buildSelect2Request(type),
+      ajax: buildSelect2Request(type, cellRef),
       escapeMarkup: function (markup) {
         // default Utils.escapeMarkup is HTML-escaping the value. Because
         // we formated the value using HTML it must not be further escaped.
@@ -132,7 +132,7 @@
     };
   };
 
-  const buildSelect2Request = function(type, limit = 10) {
+  const buildSelect2Request = function(type, cellRef, limit = 10) {
     return {
       url: "/OrgExport/REST",
       dataType: 'json',
@@ -148,6 +148,7 @@
           'xpage' : 'celements_ajax',
           'ajax_mode' : 'struct/autocomplete/search',
           'type' : type,
+          'cellRef' : cellRef,
           'searchterm' : params.term,
           'page' : page,
           'limit' : limit,
