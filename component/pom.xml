@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
  *
  * See the NOTICE file distributed with this work for additional
@@ -21,12 +20,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  *
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>com.celements</groupId>
     <artifactId>celements</artifactId>
-    <version>5.1</version>
+    <version>5.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-structuredDataEditor</artifactId>
@@ -37,19 +37,19 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-model</artifactId>
-      <version>5.0.1</version>
+      <version>5.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-core</artifactId>
-      <version>5.0.1</version>
+      <version>5.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-search</artifactId>
-      <version>5.1</version>
+      <version>5.2-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -57,6 +57,5 @@
     <connection>scm:git:git@github.com:celements/celements-structuredDataEditor.git</connection>
     <developerConnection>scm:git:git@github.com:celements/celements-structuredDataEditor.git</developerConnection>
     <url>https://github.com/celements/celements-structuredDataEditor</url>
-    <tag>HEAD</tag>
   </scm>
 </project>
