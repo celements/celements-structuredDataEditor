@@ -453,6 +453,10 @@
         _me._hiddenInputElem.remove();
       }
 
+      attributeChangedCallback() {
+        _me._hiddenInputElem.setAttribute(_me.getAttribute('name'));
+      }
+
       get value() {
         const _me = this;
         console.log('get value: ', _me._value, _me.getAttribute('value'));
