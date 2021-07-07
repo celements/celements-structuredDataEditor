@@ -433,20 +433,24 @@
       connectedCallback() {
         const _me = this;
         console.log('DateTimeFiled connectedCallback: ', _me.isConnected, _me.parentElement);
-        _me._hiddenInputElem = new Element('input', {
-          'type': 'hidden',
-          'name': _me.getAttribute('name'),
-          'value': _me.value
-        });
+        if (!_me._hiddenInputElem) {
+          _me._hiddenInputElem = new Element('input', {
+            'type': 'hidden',
+            'name': _me.getAttribute('name'),
+            'value': _me.value
+          });
+        }
         _me.parentElement.insertBefore(_me._hiddenInputElem, _me);
-        _me._dateTimeFieldControler = new CELEMENTS.structEdit.DateTimeInputHandler(_me);
+        if (!_me._dateTimeFieldControler) {
+          _me._dateTimeFieldControler = new CELEMENTS.structEdit.DateTimeInputHandler(_me);
+        }
       }
 
       disconnectedCallback() {
         const _me = this;
         console.log('DateTimeFiled disconnectedCallback: ', _me.isConnected, _me.parentElement,
           _me._hiddenInputElem);
-
+        _me._hiddenInputElem.remove();
       }
 
       get value() {
