@@ -450,7 +450,9 @@
         const _me = this;
         console.log('DateTimeFiled disconnectedCallback: ', _me.isConnected, _me.parentElement,
           _me._hiddenInputElem);
-        _me._hiddenInputElem.remove();
+        if (!_me._hiddenInputElem) {
+          _me._hiddenInputElem.remove();
+        }
       }
 
       static get observedAttributes() {
@@ -460,7 +462,9 @@
       attributeChangedCallback() {
         const _me = this;
         console.log('DateTimeFiled attributeChangedCallback: ', _me._hiddenInputElem);
-        _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
+        if (!_me._hiddenInputElem) {
+          _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
+        }
       }
 
       get value() {
