@@ -453,8 +453,14 @@
         _me._hiddenInputElem.remove();
       }
 
+      static get observedAttributes() {
+        return ['name'];
+      }
+
       attributeChangedCallback() {
-        _me._hiddenInputElem.setAttribute(_me.getAttribute('name'));
+        const _me = this;
+        console.log('DateTimeFiled attributeChangedCallback: ', _me._hiddenInputElem);
+        _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
       }
 
       get value() {
