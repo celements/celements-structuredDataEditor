@@ -461,7 +461,8 @@
 
       attributeChangedCallback() {
         const _me = this;
-        console.log('DateTimeFiled attributeChangedCallback: ', _me._hiddenInputElem);
+        console.log('DateTimeFiled attributeChangedCallback: ', _me._hiddenInputElem,
+          _me.getAttribute('name'));
         if (!_me._hiddenInputElem) {
           _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
         }
