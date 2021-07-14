@@ -17,7 +17,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-(function (window, undefined) {
+(function(window, undefined) {
   'use strict';
 
   const versionTimeStamp = new Date().getTime();
@@ -42,7 +42,7 @@
       _pickerButtonClickHandlerBind: undefined,
       _pickerButton: undefined,
 
-      initialize: function (inputField, buttonCssSelector,
+      initialize: function(inputField, buttonCssSelector,
         defaultFormat, pickerConfigObj, fieldValidator) {
         const _me = this;
         _me._inputField = inputField;
@@ -58,7 +58,7 @@
         _me._registerPickerButton();
       },
 
-      _initPickerConfig: function (configObj) {
+      _initPickerConfig: function(configObj) {
         const _me = this;
         // FIXME [CELDEV-904] DateTimePicker Language timing issue
         const lang = Validation.messages.get("admin-language");
@@ -69,17 +69,17 @@
           'scrollInput': false,
           'onChangeDateTime': _me._onChangeFieldBind,
           'onShow': _me._onShowBind,
-          'onClose': function () { }
+          'onClose': function() { }
         }, configObj);
       },
 
-      _registerInputField: function () {
+      _registerInputField: function() {
         const _me = this;
         _me._inputField.stopObserving('change', _me._onChangedBind);
         _me._inputField.observe('change', _me._onChangedBind);
       },
 
-      _registerPickerButton: function () {
+      _registerPickerButton: function() {
         const _me = this;
         if (!_me._inputField) {
           console.warn('_registerPickerButton no inputField');
@@ -97,34 +97,34 @@
         }
       },
 
-      getHtmlElem: function () {
+      getHtmlElem: function() {
         const _me = this;
         return _me._inputField;
       },
 
-      getValue: function () {
+      getValue: function() {
         const _me = this;
         return _me._inputField.value;
       },
 
-      setValue: function (newValue) {
+      setValue: function(newValue) {
         const _me = this;
         _me._inputField.value = newValue;
       },
 
-      _pickerButtonClickHandler: function (event) {
+      _pickerButtonClickHandler: function(event) {
         const _me = this;
         event.stop();
         _me.openPicker();
       },
 
-      openPicker: function () {
+      openPicker: function() {
         const _me = this;
         _me._openPickerNow = true;
         $j(_me._inputField).trigger('open');
       },
 
-      _onShow: function (currentTime, data) {
+      _onShow: function(currentTime, data) {
         const _me = this;
         const showNow = _me._openPickerNow;
         console.debug('_onShow: ', showNow, currentTime, data);
@@ -132,7 +132,7 @@
         return showNow;
       },
 
-      _onChanged: function () {
+      _onChanged: function() {
         const _me = this;
         const newValue = _me.getValue();
         console.log("_onChanged", newValue);
@@ -148,7 +148,7 @@
         }
       },
 
-      _onChangeField: function (currentValue, data) {
+      _onChangeField: function(currentValue, data) {
         const _me = this;
         const value = currentValue ? $j.format.date(currentValue, _me._defaultFormat) : "";
         let prototypejsEle = $(data[0]);
@@ -165,7 +165,7 @@
   if (typeof window.CELEMENTS.structEdit.DateOrTimePickerFactory === 'undefined') {
     window.CELEMENTS.structEdit.DateOrTimePickerFactory = Class.create({
 
-      createDatePickerField: function (dateInputField) {
+      createDatePickerField: function(dateInputField) {
         const _me = this;
         const pickerConfigObj = {
           'allowBlank': true,
@@ -177,11 +177,11 @@
           "dd.MM.y", pickerConfigObj, _me._dateFieldValidator);
       },
 
-      _dateFieldValidator: function (value) {
+      _dateFieldValidator: function(value) {
         console.debug("dateFieldValidator - from", value);
         value = (value || "").toString().trim().replace(/[,-]/g, '.');
         const split = value.split(".")
-          .filter(function (elem) { return elem; }); // filter falsy elements
+          .filter(function(elem) { return elem; }); // filter falsy elements
         const day = Number(split[0]);
         const month = Number(split[1]);
         let year = Number(split[2]);
@@ -202,7 +202,7 @@
         return validated;
       },
 
-      createTimePickerField: function (timeInputField) {
+      createTimePickerField: function(timeInputField) {
         const _me = this;
         const pickerConfigObj = {
           'allowBlank': true,
@@ -214,11 +214,11 @@
           "HH:mm", pickerConfigObj, _me._timeFieldValidator);
       },
 
-      _timeFieldValidator: function (value) {
+      _timeFieldValidator: function(value) {
         console.debug("timeFieldValidator - from", value);
         value = (value || "").toString().trim().replace(/[\.,]/g, ':');
         const split = value.split(":")
-          .filter(function (elem) { return elem; }); // filter falsy elements
+          .filter(function(elem) { return elem; }); // filter falsy elements
         const hours = Number(split[0]);
         let minutes = Number(split[1]);
         if (minutes < 6 && split[1].trim().length == 1) {
@@ -251,7 +251,7 @@
       _inputTimeField: undefined,
       _dateOrTimePickerFactory: new CELEMENTS.structEdit.DateOrTimePickerFactory(),
 
-      initialize: function (dateTimeComponent) {
+      initialize: function(dateTimeComponent) {
         const _me = this;
         _me._dateTimeComponent = dateTimeComponent;
         _me._updateVisibleFromHiddenBind = _me._updateVisibleFromHidden.bind(_me);
@@ -266,7 +266,7 @@
         // _me._rootElem.show();
       },
 
-      _initDateField: function () {
+      _initDateField: function() {
         const _me = this;
         try {
           _me._inputDateField = _me._dateOrTimePickerFactory.createDatePickerField(
@@ -280,7 +280,7 @@
         }
       },
 
-      _initTimeField: function () {
+      _initTimeField: function() {
         const _me = this;
         try {
           _me._inputTimeField = _me._dateOrTimePickerFactory.createTimePickerField(
@@ -294,12 +294,12 @@
         }
       },
 
-      isFromDate: function () {
+      isFromDate: function() {
         const _me = this;
         return _me._hiddenDateTimeField.hasClassName('fromDateInput');
       },
 
-      getTimeValue: function () {
+      getTimeValue: function() {
         const _me = this;
         const dateTimeValues = _me._hiddenDateTimeField.value.split(' ');
         const timeValue = dateTimeValues[1] || "00:00";
@@ -307,7 +307,7 @@
         return timeValue;
       },
 
-      getDateValue: function () {
+      getDateValue: function() {
         const _me = this;
         const dateTimeValues = _me._hiddenDateTimeField.value.split(' ');
         const dateValue = dateTimeValues[0];
@@ -315,7 +315,7 @@
         return dateValue;
       },
 
-      _updateVisibleFromHidden: function () {
+      _updateVisibleFromHidden: function() {
         const _me = this;
         const dateValue = _me.getDateValue();
         _me._inputDateField.setValue(dateValue);
@@ -325,7 +325,7 @@
         _me._updateHiddenFromVisible();
       },
 
-      _updateHiddenFromVisible: function () {
+      _updateHiddenFromVisible: function() {
         const _me = this;
         const dateValue = _me._inputDateField.getValue();
         const timeValue = _me._inputTimeField.getValue();
@@ -337,7 +337,7 @@
         console.log("_updateHiddenFromVisible", dateTimeValues);
       },
 
-      _allDayChangedHandler: function (event) {
+      _allDayChangedHandler: function(event) {
         const _me = this;
         _me._updateHiddenFromVisible();
       }
@@ -361,7 +361,7 @@
         //HACK be sure to load the glyphicons-halflings.css in the html-page too.
         //HACK Because font-face will not work in shadow dom otherwise.
         const cssFiles = ['celRes/images/glyphicons-halflings/css/glyphicons-halflings.css'];
-        cssFiles.forEach(function (cssFile) {
+        cssFiles.forEach(function(cssFile) {
           const cssElem = new Element('link', {
             'rel': 'stylesheet',
             'media': 'all',
@@ -379,7 +379,7 @@
         const cssFiles = ['celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
           'celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css'
         ];
-        cssFiles.forEach(function (cssFile) {
+        cssFiles.forEach(function(cssFile) {
           const cssElem = new Element('link', {
             'rel': 'stylesheet',
             'media': 'all',
@@ -433,13 +433,39 @@
       connectedCallback() {
         const _me = this;
         console.log('DateTimeFiled connectedCallback: ', _me.isConnected, _me.parentElement);
-        _me._hiddenInputElem = new Element('input', {
-          'type': 'hidden',
-          'name': _me.getAttribute('name'),
-          'value': _me.value
-        });
+        if (!_me._hiddenInputElem) {
+          _me._hiddenInputElem = new Element('input', {
+            'type': 'hidden',
+            'name': _me.getAttribute('name'),
+            'value': _me.value
+          });
+        }
         _me.parentElement.insertBefore(_me._hiddenInputElem, _me);
-        _me._dateTimeFieldControler = new CELEMENTS.structEdit.DateTimeInputHandler(_me);
+        if (!_me._dateTimeFieldControler) {
+          _me._dateTimeFieldControler = new CELEMENTS.structEdit.DateTimeInputHandler(_me);
+        }
+      }
+
+      disconnectedCallback() {
+        const _me = this;
+        console.log('DateTimeFiled disconnectedCallback: ', _me.isConnected, _me.parentElement,
+          _me._hiddenInputElem);
+        if (!_me._hiddenInputElem) {
+          _me._hiddenInputElem.remove();
+        }
+      }
+
+      static get observedAttributes() {
+        return ['name'];
+      }
+
+      attributeChangedCallback() {
+        const _me = this;
+        console.log('DateTimeFiled attributeChangedCallback: ', _me._hiddenInputElem,
+          _me.getAttribute('name'));
+        if (_me._hiddenInputElem) {
+          _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
+        }
       }
 
       get value() {
