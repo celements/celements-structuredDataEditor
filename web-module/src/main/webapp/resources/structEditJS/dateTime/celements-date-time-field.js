@@ -260,10 +260,7 @@
         _me._hiddenDateTimeField = dateTimeComponent._hiddenInputElem;
         _me._initDateField();
         _me._initTimeField();
-        // dateTimeComponent.celObserve(dateTimeComponent.COMP_ALL_DAY_CHANGED,
-        // _me._allDayChangedHandlerBind);
         _me._updateVisibleFromHidden();
-        // _me._rootElem.show();
       },
 
       _initDateField: function() {
@@ -329,9 +326,6 @@
         const _me = this;
         const dateValue = _me._inputDateField.getValue();
         const timeValue = _me._inputTimeField.getValue();
-        // if (_me._isAllDayFnc()) {
-        // timeValue = "00:00";
-        // }
         const dateTimeValues = dateValue + " " + timeValue;
         _me._hiddenDateTimeField.value = dateTimeValues;
         console.log("_updateHiddenFromVisible", dateTimeValues);
