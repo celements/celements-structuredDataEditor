@@ -245,7 +245,6 @@
       _updateVisibleFromHiddenBind: undefined,
       _updateHiddenFromVisibleBind: undefined,
       _dateTimeComponent: undefined,
-      _hiddenDateTimeField: undefined,
       _inputDateField: undefined,
       _inputTimeField: undefined,
       _dateOrTimePickerFactory: new CELEMENTS.structEdit.DateOrTimePickerFactory(),
@@ -255,7 +254,6 @@
         _me._dateTimeComponent = dateTimeComponent;
         _me._updateVisibleFromHiddenBind = _me._updateVisibleFromHidden.bind(_me);
         _me._updateHiddenFromVisibleBind = _me._updateHiddenFromVisible.bind(_me);
-        _me._hiddenDateTimeField = dateTimeComponent._hiddenInputElem;
         _me._initDateField();
         _me._initTimeField();
         _me._updateVisibleFromHidden();
@@ -291,12 +289,12 @@
 
       isFromDate: function() {
         const _me = this;
-        return _me._hiddenDateTimeField.hasClassName('fromDateInput');
+        return _me._dateTimeComponent.hasClassName('fromDateInput');
       },
 
       getTimeValue: function() {
         const _me = this;
-        const dateTimeValues = _me._hiddenDateTimeField.value.split(' ');
+        const dateTimeValues = _me._dateTimeComponent.value.split(' ');
         const timeValue = dateTimeValues[1] || "00:00";
         console.log('getTimeValue: ', timeValue);
         return timeValue;
@@ -304,7 +302,7 @@
 
       getDateValue: function() {
         const _me = this;
-        const dateTimeValues = _me._hiddenDateTimeField.value.split(' ');
+        const dateTimeValues = _me._dateTimeComponent.value.split(' ');
         const dateValue = dateTimeValues[0];
         console.log('getDateValue: ', dateValue);
         return dateValue;
@@ -316,7 +314,7 @@
         _me._inputDateField.setValue(dateValue);
         const timeValue = _me.getTimeValue();
         _me._inputTimeField.setValue(timeValue);
-        console.log("_updateVisibleFromHidden", _me._hiddenDateTimeField, dateValue, timeValue);
+        console.log("_updateVisibleFromHidden", _me._dateTimeComponent, dateValue, timeValue);
         _me._updateHiddenFromVisible();
       },
 
@@ -325,7 +323,7 @@
         const dateValue = _me._inputDateField.getValue();
         const timeValue = _me._inputTimeField.getValue();
         const dateTimeValues = dateValue + " " + timeValue;
-        _me._hiddenDateTimeField.value = dateTimeValues;
+        _me._dateTimeComponent.value = dateTimeValues;
         console.log("_updateHiddenFromVisible", dateTimeValues);
       }
 
