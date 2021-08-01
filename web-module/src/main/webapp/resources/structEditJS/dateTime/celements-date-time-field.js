@@ -244,7 +244,6 @@
     window.CELEMENTS.structEdit.DateTimeInputHandler = Class.create({
       _updateVisibleFromHiddenBind: undefined,
       _updateHiddenFromVisibleBind: undefined,
-      _allDayChangedHandlerBind: undefined,
       _dateTimeComponent: undefined,
       _hiddenDateTimeField: undefined,
       _inputDateField: undefined,
@@ -255,7 +254,6 @@
         const _me = this;
         _me._dateTimeComponent = dateTimeComponent;
         _me._updateVisibleFromHiddenBind = _me._updateVisibleFromHidden.bind(_me);
-        _me._allDayChangedHandlerBind = _me._allDayChangedHandler.bind(_me);
         _me._updateHiddenFromVisibleBind = _me._updateHiddenFromVisible.bind(_me);
         _me._hiddenDateTimeField = dateTimeComponent._hiddenInputElem;
         _me._initDateField();
@@ -329,11 +327,6 @@
         const dateTimeValues = dateValue + " " + timeValue;
         _me._hiddenDateTimeField.value = dateTimeValues;
         console.log("_updateHiddenFromVisible", dateTimeValues);
-      },
-
-      _allDayChangedHandler: function(event) {
-        const _me = this;
-        _me._updateHiddenFromVisible();
       }
 
     });
@@ -425,6 +418,7 @@
       }
 
       _updateNameAttribute() {
+        const _me = this;
         console.log('_updateNameAttribute: ', _me._hiddenInputElem, _me.getAttribute('name'));
         if (_me._hiddenInputElem) {
           _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
@@ -432,6 +426,7 @@
       }
 
       _updateValueAttribute() {
+        const _me = this;
         console.log('_updateValueAttribute: ', _me._hiddenInputElem, _me.getAttribute('value'));
         if (_me._hiddenInputElem) {
           _me._hiddenInputElem.setAttribute('value', _me.getAttribute('value'));
