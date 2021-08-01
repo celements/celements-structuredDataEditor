@@ -345,13 +345,13 @@
         super();
         const _me = this;
         _me.attachShadow({ mode: 'open' });
-        _me.addCssFilesToParent();
-        _me.addCssFiles();
-        _me.addInputFields();
-        _me.addPickerIcons();
+        _me._addCssFilesToParent();
+        _me._addCssFiles();
+        _me._addInputFields();
+        _me._addPickerIcons();
       }
 
-      addCssFilesToParent() {
+      _addCssFilesToParent() {
         //HACK be sure to load the glyphicons-halflings.css in the html-page too.
         //HACK Because font-face will not work in shadow dom otherwise.
         const cssFiles = ['celRes/images/glyphicons-halflings/css/glyphicons-halflings.css'];
@@ -366,7 +366,7 @@
         });
       }
 
-      addCssFiles() {
+      _addCssFiles() {
         const _me = this;
         //HACK be sure to load the glyphicons-halflings.css in the html-page too.
         //HACK Because font-face will not work in shadow dom otherwise.
@@ -392,7 +392,7 @@
         _me.shadowRoot.appendChild(dateTimeCssElem);
       }
 
-      addInputFields() {
+      _addInputFields() {
         const _me = this;
         _me._datePart = new Element('input', {
           'type': 'text',
@@ -410,7 +410,7 @@
         _me.shadowRoot.appendChild(_me._timePart);
       }
 
-      addPickerIcons() {
+      _addPickerIcons() {
         const _me = this;
         _me._datePickerIcon = new Element('i', {
           'title': 'Date Picker',
@@ -422,6 +422,20 @@
           'class': 'CelTimePicker timeInputField halflings halflings-time'
         });
         _me.shadowRoot.insertBefore(_me._timePickerIcon, _me._timePart.nextSibling);
+      }
+
+      _updateNameAttribute() {
+        console.log('_updateNameAttribute: ', _me._hiddenInputElem, _me.getAttribute('name'));
+        if (_me._hiddenInputElem) {
+          _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
+        }
+      }
+
+      _updateValueAttribute() {
+        console.log('_updateValueAttribute: ', _me._hiddenInputElem, _me.getAttribute('value'));
+        if (_me._hiddenInputElem) {
+          _me._hiddenInputElem.setAttribute('value', _me.getAttribute('value'));
+        }
       }
 
       connectedCallback() {
@@ -450,15 +464,20 @@
       }
 
       static get observedAttributes() {
-        return ['name'];
+        return ['name', 'value'];
       }
 
-      attributeChangedCallback() {
+      attributeChangedCallback(attrName, oldValue, newValue) {
         const _me = this;
-        console.log('DateTimeFiled attributeChangedCallback: ', _me._hiddenInputElem,
-          _me.getAttribute('name'));
-        if (_me._hiddenInputElem) {
-          _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
+        switch (attrName) {
+          case "name":
+            _me._updateNameAttribute();
+            break;
+          case "value":
+            _me._updateValueAttribute();
+            break;
+          default:
+            console.warn('attributeChangedCallback not defined for ', attrName);
         }
       }
 
@@ -472,6 +491,7 @@
         const _me = this;
         console.log('set value: ', _me._value, newValue);
         _me._value = newValue;
+        _me.setAttribute('value', _me._value);
       }
 
     }
