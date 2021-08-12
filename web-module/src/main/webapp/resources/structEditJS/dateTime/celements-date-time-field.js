@@ -244,9 +244,7 @@
     window.CELEMENTS.structEdit.DateTimeInputHandler = Class.create({
       _updateVisibleFromHiddenBind: undefined,
       _updateHiddenFromVisibleBind: undefined,
-      _allDayChangedHandlerBind: undefined,
       _dateTimeComponent: undefined,
-      _hiddenDateTimeField: undefined,
       _inputDateField: undefined,
       _inputTimeField: undefined,
       _dateOrTimePickerFactory: new CELEMENTS.structEdit.DateOrTimePickerFactory(),
@@ -255,9 +253,7 @@
         const _me = this;
         _me._dateTimeComponent = dateTimeComponent;
         _me._updateVisibleFromHiddenBind = _me._updateVisibleFromHidden.bind(_me);
-        _me._allDayChangedHandlerBind = _me._allDayChangedHandler.bind(_me);
         _me._updateHiddenFromVisibleBind = _me._updateHiddenFromVisible.bind(_me);
-        _me._hiddenDateTimeField = dateTimeComponent._hiddenInputElem;
         _me._initDateField();
         _me._initTimeField();
         _me._updateVisibleFromHidden();
@@ -293,12 +289,12 @@
 
       isFromDate: function() {
         const _me = this;
-        return _me._hiddenDateTimeField.hasClassName('fromDateInput');
+        return _me._dateTimeComponent.hasClassName('fromDateInput');
       },
 
       getTimeValue: function() {
         const _me = this;
-        const dateTimeValues = _me._hiddenDateTimeField.value.split(' ');
+        const dateTimeValues = _me._dateTimeComponent.value.split(' ');
         const timeValue = dateTimeValues[1] || "00:00";
         console.log('getTimeValue: ', timeValue);
         return timeValue;
@@ -306,7 +302,7 @@
 
       getDateValue: function() {
         const _me = this;
-        const dateTimeValues = _me._hiddenDateTimeField.value.split(' ');
+        const dateTimeValues = _me._dateTimeComponent.value.split(' ');
         const dateValue = dateTimeValues[0];
         console.log('getDateValue: ', dateValue);
         return dateValue;
@@ -318,7 +314,7 @@
         _me._inputDateField.setValue(dateValue);
         const timeValue = _me.getTimeValue();
         _me._inputTimeField.setValue(timeValue);
-        console.log("_updateVisibleFromHidden", _me._hiddenDateTimeField, dateValue, timeValue);
+        console.log("_updateVisibleFromHidden", _me._dateTimeComponent, dateValue, timeValue);
         _me._updateHiddenFromVisible();
       },
 
@@ -327,13 +323,8 @@
         const dateValue = _me._inputDateField.getValue();
         const timeValue = _me._inputTimeField.getValue();
         const dateTimeValues = dateValue + " " + timeValue;
-        _me._hiddenDateTimeField.value = dateTimeValues;
+        _me._dateTimeComponent.value = dateTimeValues;
         console.log("_updateHiddenFromVisible", dateTimeValues);
-      },
-
-      _allDayChangedHandler: function(event) {
-        const _me = this;
-        _me._updateHiddenFromVisible();
       }
 
     });
@@ -345,13 +336,13 @@
         super();
         const _me = this;
         _me.attachShadow({ mode: 'open' });
-        _me.addCssFilesToParent();
-        _me.addCssFiles();
-        _me.addInputFields();
-        _me.addPickerIcons();
+        _me._addCssFilesToParent();
+        _me._addCssFiles();
+        _me._addInputFields();
+        _me._addPickerIcons();
       }
 
-      addCssFilesToParent() {
+      _addCssFilesToParent() {
         //HACK be sure to load the glyphicons-halflings.css in the html-page too.
         //HACK Because font-face will not work in shadow dom otherwise.
         const cssFiles = ['celRes/images/glyphicons-halflings/css/glyphicons-halflings.css'];
@@ -366,7 +357,7 @@
         });
       }
 
-      addCssFiles() {
+      _addCssFiles() {
         const _me = this;
         //HACK be sure to load the glyphicons-halflings.css in the html-page too.
         //HACK Because font-face will not work in shadow dom otherwise.
@@ -392,7 +383,7 @@
         _me.shadowRoot.appendChild(dateTimeCssElem);
       }
 
-      addInputFields() {
+      _addInputFields() {
         const _me = this;
         _me._datePart = new Element('input', {
           'type': 'text',
@@ -410,7 +401,7 @@
         _me.shadowRoot.appendChild(_me._timePart);
       }
 
-      addPickerIcons() {
+      _addPickerIcons() {
         const _me = this;
         _me._datePickerIcon = new Element('i', {
           'title': 'Date Picker',
@@ -422,6 +413,22 @@
           'class': 'CelTimePicker timeInputField halflings halflings-time'
         });
         _me.shadowRoot.insertBefore(_me._timePickerIcon, _me._timePart.nextSibling);
+      }
+
+      _updateNameAttribute() {
+        const _me = this;
+        console.debug('_updateNameAttribute: ', _me._hiddenInputElem, _me.getAttribute('name'));
+        if (_me._hiddenInputElem) {
+          _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
+        }
+      }
+
+      _updateValueAttribute() {
+        const _me = this;
+        console.debug('_updateValueAttribute: ', _me._hiddenInputElem, _me.getAttribute('value'));
+        if (_me._hiddenInputElem) {
+          _me._hiddenInputElem.setAttribute('value', _me.getAttribute('value'));
+        }
       }
 
       connectedCallback() {
@@ -450,15 +457,20 @@
       }
 
       static get observedAttributes() {
-        return ['name'];
+        return ['name', 'value'];
       }
 
-      attributeChangedCallback() {
+      attributeChangedCallback(attrName, oldValue, newValue) {
         const _me = this;
-        console.log('DateTimeFiled attributeChangedCallback: ', _me._hiddenInputElem,
-          _me.getAttribute('name'));
-        if (_me._hiddenInputElem) {
-          _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
+        switch (attrName) {
+          case "name":
+            _me._updateNameAttribute();
+            break;
+          case "value":
+            _me._updateValueAttribute();
+            break;
+          default:
+            console.warn('attributeChangedCallback not defined for ', attrName);
         }
       }
 
@@ -472,6 +484,7 @@
         const _me = this;
         console.log('set value: ', _me._value, newValue);
         _me._value = newValue;
+        _me.setAttribute('value', _me._value);
       }
 
     }
