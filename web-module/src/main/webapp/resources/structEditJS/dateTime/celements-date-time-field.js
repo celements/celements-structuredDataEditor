@@ -425,7 +425,7 @@
 
       _updateValueAttribute() {
         const _me = this;
-        console.log('_updateValueAttribute: ', _me._hiddenInputElem, _me.getAttribute('value'));
+        console.debug('_updateValueAttribute: ', _me._hiddenInputElem, _me.getAttribute('value'));
         if (_me._hiddenInputElem) {
           _me._hiddenInputElem.setAttribute('value', _me.getAttribute('value'));
         }
