@@ -417,7 +417,7 @@
 
       _updateNameAttribute() {
         const _me = this;
-        console.log('_updateNameAttribute: ', _me._hiddenInputElem, _me.getAttribute('name'));
+        console.debug('_updateNameAttribute: ', _me._hiddenInputElem, _me.getAttribute('name'));
         if (_me._hiddenInputElem) {
           _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
         }
