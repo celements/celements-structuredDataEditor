@@ -3,7 +3,7 @@
 ## NOTE we cannot simply use XWiki's displayEdit here because it also renders the select-tag around it
 #set($cellDocRef = $celldoc.getDocumentReference())
 #set($supportedClasses = ['BooleanClass','ListClass','StaticListClass','DBListClass','DBTreeListClass','UsersClass','GroupsClass','LevelsClass'])
-#set($supportedDisplayTypes = ['select'])
+#set($supportedDisplayTypes = ['select','yesno'])
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef).orNull())
 #set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
 #if("$!renderedContent" != '')
