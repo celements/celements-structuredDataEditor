@@ -2,36 +2,45 @@
 ## tries to render option-tags from XWiki ListClass
 ## NOTE we cannot simply use XWiki's displayEdit here because it also renders the select-tag around it
 #set($cellDocRef = $celldoc.getDocumentReference())
-#set($supportedClasses = ['ListClass','StaticListClass','DBListClass','DBTreeListClass','UsersClass','GroupsClass','LevelsClass'])
+#set($supportedClasses = ['BooleanClass','ListClass','StaticListClass','DBListClass','DBTreeListClass','UsersClass','GroupsClass','LevelsClass'])
 #set($supportedDisplayTypes = ['select'])
-#set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
+#set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef).orNull())
 #set($renderedContent = $services.celementsweb.renderDocument($cellDocRef))
 #if("$!renderedContent" != '')
   $renderedContent
-#elseif(!$propClass.isPresent())
+#elseif("$!propClass" == '')
   <!-- WARN SelectTagView: no edit field defined on cell: $!celldoc -->
-#elseif(!$supportedClasses.contains($propClass.get().getType()))
-  <!-- WARN SelectTagView: doesn't support edit field class: $!propClass.get().getType() -->
-#elseif(!$supportedDisplayTypes.contains($propClass.get().getProperty('displayType').getValue()))
-  <!-- WARN SelectTagView: doesn't support display type: $!propClass.get().getProperty('displayType').getValue() -->
+#elseif(!$supportedClasses.contains($propClass.getType()))
+  <!-- WARN SelectTagView: doesn't support edit field class: $!propClass.getType() -->
+#elseif(!$supportedDisplayTypes.contains($propClass.getProperty('displayType').getValue()))
+  <!-- WARN SelectTagView: doesn't support display type: $!propClass.getProperty('displayType').getValue() -->
 #else
   #set($isMultiselect = $services.structuredDataEditor.isSelectMultiselect($cellDocRef))
   #if($isMultiselect)
-    #set($celValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
+    #set($currentValues = $services.structuredDataEditor.getCellListValue($cellDocRef))
   #else
-    #set($celValues = [$services.structuredDataEditor.getCellValueAsString($cellDocRef)])
+    #set($currentValues = [$services.structuredDataEditor.getCellValueAsString($cellDocRef)])
   #end
-  #set($valueMap = $propClass.get().getMapValues())
-  #foreach($keyValue in $propClass.get().getListValues())
-    #set($keyValueNoSpaces = $keyValue.replaceAll(" ", "-"))
-    #set($dictKey = "$!services.structuredDataEditor.getAttributeName($cellDocRef)_$!keyValueNoSpaces")
-    #set($displayValue = $msg.get($dictKey))
-    #if("$!displayValue" == "$!dictKey")
-      #set($displayValue = "$!valueMap.get($keyValue).getValue()")
+  #if($propClass.getType().equals('BooleanClass'))
+    #set($textMap = {'0': "$!adminMsg.cel_no", '1': "$!adminMsg.cel_yes"})
+    #set($possibleValues = $textMap.keySet())
+  #else
+    #set($possibleValues = $propClass.getListValues())
+    #set($textMap = $propClass.getMapValues())
+    #foreach($key in $textMap.keySet())
+      #set($stfu = $textMap.put($key, $textMap.get($key).getValue()))
     #end
-    #if("$!displayValue" == "")
-      #set($displayValue = $keyValue)
+  #end
+  #foreach($value in $possibleValues)
+    #set($valueNoSpaces = $value.replaceAll(" ", "-"))
+    #set($dictKey = "$!services.structuredDataEditor.getAttributeName($cellDocRef)_$!valueNoSpaces")
+    #set($text = $adminMsg.get($dictKey))
+    #if("$!text" == "$!dictKey")
+      #if($isSuperAdmin)<!-- missing dict key: $!dictKey -->#end
+      #set($text = $textMap.get($value))
     #end
-    <option value="$!xwiki.getFormEncoded($keyValue)" #if($celValues.contains($keyValue)) selected #end>$!displayValue</option>
+    <option value="$!xwiki.getFormEncoded($value)" #if($currentValues.contains($value)) selected #end>
+    #if("$!text" != "")$!{text}#else$!{value}#end
+    </option>
   #end
 #end
