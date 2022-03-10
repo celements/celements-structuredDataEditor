@@ -208,7 +208,8 @@
           'allowBlank': true,
           'datepicker': false,
           'format': 'H:i',
-          'step': 30
+          'step': 30,
+          'defaultTime': '12:00'
         };
         return new CELEMENTS.structEdit.DateOrTimeFieldPicker(timeInputField, '.CelTimePicker',
           "HH:mm", pickerConfigObj, _me._timeFieldValidator);
@@ -291,20 +292,16 @@
         return _me._dateTimeComponent.hasClassName('fromDateInput');
       },
 
-      getTimeValue: function() {
-        const _me = this;
-        const dateTimeValues = _me._dateTimeComponent.value.split(' ');
-        const timeValue = dateTimeValues[1] || "00:00";
-        console.debug('getTimeValue: ', timeValue);
-        return timeValue;
+      getDateValue: function() {
+        return this._getValuePart(0);
       },
 
-      getDateValue: function() {
-        const _me = this;
-        const dateTimeValues = _me._dateTimeComponent.value.split(' ');
-        const dateValue = dateTimeValues[0];
-        console.debug('getDateValue: ', dateValue);
-        return dateValue;
+      getTimeValue: function() {
+        return this._getValuePart(1);
+      },
+
+      _getValuePart: function(idx) {
+        return this._dateTimeComponent.value?.split(' ')[idx] || '';
       },
 
       _updateVisibleFromHidden: function() {
