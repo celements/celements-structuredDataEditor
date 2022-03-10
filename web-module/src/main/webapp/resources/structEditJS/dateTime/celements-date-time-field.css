@@ -17,3 +17,12 @@ input.timeInputField {
   min-width: 0;
   margin-left: 8px;
 }
+
+i {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+i:hover {
+  opacity: 1;
+}

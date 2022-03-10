@@ -135,7 +135,7 @@
       _onChanged: function() {
         const _me = this;
         const newValue = _me.getValue();
-        console.log("_onChanged", newValue);
+        console.debug("_onChanged", newValue);
         const validatedValue = _me._fieldValidator(newValue);
         _me._inputField.classList.toggle('validation-failed', !validatedValue);
         if (newValue !== validatedValue) {
@@ -217,8 +217,7 @@
       _timeFieldValidator: function(value) {
         console.debug("timeFieldValidator - from", value);
         value = (value || "").toString().trim().replace(/[\.,]/g, ':');
-        const split = value.split(":")
-          .filter(function(elem) { return elem; }); // filter falsy elements
+        const split = value.split(":").filter(Boolean);
         const hours = Number(split[0]);
         let minutes = Number(split[1]);
         if (minutes < 6 && split[1].trim().length == 1) {
@@ -242,7 +241,6 @@
 
   if (typeof window.CELEMENTS.structEdit.DateTimeInputHandler === 'undefined') {
     window.CELEMENTS.structEdit.DateTimeInputHandler = Class.create({
-      _updateVisibleFromHiddenBind: undefined,
       _updateHiddenFromVisibleBind: undefined,
       _dateTimeComponent: undefined,
       _inputDateField: undefined,
@@ -252,10 +250,11 @@
       initialize: function(dateTimeComponent) {
         const _me = this;
         _me._dateTimeComponent = dateTimeComponent;
-        _me._updateVisibleFromHiddenBind = _me._updateVisibleFromHidden.bind(_me);
         _me._updateHiddenFromVisibleBind = _me._updateHiddenFromVisible.bind(_me);
         _me._initDateField();
-        _me._initTimeField();
+        if (_me._dateTimeComponent.hasTime()) {
+          _me._initTimeField();
+        }
         _me._updateVisibleFromHidden();
       },
 
@@ -263,7 +262,7 @@
         const _me = this;
         try {
           _me._inputDateField = _me._dateOrTimePickerFactory.createDatePickerField(
-            _me._dateTimeComponent._datePart);
+            _me._dateTimeComponent.datePart);
           _me._inputDateField.celStopObserving(_me._inputDateField.FIELD_CHANGED,
             _me._updateHiddenFromVisibleBind);
           _me._inputDateField.celObserve(_me._inputDateField.FIELD_CHANGED,
@@ -277,7 +276,7 @@
         const _me = this;
         try {
           _me._inputTimeField = _me._dateOrTimePickerFactory.createTimePickerField(
-            _me._dateTimeComponent._timePart);
+            _me._dateTimeComponent.timePart);
           _me._inputTimeField.celStopObserving(_me._inputTimeField.FIELD_CHANGED,
             _me._updateHiddenFromVisibleBind);
           _me._inputTimeField.celObserve(_me._inputTimeField.FIELD_CHANGED,
@@ -296,7 +295,7 @@
         const _me = this;
         const dateTimeValues = _me._dateTimeComponent.value.split(' ');
         const timeValue = dateTimeValues[1] || "00:00";
-        console.log('getTimeValue: ', timeValue);
+        console.debug('getTimeValue: ', timeValue);
         return timeValue;
       },
 
@@ -304,7 +303,7 @@
         const _me = this;
         const dateTimeValues = _me._dateTimeComponent.value.split(' ');
         const dateValue = dateTimeValues[0];
-        console.log('getDateValue: ', dateValue);
+        console.debug('getDateValue: ', dateValue);
         return dateValue;
       },
 
@@ -312,19 +311,22 @@
         const _me = this;
         const dateValue = _me.getDateValue();
         _me._inputDateField.setValue(dateValue);
-        const timeValue = _me.getTimeValue();
-        _me._inputTimeField.setValue(timeValue);
-        console.log("_updateVisibleFromHidden", _me._dateTimeComponent, dateValue, timeValue);
+        console.debug("_updateVisibleFromHidden date", _me._dateTimeComponent, dateValue);
+        if (_me._dateTimeComponent.hasTime()) {
+          const timeValue = _me.getTimeValue();
+          _me._inputTimeField.setValue(timeValue);
+          console.debug("_updateVisibleFromHidden time", _me._dateTimeComponent, timeValue);
+        }
         _me._updateHiddenFromVisible();
       },
 
       _updateHiddenFromVisible: function() {
         const _me = this;
         const dateValue = _me._inputDateField.getValue();
-        const timeValue = _me._inputTimeField.getValue();
-        const dateTimeValues = dateValue + " " + timeValue;
+        const timeValue = _me._dateTimeComponent.hasTime() ? _me._inputTimeField.getValue() : "";
+        const dateTimeValues = (dateValue + " " + timeValue).trim();
         _me._dateTimeComponent.value = dateTimeValues;
-        console.log("_updateHiddenFromVisible", dateTimeValues);
+        console.debug("_updateHiddenFromVisible", dateTimeValues);
       }
 
     });
@@ -332,159 +334,126 @@
 
   if (typeof CelementsDateTimeField === 'undefined') {
     class CelementsDateTimeField extends HTMLElement {
+
+      datePart;
+      timePart;
+      #datePickerIcon;
+      #timePickerIcon;
+      #hiddenInputElem;
+      #dateTimeFieldController;
+      #value;
+
       constructor() {
         super();
-        const _me = this;
-        _me.attachShadow({ mode: 'open' });
-        _me._addCssFilesToParent();
-        _me._addCssFiles();
-        _me._addInputFields();
-        _me._addPickerIcons();
-      }
-
-      _addCssFilesToParent() {
+        this.attachShadow({ mode: 'open' });
+        this.datePart = this.#newDisplayInputElem('date');
+        this.timePart = this.#newDisplayInputElem('time');
+        this.#hiddenInputElem = new Element('input', { 'type': 'hidden' });
+        this.#addCssFiles(this.shadowRoot, [
+          '/file/resources/celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
+          '/file/resources/celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css',
+          curScriptDir + 'celements-date-time-field.css'
+        ]);
         //HACK be sure to load the glyphicons-halflings.css in the html-page too.
         //HACK Because font-face will not work in shadow dom otherwise.
-        const cssFiles = ['celRes/images/glyphicons-halflings/css/glyphicons-halflings.css'];
-        cssFiles.forEach(function(cssFile) {
-          const cssElem = new Element('link', {
+        this.#addCssFiles(document.head, [
+          '/file/resources/celRes/images/glyphicons-halflings/css/glyphicons-halflings.css'
+        ]);
+      }
+
+      #addCssFiles(elem, cssFiles) {
+        cssFiles.forEach((cssFile) => {
+          elem.appendChild(new Element('link', {
             'rel': 'stylesheet',
             'media': 'all',
             'type': 'text/css',
-            'href': '/file/resources/' + cssFile + '?version=' + versionTimeStamp
-          });
-          document.head.append(cssElem);
+            'href': cssFile + '?version=' + versionTimeStamp
+          }));
         });
       }
 
-      _addCssFiles() {
-        const _me = this;
-        //HACK be sure to load the glyphicons-halflings.css in the html-page too.
-        //HACK Because font-face will not work in shadow dom otherwise.
-        const cssFiles = ['celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
-          'celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css'
-        ];
-        cssFiles.forEach(function(cssFile) {
-          const cssElem = new Element('link', {
-            'rel': 'stylesheet',
-            'media': 'all',
-            'type': 'text/css',
-            'href': '/file/resources/' + cssFile + '?version=' + versionTimeStamp
-          });
-          _me.shadowRoot.appendChild(cssElem);
-        });
-        const dateTimeCssElem = new Element('link', {
-          'rel': 'stylesheet',
-          'media': 'all',
-          'type': 'text/css',
-          'href': curScriptDir + 'celements-date-time-field.css' + '?version='
-            + versionTimeStamp
-        });
-        _me.shadowRoot.appendChild(dateTimeCssElem);
-      }
-
-      _addInputFields() {
-        const _me = this;
-        _me._datePart = new Element('input', {
+      #newDisplayInputElem(type) {
+        return new Element('input', {
           'type': 'text',
-          'name': 'datePart',
-          'class': 'dateInputField',
+          'name': type + 'Part',
+          'class': type + 'InputField',
           'autocomplete': 'off'
         });
-        _me.shadowRoot.appendChild(_me._datePart);
-        _me._timePart = new Element('input', {
-          'type': 'text',
-          'name': 'timePart',
-          'class': 'timeInputField',
-          'autocomplete': 'off'
-        });
-        _me.shadowRoot.appendChild(_me._timePart);
       }
 
-      _addPickerIcons() {
-        const _me = this;
-        _me._datePickerIcon = new Element('i', {
+      #addInputFields() {
+        this.shadowRoot.appendChild(this.datePart);
+        if (this.hasTime()) {
+          this.shadowRoot.appendChild(this.timePart);
+        }
+      }
+
+      #addPickerIcons() {
+        this.#datePickerIcon = this.#datePickerIcon ?? new Element('i', {
           'title': 'Date Picker',
           'class': 'CelDatePicker dateInputField halflings halflings-calendar'
         });
-        _me.shadowRoot.insertBefore(_me._datePickerIcon, _me._datePart.nextSibling);
-        _me._timePickerIcon = new Element('i', {
-          'title': 'Time Picker',
-          'class': 'CelTimePicker timeInputField halflings halflings-time'
-        });
-        _me.shadowRoot.insertBefore(_me._timePickerIcon, _me._timePart.nextSibling);
-      }
-
-      _updateNameAttribute() {
-        const _me = this;
-        console.debug('_updateNameAttribute: ', _me._hiddenInputElem, _me.getAttribute('name'));
-        if (_me._hiddenInputElem) {
-          _me._hiddenInputElem.setAttribute('name', _me.getAttribute('name'));
+        this.shadowRoot.insertBefore(this.#datePickerIcon, this.datePart.nextSibling);
+        if (this.hasTime()) {
+          this.#timePickerIcon = this.#timePickerIcon ?? new Element('i', {
+            'title': 'Time Picker',
+            'class': 'CelTimePicker timeInputField halflings halflings-time'
+          });
+          this.shadowRoot.insertBefore(this.#timePickerIcon, this.timePart.nextSibling);  
         }
       }
 
-      _updateValueAttribute() {
-        const _me = this;
-        console.debug('_updateValueAttribute: ', _me._hiddenInputElem, _me.getAttribute('value'));
-        if (_me._hiddenInputElem) {
-          _me._hiddenInputElem.setAttribute('value', _me.getAttribute('value'));
-        }
+      #addHiddenInput() {
+        this.parentElement.insertBefore(this.#hiddenInputElem, this);
       }
 
       connectedCallback() {
-        const _me = this;
-        console.log('DateTimeFiled connectedCallback: ', _me.isConnected, _me.parentElement);
-        if (!_me._hiddenInputElem) {
-          _me._hiddenInputElem = new Element('input', {
-            'type': 'hidden',
-            'name': _me.getAttribute('name'),
-            'value': _me.value
-          });
-        }
-        _me.parentElement.insertBefore(_me._hiddenInputElem, _me);
-        if (!_me._dateTimeFieldControler) {
-          _me._dateTimeFieldControler = new CELEMENTS.structEdit.DateTimeInputHandler(_me);
+        console.debug('connectedCallback', this.isConnected, this.hasTime(), this);
+        this.#addHiddenInput();
+        this.#addInputFields();
+        this.#addPickerIcons();
+        if (!this.#dateTimeFieldController) {
+          this.#dateTimeFieldController = new CELEMENTS.structEdit.DateTimeInputHandler(this);
         }
       }
 
       disconnectedCallback() {
-        const _me = this;
-        console.log('DateTimeFiled disconnectedCallback: ', _me.isConnected, _me.parentElement,
-          _me._hiddenInputElem);
-        if (!_me._hiddenInputElem) {
-          _me._hiddenInputElem.remove();
-        }
+        console.debug('disconnectedCallback', this.isConnected, this);
+        this.#hiddenInputElem.remove();
       }
 
       static get observedAttributes() {
-        return ['name', 'value'];
+        return ['name', 'value', 'placeholder-date', 'placeholder-time'];
       }
 
-      attributeChangedCallback(attrName, oldValue, newValue) {
-        const _me = this;
-        switch (attrName) {
-          case "name":
-            _me._updateNameAttribute();
+      attributeChangedCallback(name, oldValue, newValue) {
+        console.debug('attributeChangedCallback', this, name, newValue);
+        switch (name) {
+          case 'name':
+          case 'value':
+            this.#hiddenInputElem.setAttribute(name, newValue);
             break;
-          case "value":
-            _me._updateValueAttribute();
+          case 'placeholder-date':
+            this.datePart.setAttribute('placeholder', newValue);
+          case 'placeholder-time':
+            this.timePart.setAttribute('placeholder', newValue);
             break;
           default:
-            console.warn('attributeChangedCallback not defined for ', attrName);
+            console.warn('attributeChangedCallback not defined for ', name);
         }
       }
 
       get value() {
-        const _me = this;
-        console.log('get value: ', _me._value, _me.getAttribute('value'));
-        return _me._value || _me.getAttribute('value') || "";
+        return this.#value || this.getAttribute('value') || '';
       }
 
       set value(newValue) {
-        const _me = this;
-        console.log('set value: ', _me._value, newValue);
-        _me._value = newValue;
-        _me.setAttribute('value', _me._value);
+        this.#value = newValue;
+        this.setAttribute('value', this.#value);
+      }
+
+      hasTime() {
+        return !this.hasAttribute('notime');
       }
 
     }
