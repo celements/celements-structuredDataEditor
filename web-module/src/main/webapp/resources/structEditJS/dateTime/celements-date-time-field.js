@@ -165,14 +165,14 @@
   if (typeof window.CELEMENTS.structEdit.DateOrTimePickerFactory === 'undefined') {
     window.CELEMENTS.structEdit.DateOrTimePickerFactory = Class.create({
 
-      createDatePickerField: function(dateInputField) {
+      createDatePickerField: function(dateInputField, configObj = {}) {
         const _me = this;
-        const pickerConfigObj = {
+        const pickerConfigObj = Object.assign({
           'allowBlank': true,
           'dayOfWeekStart': 1,
           'format': 'd.m.Y',
           'timepicker': false
-        };
+        }, configObj);
         return new CELEMENTS.structEdit.DateOrTimeFieldPicker(dateInputField, '.CelDatePicker',
           "dd.MM.y", pickerConfigObj, _me._dateFieldValidator);
       },
@@ -202,15 +202,14 @@
         return validated;
       },
 
-      createTimePickerField: function(timeInputField) {
+      createTimePickerField: function(timeInputField, configObj = {}) {
         const _me = this;
-        const pickerConfigObj = {
+        const pickerConfigObj = Object.assign({
           'allowBlank': true,
           'datepicker': false,
           'format': 'H:i',
-          'step': 30,
-          'defaultTime': '12:00'
-        };
+          'step': 30
+        }, configObj);
         return new CELEMENTS.structEdit.DateOrTimeFieldPicker(timeInputField, '.CelTimePicker',
           "HH:mm", pickerConfigObj, _me._timeFieldValidator);
       },
@@ -263,7 +262,9 @@
         const _me = this;
         try {
           _me._inputDateField = _me._dateOrTimePickerFactory.createDatePickerField(
-            _me._dateTimeComponent.datePart);
+            _me._dateTimeComponent.datePart, {
+              defaultDate: _me._dateTimeComponent.getDefaultDate()
+            });
           _me._inputDateField.celStopObserving(_me._inputDateField.FIELD_CHANGED,
             _me._updateHiddenFromVisibleBind);
           _me._inputDateField.celObserve(_me._inputDateField.FIELD_CHANGED,
@@ -277,7 +278,10 @@
         const _me = this;
         try {
           _me._inputTimeField = _me._dateOrTimePickerFactory.createTimePickerField(
-            _me._dateTimeComponent.timePart);
+            _me._dateTimeComponent.timePart, {
+              defaultTime: _me._dateTimeComponent.getDefaultTime(),
+              step: _me._dateTimeComponent.getTimeStep()
+            });
           _me._inputTimeField.celStopObserving(_me._inputTimeField.FIELD_CHANGED,
             _me._updateHiddenFromVisibleBind);
           _me._inputTimeField.celObserve(_me._inputTimeField.FIELD_CHANGED,
@@ -449,8 +453,20 @@
         this.setAttribute('value', this.#value);
       }
 
+      getDefaultDate() {
+        return this.getAttribute('date-default') || false;
+      }
+
       hasTime() {
         return !this.hasAttribute('notime');
+      }
+
+      getDefaultTime() {
+        return this.getAttribute('time-default') || '08:00';
+      }
+
+      getTimeStep() {
+        return this.getAttribute('time-step') || 30;
       }
 
     }
