@@ -458,7 +458,7 @@
       }
 
       hasTime() {
-        return !this.hasAttribute('notime');
+        return true;
       }
 
       getDefaultTime() {
@@ -471,6 +471,20 @@
 
     }
 
+    class CelementsDateField extends CelementsDateTimeField {
+
+      constructor() {
+        super();
+      }
+
+      hasTime() {
+        return false;
+      }
+
+    }
+
     customElements.define('cel-input-date-time', CelementsDateTimeField);
+    customElements.define('cel-input-date', CelementsDateField);
   }
+
 })(window)
