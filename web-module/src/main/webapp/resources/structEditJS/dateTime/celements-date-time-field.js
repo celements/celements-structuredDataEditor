@@ -263,7 +263,7 @@
         try {
           _me._inputDateField = _me._dateOrTimePickerFactory.createDatePickerField(
             _me._dateTimeComponent.datePart, {
-              defaultDate: _me._dateTimeComponent.getDefaultDate()
+              defaultDate: _me._dateTimeComponent.getDefaultDate() || false
             });
           _me._inputDateField.celStopObserving(_me._inputDateField.FIELD_CHANGED,
             _me._updateHiddenFromVisibleBind);
@@ -279,7 +279,7 @@
         try {
           _me._inputTimeField = _me._dateOrTimePickerFactory.createTimePickerField(
             _me._dateTimeComponent.timePart, {
-              defaultTime: _me._dateTimeComponent.getDefaultTime(),
+              defaultTime: _me._dateTimeComponent.getDefaultTime() || false,
               step: _me._dateTimeComponent.getTimeStep()
             });
           _me._inputTimeField.celStopObserving(_me._inputTimeField.FIELD_CHANGED,
@@ -312,12 +312,12 @@
         const _me = this;
         const dateValue = _me.getDateValue();
         _me._inputDateField.setValue(dateValue);
-        console.debug("_updateVisibleFromHidden date", _me._dateTimeComponent, dateValue);
+        let timeValue;
         if (_me._dateTimeComponent.hasTime()) {
-          const timeValue = _me.getTimeValue();
+           timeValue = _me.getTimeValue();
           _me._inputTimeField.setValue(timeValue);
-          console.debug("_updateVisibleFromHidden time", _me._dateTimeComponent, timeValue);
         }
+        console.debug("_updateVisibleFromHidden", _me._dateTimeComponent, dateValue, timeValue);
         _me._updateHiddenFromVisible();
       },
 
@@ -459,7 +459,7 @@
       }
 
       getDefaultDate() {
-        return this.getAttribute('date-default') || false;
+        return this.getAttribute('date-default');
       }
 
       hasTime() {
