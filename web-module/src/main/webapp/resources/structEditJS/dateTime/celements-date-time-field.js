@@ -350,7 +350,7 @@
         this.datePart = this.#newDisplayInputElem('date');
         this.timePart = this.#newDisplayInputElem('time');
         this.#hiddenInputElem = document.createElement('input');
-        this.#hiddenInputElem.type = hidden;
+        this.#hiddenInputElem.type = 'hidden';
         this.#addCssFiles(this.shadowRoot, [
           '/file/resources/celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
           '/file/resources/celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css',
