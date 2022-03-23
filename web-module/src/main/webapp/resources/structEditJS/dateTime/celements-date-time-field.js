@@ -349,7 +349,8 @@
         this.attachShadow({ mode: 'open' });
         this.datePart = this.#newDisplayInputElem('date');
         this.timePart = this.#newDisplayInputElem('time');
-        this.#hiddenInputElem = new Element('input', { 'type': 'hidden' });
+        this.#hiddenInputElem = document.createElement('input');
+        this.#hiddenInputElem.type = hidden;
         this.#addCssFiles(this.shadowRoot, [
           '/file/resources/celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
           '/file/resources/celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css',
@@ -362,24 +363,24 @@
         ]);
       }
 
-      #addCssFiles(elem, cssFiles) {
-        cssFiles.forEach((cssFile) => {
-          elem.appendChild(new Element('link', {
-            'rel': 'stylesheet',
-            'media': 'all',
-            'type': 'text/css',
-            'href': cssFile + '?version=' + versionTimeStamp
-          }));
-        });
+      #addCssFiles(parent, cssFiles) {
+        for (let cssFile of cssFiles) {
+          const elem = document.createElement('link');
+          elem.rel = 'stylesheet';
+          elem.media = 'all';
+          elem.type = 'text/css';
+          elem.href = cssFile + '?version=' + versionTimeStamp;
+          parent.appendChild(elem);
+        }
       }
 
       #newDisplayInputElem(type) {
-        return new Element('input', {
-          'type': 'text',
-          'name': type + 'Part',
-          'class': type + 'InputField',
-          'autocomplete': 'off'
-        });
+        const elem = document.createElement('input');
+        elem.type = 'text';
+        elem.name = type + 'Part';
+        elem.className = type + 'InputField';
+        elem.autocomplete = 'off'
+        return elem;
       }
 
       #addInputFields() {
@@ -390,18 +391,21 @@
       }
 
       #addPickerIcons() {
-        this.#datePickerIcon = this.#datePickerIcon ?? new Element('i', {
-          'title': 'Date Picker',
-          'class': 'CelDatePicker dateInputField halflings halflings-calendar'
-        });
-        this.shadowRoot.insertBefore(this.#datePickerIcon, this.datePart.nextSibling);
-        if (this.hasTime()) {
-          this.#timePickerIcon = this.#timePickerIcon ?? new Element('i', {
-            'title': 'Time Picker',
-            'class': 'CelTimePicker timeInputField halflings halflings-time'
-          });
-          this.shadowRoot.insertBefore(this.#timePickerIcon, this.timePart.nextSibling);  
+        if (!this.#datePickerIcon) {
+          this.#datePickerIcon = document.createElement('i');
+          this.#datePickerIcon.title = 'Date Picker';
+          this.#datePickerIcon.className = 'CelDatePicker dateInputField halflings halflings-calendar';
         }
+        this.shadowRoot.insertBefore(this.#datePickerIcon, this.datePart.nextSibling);
+        if (!this.hasTime()) {
+          return;
+        }
+        if (!this.#timePickerIcon) {
+          this.#timePickerIcon = document.createElement('i');
+          this.#timePickerIcon.title = 'Time Picker';
+          this.#timePickerIcon.className = 'CelTimePicker timeInputField halflings halflings-time';
+        }
+        this.shadowRoot.insertBefore(this.#timePickerIcon, this.timePart.nextSibling);  
       }
 
       #addHiddenInput() {
@@ -436,6 +440,7 @@
             break;
           case 'placeholder-date':
             this.datePart.setAttribute('placeholder', newValue);
+            break;
           case 'placeholder-time':
             this.timePart.setAttribute('placeholder', newValue);
             break;
