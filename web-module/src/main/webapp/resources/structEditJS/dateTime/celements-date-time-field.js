@@ -252,7 +252,7 @@
         _me._dateTimeComponent = dateTimeComponent;
         _me._updateHiddenFromVisibleBind = _me._updateHiddenFromVisible.bind(_me);
         _me._initDateField();
-        if (_me._dateTimeComponent.hasTime()) {
+        if (_me._dateTimeComponent.hasTimeField()) {
           _me._initTimeField();
         }
         _me._updateVisibleFromHidden();
@@ -308,7 +308,7 @@
         const dateValue = _me.getDateValue();
         _me._inputDateField.setValue(dateValue);
         let timeValue;
-        if (_me._dateTimeComponent.hasTime()) {
+        if (_me._dateTimeComponent.hasTimeField()) {
            timeValue = _me.getTimeValue();
           _me._inputTimeField.setValue(timeValue);
         }
@@ -319,7 +319,7 @@
       _updateHiddenFromVisible: function() {
         const _me = this;
         const dateValue = _me._inputDateField.getValue();
-        const timeValue = _me._dateTimeComponent.hasTime() ? _me._inputTimeField.getValue() : "";
+        const timeValue = _me._dateTimeComponent.hasTimeField() ? _me._inputTimeField.getValue() : "";
         const dateTimeValues = (dateValue + " " + timeValue).trim();
         _me._dateTimeComponent.value = dateTimeValues;
         console.debug("_updateHiddenFromVisible", dateTimeValues);
@@ -380,7 +380,7 @@
 
       #addInputFields() {
         this.shadowRoot.appendChild(this.datePart);
-        if (this.hasTime()) {
+        if (this.hasTimeField()) {
           this.shadowRoot.appendChild(this.timePart);
         }
       }
@@ -392,7 +392,7 @@
           this.#datePickerIcon.className = 'CelDatePicker dateInputField halflings halflings-calendar';
         }
         this.shadowRoot.insertBefore(this.#datePickerIcon, this.datePart.nextSibling);
-        if (!this.hasTime()) {
+        if (!this.hasTimeField()) {
           return;
         }
         if (!this.#timePickerIcon) {
@@ -408,7 +408,7 @@
       }
 
       connectedCallback() {
-        console.debug('connectedCallback', this.isConnected, this.hasTime(), this);
+        console.debug('connectedCallback', this.isConnected, this.hasTimeField(), this);
         this.#addHiddenInput();
         this.#addInputFields();
         this.#addPickerIcons();
@@ -453,8 +453,8 @@
         this.setAttribute('value', this.#value);
       }
 
-      hasTime() {
-        return true;
+      hasTimeField() {
+        return !this.hasAttribute('no-time-field');
       }
 
     }
@@ -465,7 +465,7 @@
         super();
       }
 
-      hasTime() {
+      hasTimeField() {
         return false;
       }
 
