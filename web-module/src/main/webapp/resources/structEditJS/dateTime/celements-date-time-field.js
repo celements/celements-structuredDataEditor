@@ -262,9 +262,7 @@
         const _me = this;
         try {
           _me._inputDateField = _me._dateOrTimePickerFactory.createDatePickerField(
-            _me._dateTimeComponent.datePart, {
-              defaultDate: _me._dateTimeComponent.getDefaultDate() || false
-            });
+            _me._dateTimeComponent.datePart);
           _me._inputDateField.celStopObserving(_me._inputDateField.FIELD_CHANGED,
             _me._updateHiddenFromVisibleBind);
           _me._inputDateField.celObserve(_me._inputDateField.FIELD_CHANGED,
@@ -278,10 +276,7 @@
         const _me = this;
         try {
           _me._inputTimeField = _me._dateOrTimePickerFactory.createTimePickerField(
-            _me._dateTimeComponent.timePart, {
-              defaultTime: _me._dateTimeComponent.getDefaultTime() || false,
-              step: _me._dateTimeComponent.getTimeStep()
-            });
+            _me._dateTimeComponent.timePart);
           _me._inputTimeField.celStopObserving(_me._inputTimeField.FIELD_CHANGED,
             _me._updateHiddenFromVisibleBind);
           _me._inputTimeField.celObserve(_me._inputTimeField.FIELD_CHANGED,
@@ -297,15 +292,15 @@
       },
 
       getDateValue: function() {
-        return this._getValuePart(0);
+        return this._getValuePart(0) || '';
       },
 
       getTimeValue: function() {
-        return this._getValuePart(1);
+        return this._getValuePart(1) || '00:00';
       },
 
       _getValuePart: function(idx) {
-        return this._dateTimeComponent.value?.split(' ')[idx] || '';
+        return this._dateTimeComponent.value?.split(' ')[idx];
       },
 
       _updateVisibleFromHidden: function() {
@@ -458,20 +453,8 @@
         this.setAttribute('value', this.#value);
       }
 
-      getDefaultDate() {
-        return this.getAttribute('date-default');
-      }
-
       hasTime() {
         return true;
-      }
-
-      getDefaultTime() {
-        return this.getAttribute('time-default') || '08:00';
-      }
-
-      getTimeStep() {
-        return this.getAttribute('time-step') || 30;
       }
 
     }
