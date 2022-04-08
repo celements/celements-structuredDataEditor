@@ -136,7 +136,10 @@
         const _me = this;
         const newValue = _me.getValue();
         console.debug("_onChanged", newValue);
-        const validatedValue = _me._fieldValidator(newValue);
+        const validatedValue = _me._fieldValidator(newValue, {
+          min: _me._inputField.dataset.min,
+          max: _me._inputField.dataset.max
+        });
         _me._inputField.classList.toggle('validation-failed', !validatedValue);
         if (newValue !== validatedValue) {
           _me._inputField.value = validatedValue;
@@ -174,14 +177,13 @@
           'timepicker': false
         }, configObj);
         return new CELEMENTS.structEdit.DateOrTimeFieldPicker(dateInputField, '.CelDatePicker',
-          "dd.MM.y", pickerConfigObj, _me._dateFieldValidator);
+        'dd.MM.y', pickerConfigObj, _me._dateFieldValidator);
       },
 
-      _dateFieldValidator: function(value) {
+      _dateFieldValidator: function(value, options = {}) {
         console.debug("dateFieldValidator - from", value);
         value = (value || "").toString().trim().replace(/[,-]/g, '.');
-        const split = value.split(".")
-          .filter(function(elem) { return elem; }); // filter falsy elements
+        const split = value.split(".").filter(Boolean);
         const day = Number(split[0]);
         const month = Number(split[1]);
         let year = Number(split[2]);
@@ -194,12 +196,22 @@
           && (!split[1] || (!isNaN(month) && (month > 0) && (month <= 12)))
           && (!split[2] || (!isNaN(year) && (year > 100) && (year <= 9999)))) {
           const curDate = new Date();
-          const date = new Date(year || curDate.getFullYear(), (month || (curDate.getMonth() + 1)) - 1,
-            day || curDate.getDate());
-          validated = $j.format.date(date, "dd.MM.y");
+          const date = new Date(
+            (year || curDate.getFullYear()),
+            (month || (curDate.getMonth() + 1)) - 1,
+            (day || curDate.getDate()));
+          const minDate = $j.format.date(options.min || '', 'dd.MM.y');
+          const maxDate = $j.format.date(options.max || '', 'dd.MM.y');
+          if (minDate && minDate > date) {
+            console.info('date before defined minimum');
+          } else if (maxDate && maxDate < date) {
+            console.info('date after defined minimum');
+          } else {
+            validated = $j.format.date(date, 'dd.MM.y');
+          }
         }
         console.debug("dateFieldValidator - to", validated);
-        return validated;
+        return validated || "";
       },
 
       createTimePickerField: function(timeInputField, configObj = {}) {
@@ -214,7 +226,7 @@
           "HH:mm", pickerConfigObj, _me._timeFieldValidator);
       },
 
-      _timeFieldValidator: function(value) {
+      _timeFieldValidator: function(value, options = {}) {
         console.debug("timeFieldValidator - from", value);
         value = (value || "").toString().trim().replace(/[\.,]/g, ':');
         const split = value.split(":").filter(Boolean);
@@ -230,7 +242,7 @@
           let date = new Date();
           date.setHours(hours || 0);
           date.setMinutes(minutes || 0);
-          validated = $j.format.date(date, "HH:mm");
+          validated = $j.format.date(date, 'HH:mm');
         }
         console.debug("timeFieldValidator - to", validated);
         return validated;
@@ -241,7 +253,7 @@
 
   if (typeof window.CELEMENTS.structEdit.DateTimeInputHandler === 'undefined') {
     window.CELEMENTS.structEdit.DateTimeInputHandler = Class.create({
-      _updateHiddenFromVisibleBind: undefined,
+      _onDateTimeChangeBind: undefined,
       _dateTimeComponent: undefined,
       _inputDateField: undefined,
       _inputTimeField: undefined,
@@ -250,12 +262,13 @@
       initialize: function(dateTimeComponent) {
         const _me = this;
         _me._dateTimeComponent = dateTimeComponent;
-        _me._updateHiddenFromVisibleBind = _me._updateHiddenFromVisible.bind(_me);
+        _me._onDateTimeChangeBind = _me._onDateTimeChange.bind(_me);
         _me._initDateField();
         if (_me._dateTimeComponent.hasTime()) {
           _me._initTimeField();
         }
         _me._updateVisibleFromHidden();
+        this._checkInterdependence();
       },
 
       _initDateField: function() {
@@ -266,9 +279,9 @@
               defaultDate: _me._dateTimeComponent.getDefaultDate() || false
             });
           _me._inputDateField.celStopObserving(_me._inputDateField.FIELD_CHANGED,
-            _me._updateHiddenFromVisibleBind);
+            _me._onDateTimeChangeBind);
           _me._inputDateField.celObserve(_me._inputDateField.FIELD_CHANGED,
-            _me._updateHiddenFromVisibleBind);
+            _me._onDateTimeChangeBind);
         } catch (exp) {
           console.error('_initDateField: failed to initialize dateField.', _me._dateTimeComponent, exp);
         }
@@ -283,9 +296,9 @@
               step: _me._dateTimeComponent.getTimeStep()
             });
           _me._inputTimeField.celStopObserving(_me._inputTimeField.FIELD_CHANGED,
-            _me._updateHiddenFromVisibleBind);
+            _me._onDateTimeChangeBind);
           _me._inputTimeField.celObserve(_me._inputTimeField.FIELD_CHANGED,
-            _me._updateHiddenFromVisibleBind);
+            _me._onDateTimeChangeBind);
         } catch (exp) {
           console.error('_initTimeField: failed to initialize timeField.', _me._dateTimeComponent, exp);
         }
@@ -308,6 +321,11 @@
         return this._dateTimeComponent.value?.split(' ')[idx] || '';
       },
 
+      _onDateTimeChange: function() {
+        this._updateHiddenFromVisible();
+        this._checkInterdependence();
+      },
+
       _updateVisibleFromHidden: function() {
         const _me = this;
         const dateValue = _me.getDateValue();
@@ -328,7 +346,31 @@
         const dateTimeValues = (dateValue + " " + timeValue).trim();
         _me._dateTimeComponent.value = dateTimeValues;
         console.debug("_updateHiddenFromVisible", dateTimeValues);
-      }
+      },
+
+      _checkInterdependence: function() {
+        const selector = this._dateTimeComponent.getInterdependenceWrapperSelector();
+        if (selector) {
+          const dateTimeComponents = this._dateTimeComponent
+            .closest(selector)
+            ?.querySelectorAll('cel-input-date, cel-input-date-time')
+            || [];
+          this._setMinMax(dateTimeComponents);
+        }
+      },
+
+      _setMinMax: function(dateTimeComponents) {
+        let attribute = 'max';
+        const value = this._dateTimeComponent.value;
+        for (let component of dateTimeComponents) {
+          if (component === this._dateTimeComponent) {
+            attribute = 'min';
+          } else {
+            component.setAttribute(attribute, value);
+            console.debug('_setMinMax: set ', attribute, '=', value, ' on:', component);
+          }
+        }
+      },
 
     });
   }
@@ -428,7 +470,7 @@
       }
 
       static get observedAttributes() {
-        return ['name', 'value', 'placeholder-date', 'placeholder-time'];
+        return ['name', 'value', 'min', 'max', 'placeholder-date', 'placeholder-time'];
       }
 
       attributeChangedCallback(name, oldValue, newValue) {
@@ -437,6 +479,14 @@
           case 'name':
           case 'value':
             this.#hiddenInputElem.setAttribute(name, newValue);
+            break;
+          case 'min':
+            this.datePart.dataset.min = newValue;
+            //this.timePart.dataset.min = newValue;
+            break;
+          case 'max':
+            this.datePart.dataset.max = newValue;
+            //this.timePart.dataset.max = newValue;
             break;
           case 'placeholder-date':
             this.datePart.setAttribute('placeholder', newValue);
@@ -456,6 +506,10 @@
       set value(newValue) {
         this.#value = newValue;
         this.setAttribute('value', this.#value);
+      }
+
+      getInterdependenceWrapperSelector() {
+        return this.getAttribute('interdependence-wrapper');
       }
 
       getDefaultDate() {
