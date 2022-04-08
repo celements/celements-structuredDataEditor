@@ -239,93 +239,95 @@
     });
   }
 
-  if (typeof window.CELEMENTS.structEdit.DateTimeInputHandler === 'undefined') {
-    window.CELEMENTS.structEdit.DateTimeInputHandler = Class.create({
-      _updateHiddenFromVisibleBind: undefined,
-      _dateTimeComponent: undefined,
-      _inputDateField: undefined,
-      _inputTimeField: undefined,
-      _dateOrTimePickerFactory: new CELEMENTS.structEdit.DateOrTimePickerFactory(),
+  if (typeof CelementsDateTimeController === 'undefined') {
+    class CelementsDateTimeController {
 
-      initialize: function(dateTimeComponent) {
-        const _me = this;
-        _me._dateTimeComponent = dateTimeComponent;
-        _me._updateHiddenFromVisibleBind = _me._updateHiddenFromVisible.bind(_me);
-        _me._initDateField();
-        if (_me._dateTimeComponent.hasTimeField()) {
-          _me._initTimeField();
-        }
-        _me._updateVisibleFromHidden();
-      },
+      #dateTimeComponent;
+      #inputDateField;
+      #inputTimeField;
+      #dateTimePickerFactory;
 
-      _initDateField: function() {
-        const _me = this;
-        try {
-          _me._inputDateField = _me._dateOrTimePickerFactory.createDatePickerField(
-            _me._dateTimeComponent.datePart);
-          _me._inputDateField.celStopObserving(_me._inputDateField.FIELD_CHANGED,
-            _me._updateHiddenFromVisibleBind);
-          _me._inputDateField.celObserve(_me._inputDateField.FIELD_CHANGED,
-            _me._updateHiddenFromVisibleBind);
-        } catch (exp) {
-          console.error('_initDateField: failed to initialize dateField.', _me._dateTimeComponent, exp);
-        }
-      },
+      #updateHiddenFromVisibleBind;
 
-      _initTimeField: function() {
-        const _me = this;
-        try {
-          _me._inputTimeField = _me._dateOrTimePickerFactory.createTimePickerField(
-            _me._dateTimeComponent.timePart);
-          _me._inputTimeField.celStopObserving(_me._inputTimeField.FIELD_CHANGED,
-            _me._updateHiddenFromVisibleBind);
-          _me._inputTimeField.celObserve(_me._inputTimeField.FIELD_CHANGED,
-            _me._updateHiddenFromVisibleBind);
-        } catch (exp) {
-          console.error('_initTimeField: failed to initialize timeField.', _me._dateTimeComponent, exp);
-        }
-      },
-
-      isFromDate: function() {
-        const _me = this;
-        return _me._dateTimeComponent.hasClassName('fromDateInput');
-      },
-
-      getDateValue: function() {
-        return this._getValuePart(0) || '';
-      },
-
-      getTimeValue: function() {
-        return this._getValuePart(1) || '00:00';
-      },
-
-      _getValuePart: function(idx) {
-        return this._dateTimeComponent.value?.split(' ')[idx];
-      },
-
-      _updateVisibleFromHidden: function() {
-        const _me = this;
-        const dateValue = _me.getDateValue();
-        _me._inputDateField.setValue(dateValue);
-        let timeValue;
-        if (_me._dateTimeComponent.hasTimeField()) {
-           timeValue = _me.getTimeValue();
-          _me._inputTimeField.setValue(timeValue);
-        }
-        console.debug("_updateVisibleFromHidden", _me._dateTimeComponent, dateValue, timeValue);
-        _me._updateHiddenFromVisible();
-      },
-
-      _updateHiddenFromVisible: function() {
-        const _me = this;
-        const dateValue = _me._inputDateField.getValue();
-        const timeValue = _me._dateTimeComponent.hasTimeField() ? _me._inputTimeField.getValue() : "";
-        const dateTimeValues = (dateValue + " " + timeValue).trim();
-        _me._dateTimeComponent.value = dateTimeValues;
-        console.debug("_updateHiddenFromVisible", dateTimeValues);
+      constructor(dateTimeComponent) {
+        this.#dateTimeComponent = dateTimeComponent;
+        this.#dateTimePickerFactory = new CELEMENTS.structEdit.DateOrTimePickerFactory();
+        this.#updateHiddenFromVisibleBind = this.#updateHiddenFromVisible.bind(this);
       }
 
-    });
+      initFields() {
+        if (!this.#inputDateField) {
+          this.#initDateField();
+        }
+        if (!this.#inputTimeField && this.#dateTimeComponent.hasTimeField()) {
+          this.#initTimeField();
+        }
+        this.#updateVisibleFromHidden();
+      }
+
+      #initDateField() {
+        try {
+          this.#inputDateField = this.#dateTimePickerFactory
+            .createDatePickerField(this.#dateTimeComponent.datePart);
+          this.#inputDateField.celStopObserving(this.#inputDateField.FIELD_CHANGED,
+            this.#updateHiddenFromVisibleBind);
+          this.#inputDateField.celObserve(this.#inputDateField.FIELD_CHANGED,
+            this.#updateHiddenFromVisibleBind);
+        } catch (exp) {
+          console.error('#initDateField: failed to initialize dateField.', this.#dateTimeComponent, exp);
+        }
+      }
+
+      #initTimeField() {
+        try {
+          this.#inputTimeField = this.#dateTimePickerFactory
+            .createTimePickerField(this.#dateTimeComponent.timePart);
+          this.#inputTimeField.celStopObserving(this.#inputTimeField.FIELD_CHANGED,
+            this.#updateHiddenFromVisibleBind);
+          this.#inputTimeField.celObserve(this.#inputTimeField.FIELD_CHANGED,
+            this.#updateHiddenFromVisibleBind);
+        } catch (exp) {
+          console.error('#initTimeField: failed to initialize timeField.', this.#dateTimeComponent, exp);
+        }
+      }
+
+      isFromDate() {
+        return this.#dateTimeComponent.hasClassName('fromDateInput');
+      }
+
+      getDateValue() {
+        return this.#getValuePart(0) || '';
+      }
+
+      getTimeValue() {
+        return this.#getValuePart(1) || '00:00';
+      }
+
+      #getValuePart(idx) {
+        return this.#dateTimeComponent.value?.split(' ')[idx];
+      }
+
+      #updateVisibleFromHidden() {
+        const dateValue = this.getDateValue();
+        this.#inputDateField.setValue(dateValue);
+        let timeValue;
+        if (this.#dateTimeComponent.hasTimeField()) {
+           timeValue = this.getTimeValue();
+           this.#inputTimeField.setValue(timeValue);
+        }
+        console.debug("#updateVisibleFromHidden", this.#dateTimeComponent, dateValue, timeValue);
+        this.#updateHiddenFromVisible();
+      }
+
+      #updateHiddenFromVisible() {
+        const dateValue = this.#inputDateField.getValue();
+        const timeValue = this.#dateTimeComponent.hasTimeField() ? this.#inputTimeField.getValue() : "";
+        const dateTimeValues = (dateValue + " " + timeValue).trim();
+        this.#dateTimeComponent.value = dateTimeValues;
+        console.debug("#updateHiddenFromVisible", dateTimeValues);
+      }
+
+    };
   }
 
   if (typeof CelementsDateTimeField === 'undefined') {
@@ -346,6 +348,7 @@
         this.timePart = this.#newDisplayInputElem('time');
         this.#hiddenInputElem = document.createElement('input');
         this.#hiddenInputElem.type = 'hidden';
+        this.#dateTimeFieldController = new CelementsDateTimeController(this);
         this.#addCssFiles(this.shadowRoot, [
           '/file/resources/celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
           '/file/resources/celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css',
@@ -412,9 +415,7 @@
         this.#addHiddenInput();
         this.#addInputFields();
         this.#addPickerIcons();
-        if (!this.#dateTimeFieldController) {
-          this.#dateTimeFieldController = new CELEMENTS.structEdit.DateTimeInputHandler(this);
-        }
+        this.#dateTimeFieldController.initFields();
       }
 
       disconnectedCallback() {
