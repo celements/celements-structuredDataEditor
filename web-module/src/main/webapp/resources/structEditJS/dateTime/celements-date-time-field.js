@@ -316,9 +316,11 @@
     #updateHiddenFromVisible() {
       let value = this.#inputDateField.getValue();
       if (this.#dateTimeComponent.hasTimeField()) {
-        value += " " + (this.#inputTimeField.getValue() || '00:00');
+        value += " " + (this.#inputTimeField.getValue()
+            || this.#dateTimeComponent.getDefaultTime()
+            || '00:00');
       }
-      this.#dateTimeComponent.value = value.trim();
+      this.#dateTimeComponent.value = value;
       console.debug("#updateHiddenFromVisible", this.#dateTimeComponent.value);
     }
 
