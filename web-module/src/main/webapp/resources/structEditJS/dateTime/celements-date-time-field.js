@@ -268,7 +268,7 @@
       try {
         this.#inputDateField = this.#dateTimePickerFactory
           .createDatePickerField(this.#dateTimeComponent.datePart, {
-            defaultDate: this.#dateTimeComponent.getDefaultDate() || false
+            defaultDate: this.#dateTimeComponent.getDefaultPickerDate() || false
           });
         this.#inputDateField.celStopObserving(this.#inputDateField.FIELD_CHANGED,
           this.#updateHiddenFromVisibleBind);
@@ -283,7 +283,7 @@
       try {
         this.#inputTimeField = this.#dateTimePickerFactory
           .createTimePickerField(this.#dateTimeComponent.timePart, {
-            defaultTime: this.#dateTimeComponent.getDefaultTime() || false,
+            defaultTime: this.#dateTimeComponent.getDefaultPickerTime() || false,
             step: this.#dateTimeComponent.getTimeStep()
           });
         this.#inputTimeField.celStopObserving(this.#inputTimeField.FIELD_CHANGED,
@@ -457,16 +457,16 @@
       this.setAttribute('value', this.#value);
     }
 
-    getDefaultDate() {
-      return this.getAttribute('date-default');
+    getDefaultPickerDate() {
+      return this.getAttribute('date-default-picker');
     }
 
     hasTimeField() {
       return !this.hasAttribute('no-time-field');
     }
 
-    getDefaultTime() {
-      return this.getAttribute('time-default') || '08:00';
+    getDefaultPickerTime() {
+      return this.getAttribute('time-default-picker');
     }
 
     getTimeStep() {
