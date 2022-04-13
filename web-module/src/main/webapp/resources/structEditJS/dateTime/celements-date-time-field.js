@@ -453,18 +453,30 @@
       this.setAttribute('value', this.#value);
     }
 
+    /**
+     * the default date of the picker if the input is empty (default current)
+     */
     getDefaultPickerDate() {
       return this.getAttribute('date-default-picker');
     }
 
+    /**
+     * whether the time input field is rendered (default true)
+     */
     hasTimeField() {
       return !this.hasAttribute('no-time-field');
     }
 
+    /**
+     * the default time of the picker if the input is empty (default current)
+     */
     getDefaultPickerTime() {
       return this.getAttribute('time-default-picker');
     }
 
+    /**
+     * the time pickers stepping in minutes (default 30)
+     */
     getTimeStep() {
       return this.getAttribute('time-step') || 30;
     }
@@ -481,6 +493,9 @@
       super();
     }
 
+    /**
+     * whether the time input field is rendered (always false)
+     */
     hasTimeField() {
       return false;
     }
