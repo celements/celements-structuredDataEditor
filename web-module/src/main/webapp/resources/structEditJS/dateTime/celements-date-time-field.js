@@ -295,10 +295,6 @@
       }
     }
 
-    isFromDate() {
-      return this.#dateTimeComponent.hasClassName('fromDateInput');
-    }
-
     getDateValue() {
       return this.#getValuePart(0);
     }
