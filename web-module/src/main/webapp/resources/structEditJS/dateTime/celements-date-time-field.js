@@ -314,7 +314,8 @@
     }
 
     #updateHiddenFromVisible() {
-      let value = this.#inputDateField.getValue();
+      let value = this.#inputDateField.getValue()
+          || this.#dateTimeComponent.getDefaultDate();
       if (this.#dateTimeComponent.hasTimeField()) {
         value += " " + (this.#inputTimeField.getValue()
             || this.#dateTimeComponent.getDefaultTime()
@@ -450,7 +451,7 @@
     }
 
     /**
-     * the default date if the input is empty (default none)
+     * the default date to be set if the input is empty (default none)
      */
     getDefaultDate() {
       return this.getAttribute('date-default');
@@ -471,7 +472,7 @@
     }
 
     /**
-     * the default time if the input is empty (default none)
+     * the default time to be set if the input is empty (default none)
      */
     getDefaultTime() {
       return this.getAttribute('time-default');
