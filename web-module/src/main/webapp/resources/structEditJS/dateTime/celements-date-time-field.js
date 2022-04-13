@@ -211,7 +211,7 @@
           }
         }
         console.debug("dateFieldValidator - to", validated);
-        return validated || "";
+        return validated || '';
       },
 
       createTimePickerField: function(timeInputField, configObj = {}) {
