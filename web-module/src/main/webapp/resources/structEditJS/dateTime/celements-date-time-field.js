@@ -165,90 +165,85 @@
       window.CELEMENTS.structEdit.DateOrTimeFieldPicker.prototype, CELEMENTS.mixins.Observable);
   }
 
-  if (typeof window.CELEMENTS.structEdit.DateOrTimePickerFactory === 'undefined') {
-    window.CELEMENTS.structEdit.DateOrTimePickerFactory = Class.create({
+  class CelementsDateTimePickerFactory {
 
-      createDatePickerField: function(dateInputField, configObj = {}) {
-        const _me = this;
-        const pickerConfigObj = Object.assign({
-          'allowBlank': true,
-          'dayOfWeekStart': 1,
-          'format': 'd.m.Y',
-          'timepicker': false
-        }, configObj);
-        return new CELEMENTS.structEdit.DateOrTimeFieldPicker(dateInputField,
-          '.CelDatePicker', 'dd.MM.y', pickerConfigObj, _me._dateFieldValidator);
-      },
+    createDatePickerField(dateInputField, configObj = {}) {
+      const pickerConfigObj = Object.assign({
+        'allowBlank': true,
+        'dayOfWeekStart': 1,
+        'format': 'd.m.Y',
+        'timepicker': false
+      }, configObj);
+      return new CELEMENTS.structEdit.DateOrTimeFieldPicker(dateInputField,
+        '.CelDatePicker', 'dd.MM.y', pickerConfigObj, this.#dateFieldValidator);
+    }
 
-      _dateFieldValidator: function(value, options = {}) {
-        console.debug("dateFieldValidator - from", value);
-        value = (value || "").toString().trim().replace(/[,-]/g, '.');
-        const split = value.split(".").filter(Boolean);
-        const day = Number(split[0]);
-        const month = Number(split[1]);
-        let year = Number(split[2]);
-        if (year < 100) {
-          year += Math.floor(new Date().getFullYear() / 100) * 100; // 21 -> 2021
+    #dateFieldValidator(value) {
+      console.debug("dateFieldValidator - from", value);
+      value = (value || '').toString().trim().replace(/[,-]/g, '.');
+      const split = value.split('.').filter(Boolean);
+      const day = Number(split[0]);
+      const month = Number(split[1]);
+      let year = Number(split[2]);
+      if (year < 100) {
+        year += Math.floor(new Date().getFullYear() / 100) * 100; // 21 -> 2021
+      }
+      let validated = '';
+      if (value
+        && (!split[0] || (!isNaN(day) && (day > 0) && (day <= 31)))
+        && (!split[1] || (!isNaN(month) && (month > 0) && (month <= 12)))
+        && (!split[2] || (!isNaN(year) && (year > 100) && (year <= 9999)))) {
+        const curDate = new Date();
+        const date = new Date(
+          (year || curDate.getFullYear()),
+          (month || (curDate.getMonth() + 1)) - 1,
+          (day || curDate.getDate()));
+        const minDate = $j.format.date(options.min || '', 'dd.MM.y');
+        const maxDate = $j.format.date(options.max || '', 'dd.MM.y');
+        if (minDate && minDate > date) {
+          console.info('date before defined minimum');
+        } else if (maxDate && maxDate < date) {
+          console.info('date after defined minimum');
+        } else {
+          validated = $j.format.date(date, 'dd.MM.y');
         }
-        let validated = "";
-        if (value
-          && (!split[0] || (!isNaN(day) && (day > 0) && (day <= 31)))
-          && (!split[1] || (!isNaN(month) && (month > 0) && (month <= 12)))
-          && (!split[2] || (!isNaN(year) && (year > 100) && (year <= 9999)))) {
-          const curDate = new Date();
-          const date = new Date(
-            (year || curDate.getFullYear()),
-            (month || (curDate.getMonth() + 1)) - 1,
-            (day || curDate.getDate()));
-          const minDate = $j.format.date(options.min || '', 'dd.MM.y');
-          const maxDate = $j.format.date(options.max || '', 'dd.MM.y');
-          if (minDate && minDate > date) {
-            console.info('date before defined minimum');
-          } else if (maxDate && maxDate < date) {
-            console.info('date after defined minimum');
-          } else {
-            validated = $j.format.date(date, 'dd.MM.y');
-          }
-        }
-        console.debug("dateFieldValidator - to", validated);
-        return validated || '';
-      },
+      }
+      console.debug("dateFieldValidator - to", validated);
+      return validated || '';
+    }
 
-      createTimePickerField: function(timeInputField, configObj = {}) {
-        const _me = this;
-        const pickerConfigObj = Object.assign({
-          'allowBlank': true,
-          'datepicker': false,
-          'format': 'H:i',
-          'step': 30
-        }, configObj);
-        return new CELEMENTS.structEdit.DateOrTimeFieldPicker(timeInputField,
-          '.CelTimePicker', 'HH:mm', pickerConfigObj, _me._timeFieldValidator);
-      },
+    createTimePickerField(timeInputField, configObj = {}) {
+      const pickerConfigObj = Object.assign({
+        'allowBlank': true,
+        'datepicker': false,
+        'format': 'H:i'
+      }, configObj);
+      return new CELEMENTS.structEdit.DateOrTimeFieldPicker(timeInputField,
+        '.CelTimePicker', 'HH:mm', pickerConfigObj, this.#timeFieldValidator);
+    }
 
-      _timeFieldValidator: function(value, options = {}) {
-        console.debug("timeFieldValidator - from", value);
-        value = (value || "").toString().trim().replace(/[\.,]/g, ':');
-        const split = value.split(":").filter(Boolean);
-        const hours = Number(split[0]);
-        let minutes = Number(split[1]);
-        if (minutes < 6 && split[1].trim().length == 1) {
-          minutes *= 10; // :5 -> 50 minutes
-        }
-        let validated = "";
-        if (value
-          && (!split[0] || (!isNaN(hours) && (hours >= 0) && (hours < 24)))
-          && (!split[1] || (!isNaN(minutes) && (minutes >= 0) && (minutes < 60)))) {
-          let date = new Date();
-          date.setHours(hours || 0);
-          date.setMinutes(minutes || 0);
-          validated = $j.format.date(date, 'HH:mm');
-        }
-        console.debug("timeFieldValidator - to", validated);
-        return validated;
-      },
+    #timeFieldValidator(value) {
+      console.debug("timeFieldValidator - from", value);
+      value = (value || '').toString().trim().replace(/[\.,]/g, ':');
+      const split = value.split(':').filter(Boolean);
+      const hours = Number(split[0]);
+      let minutes = Number(split[1]);
+      if (minutes < 6 && split[1].trim().length == 1) {
+        minutes *= 10; // :5 -> 50 minutes
+      }
+      let validated = '';
+      if (value
+        && (!split[0] || (!isNaN(hours) && (hours >= 0) && (hours < 24)))
+        && (!split[1] || (!isNaN(minutes) && (minutes >= 0) && (minutes < 60)))) {
+        let date = new Date();
+        date.setHours(hours || 0);
+        date.setMinutes(minutes || 0);
+        validated = $j.format.date(date, 'HH:mm');
+      }
+      console.debug("timeFieldValidator - to", validated);
+      return validated;
+    }
 
-    });
   }
 
   class CelementsDateTimeController {
@@ -260,7 +255,7 @@
 
     constructor(dateTimeComponent) {
       this.#dateTimeComponent = dateTimeComponent;
-      this.#dateTimePickerFactory = new CELEMENTS.structEdit.DateOrTimePickerFactory();
+      this.#dateTimePickerFactory = new CelementsDateTimePickerFactory();
     }
 
     initFields() {
@@ -302,11 +297,11 @@
     }
 
     getDateValue() {
-      return this.#getValuePart(0);
+      return this.#getValuePart(0) || this.#dateTimeComponent.getDefaultDate();
     }
 
     getTimeValue() {
-      return this.#getValuePart(1);
+      return this.#getValuePart(1) || this.#dateTimeComponent.getDefaultTime();
     }
 
     #getValuePart(idx) {
@@ -331,11 +326,14 @@
     }
 
     #updateHiddenFromVisible() {
-      let value = this.#inputDateField.getValue();
-      if (this.#dateTimeComponent.hasTimeField()) {
-        value += " " + (this.#inputTimeField.getValue() || '00:00');
+      let value = this.#inputDateField.getValue()
+          || this.#dateTimeComponent.getDefaultDate();
+      if (value && this.#dateTimeComponent.hasTimeField()) {
+        value += " " + (this.#inputTimeField.getValue()
+            || this.#dateTimeComponent.getDefaultTime()
+            || '00:00');
       }
-      this.#dateTimeComponent.value = value.trim();
+      this.#dateTimeComponent.value = value;
       console.debug("#updateHiddenFromVisible", this.#dateTimeComponent.value);
     }
 
@@ -500,18 +498,44 @@
       return this.getAttribute('interdependence-wrapper');
     }
 
+    /**
+     * the default date to be set if the input is empty (default none)
+     */
+    getDefaultDate() {
+      return this.getAttribute('date-default');
+    }
+
+    /**
+     * the default date of the picker if the input is empty (default current)
+     */
     getDefaultPickerDate() {
       return this.getAttribute('date-default-picker');
     }
 
+    /**
+     * whether the time input field is rendered (default true)
+     */
     hasTimeField() {
       return !this.hasAttribute('no-time-field');
     }
 
+    /**
+     * the default time to be set if the input is empty (default none)
+     */
+    getDefaultTime() {
+      return this.getAttribute('time-default');
+    }
+
+    /**
+     * the default time of the picker if the input is empty (default current)
+     */
     getDefaultPickerTime() {
       return this.getAttribute('time-default-picker');
     }
 
+    /**
+     * the time pickers stepping in minutes (default 30)
+     */
     getTimeStep() {
       return this.getAttribute('time-step') || 30;
     }
@@ -528,6 +552,9 @@
       super();
     }
 
+    /**
+     * whether the time input field is rendered (always false)
+     */
     hasTimeField() {
       return false;
     }
