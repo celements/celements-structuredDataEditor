@@ -454,14 +454,14 @@
      * the default date to be set if the input is empty (default none)
      */
     getDefaultDate() {
-      return this.getAttribute('date-default');
+      return this.getAttribute('default-date');
     }
 
     /**
      * the default date of the picker if the input is empty (default current)
      */
     getDefaultPickerDate() {
-      return this.getAttribute('date-default-picker');
+      return this.getAttribute('default-picker-date');
     }
 
     /**
@@ -475,14 +475,14 @@
      * the default time to be set if the input is empty (default none)
      */
     getDefaultTime() {
-      return this.getAttribute('time-default');
+      return this.getAttribute('default-time');
     }
 
     /**
      * the default time of the picker if the input is empty (default current)
      */
     getDefaultPickerTime() {
-      return this.getAttribute('time-default-picker');
+      return this.getAttribute('default-picker-time');
     }
 
     /**
