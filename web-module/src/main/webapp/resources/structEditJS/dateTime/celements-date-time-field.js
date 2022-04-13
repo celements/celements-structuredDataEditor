@@ -238,6 +238,7 @@
         let date = new Date();
         date.setHours(hours || 0);
         date.setMinutes(minutes || 0);
+        // TODO min/max validation, needs date, 00:00 needs to be allowed
         validated = $j.format.date(date, 'HH:mm');
       }
       console.debug("timeFieldValidator - to", validated);
@@ -273,7 +274,10 @@
       try {
         this.#inputDateField = this.#dateTimePickerFactory
           .createDatePickerField(this.#dateTimeComponent.datePart, {
-            defaultDate: this.#dateTimeComponent.getDefaultPickerDate() || false
+            defaultDate: this.#dateTimeComponent.getDefaultPickerDate() || false,
+            // TODO this is static, they need to updated on attribute change
+            minDate: this.#dateTimeComponent.getMinDate() || false,
+            maxDate: this.#dateTimeComponent.getMaxDate() || false
           });
         const eventName = this.#inputDateField.FIELD_CHANGED;
         this.#inputDateField.celObserve(eventName, this.#onDateTimeChange.bind(this));
@@ -287,7 +291,11 @@
         this.#inputTimeField = this.#dateTimePickerFactory
           .createTimePickerField(this.#dateTimeComponent.timePart, {
             defaultTime: this.#dateTimeComponent.getDefaultPickerTime() || false,
-            step: this.#dateTimeComponent.getTimeStep()
+            step: this.#dateTimeComponent.getTimeStep(),
+            // TODO this is static, they need to updated on attribute change
+            // TODO only set min/max time if date == min/maxDate
+            minTime: this.#dateTimeComponent.getMinTime() || false,
+            maxTime: this.#dateTimeComponent.getMaxTime() || false
           });
         const eventName = this.#inputTimeField.FIELD_CHANGED;
         this.#inputTimeField.celObserve(eventName, this.#onDateTimeChange.bind(this));
@@ -350,13 +358,15 @@
   
     #setMinMax(dateTimeComponents) {
       let attribute = 'max';
-      const value = this.#dateTimeComponent.value;
+      const dateValue = this.#dateTimeComponent.getDateValue();
+      const timeValue = this.#dateTimeComponent.getTimeValue();
       for (let component of dateTimeComponents) {
         if (component === this.#dateTimeComponent) {
           attribute = 'min';
         } else {
-          component.setAttribute(attribute, value);
-          console.debug('setMinMax: set ', attribute, '=', value, ' on:', component);
+          component.setAttribute(attribute + '-date', dateValue);
+          component.setAttribute(attribute + '-time', timeValue);
+          console.debug('setMinMax: set ', attribute, '=', dateValue + ' ' + timeValue, ' on:', component);
         }
       }
     }
@@ -456,7 +466,7 @@
     }
 
     static get observedAttributes() {
-      return ['name', 'value', 'placeholder-date', 'placeholder-time'];
+      return ['name', 'value', 'min-date', 'min-time', 'max-date', 'max-time', 'placeholder-date', 'placeholder-time'];
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
@@ -466,13 +476,17 @@
         case 'value':
           this.#hiddenInputElem.setAttribute(name, newValue);
           break;
-        case 'min':
+        case 'min-date':
           this.datePart.dataset.min = newValue;
-          // TODO this.timePart.dataset.min = newValue;
           break;
-        case 'max':
+        case 'min-time':
+          this.timePart.dataset.min = newValue;
+          break;
+        case 'max-date':
           this.datePart.dataset.max = newValue;
-          // TODO this.timePart.dataset.max = newValue;
+          break;
+        case 'max-time':
+          this.timePart.dataset.max = newValue;
           break;
         case 'placeholder-date':
           this.datePart.setAttribute('placeholder', newValue);
@@ -505,6 +519,14 @@
       return this.getAttribute('date-default');
     }
 
+    getMinDate() {
+      return this.getAttribute('min-date');
+    }
+
+    getMaxDate() {
+      return this.getAttribute('max-date');
+    }
+
     /**
      * the default date of the picker if the input is empty (default current)
      */
@@ -524,6 +546,14 @@
      */
     getDefaultTime() {
       return this.getAttribute('time-default');
+    }
+
+    getMinTime() {
+      return this.getAttribute('min-time');
+    }
+
+    getMaxTime() {
+      return this.getAttribute('max-time');
     }
 
     /**
