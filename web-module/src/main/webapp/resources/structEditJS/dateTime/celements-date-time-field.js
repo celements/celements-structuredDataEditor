@@ -301,11 +301,11 @@
       }
 
       getDateValue() {
-        return this.#getValuePart(0) || '';
+        return this.#getValuePart(0);
       }
 
       getTimeValue() {
-        return this.#getValuePart(1) || '00:00';
+        return this.#getValuePart(1);
       }
 
       #getValuePart(idx) {
@@ -313,11 +313,11 @@
       }
 
       #updateVisibleFromHidden() {
-        const dateValue = this.getDateValue();
+        const dateValue = this.getDateValue() || '';
         this.#inputDateField.setValue(dateValue);
         let timeValue;
         if (this.#dateTimeComponent.hasTimeField()) {
-           timeValue = this.getTimeValue();
+           timeValue = this.getTimeValue() || '';
            this.#inputTimeField.setValue(timeValue);
         }
         console.debug("#updateVisibleFromHidden", this.#dateTimeComponent, dateValue, timeValue);
@@ -325,11 +325,12 @@
       }
 
       #updateHiddenFromVisible() {
-        const dateValue = this.#inputDateField.getValue();
-        const timeValue = this.#dateTimeComponent.hasTimeField() ? this.#inputTimeField.getValue() : "";
-        const dateTimeValues = (dateValue + " " + timeValue).trim();
-        this.#dateTimeComponent.value = dateTimeValues;
-        console.debug("#updateHiddenFromVisible", dateTimeValues);
+        let value = this.#inputDateField.getValue();
+        if (this.#dateTimeComponent.hasTimeField()) {
+          value += " " + (this.#inputTimeField.getValue() || '00:00');
+        }
+        this.#dateTimeComponent.value = value.trim();
+        console.debug("#updateHiddenFromVisible", this.#dateTimeComponent.value);
       }
 
     };
