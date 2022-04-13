@@ -316,7 +316,7 @@
     #updateHiddenFromVisible() {
       let value = this.#inputDateField.getValue()
           || this.#dateTimeComponent.getDefaultDate();
-      if (this.#dateTimeComponent.hasTimeField()) {
+      if (value && this.#dateTimeComponent.hasTimeField()) {
         value += " " + (this.#inputTimeField.getValue()
             || this.#dateTimeComponent.getDefaultTime()
             || '00:00');
