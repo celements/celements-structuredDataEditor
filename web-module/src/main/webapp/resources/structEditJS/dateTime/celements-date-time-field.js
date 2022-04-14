@@ -32,7 +32,7 @@
     #defaultFormat;
     #fieldValidator;
     #openPickerNow;
-    #datePicker;
+    #pickerConfig;
 
     constructor(inputField, buttonCssSelector, defaultFormat, pickerConfig, fieldValidator) {
       if (!inputField) {
@@ -40,26 +40,31 @@
       }
       this.#inputField = inputField;
       this.#defaultFormat = defaultFormat;
+      this.#pickerConfig = Object.assign(this.#getDefaultPickerConfig(), pickerConfig);
       this.#fieldValidator = fieldValidator;
       this.#openPickerNow = false;
       Object.assign(this, CELEMENTS.mixins.Observable);
-      this.#datePicker = this.#newDateTimePicker(this.#inputField, pickerConfig);
+      this.#initField(buttonCssSelector, pickerConfig);
+    }
+
+    #initField(buttonCssSelector) {
+      $j(this.#inputField).datetimepicker(this.#pickerConfig)
       this.#observeChange(this.#inputField);
       this.#observePickerButton(buttonCssSelector);
     }
 
-    #newDateTimePicker(elem, config) {
+    #getDefaultPickerConfig() {
       // FIXME [CELDEV-904] DateTimePicker Language timing issue
       const lang = Validation.messages.get("admin-language");
       console.debug('lang: ', lang);
-      return $j(elem).datetimepicker(Object.assign({
+      return {
         'lang': lang || 'de',
         'closeOnDateSelect': true,
         'scrollInput': false,
         'onChangeDateTime': this.#onChangeField.bind(this),
         'onShow': this.#onShow.bind(this),
         'onClose': function() { }
-      }, config));
+      };
     }
 
     #observeChange(elem) {
@@ -98,9 +103,10 @@
       $j(this.#inputField).trigger('open');
     }
 
-    setPickerOptions(options) {
-      console.debug('setPickerOptions', this.#datePicker, options);
-      this.#datePicker.setOptions(options);
+    setPickerConfig(config) {
+      console.debug('setPickerConfig', this.#datePicker, options);
+      config = Object.assign(config, this.#pickerConfig);
+      $j(this.#inputField).datetimepicker('setOptions', config);
     }
 
     #onShow(currentTime, data) {
@@ -240,7 +246,7 @@
         this.#initTimeField();
       }
       this.#updateVisibleFromHidden();
-      this.update();
+      this.#checkInterdependence();
     }
 
     #initDateField() {
@@ -264,7 +270,7 @@
             minTime: this.#dateTimeComponent.getMinTime() || false,
             maxTime: this.#dateTimeComponent.getMaxTime() || false
           });
-        this.#inputTimeField.celObserve(EVENT_FIELD_CHANGED, this.update.bind(this));
+        this.#inputTimeField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChange.bind(this));
       } catch (exp) {
         console.error('#initTimeField: failed to initialize timeField.', this.#dateTimeComponent, exp);
       }
@@ -282,11 +288,13 @@
       return this.#dateTimeComponent.value?.split(' ')[idx];
     }
 
-    update() {
+    #onDateTimeChange() {
       this.#updateHiddenFromVisible();
       this.#checkInterdependence();
-      console.debug('update', this);
-      this.#inputDateField.setPickerOptions({
+    }
+
+    updatePicker() {
+      this.#inputDateField.setPickerConfig({
         defaultDate: this.#dateTimeComponent.getDefaultPickerDate() || false,
         minDate: this.#dateTimeComponent.getMinDate() || false,
         maxDate: this.#dateTimeComponent.getMaxDate() || false
@@ -303,6 +311,7 @@
           this.#inputTimeField.setValue(timeValue);
       }
       console.debug("#updateVisibleFromHidden", this.#dateTimeComponent, dateValue, timeValue);
+      this.#updateHiddenFromVisible();
     }
 
     #updateHiddenFromVisible() {
@@ -353,7 +362,6 @@
     #timePickerIcon;
     #hiddenInputElem;
     #dateTimeFieldController;
-    #value;
 
     constructor() {
       super();
@@ -469,16 +477,15 @@
         default:
           console.warn('attributeChangedCallback not defined for ', name);
       }
-      this.#dateTimeFieldController.update();
+      this.#dateTimeFieldController.updatePicker();
     }
 
     get value() {
-      return this.#value || this.getAttribute('value') || '';
+      return this.getAttribute('value') || '';
     }
 
     set value(newValue) {
-      this.#value = newValue;
-      this.setAttribute('value', this.#value);
+      this.setAttribute('value', newValue);
     }
 
     getInterdependenceWrapperSelector() {
@@ -492,10 +499,12 @@
       return this.getAttribute('default-date');
     }
 
+    // TODO as getter?
     getMinDate() {
       return this.getAttribute('min-date');
     }
 
+    // TODO as getter?
     getMaxDate() {
       return this.getAttribute('max-date');
     }
