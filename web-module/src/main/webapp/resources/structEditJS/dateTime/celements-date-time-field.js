@@ -35,8 +35,8 @@
     #datePicker;
 
     constructor(inputField, buttonCssSelector, defaultFormat, pickerConfig, fieldValidator) {
-      if (!this.#inputField) {
-        throw new Exception('no inputField provided');
+      if (!inputField) {
+        throw new Error('no inputField provided');
       }
       this.#inputField = inputField;
       this.#defaultFormat = defaultFormat;
@@ -96,6 +96,11 @@
       event?.stop();
       this.#openPickerNow = true;
       $j(this.#inputField).trigger('open');
+    }
+
+    setPickerOptions(options) {
+      console.debug('setPickerOptions', this.#datePicker, options);
+      this.#datePicker.setOptions(options);
     }
 
     #onShow(currentTime, data) {
@@ -235,18 +240,13 @@
         this.#initTimeField();
       }
       this.#updateVisibleFromHidden();
-      this.#checkInterdependence();
+      this.update();
     }
 
     #initDateField() {
       try {
         this.#inputDateField = this.#dateTimePickerFactory
-          .createDatePickerField(this.#dateTimeComponent.datePart, {
-            defaultDate: this.#dateTimeComponent.getDefaultPickerDate() || false,
-            // TODO this is static, they need to updated on attribute change
-            minDate: this.#dateTimeComponent.getMinDate() || false,
-            maxDate: this.#dateTimeComponent.getMaxDate() || false
-          });
+          .createDatePickerField(this.#dateTimeComponent.datePart);
         this.#inputDateField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChange.bind(this));
       } catch (exp) {
         console.error('#initDateField: failed to initialize dateField.', this.#dateTimeComponent, exp);
@@ -264,7 +264,7 @@
             minTime: this.#dateTimeComponent.getMinTime() || false,
             maxTime: this.#dateTimeComponent.getMaxTime() || false
           });
-        this.#inputTimeField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChange.bind(this));
+        this.#inputTimeField.celObserve(EVENT_FIELD_CHANGED, this.update.bind(this));
       } catch (exp) {
         console.error('#initTimeField: failed to initialize timeField.', this.#dateTimeComponent, exp);
       }
@@ -282,9 +282,16 @@
       return this.#dateTimeComponent.value?.split(' ')[idx];
     }
 
-    #onDateTimeChange() {
+    update() {
       this.#updateHiddenFromVisible();
       this.#checkInterdependence();
+      console.debug('update', this);
+      this.#inputDateField.setPickerOptions({
+        defaultDate: this.#dateTimeComponent.getDefaultPickerDate() || false,
+        minDate: this.#dateTimeComponent.getMinDate() || false,
+        maxDate: this.#dateTimeComponent.getMaxDate() || false
+      });
+      // TODO time
     }
 
     #updateVisibleFromHidden() {
@@ -296,7 +303,6 @@
           this.#inputTimeField.setValue(timeValue);
       }
       console.debug("#updateVisibleFromHidden", this.#dateTimeComponent, dateValue, timeValue);
-      this.#updateHiddenFromVisible();
     }
 
     #updateHiddenFromVisible() {
@@ -463,6 +469,7 @@
         default:
           console.warn('attributeChangedCallback not defined for ', name);
       }
+      this.#dateTimeFieldController.update();
     }
 
     get value() {
