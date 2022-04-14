@@ -29,59 +29,52 @@
   class CelementsDateTimePicker {
 
     #inputField;
-    #buttonCssSelector;
     #defaultFormat;
-    #pickerConfigObj;
     #fieldValidator;
-    #onChangedBind;
     #openPickerNow;
-    #pickerButtonClickHandlerBind;
-    #pickerButton;
+    #datePicker;
 
-    constructor(inputField, buttonCssSelector,
-      defaultFormat, pickerConfigObj, fieldValidator) {
+    constructor(inputField, buttonCssSelector, defaultFormat, pickerConfig, fieldValidator) {
+      if (!this.#inputField) {
+        throw new Exception('no inputField provided');
+      }
       this.#inputField = inputField;
-      this.#buttonCssSelector = buttonCssSelector;
       this.#defaultFormat = defaultFormat;
       this.#fieldValidator = fieldValidator;
-      this.#onChangedBind = this.#onChanged.bind(this);
-      this.#pickerButtonClickHandlerBind = this.#pickerButtonClickHandler.bind(this);
-      this.#initPickerConfig(pickerConfigObj);
-      this.#registerInputField();
-      this.#registerPickerButton();
+      this.#openPickerNow = false;
+      Object.assign(this, CELEMENTS.mixins.Observable);
+      this.#datePicker = this.#newDateTimePicker(this.#inputField, pickerConfig);
+      this.#observeChange(this.#inputField);
+      this.#observePickerButton(buttonCssSelector);
     }
 
-    #initPickerConfig(configObj) {
+    #newDateTimePicker(elem, config) {
       // FIXME [CELDEV-904] DateTimePicker Language timing issue
       const lang = Validation.messages.get("admin-language");
       console.debug('lang: ', lang);
-      this.#pickerConfigObj = Object.assign({
+      return $j(elem).datetimepicker(Object.assign({
         'lang': lang || 'de',
         'closeOnDateSelect': true,
         'scrollInput': false,
         'onChangeDateTime': this.#onChangeField.bind(this),
         'onShow': this.#onShow.bind(this),
         'onClose': function() { }
-      }, configObj);
+      }, config));
     }
 
-    #registerInputField() {
-      this.#inputField.stopObserving('change', this.#onChangedBind);
-      this.#inputField.observe('change', this.#onChangedBind);
+    #observeChange(elem) {
+      const onChangedBind = this.#onChanged.bind(this);
+      elem.stopObserving('change', onChangedBind);
+      elem.observe('change', onChangedBind);
     }
 
-    #registerPickerButton() {
-      if (!this.#inputField) {
-        console.warn('#registerPickerButton no inputField');
-        return;
-      }
-      this.#pickerButton = this.#inputField.next(this.#buttonCssSelector)
-          || this.#inputField.previous(this.#buttonCssSelector);
-      if (this.#pickerButton) {
-        this.#openPickerNow = false;
-        this.#pickerButton.stopObserving('click', this.#pickerButtonClickHandlerBind);
-        this.#pickerButton.observe('click', this.#pickerButtonClickHandlerBind);
-        $j(this.#inputField).datetimepicker(this.#pickerConfigObj);
+    #observePickerButton(buttonCssSelector) {
+      const pickerButton = this.#inputField.next(buttonCssSelector)
+          || this.#inputField.previous(buttonCssSelector);
+      if (pickerButton) {
+        const openPickerBind = this.openPicker.bind(this);
+        pickerButton.stopObserving('click', openPickerBind);
+        pickerButton.observe('click', openPickerBind);
       } else {
         console.warn('not pickerButton found for ', this.#inputField);
       }
@@ -99,20 +92,16 @@
       this.#inputField.value = newValue;
     }
 
-    #pickerButtonClickHandler(event) {
-      event.stop();
-      this.openPicker();
-    }
-
-    openPicker() {
+    openPicker(event) {
+      event?.stop();
       this.#openPickerNow = true;
       $j(this.#inputField).trigger('open');
     }
 
     #onShow(currentTime, data) {
       const showNow = this.#openPickerNow;
-      console.debug('#onShow: ', showNow, currentTime, data);
       this.#openPickerNow = false;
+      console.debug('#onShow: ', showNow, currentTime, data);
       return showNow;
     }
 
@@ -143,8 +132,6 @@
     }
 
   }
-  CelementsDateTimePicker.prototype = Object.extend(CelementsDateTimePicker.prototype, CELEMENTS.mixins.Observable);
-
 
   class CelementsDateTimePickerFactory {
 
@@ -159,7 +146,7 @@
         '.CelDatePicker', 'dd.MM.y', pickerConfigObj, this.#dateFieldValidator);
     }
 
-    #dateFieldValidator(value) {
+    #dateFieldValidator(value, options = {}) {
       console.debug("dateFieldValidator - from", value);
       value = (value || '').toString().trim().replace(/[,-]/g, '.');
       const split = value.split('.').filter(Boolean);
@@ -203,7 +190,7 @@
         '.CelTimePicker', 'HH:mm', pickerConfigObj, this.#timeFieldValidator);
     }
 
-    #timeFieldValidator(value) {
+    #timeFieldValidator(value, options = {}) {
       console.debug("timeFieldValidator - from", value);
       value = (value || '').toString().trim().replace(/[\.,]/g, ':');
       const split = value.split(':').filter(Boolean);
@@ -337,8 +324,8 @@
   
     #setMinMax(dateTimeComponents) {
       let attribute = 'max';
-      const dateValue = this.#dateTimeComponent.getDateValue();
-      const timeValue = this.#dateTimeComponent.getTimeValue();
+      const dateValue = this.getDateValue();
+      const timeValue = this.getTimeValue();
       for (let component of dateTimeComponents) {
         if (component === this.#dateTimeComponent) {
           attribute = 'min';
