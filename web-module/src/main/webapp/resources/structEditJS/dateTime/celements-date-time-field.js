@@ -104,7 +104,7 @@
     }
 
     setPickerConfig(config) {
-      console.debug('setPickerConfig', this.#datePicker, options);
+      console.debug('setPickerConfig', this, config);
       config = Object.assign(config, this.#pickerConfig);
       $j(this.#inputField).datetimepicker('setOptions', config);
     }
@@ -151,6 +151,7 @@
         'allowBlank': true,
         'dayOfWeekStart': 1,
         'format': 'd.m.Y',
+        'formatDate': 'd.m.Y',
         'timepicker': false
       }, configObj);
       return new CelementsDateTimePicker(dateInputField,
@@ -195,7 +196,8 @@
       const pickerConfigObj = Object.assign({
         'allowBlank': true,
         'datepicker': false,
-        'format': 'H:i'
+        'format': 'H:i',
+        'formatTime': 'H:i'
       }, configObj);
       return new CelementsDateTimePicker(timeInputField,
         '.CelTimePicker', 'HH:mm', pickerConfigObj, this.#timeFieldValidator);
