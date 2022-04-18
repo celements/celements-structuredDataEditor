@@ -255,7 +255,6 @@
       if (!this.#inputTimeField && this.#dateTimeComponent.hasTimeField()) {
         this.#initTimeField();
       }
-      this.#updateVisibleFromHidden();
     }
 
     #initDateField() {
@@ -268,6 +267,7 @@
           this.#updateHiddenFromVisibleBind);
         this.#inputDateField.celObserve(this.#inputDateField.FIELD_CHANGED,
           this.#updateHiddenFromVisibleBind);
+        this.#inputDateField.setValue(this.#dateTimeComponent.date || '');
       } catch (exp) {
         console.error('#initDateField: failed to initialize dateField.', this.#dateTimeComponent, exp);
       }
@@ -284,18 +284,10 @@
           this.#updateHiddenFromVisibleBind);
         this.#inputTimeField.celObserve(this.#inputTimeField.FIELD_CHANGED,
           this.#updateHiddenFromVisibleBind);
+        this.#inputTimeField.setValue(this.#dateTimeComponent.time || '');
       } catch (exp) {
         console.error('#initTimeField: failed to initialize timeField.', this.#dateTimeComponent, exp);
       }
-    }
-
-    #updateVisibleFromHidden() {
-      const dateValue = this.#dateTimeComponent.date || '';
-      this.#inputDateField?.setValue(dateValue);
-      const timeValue = this.#dateTimeComponent.time || '';
-      this.#inputTimeField?.setValue(timeValue);
-      console.debug("#updateVisibleFromHidden", this.#dateTimeComponent, dateValue, timeValue);
-      this.#updateHiddenFromVisible();
     }
 
     #updateHiddenFromVisible() {
