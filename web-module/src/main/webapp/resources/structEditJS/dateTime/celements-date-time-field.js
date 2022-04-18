@@ -273,32 +273,20 @@
     }
 
     #generatePickerConfig() {
-      const currentDate = this.getDateValue();
+      const currentDate = this.#dateTimeComponent.date;
       const minDate = this.#dateTimeComponent.getMinDate();
       const minTime = (currentDate === minDate) ? this.#dateTimeComponent.getMinTime() : null;
       const maxDate = this.#dateTimeComponent.getMaxDate();
       const maxTime = (currentDate === maxDate) ? this.#dateTimeComponent.getMaxTime() : null;
       return {
-        defaultDate: this.#dateTimeComponent.getDefaultPickerDate() || false,
-        defaultTime: this.#dateTimeComponent.getDefaultPickerTime() || false,
+        defaultDate: this.#dateTimeComponent.defaultPickerDate || false,
+        defaultTime: this.#dateTimeComponent.defaultPickerTime || false,
         minDate: minDate || false,
         minTime: minTime || false,
         maxDate: maxDate || false,
         maxTime: maxTime || false,
-        step: this.#dateTimeComponent.getTimeStep(),
+        step: this.#dateTimeComponent.timeStep,
       };
-    }
-
-    getDateValue() {
-      return this.#getValuePart(0) || this.#dateTimeComponent.getDefaultDate();
-    }
-
-    getTimeValue() {
-      return this.#getValuePart(1) || this.#dateTimeComponent.getDefaultTime();
-    }
-
-    #getValuePart(idx) {
-      return this.#dateTimeComponent.value?.split(' ')[idx];
     }
 
     #onDateTimeChange() {
@@ -313,26 +301,17 @@
     }
 
     #updateVisibleFromHidden() {
-      const dateValue = this.getDateValue() || '';
-      this.#inputDateField.setValue(dateValue);
-      let timeValue;
-      if (this.#dateTimeComponent.hasTimeField()) {
-        timeValue = this.getTimeValue() || '';
-        this.#inputTimeField.setValue(timeValue);
-      }
+      const dateValue = this.#dateTimeComponent.date || '';
+      this.#inputDateField?.setValue(dateValue);
+      const timeValue = this.#dateTimeComponent.time || '';
+      this.#inputTimeField?.setValue(timeValue);
       console.debug("#updateVisibleFromHidden", this.#dateTimeComponent, dateValue, timeValue);
       this.#updateHiddenFromVisible();
     }
 
     #updateHiddenFromVisible() {
-      let value = this.#inputDateField.getValue()
-          || this.#dateTimeComponent.getDefaultDate();
-      if (value && this.#dateTimeComponent.hasTimeField()) {
-        value += " " + (this.#inputTimeField.getValue()
-            || this.#dateTimeComponent.getDefaultTime()
-            || '00:00');
-      }
-      this.#dateTimeComponent.value = value;
+      this.#dateTimeComponent.date = this.#inputDateField?.getValue();
+      this.#dateTimeComponent.time = this.#inputTimeField?.getValue();
       console.debug("#updateHiddenFromVisible", this.#dateTimeComponent.value);
     }
 
@@ -349,15 +328,15 @@
   
     #setMinMax(dateTimeComponents) {
       let attribute = 'max';
-      const dateValue = this.getDateValue();
-      const timeValue = this.getTimeValue();
+      const date = this.#dateTimeComponent.date;
+      const time = this.#dateTimeComponent.time;
       for (let component of dateTimeComponents) {
         if (component === this.#dateTimeComponent) {
           attribute = 'min';
         } else {
-          component.setAttribute(attribute + '-date', dateValue);
-          component.setAttribute(attribute + '-time', timeValue);
-          console.debug('setMinMax: set ', attribute, '=', dateValue + ' ' + timeValue, ' on:', component);
+          component.setAttribute(attribute + '-date', date);
+          component.setAttribute(attribute + '-time', time);
+          console.debug('setMinMax: set ', attribute, '=', date + ' ' + time, ' on:', component);
         }
       }
     }
@@ -497,6 +476,9 @@
       }
     }
 
+    /**
+     * format: "dd.MM.yyyy HH:mm"
+     */
     get value() {
       return this.getAttribute('value') || '';
     }
@@ -505,14 +487,32 @@
       this.setAttribute('value', newValue);
     }
 
-    getInterdependenceWrapperSelector() {
-      return this.getAttribute('interdependence-wrapper');
+    #getValuePart(idx) {
+      return this.value?.split(' ')[idx];
+    }
+
+    get date() {
+      return this.#getValuePart(0) || this.defaultDate;
+    }
+
+    set date(newValue) {
+      this.value = ((newValue || this.defaultDate) + " " + this.time).trim();
+    }
+
+    get time() {
+      return this.#getValuePart(1) || this.defaultTime;
+    }
+
+    set time(newValue) {
+      if (this.date && this.hasTimeField()) {
+        this.value = (this.date + " " + (newValue || this.defaultTime || '00:00')).trim();
+      }
     }
 
     /**
      * the default date to be set if the input is empty (default none)
      */
-    getDefaultDate() {
+    get defaultDate() {
       return this.getAttribute('default-date');
     }
 
@@ -529,7 +529,7 @@
     /**
      * the default date of the picker if the input is empty (default current)
      */
-    getDefaultPickerDate() {
+    get defaultPickerDate() {
       return this.getAttribute('default-picker-date');
     }
 
@@ -543,7 +543,7 @@
     /**
      * the default time to be set if the input is empty (default none)
      */
-    getDefaultTime() {
+    get defaultTime() {
       return this.getAttribute('default-time');
     }
 
@@ -558,15 +558,19 @@
     /**
      * the default time of the picker if the input is empty (default current)
      */
-    getDefaultPickerTime() {
+    get defaultPickerTime() {
       return this.getAttribute('default-picker-time');
     }
 
     /**
      * the time pickers stepping in minutes (default 30)
      */
-    getTimeStep() {
+    get timeStep() {
       return this.getAttribute('time-step') || 30;
+    }
+
+    getInterdependenceWrapperSelector() {
+      return this.getAttribute('interdependence-wrapper');
     }
 
   }
