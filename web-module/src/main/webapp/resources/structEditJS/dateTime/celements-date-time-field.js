@@ -249,7 +249,7 @@
         this.#initTimeField(pickerConfig);
       }
       this.#updateVisibleFromHidden();
-      this.#checkInterdependence();
+      this.#setMinMax(this.#dateTimeComponent.siblings);
     }
 
     #initDateField(pickerConfig) {
@@ -274,10 +274,10 @@
 
     #generatePickerConfig() {
       const currentDate = this.#dateTimeComponent.date;
-      const minDate = this.#dateTimeComponent.getMinDate();
-      const minTime = (currentDate === minDate) ? this.#dateTimeComponent.getMinTime() : null;
-      const maxDate = this.#dateTimeComponent.getMaxDate();
-      const maxTime = (currentDate === maxDate) ? this.#dateTimeComponent.getMaxTime() : null;
+      const minDate = this.#dateTimeComponent.minDate;
+      const minTime = (currentDate === minDate) ? this.#dateTimeComponent.minTime : null;
+      const maxDate = this.#dateTimeComponent.maxDate;
+      const maxTime = (currentDate === maxDate) ? this.#dateTimeComponent.maxTime : null;
       return {
         defaultDate: this.#dateTimeComponent.defaultPickerDate || false,
         defaultTime: this.#dateTimeComponent.defaultPickerTime || false,
@@ -291,7 +291,7 @@
 
     #onDateTimeChange() {
       this.#updateHiddenFromVisible();
-      this.#checkInterdependence();
+      this.#setMinMax(this.#dateTimeComponent.siblings);
     }
 
     updatePicker() {
@@ -314,18 +314,10 @@
       this.#dateTimeComponent.time = this.#inputTimeField?.getValue();
       console.debug("#updateHiddenFromVisible", this.#dateTimeComponent.value);
     }
-
-    #checkInterdependence() {
-      const selector = this.#dateTimeComponent.getInterdependenceWrapperSelector();
-      if (selector) {
-        const dateTimeComponents = this.#dateTimeComponent
-          .closest(selector)
-          ?.querySelectorAll('cel-input-date, cel-input-date-time')
-          || [];
-        this.#setMinMax(dateTimeComponents);
-      }
-    }
   
+    /**
+     * set the date/time of this.#dateTimeComponent as maxDate/Time on all components before this and as minDate/Time after.
+     */
     #setMinMax(dateTimeComponents) {
       let attribute = 'max';
       const date = this.#dateTimeComponent.date;
@@ -516,21 +508,25 @@
       return this.getAttribute('default-date');
     }
 
-    // TODO as getter?
-    getMinDate() {
-      return this.getAttribute('min-date');
-    }
-
-    // TODO as getter?
-    getMaxDate() {
-      return this.getAttribute('max-date');
-    }
-
     /**
      * the default date of the picker if the input is empty (default current)
      */
     get defaultPickerDate() {
       return this.getAttribute('default-picker-date');
+    }
+
+    /**
+     * the minimum date to be set (default none)
+     */
+    get minDate() {
+      return this.getAttribute('min-date');
+    }
+
+    /**
+     * the maximum date to be set (default none)
+     */
+    get maxDate() {
+      return this.getAttribute('max-date');
     }
 
     /**
@@ -547,11 +543,17 @@
       return this.getAttribute('default-time');
     }
 
-    getMinTime() {
+    /**
+     * the minimum time to be set if the selected date is the minimum date (default none)
+     */
+    get minTime() {
       return this.getAttribute('min-time');
     }
 
-    getMaxTime() {
+    /**
+     * the maximum time to be set if the selected date is the maximum date (default none)
+     */
+    get maxTime() {
       return this.getAttribute('max-time');
     }
 
@@ -569,8 +571,16 @@
       return this.getAttribute('time-step') || 30;
     }
 
-    getInterdependenceWrapperSelector() {
-      return this.getAttribute('interdependence-wrapper');
+    /**
+     * list of all CelementsDateTimeField siblings of this (including this) within the defined interdependence-wrapper
+     */
+    get siblings() {
+      try {
+        const wrapper = this.closest(this.getAttribute('interdependence-wrapper'));
+        return [...wrapper?.querySelectorAll('cel-input-date, cel-input-date-time') || []];
+      } catch (exp) {
+        return [];
+      }
     }
 
   }
