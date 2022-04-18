@@ -241,41 +241,52 @@
     }
 
     initFields() {
+      const pickerConfig = this.#generatePickerConfig();
       if (!this.#inputDateField) {
-        this.#initDateField();
+        this.#initDateField(pickerConfig);
       }
       if (!this.#inputTimeField && this.#dateTimeComponent.hasTimeField()) {
-        this.#initTimeField();
+        this.#initTimeField(pickerConfig);
       }
       this.#updateVisibleFromHidden();
       this.#checkInterdependence();
     }
 
-    #initDateField() {
+    #initDateField(pickerConfig) {
       try {
         this.#inputDateField = this.#dateTimePickerFactory
-          .createDatePickerField(this.#dateTimeComponent.datePart);
+            .createDatePickerField(this.#dateTimeComponent.datePart, pickerConfig);
         this.#inputDateField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChange.bind(this));
       } catch (exp) {
         console.error('#initDateField: failed to initialize dateField.', this.#dateTimeComponent, exp);
       }
     }
 
-    #initTimeField() {
+    #initTimeField(pickerConfig) {
       try {
         this.#inputTimeField = this.#dateTimePickerFactory
-          .createTimePickerField(this.#dateTimeComponent.timePart, {
-            defaultTime: this.#dateTimeComponent.getDefaultPickerTime() || false,
-            step: this.#dateTimeComponent.getTimeStep(),
-            // TODO this is static, they need to updated on attribute change
-            // TODO only set min/max time if date == min/maxDate
-            minTime: this.#dateTimeComponent.getMinTime() || false,
-            maxTime: this.#dateTimeComponent.getMaxTime() || false
-          });
+            .createTimePickerField(this.#dateTimeComponent.timePart, pickerConfig);
         this.#inputTimeField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChange.bind(this));
       } catch (exp) {
         console.error('#initTimeField: failed to initialize timeField.', this.#dateTimeComponent, exp);
       }
+    }
+
+    #generatePickerConfig() {
+      const currentDate = this.getDateValue();
+      const minDate = this.#dateTimeComponent.getMinDate();
+      const minTime = (currentDate === minDate) ? this.#dateTimeComponent.getMinTime() : null;
+      const maxDate = this.#dateTimeComponent.getMaxDate();
+      const maxTime = (currentDate === maxDate) ? this.#dateTimeComponent.getMaxTime() : null;
+      return {
+        defaultDate: this.#dateTimeComponent.getDefaultPickerDate() || false,
+        defaultTime: this.#dateTimeComponent.getDefaultPickerTime() || false,
+        minDate: minDate || false,
+        minTime: minTime || false,
+        maxDate: maxDate || false,
+        maxTime: maxTime || false,
+        step: this.#dateTimeComponent.getTimeStep(),
+      };
     }
 
     getDateValue() {
@@ -296,12 +307,9 @@
     }
 
     updatePicker() {
-      this.#inputDateField.setPickerConfig({
-        defaultDate: this.#dateTimeComponent.getDefaultPickerDate() || false,
-        minDate: this.#dateTimeComponent.getMinDate() || false,
-        maxDate: this.#dateTimeComponent.getMaxDate() || false
-      });
-      // TODO time
+      const config = this.#generatePickerConfig();
+      this.#inputDateField.setPickerConfig(config);
+      this.#inputTimeField.setPickerConfig(config);
     }
 
     #updateVisibleFromHidden() {
@@ -309,8 +317,8 @@
       this.#inputDateField.setValue(dateValue);
       let timeValue;
       if (this.#dateTimeComponent.hasTimeField()) {
-          timeValue = this.getTimeValue() || '';
-          this.#inputTimeField.setValue(timeValue);
+        timeValue = this.getTimeValue() || '';
+        this.#inputTimeField.setValue(timeValue);
       }
       console.debug("#updateVisibleFromHidden", this.#dateTimeComponent, dateValue, timeValue);
       this.#updateHiddenFromVisible();
@@ -453,6 +461,7 @@
 
     attributeChangedCallback(name, oldValue, newValue) {
       console.debug('attributeChangedCallback', this, name, newValue);
+      let updatePicker = false;
       switch (name) {
         case 'name':
         case 'value':
@@ -460,15 +469,19 @@
           break;
         case 'min-date':
           this.datePart.dataset.min = newValue;
+          updatePicker = true;
           break;
         case 'min-time':
           this.timePart.dataset.min = newValue;
+          updatePicker = true;
           break;
         case 'max-date':
           this.datePart.dataset.max = newValue;
+          updatePicker = true;
           break;
         case 'max-time':
           this.timePart.dataset.max = newValue;
+          updatePicker = true;
           break;
         case 'placeholder-date':
           this.datePart.setAttribute('placeholder', newValue);
@@ -479,7 +492,9 @@
         default:
           console.warn('attributeChangedCallback not defined for ', name);
       }
-      this.#dateTimeFieldController.updatePicker();
+      if (updatePicker) {
+        this.#dateTimeFieldController.updatePicker();
+      }
     }
 
     get value() {
