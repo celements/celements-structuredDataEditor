@@ -34,14 +34,14 @@
     #openPickerNow;
     #pickerConfig;
 
-    constructor(inputField, buttonCssSelector, defaultFormat, pickerConfig, fieldValidator) {
+    constructor(inputField, buttonCssSelector, defaultFormat, fieldValidator, pickerConfig = {}) {
       if (!inputField) {
         throw new Error('no inputField provided');
       }
       this.#inputField = inputField;
       this.#defaultFormat = defaultFormat;
-      this.#pickerConfig = Object.assign(this.#getDefaultPickerConfig(), pickerConfig);
       this.#fieldValidator = fieldValidator;
+      this.#pickerConfig = Object.freeze(Object.assign(this.#getDefaultPickerConfig(), pickerConfig));
       this.#openPickerNow = false;
       Object.assign(this, CELEMENTS.mixins.Observable);
       this.#initField(buttonCssSelector, pickerConfig);
@@ -105,8 +105,8 @@
 
     setPickerConfig(config) {
       console.debug('setPickerConfig', this, config);
-      config = Object.assign(config, this.#pickerConfig);
-      $j(this.#inputField).datetimepicker('setOptions', config);
+      $j(this.#inputField).datetimepicker('setOptions',
+          Object.assign({}, config, this.#pickerConfig));
     }
 
     #onShow(currentTime, data) {
@@ -143,15 +143,13 @@
   class CelementsDateTimePickerFactory {
 
     createDatePickerField(dateInputField, config = {}) {
-      config = Object.assign({
+      return new CelementsDateTimePicker(dateInputField, '.CelDatePicker', 'dd.MM.y', this.#dateFieldValidator, Object.assign({
         'allowBlank': true,
         'dayOfWeekStart': 1,
         'format': 'd.m.Y',
         'formatDate': 'd.m.Y',
         'timepicker': false
-      }, config);
-      return new CelementsDateTimePicker(dateInputField,
-        '.CelDatePicker', 'dd.MM.y', config, this.#dateFieldValidator);
+      }, config));
     }
 
     #dateFieldValidator(value, data = {}) {
@@ -189,14 +187,12 @@
     }
 
     createTimePickerField(timeInputField, config = {}) {
-      config = Object.assign({
-        'allowBlank': true,
-        'datepicker': false,
-        'format': 'H:i',
-        'formatTime': 'H:i'
-      }, config);
-      return new CelementsDateTimePicker(timeInputField,
-        '.CelTimePicker', 'HH:mm', config, this.#timeFieldValidator);
+      return new CelementsDateTimePicker(timeInputField, '.CelTimePicker', 'HH:mm', this.#timeFieldValidator, Object.assign({
+          'allowBlank': true,
+          'datepicker': false,
+          'format': 'H:i',
+          'formatTime': 'H:i'
+        }, config));
     }
 
     #timeFieldValidator(value, data = {}) {
@@ -244,7 +240,7 @@
     }
 
     initFields() {
-      const pickerConfig = this.#generatePickerConfig();
+      const pickerConfig = this.#collectPickerConfig();
       if (!this.#inputDateField) {
         this.#initDateField(pickerConfig);
       }
@@ -276,17 +272,17 @@
       }
     }
 
-    #generatePickerConfig() {
-      const config = {
-        defaultDate: this.#dateTimeComponent.defaultPickerDate,
-        defaultTime: this.#dateTimeComponent.defaultPickerTime,
-        minDate: this.#dateTimeComponent.minDate,
-        maxDate: this.#dateTimeComponent.maxDate,
-        step: this.#dateTimeComponent.timeStep,
-      }
-      config.minTime = (this.#dateTimeComponent.date === config.minDate) ? this.#dateTimeComponent.minTime : null;
-      config.maxTime = (this.#dateTimeComponent.date === config.maxDate) ? this.#dateTimeComponent.maxTime : null;
-      return config;
+    #collectPickerConfig() {
+      const component = this.#dateTimeComponent;
+      return Object.freeze({
+        defaultDate: component.defaultPickerDate || false,
+        defaultTime: component.defaultPickerTime || false,
+        minDate: component.minDate || false,
+        minTime: ((component.date === component.minDate) ? component.minTime : null) || false,
+        maxDate: component.maxDate || false,
+        maxTime: ((component.date === component.maxDate) ? component.maxTime : null) || false,
+        step: component.timeStep,
+      });
     }
 
     #onDateTimeChange() {
@@ -295,9 +291,9 @@
     }
 
     onAttributeChange() {
-      const config = this.#generatePickerConfig();
-      this.#inputDateField.setPickerConfig(config);
-      this.#inputTimeField.setPickerConfig(config);
+      const config = this.#collectPickerConfig();
+      this.#inputDateField?.setPickerConfig(config);
+      this.#inputTimeField?.setPickerConfig(config);
     }
 
     #updateComponentValuesFromInput() {
