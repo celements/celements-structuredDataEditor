@@ -25,21 +25,27 @@
   const curScriptPath = curScriptElement.src.split('?')[0];
   const curScriptDir = curScriptPath.split('/').slice(0, -1).join('/') + '/';
   const EVENT_FIELD_CHANGED = 'celements:fieldChanged';
+  const FORMATTER_JQUERY = Object.freeze({
+    parseDate: function (dateStr, format) {
+      return $j.format.date(dateStr, format) || false;
+    },
+    formatDate: function (date, format) {
+      return $j.format.date(date, format);
+    }
+  });
 
   class CelementsDateTimePicker {
 
     #inputField;
-    #defaultFormat;
     #fieldValidator;
     #openPickerNow;
     #pickerConfig;
 
-    constructor(inputField, buttonCssSelector, defaultFormat, fieldValidator, pickerConfig = {}) {
+    constructor(inputField, buttonCssSelector, fieldValidator, pickerConfig = {}) {
       if (!inputField) {
         throw new Error('no inputField provided');
       }
       this.#inputField = inputField;
-      this.#defaultFormat = defaultFormat;
       this.#fieldValidator = fieldValidator;
       this.#pickerConfig = Object.freeze(Object.assign(this.#getDefaultPickerConfig(), pickerConfig));
       this.#openPickerNow = false;
@@ -48,6 +54,7 @@
     }
 
     #initField(buttonCssSelector) {
+      $j.datetimepicker.setDateFormatter(FORMATTER_JQUERY);
       $j(this.#inputField).datetimepicker(this.#pickerConfig)
       this.#observeChange(this.#inputField);
       this.#observePickerButton(buttonCssSelector);
@@ -118,7 +125,7 @@
 
     #onChanged() {
       console.debug("#onChanged", this.value);
-      const validatedValue = this.#fieldValidator(this.value, this.#inputField.dataset);
+      const validatedValue = this.#fieldValidator(this.value, this.#pickerConfig.format, this.#inputField.dataset);
       this.#inputField.classList.toggle('validation-failed', !validatedValue);
       if (this.value !== validatedValue) {
         this.#inputField.value = validatedValue;
@@ -131,7 +138,7 @@
     }
 
     #onChangeField(currentValue, data) {
-      const value = currentValue ? $j.format.date(currentValue, this.#defaultFormat) : "";
+      const value = currentValue ? $j.format.date(currentValue, this.#pickerConfig.format) : "";
       let prototypejsEle = $(data[0]);
       prototypejsEle.value = value;
       console.debug('#onChangeField: ', value);
@@ -143,16 +150,16 @@
   class CelementsDateTimePickerFactory {
 
     createDatePickerField(dateInputField, config = {}) {
-      return new CelementsDateTimePicker(dateInputField, '.CelDatePicker', 'dd.MM.y', this.#dateFieldValidator, Object.assign({
+      return new CelementsDateTimePicker(dateInputField, '.CelDatePicker', this.#dateFieldValidator, Object.assign({
         'allowBlank': true,
         'dayOfWeekStart': 1,
-        'format': 'd.m.Y',
-        'formatDate': 'd.m.Y',
+        'format': 'dd.MM.y',
+        'formatDate': 'dd.MM.y',
         'timepicker': false
       }, config));
     }
 
-    #dateFieldValidator(value, data = {}) {
+    #dateFieldValidator(value, format, data = {}) {
       console.debug("dateFieldValidator - from", value);
       value = (value || '').toString().trim().replace(/[,-]/g, '.');
       const split = value.split('.').filter(Boolean);
@@ -172,14 +179,14 @@
           (year || curDate.getFullYear()),
           (month || (curDate.getMonth() + 1)) - 1,
           (day || curDate.getDate()));
-        const minDate = $j.format.date(data.min || '', 'dd.MM.y');
-        const maxDate = $j.format.date(data.max || '', 'dd.MM.y');
+        const minDate = $j.format.date(data.min || '', format);
+        const maxDate = $j.format.date(data.max || '', format);
         if (minDate && minDate > date) {
           console.info('date before defined minimum');
         } else if (maxDate && maxDate < date) {
           console.info('date after defined maximum');
         } else {
-          validated = $j.format.date(date, 'dd.MM.y');
+          validated = $j.format.date(date, format);
         }
       }
       console.debug("dateFieldValidator - to", validated);
@@ -187,15 +194,15 @@
     }
 
     createTimePickerField(timeInputField, config = {}) {
-      return new CelementsDateTimePicker(timeInputField, '.CelTimePicker', 'HH:mm', this.#timeFieldValidator, Object.assign({
+      return new CelementsDateTimePicker(timeInputField, '.CelTimePicker', this.#timeFieldValidator, Object.assign({
           'allowBlank': true,
           'datepicker': false,
-          'format': 'H:i',
-          'formatTime': 'H:i'
+          'format': 'HH:mm',
+          'formatTime': 'HH:mm'
         }, config));
     }
 
-    #timeFieldValidator(value, data = {}) {
+    #timeFieldValidator(value, format, data = {}) {
       console.debug("timeFieldValidator - from", value);
       value = (value || '').toString().trim().replace(/[\.,]/g, ':');
       const split = value.split(':').filter(Boolean);
@@ -211,7 +218,7 @@
         let date = new Date();
         date.setHours(hours || 0);
         date.setMinutes(minutes || 0);
-        const timeStr = $j.format.date(date, 'HH:mm');
+        const timeStr = $j.format.date(date, format);
         const isMidnight = date.getHours() == 0 && date.getMinutes() == 0;
         if (!isMidnight && data.min > timeStr) {
           console.info('time before defined minimum');
