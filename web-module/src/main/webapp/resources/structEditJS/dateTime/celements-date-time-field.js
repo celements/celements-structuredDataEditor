@@ -25,6 +25,15 @@
   const curScriptPath = curScriptElement.src.split('?')[0];
   const curScriptDir = curScriptPath.split('/').slice(0, -1).join('/') + '/';
 
+  /**
+   * dd.MM.yyyy
+   */
+  const FORMATTER_DATE = new Intl.DateTimeFormat('de-CH', {day: '2-digit', month: '2-digit', year: 'numeric' });
+  /**
+   * HH:mm
+   */
+  const FORMATTER_TIME = new Intl.DateTimeFormat('de-CH', {hour: '2-digit', minute: '2-digit' });
+
   if (typeof window.CELEMENTS.structEdit == "undefined") { window.CELEMENTS.structEdit = {}; };
 
   if (typeof window.CELEMENTS.structEdit.DateOrTimeFieldPicker === 'undefined') {
@@ -193,7 +202,7 @@
         const curDate = new Date();
         const date = new Date(year || curDate.getFullYear(), (month || (curDate.getMonth() + 1)) - 1,
           day || curDate.getDate());
-        validated = $j.format.date(date, 'dd.MM.y');
+        validated = FORMATTER_DATE.format(date);
       }
       console.debug("dateFieldValidator - to", validated);
       return validated;
@@ -222,10 +231,10 @@
       if (value
         && (!split[0] || (!isNaN(hours) && (hours >= 0) && (hours < 24)))
         && (!split[1] || (!isNaN(minutes) && (minutes >= 0) && (minutes < 60)))) {
-        let date = new Date();
+        const date = new Date();
         date.setHours(hours || 0);
         date.setMinutes(minutes || 0);
-        validated = $j.format.date(date, 'HH:mm');
+        validated = FORMATTER_TIME.format(date);
       }
       console.debug("timeFieldValidator - to", validated);
       return validated;
