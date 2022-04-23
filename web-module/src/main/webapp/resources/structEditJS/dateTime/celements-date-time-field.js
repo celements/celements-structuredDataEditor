@@ -60,8 +60,8 @@
     }
 
     #initField(buttonCssSelector) {
-      $j(this.#inputField).datetimepicker(this.#pickerConfig)
-      this.#observeChange(this.#inputField);
+      $j(this.htmlElem).datetimepicker(this.#pickerConfig)
+      this.#observeChange(this.htmlElem);
       this.#observePickerButton(buttonCssSelector);
     }
 
@@ -73,8 +73,8 @@
         'lang': lang || 'de',
         'closeOnDateSelect': true,
         'scrollInput': false,
-        'onChangeDateTime': this.#onChangeField.bind(this),
-        'onShow': this.#onShow.bind(this),
+        'onChangeDateTime': this.#onPickerSelect.bind(this),
+        'onShow': this.#onPickerShow.bind(this),
         'onClose': function() { }
       };
     }
@@ -86,66 +86,50 @@
     }
 
     #observePickerButton(buttonCssSelector) {
-      const pickerButton = this.#inputField.next(buttonCssSelector)
-          || this.#inputField.previous(buttonCssSelector);
+      const pickerButton = [this.htmlElem.nextElementSibling, this.htmlElem.previousElementSibling]
+          .find(elem => elem && elem.matches(buttonCssSelector));
       if (pickerButton) {
         const openPickerBind = this.openPicker.bind(this);
         pickerButton.stopObserving('click', openPickerBind);
         pickerButton.observe('click', openPickerBind);
       } else {
-        console.warn('not pickerButton found for ', this.#inputField);
+        console.warn('not pickerButton found for ', this.htmlElem);
       }
     }
 
-    getHtmlElem() {
+    get htmlElem() {
       return this.#inputField;
     }
 
     get value() {
-      return this.#inputField.value;
+      return this.htmlElem.value || '';
     }
 
-    set value(newValue) {
-      this.#inputField.value = newValue;
+    set value(value) {
+      this.htmlElem.value = value || '';      
     }
 
-    #getValidatedValue() {
-      if (!this.#fieldValidator) {
-        return this.value;
-      }
-      const validated = this.#fieldValidator(this.value, {
-        min: this.#marshaller.parse(this.#inputField.dataset.min),
-        max: this.#marshaller.parse(this.#inputField.dataset.max)
-      });
-      return this.#marshaller.format(validated) || '';
+    setPickerConfig(config) {
+      $j(this.htmlElem).datetimepicker('setOptions',
+          Object.assign({}, this.#pickerConfig, config));
     }
 
     openPicker(event) {
       event?.stop();
       this.#openPickerNow = true;
-      $j(this.#inputField).trigger('open');
+      $j(this.htmlElem).trigger('open');
     }
 
-    setPickerConfig(config) {
-      $j(this.#inputField).datetimepicker('setOptions',
-          Object.assign({}, this.#pickerConfig, config));
-    }
-
-    #onShow(currentTime, data) {
+    #onPickerShow() {
       const showNow = this.#openPickerNow;
       this.#openPickerNow = false;
-      console.debug('#onShow: ', showNow, currentTime, data);
+      console.debug('#onPickerShow: ', showNow);
       return showNow;
     }
 
     #onChanged() {
-      const validatedValue = this.#getValidatedValue();
-      this.#inputField.classList.toggle('validation-failed', !validatedValue);
-      if (this.value !== validatedValue) {
-        console.info("#onChanged: invalid", this.value);
-        this.value = validatedValue;
-      } else {
-        console.debug("#onChanged: valid", this.value);
+      console.debug("#onChanged", this.value);
+      if (this.validate()) {
         this.celFire(EVENT_FIELD_CHANGED, {
           'dateOrTimeFieldPicker': this,
           'newValue': this.value
@@ -153,9 +137,34 @@
       }
     }
 
-    #onChangeField(value) {
+    #onPickerSelect(value) {
       this.value = this.#marshaller.format(value);
       this.#onChanged();
+    }
+
+    #getValidatedValue() {
+      if (!this.#fieldValidator) {
+        return this.value;
+      }
+      const validated = this.#fieldValidator(this.value, {
+        min: this.#marshaller.parse(this.htmlElem.dataset.min),
+        max: this.#marshaller.parse(this.htmlElem.dataset.max)
+      });
+      return this.#marshaller.format(validated) || '';
+    }
+
+    validate() {
+      if (!this.value) {
+        return true;
+      }
+      const validatedValue = this.#getValidatedValue();
+      const valid = this.value === validatedValue;
+      this.htmlElem.classList.toggle('validation-failed', !valid);
+      if (!valid) {
+        console.info("validate: invalid", this.htmlElem, this.value);
+        this.value = validatedValue;
+      }
+      return valid;
     }
 
   }
@@ -304,15 +313,19 @@
     }
 
     onAttributeChange() {
+      // update picker config in case max/min have changed
       const config = this.#collectPickerConfig();
       this.#inputDateField?.setPickerConfig(config);
       this.#inputTimeField?.setPickerConfig(config);
+      // validate in case max/min have changed
+      this.#inputDateField?.validate();
+      this.#inputTimeField?.validate();
     }
 
     #updateComponentValuesFromInput() {
+      console.debug("#updateComponentValuesFromInput", this.#dateTimeComponent.value);
       this.#dateTimeComponent.date = this.#inputDateField?.value;
       this.#dateTimeComponent.time = this.#inputTimeField?.value;
-      console.debug("#updateComponentValuesFromInput", this.#dateTimeComponent.value);
     }
   
     /**
@@ -327,9 +340,9 @@
         if (component === this.#dateTimeComponent) {
           attribute = 'min';
         } else {
+          console.debug('setMinMax: set ', attribute, '=', date + ' ' + time, ' on:', component);
           component.setAttribute(attribute + '-date', date);
           component.setAttribute(attribute + '-time', time);
-          console.debug('setMinMax: set ', attribute, '=', date + ' ' + time, ' on:', component);
         }
       }
     }
