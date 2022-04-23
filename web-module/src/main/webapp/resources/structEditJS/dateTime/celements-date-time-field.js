@@ -31,8 +31,8 @@
    */
   const FORMATTER_DATE = new Intl.DateTimeFormat('de-CH', {day: '2-digit', month: '2-digit', year: 'numeric' });
   /**
-    * HH:mm
-    */
+   * HH:mm
+   */
   const FORMATTER_TIME = new Intl.DateTimeFormat('de-CH', {hour: '2-digit', minute: '2-digit' });
   const DATE_MARSHALLER = Object.freeze({
     parseDate: function (dateStr, format) {
@@ -137,7 +137,7 @@
       const validatedValue = this.#fieldValidator(this.value, this.#pickerConfig.format, this.#inputField.dataset);
       this.#inputField.classList.toggle('validation-failed', !validatedValue);
       if (this.value !== validatedValue) {
-        this.#inputField.value = validatedValue;
+        this.value = validatedValue;
       } else {
         this.celFire(EVENT_FIELD_CHANGED, {
           'dateOrTimeFieldPicker': this,
@@ -146,11 +146,8 @@
       }
     }
 
-    #onChangeField(currentValue, data) {
-      const value = currentValue ? DATE_MARSHALLER.formatDate(currentValue, this.#pickerConfig.format) : "";
-      const prototypejsEle = $(data[0]);
-      prototypejsEle.value = value;
-      console.debug('#onChangeField: ', currentValue, data);
+    #onChangeField(value) {
+      this.value = value ? DATE_MARSHALLER.formatDate(value, this.#pickerConfig.format) : '';
       this.#onChanged();
     }
 
