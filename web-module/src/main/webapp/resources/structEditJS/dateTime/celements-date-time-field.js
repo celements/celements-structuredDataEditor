@@ -34,7 +34,7 @@
     * HH:mm
     */
   const FORMATTER_TIME = new Intl.DateTimeFormat('de-CH', {hour: '2-digit', minute: '2-digit' });
-  const FORMATTER_JQUERY = Object.freeze({
+  const DATE_MARSHALLER = Object.freeze({
     parseDate: function (dateStr, format) {
       return $j.format.date(dateStr, format) || false;
     },
@@ -63,7 +63,7 @@
     }
 
     #initField(buttonCssSelector) {
-      $j.datetimepicker.setDateFormatter(FORMATTER_JQUERY);
+      $j.datetimepicker.setDateFormatter(DATE_MARSHALLER);
       $j(this.#inputField).datetimepicker(this.#pickerConfig)
       this.#observeChange(this.#inputField);
       this.#observePickerButton(buttonCssSelector);
@@ -147,10 +147,10 @@
     }
 
     #onChangeField(currentValue, data) {
-      const value = currentValue ? $j.format.date(currentValue, this.#pickerConfig.format) : "";
-      let prototypejsEle = $(data[0]);
+      const value = currentValue ? DATE_MARSHALLER.formatDate(currentValue, this.#pickerConfig.format) : "";
+      const prototypejsEle = $(data[0]);
       prototypejsEle.value = value;
-      console.debug('#onChangeField: ', value);
+      console.debug('#onChangeField: ', currentValue, data);
       this.#onChanged();
     }
 
@@ -188,14 +188,14 @@
           (year || curDate.getFullYear()),
           (month || (curDate.getMonth() + 1)) - 1,
           (day || curDate.getDate()));
-        const minDate = $j.format.date(data.min || '', format);
-        const maxDate = $j.format.date(data.max || '', format);
+        const minDate = DATE_MARSHALLER.parseDate(data.min || '', format);
+        const maxDate = DATE_MARSHALLER.parseDate(data.max || '', format);
         if (minDate && minDate > date) {
           console.info('date before defined minimum');
         } else if (maxDate && maxDate < date) {
           console.info('date after defined maximum');
         } else {
-          validated = $j.format.date(date, format);
+          validated = DATE_MARSHALLER.formatDate(date, format);
         }
       }
       console.debug("dateFieldValidator - to", validated);
@@ -227,7 +227,7 @@
         let date = new Date();
         date.setHours(hours || 0);
         date.setMinutes(minutes || 0);
-        const timeStr = $j.format.date(date, format);
+        const timeStr = DATE_MARSHALLER.formatDate(date, format);
         const isMidnight = date.getHours() == 0 && date.getMinutes() == 0;
         if (!isMidnight && data.min > timeStr) {
           console.info('time before defined minimum');
