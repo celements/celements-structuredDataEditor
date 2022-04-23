@@ -28,12 +28,12 @@
 
   const DATE_MARSHALLER_DE = Object.freeze({
     formatter: new Intl.DateTimeFormat('de-CH', {day: '2-digit', month: '2-digit', year: 'numeric' }),
-    format: date => date ? this.formatter.format(date) : '',
+    format: date => date ? DATE_MARSHALLER_DE.formatter.format(date) : '',
     parse: str => $j.format.date(str || '', 'dd.MM.y') || false
   });
   const TIME_MARSHALLER_DE = Object.freeze({
     formatter: new Intl.DateTimeFormat('de-CH', {hour: '2-digit', minute: '2-digit' }),
-    format: date => date ? this.formatter.format(date) : '',
+    format: date => date ? TIME_MARSHALLER_DE.formatter.format(date) : '',
     parse: str => $j.format.date(str || '', 'HH:mm') || false
   });
 
@@ -127,9 +127,8 @@
     }
 
     setPickerConfig(config) {
-      config = Object.assign({}, config, this.#pickerConfig);
-      $j(this.#inputField).datetimepicker('setOptions', config);
-      console.debug('setPickerConfig', this, config);
+      $j(this.#inputField).datetimepicker('setOptions',
+          Object.assign({}, this.#pickerConfig, config));
     }
 
     #onShow(currentTime, data) {
@@ -227,12 +226,10 @@
         const time = new Date(0);
         time.setHours(hours || 0);
         time.setMinutes(minutes || 0);
-        const compareTime = (t1, t2) => t1.getHours() > t2.getHours() || t1.getMinutes() > t2.getMinutes();
-        if (time.getHours() == 0 && time.getMinutes() == 0) {
-          return time; // 00:00 is always valid
-        } else if (data.min && compareTime(data.min, time)) {
+        const asTimeInt = t => (t.getHours() << 6) + t.getMinutes();
+        if (data.min && (asTimeInt(data.min) > asTimeInt(time) > 0)) {
           console.info(time, 'is before defined minimum', data.min);
-        } else if (data.max && compareTime(time, data.max)) {
+        } else if (data.max && (asTimeInt(time) > asTimeInt(data.max) > 0)) {
           console.info(time, 'is after defined maximum', data.max);
         } else {
           return time;
