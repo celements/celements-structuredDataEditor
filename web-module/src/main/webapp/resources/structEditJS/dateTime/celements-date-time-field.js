@@ -26,44 +26,40 @@
   const curScriptDir = curScriptPath.split('/').slice(0, -1).join('/') + '/';
   const EVENT_FIELD_CHANGED = 'celements:fieldChanged';
 
-  /**
-   * dd.MM.yyyy
-   */
-  const FORMATTER_DATE = new Intl.DateTimeFormat('de-CH', {day: '2-digit', month: '2-digit', year: 'numeric' });
-  /**
-   * HH:mm
-   */
-  const FORMATTER_TIME = new Intl.DateTimeFormat('de-CH', {hour: '2-digit', minute: '2-digit' });
-  const DATE_MARSHALLER = Object.freeze({
-    parseDate: function (dateStr, format) {
-      return $j.format.date(dateStr, format) || false;
-    },
-    formatDate: function (date, format) {
-      return $j.format.date(date, format);
-    }
+  const DATE_MARSHALLER_DE = Object.freeze({
+    formatter: new Intl.DateTimeFormat('de-CH', {day: '2-digit', month: '2-digit', year: 'numeric' }),
+    format: date => date ? this.formatter.format(date) : '',
+    parse: str => $j.format.date(str || '', 'dd.MM.y') || false
+  });
+  const TIME_MARSHALLER_DE = Object.freeze({
+    formatter: new Intl.DateTimeFormat('de-CH', {hour: '2-digit', minute: '2-digit' }),
+    format: date => date ? this.formatter.format(date) : '',
+    parse: str => $j.format.date(str || '', 'HH:mm') || false
   });
 
   class CelementsDateTimePicker {
 
     #inputField;
+    #marshaller;
     #fieldValidator;
-    #openPickerNow;
     #pickerConfig;
+    #openPickerNow;
 
-    constructor(inputField, buttonCssSelector, fieldValidator, pickerConfig = {}) {
+    constructor(inputField, buttonCssSelector, marshaller, fieldValidator, pickerConfig = {}) {
       if (!inputField) {
         throw new Error('no inputField provided');
       }
       this.#inputField = inputField;
+      this.#marshaller = marshaller;
       this.#fieldValidator = fieldValidator;
-      this.#pickerConfig = Object.freeze(Object.assign(this.#getDefaultPickerConfig(), pickerConfig));
+      this.#pickerConfig = Object.freeze(Object.assign(
+          this.#getDefaultPickerConfig(), pickerConfig));
       this.#openPickerNow = false;
       Object.assign(this, CELEMENTS.mixins.Observable);
       this.#initField(buttonCssSelector, pickerConfig);
     }
 
     #initField(buttonCssSelector) {
-      $j.datetimepicker.setDateFormatter(DATE_MARSHALLER);
       $j(this.#inputField).datetimepicker(this.#pickerConfig)
       this.#observeChange(this.#inputField);
       this.#observePickerButton(buttonCssSelector);
@@ -134,7 +130,11 @@
 
     #onChanged() {
       console.debug("#onChanged", this.value);
-      const validatedValue = this.#fieldValidator(this.value, this.#pickerConfig.format, this.#inputField.dataset);
+      const validatedValue = this.#fieldValidator(this.value, {
+        marshaller: this.#marshaller,
+        min: this.#inputField.dataset.min,
+        max: this.#inputField.dataset.max
+      });
       this.#inputField.classList.toggle('validation-failed', !validatedValue);
       if (this.value !== validatedValue) {
         this.value = validatedValue;
@@ -147,7 +147,7 @@
     }
 
     #onChangeField(value) {
-      this.value = value ? DATE_MARSHALLER.formatDate(value, this.#pickerConfig.format) : '';
+      this.value = this.#marshaller.format(value);
       this.#onChanged();
     }
 
@@ -156,16 +156,17 @@
   class CelementsDateTimePickerFactory {
 
     createDatePickerField(dateInputField, config = {}) {
-      return new CelementsDateTimePicker(dateInputField, '.CelDatePicker', this.#dateFieldValidator, Object.assign({
-        'allowBlank': true,
-        'dayOfWeekStart': 1,
-        'format': 'dd.MM.y',
-        'formatDate': 'dd.MM.y',
-        'timepicker': false
-      }, config));
+      return new CelementsDateTimePicker(dateInputField, '.CelDatePicker',
+        DATE_MARSHALLER_DE, this.#dateFieldValidator, Object.assign({
+          'allowBlank': true,
+          'dayOfWeekStart': 1,
+          'format': 'd.m.Y', // JQuery DateTimePicker uses php-date-formatter by default
+          'formatDate': 'd.m.Y',
+          'timepicker': false
+        }, config));
     }
 
-    #dateFieldValidator(value, format, data = {}) {
+    #dateFieldValidator(value, data = {}) {
       console.debug("dateFieldValidator - from", value);
       value = (value || '').toString().trim().replace(/[,-]/g, '.');
       const split = value.split('.').filter(Boolean);
@@ -185,14 +186,14 @@
           (year || curDate.getFullYear()),
           (month || (curDate.getMonth() + 1)) - 1,
           (day || curDate.getDate()));
-        const minDate = DATE_MARSHALLER.parseDate(data.min || '', format);
-        const maxDate = DATE_MARSHALLER.parseDate(data.max || '', format);
+        const minDate = data.marshaller.parse(data.min);
+        const maxDate = data.marshaller.parse(data.max);
         if (minDate && minDate > date) {
           console.info('date before defined minimum');
         } else if (maxDate && maxDate < date) {
           console.info('date after defined maximum');
         } else {
-          validated = DATE_MARSHALLER.formatDate(date, format);
+          validated = data.marshaller.format(date, format);
         }
       }
       console.debug("dateFieldValidator - to", validated);
@@ -200,15 +201,16 @@
     }
 
     createTimePickerField(timeInputField, config = {}) {
-      return new CelementsDateTimePicker(timeInputField, '.CelTimePicker', this.#timeFieldValidator, Object.assign({
+      return new CelementsDateTimePicker(timeInputField, '.CelTimePicker',
+        TIME_MARSHALLER_DE, this.#timeFieldValidator, Object.assign({
           'allowBlank': true,
           'datepicker': false,
-          'format': 'HH:mm',
-          'formatTime': 'HH:mm'
+          'format': 'H:i', // JQuery DateTimePicker uses php-date-formatter by default
+          'formatTime': 'H:i'
         }, config));
     }
 
-    #timeFieldValidator(value, format, data = {}) {
+    #timeFieldValidator(value, data = {}) {
       console.debug("timeFieldValidator - from", value);
       value = (value || '').toString().trim().replace(/[\.,]/g, ':');
       const split = value.split(':').filter(Boolean);
@@ -224,7 +226,7 @@
         let date = new Date();
         date.setHours(hours || 0);
         date.setMinutes(minutes || 0);
-        const timeStr = DATE_MARSHALLER.formatDate(date, format);
+        const timeStr = data.marshaller.format(date);
         const isMidnight = date.getHours() == 0 && date.getMinutes() == 0;
         if (!isMidnight && data.min > timeStr) {
           console.info('time before defined minimum');
@@ -316,7 +318,8 @@
     }
   
     /**
-     * set the date/time of this.#dateTimeComponent as maxDate/Time on all components before this and as minDate/Time after.
+     * set the date/time of this.#dateTimeComponent as maxDate/Time on all components before this
+     * and as minDate/Time after.
      */
     #setMinMax(dateTimeComponents) {
       let attribute = 'max';
