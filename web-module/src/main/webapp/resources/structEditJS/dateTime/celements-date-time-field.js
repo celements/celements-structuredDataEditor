@@ -25,6 +25,15 @@
   const curScriptPath = curScriptElement.src.split('?')[0];
   const curScriptDir = curScriptPath.split('/').slice(0, -1).join('/') + '/';
   const EVENT_FIELD_CHANGED = 'celements:fieldChanged';
+
+  /**
+   * dd.MM.yyyy
+   */
+  const FORMATTER_DATE = new Intl.DateTimeFormat('de-CH', {day: '2-digit', month: '2-digit', year: 'numeric' });
+  /**
+    * HH:mm
+    */
+  const FORMATTER_TIME = new Intl.DateTimeFormat('de-CH', {hour: '2-digit', minute: '2-digit' });
   const FORMATTER_JQUERY = Object.freeze({
     parseDate: function (dateStr, format) {
       return $j.format.date(dateStr, format) || false;
