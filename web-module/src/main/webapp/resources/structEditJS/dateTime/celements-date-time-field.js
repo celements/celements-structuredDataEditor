@@ -109,6 +109,17 @@
       this.#inputField.value = newValue;
     }
 
+    #getValidatedValue() {
+      if (!this.#fieldValidator) {
+        return this.value;
+      }
+      const validated = this.#fieldValidator(this.value, {
+        min: this.marshaller.parse(this.#inputField.dataset.min),
+        max: this.marshaller.parse(this.#inputField.dataset.max)
+      });
+      return this.marshaller.format(validated) || '';
+    }
+
     openPicker(event) {
       event?.stop();
       this.#openPickerNow = true;
@@ -129,16 +140,13 @@
     }
 
     #onChanged() {
-      console.debug("#onChanged", this.value);
-      const validatedValue = this.#fieldValidator(this.value, {
-        marshaller: this.#marshaller,
-        min: this.#inputField.dataset.min,
-        max: this.#inputField.dataset.max
-      });
+      const validatedValue = this.#getValidatedValue();
       this.#inputField.classList.toggle('validation-failed', !validatedValue);
       if (this.value !== validatedValue) {
+        console.info("#onChanged: invalid", this.value);
         this.value = validatedValue;
       } else {
+        console.debug("#onChanged: valid", this.value);
         this.celFire(EVENT_FIELD_CHANGED, {
           'dateOrTimeFieldPicker': this,
           'newValue': this.value
@@ -167,7 +175,6 @@
     }
 
     #dateFieldValidator(value, data = {}) {
-      console.debug("dateFieldValidator - from", value);
       value = (value || '').toString().trim().replace(/[,-]/g, '.');
       const split = value.split('.').filter(Boolean);
       const day = Number(split[0]);
@@ -176,7 +183,6 @@
       if (year < 100) {
         year += Math.floor(new Date().getFullYear() / 100) * 100; // 21 -> 2021
       }
-      let validated = '';
       if (value
           && (!split[0] || (!isNaN(day) && (day > 0) && (day <= 31)))
           && (!split[1] || (!isNaN(month) && (month > 0) && (month <= 12)))
@@ -186,18 +192,15 @@
           (year || curDate.getFullYear()),
           (month || (curDate.getMonth() + 1)) - 1,
           (day || curDate.getDate()));
-        const minDate = data.marshaller.parse(data.min);
-        const maxDate = data.marshaller.parse(data.max);
-        if (minDate && minDate > date) {
-          console.info('date before defined minimum');
-        } else if (maxDate && maxDate < date) {
-          console.info('date after defined maximum');
+        if (data.min && data.min > date) {
+          console.info(date, 'is before defined minimum', data.min);
+        } else if (data.max && data.max < date) {
+          console.info(date, 'is after defined maximum', data.max);
         } else {
-          validated = data.marshaller.format(date, format);
+          return date;
         }
       }
-      console.debug("dateFieldValidator - to", validated);
-      return validated || '';
+      return null;
     }
 
     createTimePickerField(timeInputField, config = {}) {
@@ -211,7 +214,6 @@
     }
 
     #timeFieldValidator(value, data = {}) {
-      console.debug("timeFieldValidator - from", value);
       value = (value || '').toString().trim().replace(/[\.,]/g, ':');
       const split = value.split(':').filter(Boolean);
       const hours = Number(split[0]);
@@ -219,25 +221,24 @@
       if (minutes < 6 && split[1].trim().length == 1) {
         minutes *= 10; // :5 -> 50 minutes
       }
-      let validated = '';
       if (value
           && (!split[0] || (!isNaN(hours) && (hours >= 0) && (hours < 24)))
           && (!split[1] || (!isNaN(minutes) && (minutes >= 0) && (minutes < 60)))) {
-        let date = new Date();
-        date.setHours(hours || 0);
-        date.setMinutes(minutes || 0);
-        const timeStr = data.marshaller.format(date);
-        const isMidnight = date.getHours() == 0 && date.getMinutes() == 0;
-        if (!isMidnight && data.min > timeStr) {
-          console.info('time before defined minimum');
-        } else if (!isMidnight && data.max < timeStr) {
-          console.info('time after defined maximum');
+        const time = new Date(0);
+        time.setHours(hours || 0);
+        time.setMinutes(minutes || 0);
+        const compareTime = (t1, t2) => t1.getHours() > t2.getHours() || t1.getMinutes() > t2.getMinutes();
+        if (time.getHours() == 0 && time.getMinutes() == 0) {
+          return time; // 00:00 is always valid
+        } else if (data.min && compareTime(data.min, time)) {
+          console.info(time, 'is before defined minimum', data.min);
+        } else if (data.max && compareTime(time, data.max)) {
+          console.info(time, 'is after defined maximum', data.max);
         } else {
-          validated = timeStr;
+          return time;
         }
       }
-      console.debug("timeFieldValidator - to", validated);
-      return validated;
+      return null;
     }
 
   }
