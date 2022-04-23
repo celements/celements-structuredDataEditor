@@ -114,10 +114,10 @@
         return this.value;
       }
       const validated = this.#fieldValidator(this.value, {
-        min: this.marshaller.parse(this.#inputField.dataset.min),
-        max: this.marshaller.parse(this.#inputField.dataset.max)
+        min: this.#marshaller.parse(this.#inputField.dataset.min),
+        max: this.#marshaller.parse(this.#inputField.dataset.max)
       });
-      return this.marshaller.format(validated) || '';
+      return this.#marshaller.format(validated) || '';
     }
 
     openPicker(event) {
@@ -127,9 +127,9 @@
     }
 
     setPickerConfig(config) {
+      config = Object.assign({}, config, this.#pickerConfig);
+      $j(this.#inputField).datetimepicker('setOptions', config);
       console.debug('setPickerConfig', this, config);
-      $j(this.#inputField).datetimepicker('setOptions',
-          Object.assign({}, config, this.#pickerConfig));
     }
 
     #onShow(currentTime, data) {
