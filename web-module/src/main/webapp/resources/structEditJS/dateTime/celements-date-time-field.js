@@ -499,23 +499,27 @@
       return this.value?.split(' ')[idx];
     }
 
+    #setValueParts(parts) {
+      this.value = parts.filter(Boolean).join(' ');
+    }
+
     get date() {
-      return this.#getValuePart(0) || this.defaultDate;
+      return this.hasDateField() ? (this.#getValuePart(0) || this.defaultDate) : null;
     }
 
     set date(newValue) {
       if (this.hasDateField()) {
-        this.value = ((newValue || this.defaultDate) + ' ' + this.time).trim();
+        this.#setValueParts([(newValue || this.defaultDate), this.time]);
       }
     }
 
     get time() {
-      return this.#getValuePart(1) || this.defaultTime;
+      return this.hasTimeField() ? (this.#getValuePart(1) || this.defaultTime) : null;
     }
 
     set time(newValue) {
       if (this.hasTimeField()) {
-        this.value = (this.date + ' ' + (newValue || this.defaultTime || '00:00')).trim();
+        this.#setValueParts([this.date, (newValue || this.defaultTime || '00:00')]);
       }
     }
 
