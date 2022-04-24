@@ -499,7 +499,7 @@
       return this.value?.split(' ')[idx];
     }
 
-    #setValueParts(parts) {
+    #setValueParts(...parts) {
       this.value = parts.filter(Boolean).join(' ');
     }
 
@@ -509,7 +509,7 @@
 
     set date(newValue) {
       if (this.hasDateField()) {
-        this.#setValueParts([(newValue || this.defaultDate), this.time]);
+        this.#setValueParts(newValue || this.defaultDate, this.time);
       }
     }
 
@@ -519,7 +519,7 @@
 
     set time(newValue) {
       if (this.hasTimeField()) {
-        this.#setValueParts([this.date, (newValue || this.defaultTime || '00:00')]);
+        this.#setValueParts(this.date, newValue || this.defaultTime || '00:00');
       }
     }
 
