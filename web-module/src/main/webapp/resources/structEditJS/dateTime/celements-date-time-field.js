@@ -236,9 +236,9 @@
         time.setHours(hours || 0);
         time.setMinutes(minutes || 0);
         const asTimeInt = t => (t.getHours() << 6) + t.getMinutes();
-        if (data.min && (asTimeInt(data.min) > asTimeInt(time) > 0)) {
+        if (data.min && asTimeInt(data.min) > asTimeInt(time) && asTimeInt(time) > 0) {
           console.info(time, 'is before defined minimum', data.min);
-        } else if (data.max && (asTimeInt(time) > asTimeInt(data.max) > 0)) {
+        } else if (data.max && asTimeInt(time) > asTimeInt(data.max) && asTimeInt(data.max) > 0) {
           console.info(time, 'is after defined maximum', data.max);
         } else {
           return time;
