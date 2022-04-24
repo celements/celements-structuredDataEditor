@@ -161,7 +161,7 @@
       const valid = this.value === validatedValue;
       this.htmlElem.classList.toggle('validation-failed', !valid);
       if (!valid) {
-        console.info("validate: invalid", this.htmlElem, this.value);
+        console.info("validate: invalid", this.htmlElem, this.value, '->', validatedValue);
         this.value = validatedValue;
       }
       return valid;
@@ -263,7 +263,7 @@
 
     initFields() {
       const pickerConfig = this.#collectPickerConfig();
-      if (!this.#inputDateField) {
+      if (!this.#inputDateField && this.#dateTimeComponent.hasDateField()) {
         this.#initDateField(pickerConfig);
       }
       if (!this.#inputTimeField && this.#dateTimeComponent.hasTimeField()) {
@@ -300,9 +300,9 @@
         defaultDate: component.defaultPickerDate || false,
         defaultTime: component.defaultPickerTime || false,
         minDate: component.minDate || false,
-        minTime: ((component.date === component.minDate) ? component.minTime : null) || false,
+        minTime: component.minTime || false,
         maxDate: component.maxDate || false,
-        maxTime: ((component.date === component.maxDate) ? component.maxTime : null) || false,
+        maxTime: component.maxTime || false,
         step: component.timeStep,
       });
     }
@@ -399,28 +399,31 @@
     }
 
     #addInputFields() {
-      this.shadowRoot.appendChild(this.datePart);
+      if (this.hasDateField()) {
+        this.shadowRoot.appendChild(this.datePart);
+      }
       if (this.hasTimeField()) {
         this.shadowRoot.appendChild(this.timePart);
       }
     }
 
     #addPickerIcons() {
-      if (!this.#datePickerIcon) {
-        this.#datePickerIcon = document.createElement('i');
-        this.#datePickerIcon.title = 'Date Picker';
-        this.#datePickerIcon.className = 'CelDatePicker dateInputField halflings halflings-calendar';
+      if (this.hasDateField()) {
+        if (!this.#datePickerIcon) {
+          this.#datePickerIcon = document.createElement('i');
+          this.#datePickerIcon.title = 'Date Picker';
+          this.#datePickerIcon.className = 'CelDatePicker dateInputField halflings halflings-calendar';
+        }
+        this.shadowRoot.insertBefore(this.#datePickerIcon, this.datePart.nextSibling);
       }
-      this.shadowRoot.insertBefore(this.#datePickerIcon, this.datePart.nextSibling);
-      if (!this.hasTimeField()) {
-        return;
+      if (this.hasTimeField()) {
+        if (!this.#timePickerIcon) {
+          this.#timePickerIcon = document.createElement('i');
+          this.#timePickerIcon.title = 'Time Picker';
+          this.#timePickerIcon.className = 'CelTimePicker timeInputField halflings halflings-time';
+        }
+        this.shadowRoot.insertBefore(this.#timePickerIcon, this.timePart.nextSibling);  
       }
-      if (!this.#timePickerIcon) {
-        this.#timePickerIcon = document.createElement('i');
-        this.#timePickerIcon.title = 'Time Picker';
-        this.#timePickerIcon.className = 'CelTimePicker timeInputField halflings halflings-time';
-      }
-      this.shadowRoot.insertBefore(this.#timePickerIcon, this.timePart.nextSibling);  
     }
 
     #addHiddenInput() {
@@ -428,7 +431,7 @@
     }
 
     connectedCallback() {
-      console.debug('connectedCallback', this.isConnected, this.hasTimeField(), this);
+      console.debug('connectedCallback', this.isConnected, this);
       this.#addHiddenInput();
       this.#addInputFields();
       this.#addPickerIcons();
@@ -452,28 +455,28 @@
           break;
         case 'value':
           this.#hiddenInputElem.setAttribute(name, newValue);
-          this.timePart.dataset.min = (this.date === this.minDate) ? this.minTime : '';
-          this.timePart.dataset.max = (this.date === this.maxDate) ? this.maxTime : '';
+          this.timePart.dataset.min = this.minTime || '';
+          this.timePart.dataset.max = this.maxTime || '';
           break;
         case 'min-date':
-          this.datePart.dataset.min = newValue;
-          this.timePart.dataset.min = (this.date === newValue) ? this.minTime : '';
+          this.datePart.dataset.min = this.minDate || '';
+          this.timePart.dataset.min = this.minTime || '';
           break;
         case 'min-time':
-          this.timePart.dataset.min = (this.date === this.minDate) ? newValue : '';
+          this.timePart.dataset.min = this.minTime || '';
           break;
         case 'max-date':
-          this.datePart.dataset.max = newValue;
-          this.timePart.dataset.max = (this.date === newValue) ? this.maxTime : '';
+          this.datePart.dataset.max = this.maxDate || '';
+          this.timePart.dataset.max = this.maxTime || '';
           break;
         case 'max-time':
-          this.timePart.dataset.max = (this.date === this.maxDate) ? newValue : '';
+          this.timePart.dataset.max = this.maxTime || '';
           break;
         case 'placeholder-date':
-          this.datePart.setAttribute('placeholder', newValue);
+          this.datePart.setAttribute('placeholder', newValue || '');
           break;
         case 'placeholder-time':
-          this.timePart.setAttribute('placeholder', newValue);
+          this.timePart.setAttribute('placeholder', newValue || '');
           break;
         default:
           console.warn('attributeChangedCallback not defined for ', name);
@@ -501,7 +504,9 @@
     }
 
     set date(newValue) {
-      this.value = ((newValue || this.defaultDate) + " " + this.time).trim();
+      if (this.hasDateField()) {
+        this.value = ((newValue || this.defaultDate) + ' ' + this.time).trim();
+      }
     }
 
     get time() {
@@ -509,9 +514,16 @@
     }
 
     set time(newValue) {
-      if (this.date && this.hasTimeField()) {
-        this.value = (this.date + " " + (newValue || this.defaultTime || '00:00')).trim();
+      if (this.hasTimeField()) {
+        this.value = (this.date + ' ' + (newValue || this.defaultTime || '00:00')).trim();
       }
+    }
+
+    /**
+     * whether the date input field is rendered (default true)
+     */
+    hasDateField() {
+      return !this.hasAttribute('no-date-field');
     }
 
     /**
@@ -560,14 +572,16 @@
      * the minimum time to be set if the selected date is the minimum date (default none)
      */
     get minTime() {
-      return this.getAttribute('min-time');
+      return (!this.hasDateField() || this.date === this.minDate)
+             ? this.getAttribute('min-time') : null;
     }
 
     /**
      * the maximum time to be set if the selected date is the maximum date (default none)
      */
     get maxTime() {
-      return this.getAttribute('max-time');
+      return (!this.hasDateField() || this.date === this.maxDate)
+             ? this.getAttribute('max-time') : null;
     }
 
     /**
@@ -590,7 +604,7 @@
     get siblings() {
       try {
         const wrapper = this.closest(this.getAttribute('interdependence-wrapper'));
-        return [...wrapper?.querySelectorAll('cel-input-date, cel-input-date-time') || []];
+        return [...wrapper?.querySelectorAll('cel-input-date-time, cel-input-date, cel-input-time') || []];
       } catch (exp) {
         return [];
       }
@@ -619,6 +633,25 @@
 
   if (!customElements.get('cel-input-date')) {
     customElements.define('cel-input-date', CelementsDateField);
+  }
+
+  class CelementsTimeField extends CelementsDateTimeField {
+
+    constructor() {
+      super();
+    }
+
+    /**
+     * whether the date input field is rendered (always false)
+     */
+    hasDateField() {
+      return false;
+    }
+
+  }
+
+  if (!customElements.get('cel-input-time')) {
+    customElements.define('cel-input-time', CelementsTimeField);
   }
 
 })(window)
