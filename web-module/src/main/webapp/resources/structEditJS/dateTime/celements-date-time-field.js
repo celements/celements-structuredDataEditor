@@ -45,6 +45,9 @@
     #pickerConfig;
     #openPickerNow;
 
+    #onChangedBind;
+    #openPickerBind;
+
     constructor(inputField, buttonCssSelector, marshaller, fieldValidator, pickerConfig = {}) {
       if (!inputField) {
         throw new Error('no inputField provided');
@@ -55,13 +58,16 @@
       this.#pickerConfig = Object.freeze(Object.assign(
           this.#getDefaultPickerConfig(), pickerConfig));
       this.#openPickerNow = false;
+      this.#onChangedBind = this.#onChanged.bind(this);
+      this.#openPickerBind = this.openPicker.bind(this);
       Object.assign(this, CELEMENTS.mixins.Observable);
-      this.#initField(buttonCssSelector, pickerConfig);
+      this.initField(buttonCssSelector, pickerConfig);
     }
 
-    #initField(buttonCssSelector) {
+    initField(buttonCssSelector) {
       $j(this.htmlElem).datetimepicker(this.#pickerConfig)
-      this.#observeChange(this.htmlElem);
+      this.htmlElem.stopObserving('change', this.#onChangedBind);
+      this.htmlElem.observe('change', this.#onChangedBind);
       this.#observePickerButton(buttonCssSelector);
     }
 
@@ -79,19 +85,12 @@
       };
     }
 
-    #observeChange(elem) {
-      const onChangedBind = this.#onChanged.bind(this);
-      elem.stopObserving('change', onChangedBind);
-      elem.observe('change', onChangedBind);
-    }
-
     #observePickerButton(buttonCssSelector) {
       const pickerButton = [this.htmlElem.nextElementSibling, this.htmlElem.previousElementSibling]
           .find(elem => elem && elem.matches(buttonCssSelector));
       if (pickerButton) {
-        const openPickerBind = this.openPicker.bind(this);
-        pickerButton.stopObserving('click', openPickerBind);
-        pickerButton.observe('click', openPickerBind);
+        pickerButton.stopObserving('click', this.#openPickerBind);
+        pickerButton.observe('click', this.#openPickerBind);
       } else {
         console.warn('not pickerButton found for ', this.htmlElem);
       }
@@ -256,9 +255,12 @@
     #inputTimeField;
     #dateTimePickerFactory;
 
+    #onDateTimeChangeBind;
+
     constructor(dateTimeComponent) {
       this.#dateTimeComponent = dateTimeComponent;
       this.#dateTimePickerFactory = new CelementsDateTimePickerFactory();
+      this.#onDateTimeChangeBind = this.#onDateTimeChange.bind(this);
     }
 
     initFields() {
@@ -276,7 +278,8 @@
       try {
         this.#inputDateField = this.#dateTimePickerFactory
             .createDatePickerField(this.#dateTimeComponent.datePart, pickerConfig);
-        this.#inputDateField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChange.bind(this));
+        this.#inputDateField.celStopObserving(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
+        this.#inputDateField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
         this.#inputDateField.value = this.#dateTimeComponent.date || '';
       } catch (exp) {
         console.error('#initDateField: failed to initialize dateField.', this.#dateTimeComponent, exp);
@@ -287,7 +290,8 @@
       try {
         this.#inputTimeField = this.#dateTimePickerFactory
             .createTimePickerField(this.#dateTimeComponent.timePart, pickerConfig);
-        this.#inputTimeField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChange.bind(this));
+        this.#inputTimeField.celStopObserving(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
+        this.#inputTimeField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
         this.#inputTimeField.value = this.#dateTimeComponent.time || '';
       } catch (exp) {
         console.error('#initTimeField: failed to initialize timeField.', this.#dateTimeComponent, exp);
