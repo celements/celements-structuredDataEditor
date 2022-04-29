@@ -170,9 +170,15 @@
 
   class CelementsDateTimePickerFactory {
 
-    createDatePickerField(dateInputField, config = {}) {
+    constructor() {
+      if (this instanceof CelementsDateTimePickerFactory) {
+        throw Error('CelementsDateTimePickerFactory is static and cannot be instantiated.');
+      }
+    }
+
+    static createDatePickerField(dateInputField, config = {}) {
       return new CelementsDateTimePicker(dateInputField, '.CelDatePicker',
-        DATE_MARSHALLER_DE, this.#dateFieldValidator, Object.assign({
+        DATE_MARSHALLER_DE, CelementsDateTimePickerFactory.dateFieldValidator, Object.assign({
           'allowBlank': true,
           'dayOfWeekStart': 1,
           'format': 'd.m.Y', // JQuery DateTimePicker uses php-date-formatter by default
@@ -181,7 +187,7 @@
         }, config));
     }
 
-    #dateFieldValidator(value, data = {}) {
+    static dateFieldValidator(value, data = {}) {
       value = (value || '').toString().trim().replace(/[,-]/g, '.');
       const split = value.split('.').filter(Boolean);
       const day = Number(split[0]);
@@ -212,9 +218,9 @@
       return null;
     }
 
-    createTimePickerField(timeInputField, config = {}) {
+    static createTimePickerField(timeInputField, config = {}) {
       return new CelementsDateTimePicker(timeInputField, '.CelTimePicker',
-        TIME_MARSHALLER_DE, this.#timeFieldValidator, Object.assign({
+        TIME_MARSHALLER_DE, CelementsDateTimePicker.timeFieldValidator, Object.assign({
           'allowBlank': true,
           'datepicker': false,
           'format': 'H:i', // JQuery DateTimePicker uses php-date-formatter by default
@@ -222,12 +228,12 @@
         }, config));
     }
 
-    #timeFieldValidator(value, data = {}) {
+    static timeFieldValidator(value, data = {}) {
       value = (value || '').toString().trim().replace(/[\.,]/g, ':');
       const split = value.split(':').filter(Boolean);
       const hours = Number(split[0]);
       let minutes = Number(split[1]);
-      if (minutes < 6 && split[1].trim().length == 1) {
+      if ((minutes < 6) && (split[1].trim().length == 1)) {
         minutes *= 10; // :5 -> 50 minutes
       }
       if (value
@@ -237,9 +243,9 @@
         time.setHours(hours || 0);
         time.setMinutes(minutes || 0);
         const asTimeInt = t => (t.getHours() << 6) + t.getMinutes();
-        if (data.min && asTimeInt(data.min) > asTimeInt(time) && asTimeInt(time) > 0) {
+        if (data.min && (asTimeInt(data.min) > asTimeInt(time)) && (asTimeInt(time) > 0)) {
           console.info(time, 'is before defined minimum', data.min);
-        } else if (data.max && asTimeInt(time) > asTimeInt(data.max) && asTimeInt(data.max) > 0) {
+        } else if (data.max && (asTimeInt(time) > asTimeInt(data.max)) && (asTimeInt(data.max) > 0)) {
           console.info(time, 'is after defined maximum', data.max);
         } else {
           return time;
