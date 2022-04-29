@@ -108,7 +108,7 @@
       this.htmlElem.value = value || '';      
     }
 
-    setPickerConfig(config) {
+    set pickerConfig(config) {
       $j(this.htmlElem).datetimepicker('setOptions',
           Object.assign({}, this.#pickerConfig, config));
     }
@@ -321,8 +321,8 @@
     onAttributeChange() {
       // update picker config in case max/min have changed
       const config = this.#collectPickerConfig();
-      this.#inputDateField?.setPickerConfig(config);
-      this.#inputTimeField?.setPickerConfig(config);
+      this.#inputDateField?.pickerConfig = config;
+      this.#inputTimeField?.pickerConfig = config;
       // validate in case max/min have changed
       this.#inputDateField?.validate();
       this.#inputTimeField?.validate();
