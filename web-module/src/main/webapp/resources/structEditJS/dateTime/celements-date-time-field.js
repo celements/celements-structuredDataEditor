@@ -202,7 +202,8 @@
         if (data.min && (data.min > date)) {
 
           console.info(date, 'is before defined minimum', data.min);
-        } else if (data.max && data.max < date) {
+        } else if (data.max && (data.max < date)) {
+
           console.info(date, 'is after defined maximum', data.max);
         } else {
           return date;
