@@ -199,7 +199,8 @@
           (year || curDate.getFullYear()),
           (month || (curDate.getMonth() + 1)) - 1,
           (day || curDate.getDate()));
-        if (data.min && data.min > date) {
+        if (data.min && (data.min > date)) {
+
           console.info(date, 'is before defined minimum', data.min);
         } else if (data.max && data.max < date) {
           console.info(date, 'is after defined maximum', data.max);
