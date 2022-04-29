@@ -61,10 +61,10 @@
       this.#onChangedBind = this.#onChanged.bind(this);
       this.#openPickerBind = this.openPicker.bind(this);
       Object.assign(this, CELEMENTS.mixins.Observable);
-      this.initField(buttonCssSelector, pickerConfig);
+      this.#initField(buttonCssSelector, pickerConfig);
     }
 
-    initField(buttonCssSelector) {
+    #initField(buttonCssSelector) {
       $j(this.htmlElem).datetimepicker(this.#pickerConfig)
       this.htmlElem.stopObserving('change', this.#onChangedBind);
       this.htmlElem.observe('change', this.#onChangedBind);
