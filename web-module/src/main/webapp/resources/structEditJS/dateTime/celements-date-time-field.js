@@ -325,13 +325,16 @@
     }
 
     onAttributeChange() {
-      // update picker config in case max/min have changed
+      // update picker config and validate in case max/min have changed
       const config = this.#collectPickerConfig();
-      this.#inputDateField?.pickerConfig = config;
-      this.#inputTimeField?.pickerConfig = config;
-      // validate in case max/min have changed
-      this.#inputDateField?.validate();
-      this.#inputTimeField?.validate();
+      if (this.#inputDateField) {
+        this.#inputDateField.pickerConfig = config;
+        this.#inputDateField.validate();
+      }
+      if (this.#inputTimeField) {
+        this.#inputTimeField.pickerConfig = config;
+        this.#inputTimeField.validate();
+      }
     }
 
     #updateComponentValuesFromInput() {
