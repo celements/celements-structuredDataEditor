@@ -261,13 +261,11 @@
     #dateTimeComponent;
     #inputDateField;
     #inputTimeField;
-    #dateTimePickerFactory;
 
     #onDateTimeChangeBind;
 
     constructor(dateTimeComponent) {
       this.#dateTimeComponent = dateTimeComponent;
-      this.#dateTimePickerFactory = new CelementsDateTimePickerFactory();
       this.#onDateTimeChangeBind = this.#onDateTimeChange.bind(this);
     }
 
@@ -284,8 +282,8 @@
 
     #initDateField(pickerConfig) {
       try {
-        this.#inputDateField = this.#dateTimePickerFactory
-            .createDatePickerField(this.#dateTimeComponent.datePart, pickerConfig);
+        this.#inputDateField = CelementsDateTimePickerFactory.createDatePickerField(
+            this.#dateTimeComponent.datePart, pickerConfig);
         this.#inputDateField.celStopObserving(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
         this.#inputDateField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
         this.#inputDateField.value = this.#dateTimeComponent.date || '';
@@ -296,8 +294,8 @@
 
     #initTimeField(pickerConfig) {
       try {
-        this.#inputTimeField = this.#dateTimePickerFactory
-            .createTimePickerField(this.#dateTimeComponent.timePart, pickerConfig);
+        this.#inputTimeField = CelementsDateTimePickerFactory.createTimePickerField(
+            this.#dateTimeComponent.timePart, pickerConfig);
         this.#inputTimeField.celStopObserving(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
         this.#inputTimeField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
         this.#inputTimeField.value = this.#dateTimeComponent.time || '';
