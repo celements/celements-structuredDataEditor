@@ -622,6 +622,7 @@
         const wrapper = this.closest(this.getAttribute('interdependence-wrapper'));
         return [...wrapper?.querySelectorAll('cel-input-date-time, cel-input-date, cel-input-time') || []];
       } catch (exp) {
+        console.debug('siblings: no valid parent defined');
         return [];
       }
     }
