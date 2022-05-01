@@ -24,168 +24,170 @@
   const curScriptElement = document.currentScript;
   const curScriptPath = curScriptElement.src.split('?')[0];
   const curScriptDir = curScriptPath.split('/').slice(0, -1).join('/') + '/';
+  const EVENT_FIELD_CHANGED = 'celements:fieldChanged';
 
-  /**
-   * dd.MM.yyyy
-   */
-  const FORMATTER_DATE = new Intl.DateTimeFormat('de-CH', {day: '2-digit', month: '2-digit', year: 'numeric' });
-  /**
-   * HH:mm
-   */
-  const FORMATTER_TIME = new Intl.DateTimeFormat('de-CH', {hour: '2-digit', minute: '2-digit' });
+  const DATE_MARSHALLER_DE = Object.freeze({
+    formatter: new Intl.DateTimeFormat('de-CH', {day: '2-digit', month: '2-digit', year: 'numeric' }),
+    format: date => date ? DATE_MARSHALLER_DE.formatter.format(date) : '',
+    parse: str => $j.format.date(str || '', 'dd.MM.y') || false
+  });
+  const TIME_MARSHALLER_DE = Object.freeze({
+    formatter: new Intl.DateTimeFormat('de-CH', {hour: '2-digit', minute: '2-digit' }),
+    format: date => date ? TIME_MARSHALLER_DE.formatter.format(date) : '',
+    parse: str => $j.format.date(str || '', 'HH:mm') || false
+  });
 
-  if (typeof window.CELEMENTS.structEdit == "undefined") { window.CELEMENTS.structEdit = {}; };
+  class CelementsDateTimePicker {
 
-  if (typeof window.CELEMENTS.structEdit.DateOrTimeFieldPicker === 'undefined') {
-    window.CELEMENTS.structEdit.DateOrTimeFieldPicker = Class.create({
-      FIELD_CHANGED: 'celements:fieldChanged',
-      _inputField: undefined,
-      _buttonCssSelector: undefined,
-      _defaultFormat: undefined,
-      _pickerConfigObj: undefined,
-      _fieldValidator: undefined,
-      _onShowBind: undefined,
-      _onChangedBind: undefined,
-      _onChangeFieldBind: undefined,
-      _openPickerNow: undefined,
-      _pickerButtonClickHandlerBind: undefined,
-      _pickerButton: undefined,
+    #inputField;
+    #marshaller;
+    #fieldValidator;
+    #pickerConfig;
+    #openPickerNow;
 
-      initialize: function(inputField, buttonCssSelector,
-        defaultFormat, pickerConfigObj, fieldValidator) {
-        const _me = this;
-        _me._inputField = inputField;
-        _me._buttonCssSelector = buttonCssSelector;
-        _me._defaultFormat = defaultFormat;
-        _me._fieldValidator = fieldValidator;
-        _me._onChangedBind = _me._onChanged.bind(_me);
-        _me._onChangeFieldBind = _me._onChangeField.bind(_me);
-        _me._onShowBind = _me._onShow.bind(_me);
-        _me._pickerButtonClickHandlerBind = _me._pickerButtonClickHandler.bind(_me);
-        _me._initPickerConfig(pickerConfigObj);
-        _me._registerInputField();
-        _me._registerPickerButton();
-      },
+    #onChangedBind;
+    #openPickerBind;
 
-      _initPickerConfig: function(configObj) {
-        const _me = this;
-        // FIXME [CELDEV-904] DateTimePicker Language timing issue
-        const lang = Validation.messages.get("admin-language");
-        console.debug('lang: ', lang);
-        _me._pickerConfigObj = Object.assign({
-          'lang': lang || 'de',
-          'closeOnDateSelect': true,
-          'scrollInput': false,
-          'onChangeDateTime': _me._onChangeFieldBind,
-          'onShow': _me._onShowBind,
-          'onClose': function() { }
-        }, configObj);
-      },
-
-      _registerInputField: function() {
-        const _me = this;
-        _me._inputField.stopObserving('change', _me._onChangedBind);
-        _me._inputField.observe('change', _me._onChangedBind);
-      },
-
-      _registerPickerButton: function() {
-        const _me = this;
-        if (!_me._inputField) {
-          console.warn('_registerPickerButton no inputField');
-          return;
-        }
-        _me._pickerButton = _me._inputField.next(_me._buttonCssSelector)
-          || _me._inputField.previous(_me._buttonCssSelector);
-        if (_me._pickerButton) {
-          _me._openPickerNow = false;
-          _me._pickerButton.stopObserving('click', _me._pickerButtonClickHandlerBind);
-          _me._pickerButton.observe('click', _me._pickerButtonClickHandlerBind);
-          $j(_me._inputField).datetimepicker(_me._pickerConfigObj);
-        } else {
-          console.warn('not pickerButton found for ', _me._inputField);
-        }
-      },
-
-      getHtmlElem: function() {
-        const _me = this;
-        return _me._inputField;
-      },
-
-      getValue: function() {
-        const _me = this;
-        return _me._inputField.value;
-      },
-
-      setValue: function(newValue) {
-        const _me = this;
-        _me._inputField.value = newValue;
-      },
-
-      _pickerButtonClickHandler: function(event) {
-        const _me = this;
-        event.stop();
-        _me.openPicker();
-      },
-
-      openPicker: function() {
-        const _me = this;
-        _me._openPickerNow = true;
-        $j(_me._inputField).trigger('open');
-      },
-
-      _onShow: function(currentTime, data) {
-        const _me = this;
-        const showNow = _me._openPickerNow;
-        console.debug('_onShow: ', showNow, currentTime, data);
-        _me._openPickerNow = false;
-        return showNow;
-      },
-
-      _onChanged: function() {
-        const _me = this;
-        const newValue = _me.getValue();
-        console.debug("_onChanged", newValue);
-        const validatedValue = _me._fieldValidator(newValue);
-        _me._inputField.classList.toggle('validation-failed', !validatedValue);
-        if (newValue !== validatedValue) {
-          _me._inputField.value = validatedValue;
-        } else {
-          _me.celFire(_me.FIELD_CHANGED, {
-            'dateOrTimeFieldPicker': _me,
-            'newValue': newValue
-          });
-        }
-      },
-
-      _onChangeField: function(currentValue, data) {
-        const _me = this;
-        const value = currentValue ? $j.format.date(currentValue, _me._defaultFormat) : "";
-        let prototypejsEle = $(data[0]);
-        prototypejsEle.value = value;
-        console.debug('_onChangeField: ', value);
-        _me._onChanged();
+    constructor(inputField, buttonCssSelector, marshaller, fieldValidator, pickerConfig = {}) {
+      if (!inputField) {
+        throw new Error('no inputField provided');
       }
+      this.#inputField = inputField;
+      this.#marshaller = marshaller;
+      this.#fieldValidator = fieldValidator;
+      this.#pickerConfig = Object.freeze(Object.assign(
+          this.#getDefaultPickerConfig(), pickerConfig));
+      this.#openPickerNow = false;
+      this.#onChangedBind = this.#onChanged.bind(this);
+      this.#openPickerBind = this.openPicker.bind(this);
+      Object.assign(this, CELEMENTS.mixins.Observable);
+      this.#initField(buttonCssSelector, pickerConfig);
+    }
 
-    });
-    window.CELEMENTS.structEdit.DateOrTimeFieldPicker.prototype = Object.extend(
-      window.CELEMENTS.structEdit.DateOrTimeFieldPicker.prototype, CELEMENTS.mixins.Observable);
+    #initField(buttonCssSelector) {
+      $j(this.htmlElem).datetimepicker(this.#pickerConfig)
+      this.htmlElem.stopObserving('change', this.#onChangedBind);
+      this.htmlElem.observe('change', this.#onChangedBind);
+      this.#observePickerButton(buttonCssSelector);
+    }
+
+    #getDefaultPickerConfig() {
+      // FIXME [CELDEV-904] DateTimePicker Language timing issue
+      const lang = Validation.messages.get("admin-language");
+      console.debug('lang: ', lang);
+      return {
+        'lang': lang || 'de',
+        'closeOnDateSelect': true,
+        'scrollInput': false,
+        'onChangeDateTime': this.#onPickerSelect.bind(this),
+        'onShow': this.#onPickerShow.bind(this),
+        'onClose': function() { }
+      };
+    }
+
+    #observePickerButton(buttonCssSelector) {
+      const pickerButton = [this.htmlElem.nextElementSibling, this.htmlElem.previousElementSibling]
+          .find(elem => elem && elem.matches(buttonCssSelector));
+      if (pickerButton) {
+        pickerButton.stopObserving('click', this.#openPickerBind);
+        pickerButton.observe('click', this.#openPickerBind);
+      } else {
+        console.warn('not pickerButton found for ', this.htmlElem);
+      }
+    }
+
+    get htmlElem() {
+      return this.#inputField;
+    }
+
+    get value() {
+      return this.htmlElem.value || '';
+    }
+
+    set value(value) {
+      this.htmlElem.value = value || '';      
+    }
+
+    set pickerConfig(config) {
+      $j(this.htmlElem).datetimepicker('setOptions',
+          Object.assign({}, this.#pickerConfig, config));
+    }
+
+    openPicker(event) {
+      event?.stop();
+      this.#openPickerNow = true;
+      $j(this.htmlElem).trigger('open');
+    }
+
+    #onPickerShow() {
+      const showNow = this.#openPickerNow;
+      this.#openPickerNow = false;
+      console.debug('#onPickerShow: ', showNow);
+      return showNow;
+    }
+
+    #onChanged() {
+      console.debug("#onChanged", this.value);
+      if (this.validate()) {
+        this.celFire(EVENT_FIELD_CHANGED, {
+          'dateOrTimeFieldPicker': this,
+          'newValue': this.value
+        });
+      }
+    }
+
+    #onPickerSelect(value) {
+      this.value = this.#marshaller.format(value);
+      this.#onChanged();
+    }
+
+    #getValidatedValue() {
+      if (!this.#fieldValidator) {
+        return this.value;
+      }
+      const validated = this.#fieldValidator(this.value, {
+        min: this.#marshaller.parse(this.htmlElem.dataset.min),
+        max: this.#marshaller.parse(this.htmlElem.dataset.max)
+      });
+      return this.#marshaller.format(validated) || '';
+    }
+
+    validate() {
+      if (!this.value) {
+        return true;
+      }
+      const validatedValue = this.#getValidatedValue();
+      const valid = this.value === validatedValue;
+      this.htmlElem.classList.toggle('validation-failed', !valid);
+      if (!valid) {
+        console.info("validate: invalid", this.htmlElem, this.value, '->', validatedValue);
+        this.value = validatedValue;
+      }
+      return valid;
+    }
+
   }
 
   class CelementsDateTimePickerFactory {
 
-    createDatePickerField(dateInputField, configObj = {}) {
-      const pickerConfigObj = Object.assign({
-        'allowBlank': true,
-        'dayOfWeekStart': 1,
-        'format': 'd.m.Y',
-        'timepicker': false
-      }, configObj);
-      return new CELEMENTS.structEdit.DateOrTimeFieldPicker(dateInputField,
-        '.CelDatePicker', 'dd.MM.y', pickerConfigObj, this.#dateFieldValidator);
+    constructor() {
+      if (this instanceof CelementsDateTimePickerFactory) {
+        throw Error('CelementsDateTimePickerFactory is static and cannot be instantiated.');
+      }
     }
 
-    #dateFieldValidator(value) {
-      console.debug("dateFieldValidator - from", value);
+    static createDatePickerField(dateInputField, config = {}) {
+      return new CelementsDateTimePicker(dateInputField, '.CelDatePicker',
+        DATE_MARSHALLER_DE, CelementsDateTimePickerFactory.dateFieldValidator, Object.assign({
+          'allowBlank': true,
+          'dayOfWeekStart': 1,
+          'format': 'd.m.Y', // JQuery DateTimePicker uses php-date-formatter by default
+          'formatDate': 'd.m.Y',
+          'timepicker': false
+        }, config));
+    }
+
+    static dateFieldValidator(value, data = {}) {
       value = (value || '').toString().trim().replace(/[,-]/g, '.');
       const split = value.split('.').filter(Boolean);
       const day = Number(split[0]);
@@ -194,50 +196,62 @@
       if (year < 100) {
         year += Math.floor(new Date().getFullYear() / 100) * 100; // 21 -> 2021
       }
-      let validated = '';
       if (value
-        && (!split[0] || (!isNaN(day) && (day > 0) && (day <= 31)))
-        && (!split[1] || (!isNaN(month) && (month > 0) && (month <= 12)))
-        && (!split[2] || (!isNaN(year) && (year > 100) && (year <= 9999)))) {
+          && (!split[0] || (!isNaN(day) && (day > 0) && (day <= 31)))
+          && (!split[1] || (!isNaN(month) && (month > 0) && (month <= 12)))
+          && (!split[2] || (!isNaN(year) && (year > 100) && (year <= 9999)))) {
         const curDate = new Date();
-        const date = new Date(year || curDate.getFullYear(), (month || (curDate.getMonth() + 1)) - 1,
-          day || curDate.getDate());
-        validated = FORMATTER_DATE.format(date);
+        const date = new Date(
+          (year || curDate.getFullYear()),
+          (month || (curDate.getMonth() + 1)) - 1,
+          (day || curDate.getDate()));
+        if (data.min && (data.min > date)) {
+
+          console.info(date, 'is before defined minimum', data.min);
+        } else if (data.max && (data.max < date)) {
+
+          console.info(date, 'is after defined maximum', data.max);
+        } else {
+          return date;
+        }
       }
-      console.debug("dateFieldValidator - to", validated);
-      return validated;
+      return null;
     }
 
-    createTimePickerField(timeInputField, configObj = {}) {
-      const pickerConfigObj = Object.assign({
-        'allowBlank': true,
-        'datepicker': false,
-        'format': 'H:i'
-      }, configObj);
-      return new CELEMENTS.structEdit.DateOrTimeFieldPicker(timeInputField,
-        '.CelTimePicker', 'HH:mm', pickerConfigObj, this.#timeFieldValidator);
+    static createTimePickerField(timeInputField, config = {}) {
+      return new CelementsDateTimePicker(timeInputField, '.CelTimePicker',
+        TIME_MARSHALLER_DE, CelementsDateTimePicker.timeFieldValidator, Object.assign({
+          'allowBlank': true,
+          'datepicker': false,
+          'format': 'H:i', // JQuery DateTimePicker uses php-date-formatter by default
+          'formatTime': 'H:i'
+        }, config));
     }
 
-    #timeFieldValidator(value) {
-      console.debug("timeFieldValidator - from", value);
+    static timeFieldValidator(value, data = {}) {
       value = (value || '').toString().trim().replace(/[\.,]/g, ':');
       const split = value.split(':').filter(Boolean);
       const hours = Number(split[0]);
       let minutes = Number(split[1]);
-      if (minutes < 6 && split[1].trim().length == 1) {
+      if ((minutes < 6) && (split[1].trim().length == 1)) {
         minutes *= 10; // :5 -> 50 minutes
       }
-      let validated = '';
       if (value
-        && (!split[0] || (!isNaN(hours) && (hours >= 0) && (hours < 24)))
-        && (!split[1] || (!isNaN(minutes) && (minutes >= 0) && (minutes < 60)))) {
-        const date = new Date();
-        date.setHours(hours || 0);
-        date.setMinutes(minutes || 0);
-        validated = FORMATTER_TIME.format(date);
+          && (!split[0] || (!isNaN(hours) && (hours >= 0) && (hours < 24)))
+          && (!split[1] || (!isNaN(minutes) && (minutes >= 0) && (minutes < 60)))) {
+        const time = new Date(0);
+        time.setHours(hours || 0);
+        time.setMinutes(minutes || 0);
+        const asTimeInt = t => (t.getHours() << 6) + t.getMinutes();
+        if (data.min && (asTimeInt(data.min) > asTimeInt(time)) && (asTimeInt(time) > 0)) {
+          console.info(time, 'is before defined minimum', data.min);
+        } else if (data.max && (asTimeInt(time) > asTimeInt(data.max)) && (asTimeInt(data.max) > 0)) {
+          console.info(time, 'is after defined maximum', data.max);
+        } else {
+          return time;
+        }
       }
-      console.debug("timeFieldValidator - to", validated);
-      return validated;
+      return null;
     }
 
   }
@@ -247,62 +261,103 @@
     #dateTimeComponent;
     #inputDateField;
     #inputTimeField;
-    #dateTimePickerFactory;
 
-    #updateHiddenFromVisibleBind;
+    #onDateTimeChangeBind;
 
     constructor(dateTimeComponent) {
       this.#dateTimeComponent = dateTimeComponent;
-      this.#dateTimePickerFactory = new CelementsDateTimePickerFactory();
-      this.#updateHiddenFromVisibleBind = this.#updateHiddenFromVisible.bind(this);
+      this.#onDateTimeChangeBind = this.#onDateTimeChange.bind(this);
     }
 
     initFields() {
-      if (!this.#inputDateField) {
-        this.#initDateField();
+      const pickerConfig = this.#collectPickerConfig();
+      if (!this.#inputDateField && this.#dateTimeComponent.hasDateField()) {
+        this.#initDateField(pickerConfig);
       }
       if (!this.#inputTimeField && this.#dateTimeComponent.hasTimeField()) {
-        this.#initTimeField();
+        this.#initTimeField(pickerConfig);
       }
+      this.#setMinMax(this.#dateTimeComponent.siblings);
     }
 
-    #initDateField() {
+    #initDateField(pickerConfig) {
       try {
-        this.#inputDateField = this.#dateTimePickerFactory
-          .createDatePickerField(this.#dateTimeComponent.datePart, {
-            defaultDate: this.#dateTimeComponent.defaultPickerDate || false
-          });
-        this.#inputDateField.celStopObserving(this.#inputDateField.FIELD_CHANGED,
-          this.#updateHiddenFromVisibleBind);
-        this.#inputDateField.celObserve(this.#inputDateField.FIELD_CHANGED,
-          this.#updateHiddenFromVisibleBind);
-        this.#inputDateField.setValue(this.#dateTimeComponent.date || '');
+        this.#inputDateField = CelementsDateTimePickerFactory.createDatePickerField(
+            this.#dateTimeComponent.datePart, pickerConfig);
+        this.#inputDateField.celStopObserving(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
+        this.#inputDateField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
+        this.#inputDateField.value = this.#dateTimeComponent.date || '';
       } catch (exp) {
         console.error('#initDateField: failed to initialize dateField.', this.#dateTimeComponent, exp);
       }
     }
 
-    #initTimeField() {
+    #initTimeField(pickerConfig) {
       try {
-        this.#inputTimeField = this.#dateTimePickerFactory
-          .createTimePickerField(this.#dateTimeComponent.timePart, {
-            defaultTime: this.#dateTimeComponent.defaultPickerTime || false,
-            step: this.#dateTimeComponent.timeStep
-          });
-        this.#inputTimeField.celStopObserving(this.#inputTimeField.FIELD_CHANGED,
-          this.#updateHiddenFromVisibleBind);
-        this.#inputTimeField.celObserve(this.#inputTimeField.FIELD_CHANGED,
-          this.#updateHiddenFromVisibleBind);
-        this.#inputTimeField.setValue(this.#dateTimeComponent.time || '');
+        this.#inputTimeField = CelementsDateTimePickerFactory.createTimePickerField(
+            this.#dateTimeComponent.timePart, pickerConfig);
+        this.#inputTimeField.celStopObserving(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
+        this.#inputTimeField.celObserve(EVENT_FIELD_CHANGED, this.#onDateTimeChangeBind);
+        this.#inputTimeField.value = this.#dateTimeComponent.time || '';
       } catch (exp) {
         console.error('#initTimeField: failed to initialize timeField.', this.#dateTimeComponent, exp);
       }
     }
 
-    #updateHiddenFromVisible() {
-      this.#dateTimeComponent.date = this.#inputDateField?.getValue();
-      this.#dateTimeComponent.time = this.#inputTimeField?.getValue();
-      console.debug("#updateHiddenFromVisible", this.#dateTimeComponent.value);
+    #collectPickerConfig() {
+      const component = this.#dateTimeComponent;
+      return Object.freeze({
+        defaultDate: component.defaultPickerDate || false,
+        defaultTime: component.defaultPickerTime || false,
+        minDate: component.minDate || false,
+        minTime: component.minTime || false,
+        maxDate: component.maxDate || false,
+        maxTime: component.maxTime || false,
+        step: component.timeStep,
+      });
+    }
+
+    #onDateTimeChange() {
+      this.#updateComponentValuesFromInput();
+      this.#setMinMax(this.#dateTimeComponent.siblings);
+    }
+
+    onAttributeChange() {
+      // update picker config and validate in case max/min have changed
+      const config = this.#collectPickerConfig();
+      if (this.#inputDateField) {
+        this.#inputDateField.pickerConfig = config;
+        this.#inputDateField.validate();
+      }
+      if (this.#inputTimeField) {
+        this.#inputTimeField.pickerConfig = config;
+        this.#inputTimeField.validate();
+      }
+    }
+
+    #updateComponentValuesFromInput() {
+      console.debug("#updateComponentValuesFromInput", this.#dateTimeComponent.value);
+      this.#dateTimeComponent.date = this.#inputDateField?.value;
+      this.#dateTimeComponent.time = this.#inputTimeField?.value;
+    }
+  
+    /**
+     * set the date/time of this.#dateTimeComponent as maxDate/Time on all components before this
+     * and as minDate/Time after.
+     */
+    #setMinMax(dateTimeComponents) {
+      let attribute = 'max';
+      const date = this.#dateTimeComponent.date;
+      const time = this.#dateTimeComponent.time;
+      for (let component of dateTimeComponents) {
+        if (component === this.#dateTimeComponent) {
+          attribute = 'min';
+        } else {
+          console.debug('setMinMax: set ', attribute, '=', date + ' ' + time, ' on:', component);
+          component.setAttribute(attribute + '-date', date);
+          component.setAttribute(attribute + '-time', time);
+        }
+      }
     }
 
   }
@@ -357,28 +412,31 @@
     }
 
     #addInputFields() {
-      this.shadowRoot.appendChild(this.datePart);
+      if (this.hasDateField()) {
+        this.shadowRoot.appendChild(this.datePart);
+      }
       if (this.hasTimeField()) {
         this.shadowRoot.appendChild(this.timePart);
       }
     }
 
     #addPickerIcons() {
-      if (!this.#datePickerIcon) {
-        this.#datePickerIcon = document.createElement('i');
-        this.#datePickerIcon.title = 'Date Picker';
-        this.#datePickerIcon.className = 'CelDatePicker dateInputField halflings halflings-calendar';
+      if (this.hasDateField()) {
+        if (!this.#datePickerIcon) {
+          this.#datePickerIcon = document.createElement('i');
+          this.#datePickerIcon.title = 'Date Picker';
+          this.#datePickerIcon.className = 'CelDatePicker dateInputField halflings halflings-calendar';
+        }
+        this.shadowRoot.insertBefore(this.#datePickerIcon, this.datePart.nextSibling);
       }
-      this.shadowRoot.insertBefore(this.#datePickerIcon, this.datePart.nextSibling);
-      if (!this.hasTimeField()) {
-        return;
+      if (this.hasTimeField()) {
+        if (!this.#timePickerIcon) {
+          this.#timePickerIcon = document.createElement('i');
+          this.#timePickerIcon.title = 'Time Picker';
+          this.#timePickerIcon.className = 'CelTimePicker timeInputField halflings halflings-time';
+        }
+        this.shadowRoot.insertBefore(this.#timePickerIcon, this.timePart.nextSibling);  
       }
-      if (!this.#timePickerIcon) {
-        this.#timePickerIcon = document.createElement('i');
-        this.#timePickerIcon.title = 'Time Picker';
-        this.#timePickerIcon.className = 'CelTimePicker timeInputField halflings halflings-time';
-      }
-      this.shadowRoot.insertBefore(this.#timePickerIcon, this.timePart.nextSibling);  
     }
 
     #addHiddenInput() {
@@ -386,7 +444,7 @@
     }
 
     connectedCallback() {
-      console.debug('connectedCallback', this.isConnected, this.hasTimeField(), this);
+      console.debug('connectedCallback', this.isConnected, this);
       this.#addHiddenInput();
       this.#addInputFields();
       this.#addPickerIcons();
@@ -399,25 +457,44 @@
     }
 
     static get observedAttributes() {
-      return ['name', 'value', 'placeholder-date', 'placeholder-time'];
+      return ['name', 'value', 'min-date', 'min-time', 'max-date', 'max-time', 'placeholder-date', 'placeholder-time'];
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
       console.debug('attributeChangedCallback', this, name, newValue);
       switch (name) {
         case 'name':
-        case 'value':
           this.#hiddenInputElem.setAttribute(name, newValue);
           break;
+        case 'value':
+          this.#hiddenInputElem.setAttribute(name, newValue);
+          this.timePart.dataset.min = this.minTime || '';
+          this.timePart.dataset.max = this.maxTime || '';
+          break;
+        case 'min-date':
+          this.datePart.dataset.min = this.minDate || '';
+          this.timePart.dataset.min = this.minTime || '';
+          break;
+        case 'min-time':
+          this.timePart.dataset.min = this.minTime || '';
+          break;
+        case 'max-date':
+          this.datePart.dataset.max = this.maxDate || '';
+          this.timePart.dataset.max = this.maxTime || '';
+          break;
+        case 'max-time':
+          this.timePart.dataset.max = this.maxTime || '';
+          break;
         case 'placeholder-date':
-          this.datePart.setAttribute('placeholder', newValue);
+          this.datePart.setAttribute('placeholder', newValue || '');
           break;
         case 'placeholder-time':
-          this.timePart.setAttribute('placeholder', newValue);
+          this.timePart.setAttribute('placeholder', newValue || '');
           break;
         default:
           console.warn('attributeChangedCallback not defined for ', name);
       }
+      this.#dateTimeFieldController.onAttributeChange();
     }
 
     /**
@@ -435,22 +512,35 @@
       return this.value?.split(' ')[idx];
     }
 
+    #setValueParts(...parts) {
+      this.value = parts.filter(Boolean).join(' ');
+    }
+
     get date() {
-      return this.#getValuePart(0) || this.defaultDate;
+      return this.hasDateField() ? (this.#getValuePart(0) || this.defaultDate) : null;
     }
 
     set date(newValue) {
-      this.value = ((newValue || this.defaultDate) + " " + this.time).trim();
+      if (this.hasDateField()) {
+        this.#setValueParts(newValue || this.defaultDate, this.time);
+      }
     }
 
     get time() {
-      return this.#getValuePart(1) || this.defaultTime;
+      return this.hasTimeField() ? (this.#getValuePart(1) || this.defaultTime) : null;
     }
 
     set time(newValue) {
-      if (this.date && this.hasTimeField()) {
-        this.value = (this.date + " " + (newValue || this.defaultTime || '00:00')).trim();
+      if (this.hasTimeField()) {
+        this.#setValueParts(this.date, newValue || this.defaultTime || '00:00');
       }
+    }
+
+    /**
+     * whether the date input field is rendered (default true)
+     */
+    hasDateField() {
+      return !this.hasAttribute('no-date-field');
     }
 
     /**
@@ -468,6 +558,20 @@
     }
 
     /**
+     * the minimum date to be set (default none)
+     */
+    get minDate() {
+      return this.getAttribute('min-date');
+    }
+
+    /**
+     * the maximum date to be set (default none)
+     */
+    get maxDate() {
+      return this.getAttribute('max-date');
+    }
+
+    /**
      * whether the time input field is rendered (default true)
      */
     hasTimeField() {
@@ -482,6 +586,22 @@
     }
 
     /**
+     * the minimum time to be set if the selected date is the minimum date (default none)
+     */
+    get minTime() {
+      return (!this.hasDateField() || this.date === this.minDate)
+             ? this.getAttribute('min-time') : null;
+    }
+
+    /**
+     * the maximum time to be set if the selected date is the maximum date (default none)
+     */
+    get maxTime() {
+      return (!this.hasDateField() || this.date === this.maxDate)
+             ? this.getAttribute('max-time') : null;
+    }
+
+    /**
      * the default time of the picker if the input is empty (default current)
      */
     get defaultPickerTime() {
@@ -493,6 +613,19 @@
      */
     get timeStep() {
       return this.getAttribute('time-step') || 30;
+    }
+
+    /**
+     * list of all CelementsDateTimeField siblings of this (including this) within the defined interdependence-wrapper
+     */
+    get siblings() {
+      try {
+        const wrapper = this.closest(this.getAttribute('interdependence-wrapper'));
+        return [...wrapper?.querySelectorAll('cel-input-date-time, cel-input-date, cel-input-time') || []];
+      } catch (exp) {
+        console.debug('siblings: no valid parent defined');
+        return [];
+      }
     }
 
   }
@@ -518,6 +651,25 @@
 
   if (!customElements.get('cel-input-date')) {
     customElements.define('cel-input-date', CelementsDateField);
+  }
+
+  class CelementsTimeField extends CelementsDateTimeField {
+
+    constructor() {
+      super();
+    }
+
+    /**
+     * whether the date input field is rendered (always false)
+     */
+    hasDateField() {
+      return false;
+    }
+
+  }
+
+  if (!customElements.get('cel-input-time')) {
+    customElements.define('cel-input-time', CelementsTimeField);
   }
 
 })(window)

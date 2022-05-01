@@ -7,6 +7,11 @@ input {
   height: 18px;
 }
 
+input.validation-failed {
+  border: 1px solid red;
+  background-color: #fbb;
+}
+
 input.dateInputField {
   width: 70px;
   min-width: 0;
