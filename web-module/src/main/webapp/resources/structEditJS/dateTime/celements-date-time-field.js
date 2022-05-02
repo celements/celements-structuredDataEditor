@@ -178,7 +178,7 @@
 
     static createDatePickerField(dateInputField, config = {}) {
       return new CelementsDateTimePicker(dateInputField, '.CelDatePicker',
-        DATE_MARSHALLER_DE, CelementsDateTimePickerFactory.dateFieldValidator, Object.assign({
+        DATE_MARSHALLER_DE, this.dateFieldValidator, Object.assign({
           'allowBlank': true,
           'dayOfWeekStart': 1,
           'format': 'd.m.Y', // JQuery DateTimePicker uses php-date-formatter by default
@@ -206,10 +206,8 @@
           (month || (curDate.getMonth() + 1)) - 1,
           (day || curDate.getDate()));
         if (data.min && (data.min > date)) {
-
           console.info(date, 'is before defined minimum', data.min);
         } else if (data.max && (data.max < date)) {
-
           console.info(date, 'is after defined maximum', data.max);
         } else {
           return date;
@@ -220,7 +218,7 @@
 
     static createTimePickerField(timeInputField, config = {}) {
       return new CelementsDateTimePicker(timeInputField, '.CelTimePicker',
-        TIME_MARSHALLER_DE, CelementsDateTimePicker.timeFieldValidator, Object.assign({
+        TIME_MARSHALLER_DE, this.timeFieldValidator, Object.assign({
           'allowBlank': true,
           'datepicker': false,
           'format': 'H:i', // JQuery DateTimePicker uses php-date-formatter by default
@@ -277,7 +275,6 @@
       if (!this.#inputTimeField && this.#dateTimeComponent.hasTimeField()) {
         this.#initTimeField(pickerConfig);
       }
-      this.#setMinMax(this.#dateTimeComponent.siblings);
     }
 
     #initDateField(pickerConfig) {
@@ -319,7 +316,10 @@
 
     #onDateTimeChange() {
       this.#updateComponentValuesFromInput();
-      this.#setMinMax(this.#dateTimeComponent.siblings);
+      // let my siblings know that I have changed
+      this.#dateTimeComponent.siblings
+          .filter(s => s !== this)
+          .forEach(s => s.update());
     }
 
     onAttributeChange() {
@@ -340,25 +340,6 @@
       this.#dateTimeComponent.date = this.#inputDateField?.value;
       this.#dateTimeComponent.time = this.#inputTimeField?.value;
     }
-  
-    /**
-     * set the date/time of this.#dateTimeComponent as maxDate/Time on all components before this
-     * and as minDate/Time after.
-     */
-    #setMinMax(dateTimeComponents) {
-      let attribute = 'max';
-      const date = this.#dateTimeComponent.date;
-      const time = this.#dateTimeComponent.time;
-      for (let component of dateTimeComponents) {
-        if (component === this.#dateTimeComponent) {
-          attribute = 'min';
-        } else {
-          console.debug('setMinMax: set ', attribute, '=', date + ' ' + time, ' on:', component);
-          component.setAttribute(attribute + '-date', date);
-          component.setAttribute(attribute + '-time', time);
-        }
-      }
-    }
 
   }
 
@@ -370,6 +351,7 @@
     #timePickerIcon;
     #hiddenInputElem;
     #dateTimeFieldController;
+    #siblings = [];
 
     constructor() {
       super();
@@ -449,11 +431,14 @@
       this.#addInputFields();
       this.#addPickerIcons();
       this.#dateTimeFieldController.initFields();
+      this.siblings.forEach(s => s.update());
     }
 
     disconnectedCallback() {
       console.debug('disconnectedCallback', this.isConnected, this);
       this.#hiddenInputElem.remove();
+      // use internal siblings cache since we're no longer part of the DOM tree at this point
+      this.#siblings.forEach(s => s.update());
     }
 
     static get observedAttributes() {
@@ -564,11 +549,23 @@
       return this.getAttribute('min-date');
     }
 
+    set minDate(newValue) {
+      if (newValue !== this.minDate) {
+        this.setAttribute('min-date', newValue);
+      }
+    }
+
     /**
      * the maximum date to be set (default none)
      */
     get maxDate() {
       return this.getAttribute('max-date');
+    }
+
+    set maxDate(newValue) {
+      if (newValue !== this.maxDate) {
+        this.setAttribute('max-date', newValue);
+      }
     }
 
     /**
@@ -593,12 +590,25 @@
              ? this.getAttribute('min-time') : null;
     }
 
+    set minTime(newValue) {
+      if (newValue !== this.minTime) {
+        this.setAttribute('min-time', newValue);
+      }
+    }
+
     /**
      * the maximum time to be set if the selected date is the maximum date (default none)
      */
     get maxTime() {
-      return (!this.hasDateField() || this.date === this.maxDate)
+      const max = (!this.hasDateField() || this.date === this.maxDate)
              ? this.getAttribute('max-time') : null;
+      return (max !== '00:00') ? max : null;
+    }
+
+    set maxTime(newValue) {
+      if (newValue !== this.maxTime) {
+        this.setAttribute('max-time', newValue);
+      }
     }
 
     /**
@@ -621,10 +631,32 @@
     get siblings() {
       try {
         const wrapper = this.closest(this.getAttribute('interdependence-wrapper'));
-        return [...wrapper?.querySelectorAll('cel-input-date-time, cel-input-date, cel-input-time') || []];
+        this.#siblings = [...wrapper?.querySelectorAll('cel-input-date-time, cel-input-date, cel-input-time') || []];
       } catch (exp) {
         console.debug('siblings: no valid parent defined');
-        return [];
+        this.#siblings = [];
+      }
+      return this.#siblings;
+    }
+
+    update() {
+      console.debug('update', this);
+      this.#updateMinMax();
+    }
+
+    /**
+     * update this min/max/Date/Time to the values of the sibling components
+     */
+    #updateMinMax() {
+      let minOrMax = 'min';
+      for (let component of this.siblings) {
+        if (component === this) {
+          minOrMax = 'max';
+        } else {
+          console.debug('updateMinMax:', minOrMax, '=', component.value, component);
+          this[minOrMax + 'Date'] = component.date;
+          this[minOrMax + 'Time'] = component.time;
+        }
       }
     }
 
