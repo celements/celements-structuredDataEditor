@@ -316,10 +316,7 @@
 
     #onDateTimeChange() {
       this.#updateComponentValuesFromInput();
-      // let my siblings know that I have changed
-      this.#dateTimeComponent.siblings
-          .filter(s => s !== this)
-          .forEach(s => s.update());
+      this.#dateTimeComponent.fireUpdated();
     }
 
     onAttributeChange() {
@@ -351,7 +348,11 @@
     #timePickerIcon;
     #hiddenInputElem;
     #dateTimeFieldController;
-    #siblings = [];
+    #connectedWrapper;
+
+    #handleConnectionBind = this.#handleConnection.bind(this);
+    #handleHailingBind = this.#handleHailing.bind(this);
+    #updateBind = (event => this.update(event.memo)).bind(this);
 
     constructor() {
       super();
@@ -361,6 +362,7 @@
       this.#hiddenInputElem = document.createElement('input');
       this.#hiddenInputElem.type = 'hidden';
       this.#dateTimeFieldController = new CelementsDateTimeController(this);
+      Object.assign(this, CELEMENTS.mixins.Observable);
       this.#addCssFiles(this.shadowRoot, [
         '/file/resources/celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
         '/file/resources/celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css',
@@ -431,14 +433,65 @@
       this.#addInputFields();
       this.#addPickerIcons();
       this.#dateTimeFieldController.initFields();
-      this.siblings.forEach(s => s.update());
+      this.#connectInterdependence();
+    }
+
+    #connectInterdependence() {
+      this.#connectedWrapper = this.#interdependenceWrapper;
+      if (this.#connectedWrapper) {
+        // observe wrapper for newly connected components
+        this.#connectedWrapper.observe('celDateTime:connected', this.#handleConnectionBind);
+        // observe being hailed by existing components upon connection
+        this.celObserve('celDateTime:hail', this.#handleHailingBind);
+        this.fire('celDateTime:connected');
+        this.fireUpdated();
+      }
     }
 
     disconnectedCallback() {
       console.debug('disconnectedCallback', this.isConnected, this);
       this.#hiddenInputElem.remove();
-      // use internal siblings cache since we're no longer part of the DOM tree at this point
-      this.#siblings.forEach(s => s.update());
+      this.#disconnectInterdependence();
+    }
+
+    #disconnectInterdependence() {
+      if (this.#connectedWrapper) {
+        this.fireUpdated();
+        this.celFire('celDateTime:disconnected', { target: this });
+        this.celStopObserving('celDateTime:hail', this.#handleHailingBind);
+        this.#connectedWrapper.stopObserving('celDateTime:connected', this.#handleConnectionBind);
+        this.#connectedWrapper = null;
+      }
+    }
+
+    #handleConnection(event) {
+      const component = event?.target || event?.memo?.target;
+      if (component && component !== this) {
+        console.debug('#handleConnection', this, event);
+        this.#observeOrStopComponent(component);
+        component.celFire('celDateTime:hail', {
+          source: this,
+          data: this.#collectInterdependenceData(component.isConnected)
+        });
+      }
+    }
+
+    #handleHailing(event) {
+      const component = event?.memo?.source;
+      if (component && component !== this) {
+        console.debug('#handleHailing', this, component, event);
+        this.#observeOrStopComponent(component);
+        this.update(event.memo.data);
+      }
+    }
+
+    #observeOrStopComponent(component) {
+      const observeOrStop = (this.isConnected && component.isConnected) 
+          ? CELEMENTS.mixins.Observable.celObserve 
+          : CELEMENTS.mixins.Observable.celStopObserving;
+      console.debug(this, observeOrStop.name, component);
+      observeOrStop.call(component, 'celDateTime:updated', this.#updateBind);
+      observeOrStop.call(component, 'celDateTime:disconnected', this.#handleConnectionBind);
     }
 
     static get observedAttributes() {
@@ -591,7 +644,7 @@
     }
 
     set minTime(newValue) {
-      if (newValue !== this.minTime) {
+      if (newValue !== this.getAttribute('min-time')) {
         this.setAttribute('min-time', newValue);
       }
     }
@@ -606,7 +659,7 @@
     }
 
     set maxTime(newValue) {
-      if (newValue !== this.maxTime) {
+      if (newValue !== this.getAttribute('max-time')) {
         this.setAttribute('max-time', newValue);
       }
     }
@@ -625,39 +678,41 @@
       return this.getAttribute('time-step') || 30;
     }
 
-    /**
-     * list of all CelementsDateTimeField siblings of this (including this) within the defined interdependence-wrapper
-     */
-    get siblings() {
+    get #interdependenceWrapper() {
       try {
-        const wrapper = this.closest(this.getAttribute('interdependence-wrapper'));
-        this.#siblings = [...wrapper?.querySelectorAll('cel-input-date-time, cel-input-date, cel-input-time') || []];
+        return this.closest(this.getAttribute('interdependence-wrapper') || 'form');
       } catch (exp) {
-        console.debug('siblings: no valid parent defined');
-        this.#siblings = [];
+        console.debug('interdependenceWrapper: no valid parent defined');
       }
-      return this.#siblings;
     }
 
-    update() {
-      console.debug('update', this);
-      this.#updateMinMax();
+    get #interdependenceRoles() {
+      return this.getAttribute('interdependence-role')?.split(',') || [];
     }
 
-    /**
-     * update this min/max/Date/Time to the values of the sibling components
-     */
-    #updateMinMax() {
-      let minOrMax = 'min';
-      for (let component of this.siblings) {
-        if (component === this) {
-          minOrMax = 'max';
-        } else {
-          console.debug('updateMinMax:', minOrMax, '=', component.value, component);
-          this[minOrMax + 'Date'] = component.date;
-          this[minOrMax + 'Time'] = component.time;
-        }
+    update(data) {
+      console.debug('update', this, data);
+      data = data || {};
+      for (const key in data) {
+        this[key] = data[key];
       }
+    }
+
+    fireUpdated() {
+      this.celFire('celDateTime:updated', this.#collectInterdependenceData(this.isConnected));
+    }
+
+    #collectInterdependenceData(withValues = true) {
+      const data = {};
+      if (this.#interdependenceRoles.includes('min')) {
+        data.minDate = (withValues ? this.date : null);
+        data.minTime = (withValues ? this.time : null);
+      }
+      if (this.#interdependenceRoles.includes('max')) {
+        data.maxDate = (withValues ? this.date : null);
+        data.maxTime = (withValues ? this.time : null);
+      }
+      return Object.freeze(data);
     }
 
   }
