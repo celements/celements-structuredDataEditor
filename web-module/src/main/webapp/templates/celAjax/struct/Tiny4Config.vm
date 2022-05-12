@@ -163,8 +163,7 @@ $jsonBuilder.openDictionary()##
 $jsonBuilder.addProperty("celimage", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/celimage/editor_plugin_src.js', 'file'))##
 $jsonBuilder.addProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
 $jsonBuilder.closeDictionary()## external plugins
-$jsonBuilder.openProperty("toolbar")##
-$jsonBuilder.openArray()##
+$jsonBuilder.openArray("toolbar")##
 #foreach($rteRowLayout in $rteRows)
   $jsonBuilder.addValue($rteRowLayout)
 #end
@@ -174,8 +173,7 @@ $jsonBuilder.addProperty("cel_crop",  $!useCelCrop)##
 #if($services.celementsphoto.useImageAnimations())
   $jsonBuilder.addProperty("gallerylist", "$availableGalleries.replaceFirst(',','')")##
 #end
-$jsonBuilder.openProperty("content_css")##
-$jsonBuilder.openArray()##
+$jsonBuilder.openArray("content_css")##
 #foreach($cssURL in $content_css_filenameURL)
   $jsonBuilder.addValue($cssURL)
 #end
@@ -193,7 +191,15 @@ $jsonBuilder.addProperty("wiki_filebase_link", "$!{filebaseURL}")##
 $jsonBuilder.addProperty("wiki_filebase_single_doc", "$isSingle")##
 $jsonBuilder.addProperty("entity_encoding", "raw")##
 #if($mlRteStyleArray.size() > 0)
-  $jsonBuilder.addProperty("style_formats", $mlRteStyleArray)
+  $jsonBuilder.openArray("style_formats")
+  #foreach($mlRteStyleDef in $mlRteStyleArray)
+    $jsonBuilder.openDictionary()
+    #foreach($mlRteStyleEntry in $mlRteStyleDef.entrySet())
+      $jsonBuilder.addProperty($mlRteStyleEntry.key, $mlRteStyleEntry.value)
+    #end
+    $jsonBuilder.closeDictionary()
+  #end
+  $jsonBuilder.closeArray()
 #end
 $jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.getJSON()
