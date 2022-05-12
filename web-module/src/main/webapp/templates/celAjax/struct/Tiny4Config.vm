@@ -129,22 +129,39 @@ $!services.rteconfig.setRteConfigHint("tinymce4")
 #set($filebaseURL = "$!{filebaseURL}&src_doc=${filePickerSpace}.${filePickerDoc}&columns=10")
 #set($filebaseURL = "$!{filebaseURL}&root=${filePickerSpace}&hasUpload=$hasUpload")
 ##
+## lookup the rte_styles field in the XWiki and WebPreference
+#set($rteStyles = $services.rteconfig.getRTEConfigField('styles'))
+## get multilingual style names
+#set($mlRteStyleArray = [])
+#set($mlRteStyleName = '')
+#foreach($rteStyleElement in $rteStyles.split('[=;]'))
+  #if($velocityCount%2 == 1)
+    #set($mlRteStyleName = $adminMsg.get("$rteStyleElement"))
+  #elseif("$mlRteStyleName" != '')
+    #set($mlRteStyleEntry = {})
+    #set($!stfu = $mlRteStyleEntry.put("title","${mlRteStyleName}"))
+    #set($!stfu = $mlRteStyleEntry.put("inline","span"))
+    #set($!stfu = $mlRteStyleEntry.put("classes","${rteStyleElement}"))
+    #set($!stfu = $mlRteStyleArray.add($mlRteStyleEntry))
+    #set($mlRteStyleName = '')
+  #end
+#end
 ## start writing JSON
-#set($jsonBuilder = $services.celementsweb.getNewJSONBuilder())##
+#set($jsonBuilder = $services.json.newBuilder())##
 $jsonBuilder.openDictionary()##
-$jsonBuilder.addStringProperty("selector", "textarea.tinyMCE,textarea.mceEditor")##
-$jsonBuilder.addStringProperty("language", "$!admin_language")##
-$jsonBuilder.addStringProperty("valid_elements", "$!rte_valid_elements")##
-$jsonBuilder.addStringProperty("invalid_elements", "$!rte_invalid_elements")##
-$jsonBuilder.addStringProperty("theme", "modern")##
-$jsonBuilder.addStringProperty("height", "$!tinyMCE_height")##
-$jsonBuilder.addStringProperty("width", "$!tinyMCE_width")##
+$jsonBuilder.addProperty("selector", "textarea.tinyMCE,textarea.mceEditor")##
+$jsonBuilder.addProperty("language", "$!admin_language")##
+$jsonBuilder.addProperty("valid_elements", "$!rte_valid_elements")##
+$jsonBuilder.addProperty("invalid_elements", "$!rte_invalid_elements")##
+$jsonBuilder.addProperty("theme", "modern")##
+$jsonBuilder.addProperty("height", "$!tinyMCE_height")##
+$jsonBuilder.addProperty("width", "$!tinyMCE_width")##
 $jsonBuilder.addProperty("menubar", false)##
-$jsonBuilder.addStringProperty("plugins", "$!rtePlugins")##
+$jsonBuilder.addProperty("plugins", "$!rtePlugins")##
 $jsonBuilder.openProperty("external_plugins")##
 $jsonBuilder.openDictionary()##
-$jsonBuilder.addStringProperty("celimage", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/celimage/editor_plugin_src.js', 'file'))##
-$jsonBuilder.addStringProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
+$jsonBuilder.addProperty("celimage", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/celimage/editor_plugin_src.js', 'file'))##
+$jsonBuilder.addProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
 $jsonBuilder.closeDictionary()## external plugins
 $jsonBuilder.openProperty("toolbar")##
 $jsonBuilder.openArray()##
@@ -152,10 +169,10 @@ $jsonBuilder.openArray()##
   $jsonBuilder.addValue($rteRowLayout)
 #end
 $jsonBuilder.closeArray()##
-$jsonBuilder.addStringProperty("celanim_slideshow",  $!services.celementsphoto.useImageAnimations())##
-$jsonBuilder.addStringProperty("cel_crop",  $!useCelCrop)##
+$jsonBuilder.addProperty("celanim_slideshow",  $!services.celementsphoto.useImageAnimations())##
+$jsonBuilder.addProperty("cel_crop",  $!useCelCrop)##
 #if($services.celementsphoto.useImageAnimations())
-  $jsonBuilder.addStringProperty("gallerylist", "$availableGalleries.replaceFirst(',','')")##
+  $jsonBuilder.addProperty("gallerylist", "$availableGalleries.replaceFirst(',','')")##
 #end
 $jsonBuilder.openProperty("content_css")##
 $jsonBuilder.openArray()##
@@ -164,17 +181,20 @@ $jsonBuilder.openArray()##
 #end
 $jsonBuilder.closeArray()##
 ## file base link, file picker link
-$jsonBuilder.addStringProperty("wiki_images_path", "$xwiki.getURL($wiki_filbase_path, 'download')")##
-$jsonBuilder.addStringProperty("wiki_attach_path", "$attachmentPath")##
-$jsonBuilder.addStringProperty("wiki_imagedownload_path", "$attachmentDLPath")##
-$jsonBuilder.addStringProperty("wiki_linkpicker_space", "$allLinkPickerSpaces")##
-$jsonBuilder.addStringProperty("wiki_linkpicker_baseurl", "$doc.getURL('view')")##
-$jsonBuilder.addStringProperty("wiki_filepicker_upload_space", "$fileUploadSpace")##
-$jsonBuilder.addStringProperty("wiki_filepicker_space", "$filePickerSpace")##
-$jsonBuilder.addStringProperty("wiki_filepicker_doc", "$filePickerDoc")##
-$jsonBuilder.addStringProperty("wiki_filebase_link", "$!{filebaseURL}")##
-$jsonBuilder.addStringProperty("wiki_filebase_single_doc", "$isSingle")##
-$jsonBuilder.addStringProperty("entity_encoding", "raw")##
+$jsonBuilder.addProperty("wiki_images_path", "$xwiki.getURL($wiki_filbase_path, 'download')")##
+$jsonBuilder.addProperty("wiki_attach_path", "$attachmentPath")##
+$jsonBuilder.addProperty("wiki_imagedownload_path", "$attachmentDLPath")##
+$jsonBuilder.addProperty("wiki_linkpicker_space", "$allLinkPickerSpaces")##
+$jsonBuilder.addProperty("wiki_linkpicker_baseurl", "$doc.getURL('view')")##
+$jsonBuilder.addProperty("wiki_filepicker_upload_space", "$fileUploadSpace")##
+$jsonBuilder.addProperty("wiki_filepicker_space", "$filePickerSpace")##
+$jsonBuilder.addProperty("wiki_filepicker_doc", "$filePickerDoc")##
+$jsonBuilder.addProperty("wiki_filebase_link", "$!{filebaseURL}")##
+$jsonBuilder.addProperty("wiki_filebase_single_doc", "$isSingle")##
+$jsonBuilder.addProperty("entity_encoding", "raw")##
+#if($mlRteStyleArray.size() > 0)
+  $jsonBuilder.addProperty("style_formats", $mlRteStyleArray)
+#end
 $jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.getJSON()
 ##        image_advtab: true,
