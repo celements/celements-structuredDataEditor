@@ -24,6 +24,8 @@ import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +34,7 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.reference.RefBuilder;
 import com.celements.rteConfig.RteConfigRole;
+import com.celements.sajson.JsonBuilder;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.web.Utils;
@@ -245,6 +248,63 @@ public class TinyMce4ConfigTest extends AbstractComponentTest {
     replayDefault();
     assertEquals("", tinyMce4Config.rowLayoutConvert("none"));
     verifyDefault();
+  }
+
+  @Test
+  public void test_convertTiny3Style() {
+    replayDefault();
+    assertEquals("{\"title\" : \"test1key\", \"inline\" : \"span\", \"classes\" : \"test1css\"}",
+        convert2String(tinyMce4Config.convertTiny3Style("test1key=test1css")));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_convertTiny3Style_incomplete() {
+    replayDefault();
+    assertEquals("", convert2String(tinyMce4Config.convertTiny3Style("test1key")));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_stylesCheck() {
+    replayDefault();
+    assertEquals("{\"title\" : \"test1key\", \"inline\" : \"span\", \"classes\" : \"test1css\"},"
+        + "{\"title\" : \"test2key\", \"inline\" : \"span\", \"classes\" : \"test2css\"}",
+        convert2String(tinyMce4Config.stylesCheck("test1key=test1css;test2key=test2css")));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_stylesCheck_broken() {
+    replayDefault();
+    assertEquals(
+        "{\"title\" : \"dictkey2\", \"inline\" : \"span\", \"classes\" : \"cssClass2\"},"
+            + "{\"title\" : \"dictkey1\", \"inline\" : \"span\", \"classes\" : \"cssClass1\"},"
+            + "{\"title\" : \"dictkey3\", \"inline\" : \"span\", \"classes\" : \"cssClass3\"},"
+            + "{\"title\" : \"dictkey4\", \"inline\" : \"span\", \"classes\" : \"cssClass4\"}",
+        convert2String(tinyMce4Config.stylesCheck("dictkey1;dictkey2=cssClass2\n"
+            + "dictkey1=cssClass1;;dictkey3=cssClass3;\n"
+            + "dictkey4=cssClass4")));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_getRteJsonConfigField_style_formats() {
+    expect(rteConfigMock.getRTEConfigField("style_formats"))
+        .andReturn("");
+    expect(rteConfigMock.getRTEConfigField("styles"))
+        .andReturn("test1key=test1css;test2key=test2css");
+    replayDefault();
+    assertEquals("[{\"title\" : \"test1key\", \"inline\" : \"span\", \"classes\" : \"test1css\"},"
+        + " {\"title\" : \"test2key\", \"inline\" : \"span\", \"classes\" : \"test2css\"}]",
+        tinyMce4Config.getRteJsonConfigField("style_formats").getJSON());
+    verifyDefault();
+  }
+
+  private String convert2String(Stream<JsonBuilder> tiny3RuleStream) {
+    String tiny3Rule = tiny3RuleStream.map(JsonBuilder::getJSON)
+        .collect(Collectors.joining(","));
+    return tiny3Rule;
   }
 
 }

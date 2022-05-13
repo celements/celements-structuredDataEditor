@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,7 @@ import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.rteConfig.RteConfigRole;
+import com.celements.sajson.JsonBuilder;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -86,14 +90,21 @@ public class TinyMce4Config implements RteConfigRole {
   private static final ImmutableMap<String, List<String>> initButtonConversionMap() {
     return ImmutableMap.<String, List<String>>builder().put("image", CELIMAGE).put("advimage",
         CELIMAGE).put("separator", ImmutableList.of(SEPARATOR)).put("advlink", CELLINK).put("link",
-            CELLINK).put("tablecontrols", TABLE_CONTROLS).put("justifyleft", ImmutableList.of(
-                "alignleft")).put("justifycenter", ImmutableList.of("aligncenter")).put(
-                    "justifyright", ImmutableList.of("alignright")).put("justifyfull",
-                        ImmutableList.of("alignjustify")).put("pasteword", ImmutableList.of(
-                            "paste")).build();
+            CELLINK)
+        .put("tablecontrols", TABLE_CONTROLS).put("justifyleft", ImmutableList.of(
+            "alignleft"))
+        .put("justifycenter", ImmutableList.of("aligncenter")).put(
+            "justifyright", ImmutableList.of("alignright"))
+        .put("justifyfull",
+            ImmutableList.of("alignjustify"))
+        .put("pasteword", ImmutableList.of(
+            "paste"))
+        .build();
   }
 
   private static final Pattern ROW_LAYOUT_REGEX = Pattern.compile("row_\\d+");
+  private static final String STYLE_NAME = "styles";
+  private static final String STYLE_FORMATS_NAME = "style_formats";
 
   @Override
   public List<DocumentReference> getRTEConfigsList() {
@@ -161,6 +172,43 @@ public class TinyMce4Config implements RteConfigRole {
       }
     }
     return Joiner.on(" ").join(rteRowList);
+  }
+
+  @Override
+  public @NotNull JsonBuilder getRteJsonConfigField(@NotNull String name) {
+    JsonBuilder rteJsonConfig = new JsonBuilder();
+    String rteConfigField = rteConfig.getRTEConfigField(name);
+    if (STYLE_FORMATS_NAME.equals(name)) {
+      rteJsonConfig.openArray();
+      String rteConfigFieldTiny3 = rteConfig.getRTEConfigField(STYLE_NAME);
+      LOGGER.info("getRteJsonConfigField style_formats '{}' and '{}' for '{}'", rteConfigField,
+          rteConfigFieldTiny3, name);
+      stylesCheck(rteConfigFieldTiny3)
+          .forEach(rteJsonConfig::addValue);
+      rteJsonConfig.closeArray();
+    }
+    LOGGER.debug("getRteJsonConfigField for '{}': returning '{}'", name, rteJsonConfig);
+    return rteJsonConfig;
+  }
+
+  @NotNull
+  Stream<JsonBuilder> stylesCheck(String rteConfigField) {
+    return Stream.of(rteConfigField.split("[\n;]"))
+        .flatMap(this::convertTiny3Style);
+  }
+
+  Stream<JsonBuilder> convertTiny3Style(String styleRule) {
+    String[] ruleArray = styleRule.split("=");
+    if (ruleArray.length == 2) {
+      JsonBuilder jsonRule = new JsonBuilder();
+      jsonRule.openDictionary();
+      jsonRule.addProperty("title", ruleArray[0]);
+      jsonRule.addProperty("inline", "span");
+      jsonRule.addProperty("classes", ruleArray[1]);
+      jsonRule.closeDictionary();
+      return Stream.of(jsonRule);
+    }
+    return Stream.empty();
   }
 
 }
