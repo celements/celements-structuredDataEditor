@@ -35,6 +35,7 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.rteConfig.RteConfigRole;
 import com.celements.sajson.JsonBuilder;
+import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -52,6 +53,9 @@ public class TinyMce4Config implements RteConfigRole {
 
   @Requirement
   private RteConfigRole rteConfig;
+
+  @Requirement
+  private IWebUtilsService webUtilsService;
 
   private static final String INVALID_ELEMENTS_NAME = "invalid_elements";
   static final String INVALID_ELEMENTS_DEF = "blockquote,body,button,center,cite,code,col,colgroup,"
@@ -202,7 +206,7 @@ public class TinyMce4Config implements RteConfigRole {
     if (ruleArray.length == 2) {
       JsonBuilder jsonRule = new JsonBuilder();
       jsonRule.openDictionary();
-      jsonRule.addProperty("title", ruleArray[0]);
+      jsonRule.addProperty("title", webUtilsService.getAdminMessageTool().get(ruleArray[0]));
       jsonRule.addProperty("inline", "span");
       jsonRule.addProperty("classes", ruleArray[1]);
       jsonRule.closeDictionary();

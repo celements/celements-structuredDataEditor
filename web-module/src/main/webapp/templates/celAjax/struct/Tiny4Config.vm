@@ -129,23 +129,6 @@ $!services.rteconfig.setRteConfigHint("tinymce4")
 #set($filebaseURL = "$!{filebaseURL}&src_doc=${filePickerSpace}.${filePickerDoc}&columns=10")
 #set($filebaseURL = "$!{filebaseURL}&root=${filePickerSpace}&hasUpload=$hasUpload")
 ##
-## lookup the rte_styles field in the XWiki and WebPreference
-#set($rteStyles = $services.rteconfig.getRTEConfigField('styles'))
-## get multilingual style names
-#set($mlRteStyleArray = [])
-#set($mlRteStyleName = '')
-#foreach($rteStyleElement in $rteStyles.split('[=;]'))
-  #if(($velocityCount % 2) == 1)
-    #set($mlRteStyleName = $adminMsg.get("$rteStyleElement"))
-  #elseif("$mlRteStyleName" != '')
-    #set($mlRteStyleEntry = {})
-    #set($!stfu = $mlRteStyleEntry.put("title","${mlRteStyleName}"))
-    #set($!stfu = $mlRteStyleEntry.put("inline","span"))
-    #set($!stfu = $mlRteStyleEntry.put("classes","${rteStyleElement}"))
-    #set($!stfu = $mlRteStyleArray.add($mlRteStyleEntry))
-    #set($mlRteStyleName = '')
-  #end
-#end
 ## start writing JSON
 #set($jsonBuilder = $services.json.newBuilder())##
 $jsonBuilder.openDictionary()##
@@ -190,17 +173,8 @@ $jsonBuilder.addProperty("wiki_filepicker_doc", "$filePickerDoc")##
 $jsonBuilder.addProperty("wiki_filebase_link", "$!{filebaseURL}")##
 $jsonBuilder.addProperty("wiki_filebase_single_doc", "$isSingle")##
 $jsonBuilder.addProperty("entity_encoding", "raw")##
-#if($mlRteStyleArray.size() > 0)
-  $jsonBuilder.openArray("style_formats")
-  #foreach($mlRteStyleDef in $mlRteStyleArray)
-    $jsonBuilder.openDictionary()
-    #foreach($mlRteStyleEntry in $mlRteStyleDef.entrySet())
-      $jsonBuilder.addProperty($mlRteStyleEntry.key, $mlRteStyleEntry.value)
-    #end
-    $jsonBuilder.closeDictionary()
-  #end
-  $jsonBuilder.closeArray()
-#end
+$jsonBuilder.openProperty("style_formats")
+$jsonBuilder.addValue($services.rteconfig.getRteJsonConfigField("style_formats"));
 $jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.getJSON()
 ##        image_advtab: true,
