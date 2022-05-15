@@ -690,11 +690,14 @@
       return this.getAttribute('interdependence-role')?.split(',') || [];
     }
 
-    update(data) {
+    update(data = {}) {
       console.debug('update', this, data);
-      data = data || {};
       for (const key in data) {
-        this[key] = data[key];
+        if (key in this && !key.startsWith('#')) {
+          this[key] = data[key];
+        } else {
+          console.warn(`illegal data property ${key} in ${data} to be set on ${this}`);
+        }
       }
     }
 
