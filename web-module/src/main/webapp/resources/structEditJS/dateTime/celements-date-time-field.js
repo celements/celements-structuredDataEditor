@@ -597,6 +597,9 @@
 
     /**
      * the minimum date to be set (default none)
+     * 
+     * EXPERIMENTAL: validation failures will delete the value, see CELDEV-1038
+     * 
      */
     get minDate() {
       return this.getAttribute('min-date');
@@ -610,6 +613,8 @@
 
     /**
      * the maximum date to be set (default none)
+     * 
+     * EXPERIMENTAL: validation failures will delete the value, see CELDEV-1038
      */
     get maxDate() {
       return this.getAttribute('max-date');
@@ -637,6 +642,8 @@
 
     /**
      * the minimum time to be set if the selected date is the minimum date (default none)
+     * 
+     * EXPERIMENTAL: validation failures will delete the value, see CELDEV-1038
      */
     get minTime() {
       return (!this.hasDateField() || this.date === this.minDate)
@@ -651,6 +658,8 @@
 
     /**
      * the maximum time to be set if the selected date is the maximum date (default none)
+     * 
+     * EXPERIMENTAL: validation failures will delete the value, see CELDEV-1038
      */
     get maxTime() {
       const max = (!this.hasDateField() || this.date === this.maxDate)
