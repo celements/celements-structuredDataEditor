@@ -174,7 +174,7 @@ $jsonBuilder.addProperty("wiki_filebase_link", "$!{filebaseURL}")##
 $jsonBuilder.addProperty("wiki_filebase_single_doc", "$isSingle")##
 $jsonBuilder.addProperty("entity_encoding", "raw")##
 $jsonBuilder.openProperty("style_formats")
-$jsonBuilder.addValue($services.rteconfig.getRteJsonConfigField("style_formats"));
+$jsonBuilder.addValue($services.rteconfig.getRteJsonConfigField("style_formats"))
 $jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.getJSON()
 ##        image_advtab: true,
