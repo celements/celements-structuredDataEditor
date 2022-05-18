@@ -642,6 +642,10 @@
       mceFields.each(function(formfield) {
         if ((typeof tinyMCE !== 'undefined') && tinyMCE.get(formfield.id)) {
           _me._updateOneTinyMCETextArea(tinyMCE.get(formfield.id));
+        } else if (typeof tinyMCE !== 'undefined') {
+          console.debug('_updateTinyMCETextAreas: skip ', tinyMCE, tinyMCE.get(formfield.id));
+        } else {
+          console.debug('_updateTinyMCETextAreas: skip no tinyMCE');
         }
       });
       console.log('_updateTinyMCETextAreas: end ', formId);
