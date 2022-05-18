@@ -643,12 +643,17 @@
         if ((typeof tinyMCE !== 'undefined') && tinyMCE.get(formfield.id)) {
           _me._updateOneTinyMCETextArea(tinyMCE.get(formfield.id));
         } else if (typeof tinyMCE !== 'undefined') {
+          $$('body')[0].observe('celRTE:finishedInit', _me._finishLoadingTinymMce.bind(_me));
           console.debug('_updateTinyMCETextAreas: skip ', tinyMCE, tinyMCE.get(formfield.id));
         } else {
           console.debug('_updateTinyMCETextAreas: skip no tinyMCE');
         }
       });
       console.log('_updateTinyMCETextAreas: end ', formId);
+    },
+
+    _finishLoadingTinymMce : function(event) {
+      console.log('_finishLoadingTinymMce: finished loading ', event);
     },
 
     /**
