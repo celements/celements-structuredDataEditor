@@ -87,8 +87,11 @@
    **/
   var celFinishTinyMCEStart = function(event) {
     try {
+      const editor = event.target;
       console.debug('celFinishTinyMCEStart: start', event);
-      $$('body')[0].fire('celRTE:finishedInit');
+      $$('body')[0].fire('celRTE:finishedInit', {
+        'editor' : editor
+      });
       console.log('celFinishTinyMCEStart: finish', event);
     } catch (exp) {
       console.error('celFinishTinyMCEStart failed', event, exp);

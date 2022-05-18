@@ -653,7 +653,10 @@
     },
 
     _finishLoadingTinymMce : function(event) {
-      console.log('_finishLoadingTinymMce: finished loading ', event);
+      const _me = this;
+      const editor = event.memo.editor;
+      console.log('_finishLoadingTinymMce: finished loading ', editor, event);
+      _me._updateOneTinyMCETextArea(tinyMCE.get(editor.id));
     },
 
     /**
