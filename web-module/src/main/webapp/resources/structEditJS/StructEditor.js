@@ -702,11 +702,14 @@
         return true;
       }
       var formId = fieldElem.up('form').id;
+/**
       if (fieldElem.hasClassName('mceEditor') && tinyMCE && tinyMCE.get(fieldElem.id)) {
         //sometimes isDirty from tinyMCE is wrong... thus we compare the .getContent
         //with the _initialValues instead.
         return (_me._initialValues.get(fieldElem.name) != tinyMCE.get(fieldElem.id).getContent());
-      } else if (!fieldElem.hasClassName('celIgnoreDirty')) {
+      } else
+ **/
+      if (!fieldElem.hasClassName('celIgnoreDirty')) {
         var isInputElem = (fieldElem.tagName.toLowerCase() == 'input');
         var elemValue = fieldElem.value;
         if (isInputElem && (fieldElem.type.toLowerCase() == 'radio')) {
