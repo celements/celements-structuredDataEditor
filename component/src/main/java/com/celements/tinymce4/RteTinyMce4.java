@@ -39,8 +39,8 @@ public class RteTinyMce4 implements RteImplementation {
   @Override
   public List<String> getJavaScriptFiles() {
     return ImmutableList.of(
-        ":celRTE/4.7.12/tinymce.min.js",
-        ":celRTE/4.7.12/plugins/compat3x/plugin.min.js",
+        ":celRTE/4.9.11/tinymce.min.js",
+        ":celRTE/4.9.11/plugins/compat3x/plugin.min.js",
         ":structEditJS/tinyMCE4/loadTinyMCE-async.js");
   }
 

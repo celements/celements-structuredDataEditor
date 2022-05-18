@@ -143,8 +143,8 @@ $jsonBuilder.addProperty("menubar", false)##
 $jsonBuilder.addProperty("plugins", "$!rtePlugins")##
 $jsonBuilder.openProperty("external_plugins")##
 $jsonBuilder.openDictionary()##
-$jsonBuilder.addProperty("celimage", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/celimage/editor_plugin_src.js', 'file'))##
-$jsonBuilder.addProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.7.12/plugins/cellink/editor_plugin_src.js', 'file'))##
+$jsonBuilder.addProperty("celimage", $services.celementsweb.getSkinFile(':celRTE/4.9.11/plugins/celimage/editor_plugin_src.js', 'file'))##
+$jsonBuilder.addProperty("cellink", $services.celementsweb.getSkinFile(':celRTE/4.9.11/plugins/cellink/editor_plugin_src.js', 'file'))##
 $jsonBuilder.closeDictionary()## external plugins
 $jsonBuilder.openArray("toolbar")##
 #foreach($rteRowLayout in $rteRows)
