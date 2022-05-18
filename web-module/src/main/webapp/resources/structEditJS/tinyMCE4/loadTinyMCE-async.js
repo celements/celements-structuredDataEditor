@@ -87,7 +87,7 @@
    **/
   var celFinishTinyMCEStart = function(event) {
     try {
-      console.debut('celFinishTinyMCEStart: start', event);
+      console.debug('celFinishTinyMCEStart: start', event);
       $$('body')[0].fire('celRTE:finishedInit');
       console.log('celFinishTinyMCEStart: finish', event);
     } catch (exp) {
