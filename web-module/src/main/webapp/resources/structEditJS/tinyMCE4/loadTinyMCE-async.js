@@ -85,13 +85,13 @@
   /**
    * loading in overlay TabEditor
    **/
-  var celFinishTinyMCEStart = function() {
+  var celFinishTinyMCEStart = function(event) {
     try {
-      console.log('celFinishTinyMCEStart: start');
+      console.debut('celFinishTinyMCEStart: start', event);
       $$('body')[0].fire('celRTE:finishedInit');
-      console.log('celFinishTinyMCEStart: finish');
+      console.log('celFinishTinyMCEStart: finish', event);
     } catch (exp) {
-      console.error('celFinishTinyMCEStart failed', exp);
+      console.error('celFinishTinyMCEStart failed', event, exp);
     }
   };
 
