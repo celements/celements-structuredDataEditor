@@ -92,7 +92,7 @@
       $$('body')[0].fire('celRTE:finishedInit', {
         'editor' : editor
       });
-      console.log('celFinishTinyMCEStart: finish', event);
+      console.debug('celFinishTinyMCEStart: finish', event);
     } catch (exp) {
       console.error('celFinishTinyMCEStart failed', event, exp);
     }

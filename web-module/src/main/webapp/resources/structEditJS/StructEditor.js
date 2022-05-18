@@ -643,8 +643,8 @@
         if ((typeof tinyMCE !== 'undefined') && tinyMCE.get(formfield.id)) {
           _me._updateOneTinyMCETextArea(tinyMCE.get(formfield.id));
         } else if (typeof tinyMCE !== 'undefined') {
+          console.debug('_updateTinyMCETextAreas: add delayed update ');
           $$('body')[0].observe('celRTE:finishedInit', _me._finishLoadingTinymMce.bind(_me));
-          console.debug('_updateTinyMCETextAreas: skip ', tinyMCE, tinyMCE.get(formfield.id));
         } else {
           console.debug('_updateTinyMCETextAreas: skip no tinyMCE');
         }
@@ -655,8 +655,8 @@
     _finishLoadingTinymMce : function(event) {
       const _me = this;
       const editor = event.memo.editor;
-      console.log('_finishLoadingTinymMce: finished loading ', editor, event);
       _me._updateOneTinyMCETextArea(tinyMCE.get(editor.id));
+      console.log('_finishLoadingTinymMce: finished loading, updated tinyMCE for ', editor.id);
     },
 
     /**
@@ -714,13 +714,6 @@
         return true;
       }
       var formId = fieldElem.up('form').id;
-/**
-      if (fieldElem.hasClassName('mceEditor') && tinyMCE && tinyMCE.get(fieldElem.id)) {
-        //sometimes isDirty from tinyMCE is wrong... thus we compare the .getContent
-        //with the _initialValues instead.
-        return (_me._initialValues.get(fieldElem.name) != tinyMCE.get(fieldElem.id).getContent());
-      } else
- **/
       if (!fieldElem.hasClassName('celIgnoreDirty')) {
         var isInputElem = (fieldElem.tagName.toLowerCase() == 'input');
         var elemValue = fieldElem.value;
