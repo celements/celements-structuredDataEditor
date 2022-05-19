@@ -663,13 +663,17 @@
           $$('body')[0].observe('celRTE:finishedInit', finishLoadingTinymMce);
         }
         return true;
+      } else {
+        console.debug('_startGetFieldValueAsync: no tinyMCE or no mceEditor field ', formfield.id);
       }
       return false;
     },
 
     _getFieldValue : function(formfield) {
+      const _me = this;
       return new Promise((resolve, reject) => {
-        if (!_startGetFieldValueAsync(formfield, resolve, reject)) {
+        console.debug('_startGetFieldValueAsync: _startGetFieldValueAsync for ', formfield.id);
+        if (!_me._startGetFieldValueAsync(formfield, resolve, reject)) {
           resolve(formfield.value);
         }
       });
