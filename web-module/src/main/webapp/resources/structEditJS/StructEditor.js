@@ -656,7 +656,7 @@
           const finishLoadingTinymMce = function(event) {
             const editor = event.memo.editor;
             if (editor.id === formfield.id) {
-              _me._updateOneTinyMCETextArea(editor.id, cbFunc, cbFuncErr);
+              _me._updateOneTinyMCETextArea(formfield, cbFunc, cbFuncErr);
               console.log('finishLoadingTinymMce: finished loading, updated tinyMCE for ',
                 editor.id);
             } else {
@@ -690,7 +690,7 @@
       if (typeof tinyMCE !== 'undefined') {
         console.log('_updateTinyMCETextAreas: for ', formId, mceFields);
         mceFields.each(function(formfield) {
-          _me._updateOneTinyMCETextArea(formfield.id);
+          _me._updateOneTinyMCETextArea(formfield);
         });
       } else {
         console.debug('_updateTinyMCETextAreas: skip no tinyMCE');
