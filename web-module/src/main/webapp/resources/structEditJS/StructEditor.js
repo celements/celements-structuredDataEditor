@@ -619,8 +619,8 @@
         && (typeof _me._formElem.action != 'undefined') && (_me._formElem.action != '');
     },
 
-    _updateOneTinyMCETextArea : function(ed) {
-      var formfield = $(ed.id);
+    _updateOneTinyMCETextArea : function(formfield, cbFunc, cbFuncErr) {
+      const ed = tinyMCE.get(formfield.id);
       try {
         if (typeof ed.serializer !== 'undefined') {
           formfield.value = ed.getContent();
@@ -628,35 +628,66 @@
         } else {
           console.warn('_updateOneTinyMCETextArea: no serializer -> skip ' + ed.id);
         }
+        if (cbFunc) {
+          cbFunc(formfield.value);
+        }
       } catch (exp) {
-        console.error('_updateOneTinyMCETextArea: failed with exception ' + formfield.id,
+        if (cbFuncErr) {
+          cbFuncErr(exp);
+        } else {
+          console.error('_updateOneTinyMCETextArea: failed with exception ' + formfield.id,
             ed.serializer, exp);
+        }
       }
     },
 
-    _updateTinyMCETextAreas : function() {
-      var _me = this;
-      var formId = _me.getFormId();
-      var mceFields = document.forms[formId].select('textarea.mceEditor');
-      console.log('_updateTinyMCETextAreas: for ', formId, mceFields);
-      mceFields.each(function(formfield) {
-        if ((typeof tinyMCE !== 'undefined') && tinyMCE.get(formfield.id)) {
-          _me._updateOneTinyMCETextArea(tinyMCE.get(formfield.id));
-        } else if (typeof tinyMCE !== 'undefined') {
-          console.debug('_updateTinyMCETextAreas: add delayed update ');
-          $$('body')[0].observe('celRTE:finishedInit', _me._finishLoadingTinymMce.bind(_me));
+    _startGetFieldValueAsync : function(formfield, cbFunc, cbFuncErr) {
+      const _me = this;
+      if ((typeof tinyMCE !== 'undefined') && formfield.classList.contains('mceEditor')) {
+        if (tinyMCE.get(formfield.id)) {
+          _me._updateOneTinyMCETextArea(formfield, cbFunc, cbFuncErr);
         } else {
-          console.debug('_updateTinyMCETextAreas: skip no tinyMCE');
+          console.debug('_updateTinyMCETextAreas: still loading, adding delayed read ',
+            formfield.id);
+          const finishLoadingTinymMce = function(event) {
+            const editor = event.memo.editor;
+            if (editor.id === formfield.id) {
+              _me._updateOneTinyMCETextArea(editor.id, cbFunc, cbFuncErr);
+              console.log('finishLoadingTinymMce: finished loading, updated tinyMCE for ',
+                editor.id);
+            } else {
+              console.debug('finishLoadingTinymMce: skip event for ', editor.id, ' waiting for ',
+                formfield.id);
+            }
+          };
+          $$('body')[0].observe('celRTE:finishedInit', finishLoadingTinymMce);
         }
-      });
-      console.log('_updateTinyMCETextAreas: end ', formId);
+        return true;
+      }
+      return false;
     },
 
-    _finishLoadingTinymMce : function(event) {
+    _getFieldValue : function(formfield) {
+      return new Promise((resolve, reject) => {
+        if (!_startGetFieldValueAsync(formfield, resolve, reject)) {
+          resolve(formfield.value);
+        }
+      });
+    },
+
+    _updateTinyMCETextAreas : function() {
       const _me = this;
-      const editor = event.memo.editor;
-      _me._updateOneTinyMCETextArea(tinyMCE.get(editor.id));
-      console.log('_finishLoadingTinymMce: finished loading, updated tinyMCE for ', editor.id);
+      const formId = _me.getFormId();
+      const mceFields = document.forms[formId].select('textarea.mceEditor');
+      if (typeof tinyMCE !== 'undefined') {
+        console.log('_updateTinyMCETextAreas: for ', formId, mceFields);
+        mceFields.each(function(formfield) {
+          _me._updateOneTinyMCETextArea(formfield.id);
+        });
+      } else {
+        console.debug('_updateTinyMCETextAreas: skip no tinyMCE');
+      }
+      console.log('_updateTinyMCETextAreas: end ', formId);
     },
 
     /**
@@ -673,25 +704,24 @@
       var formId = _me.getFormId();
       console.log('retrieveInitialValues: ', formId);
       if (_me.isValidFormId()) {
-        var elementsValues = new Hash();
-        _me._updateTinyMCETextAreas();
+        _me._initialValues = new Hash();
         _me._formElem.getElements().each(function(elem) {
           console.log('retrieveInitialValues: check field ', formId, elem);
-          if (_me._isSubmittableField(elem) && (!elementsValues.get(elem.name)
-              || (elementsValues.get(elem.name) == ''))) {
-            console.log('initValue for: ', elem.name, elem.value);
-            var isInputElem = (elem.tagName.toLowerCase() == 'input');
-            var elemValue = elem.value;
-            if (isInputElem && (elem.type.toLowerCase() == 'radio')) {
-              elemValue = elem.getValue() || elementsValues.get(elem.name) || null;
-            } else if (isInputElem && (elem.type.toLowerCase() == 'checkbox')) {
-              elemValue = elem.checked;
-            }
-            elementsValues.set(elem.name, elemValue);
+          if (_me._isSubmittableField(elem) && (!_me._initialValues.get(elem.name)
+              || (_me._initialValues.get(elem.name) == ''))) {
+            _me._getFieldValue(elem).then(elemFieldValue => {
+              console.log('initValue for: ', elem.name, elemFieldValue);
+              const isInputElem = (elem.tagName.toLowerCase() == 'input');
+              let elemValue = elemFieldValue;
+              if (isInputElem && (elem.type.toLowerCase() == 'radio')) {
+                elemValue = elem.getValue() || _me._initialValues.get(elem.name) || null;
+              } else if (isInputElem && (elem.type.toLowerCase() == 'checkbox')) {
+                elemValue = elem.checked;
+              }
+              _me._initialValues.set(elem.name, elemValue);
+            });
           }
         });
-        console.log('retrieveInitialValues: before add elementsValues ', formId);
-        _me._initialValues = elementsValues;
       }
       console.log('retrieveInitialValues: end');
     },
