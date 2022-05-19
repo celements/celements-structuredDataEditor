@@ -621,6 +621,10 @@
 
     _updateOneTinyMCETextArea : function(formfield, cbFunc, cbFuncErr) {
       const ed = tinyMCE.get(formfield.id);
+      if (!ed) {
+        console.error('_updateOneTinyMCETextArea: no editor found! ', formfield.id, formfield);
+        return;
+      }
       try {
         if (typeof ed.serializer !== 'undefined') {
           formfield.value = ed.getContent();
