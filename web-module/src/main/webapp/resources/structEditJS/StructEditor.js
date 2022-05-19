@@ -647,7 +647,7 @@
         if (tinyMCE.get(formfield.id)) {
           _me._updateOneTinyMCETextArea(formfield, cbFunc, cbFuncErr);
         } else {
-          console.debug('_updateTinyMCETextAreas: still loading, adding delayed read ',
+          console.debug('_startGetFieldValueAsync: still loading, adding delayed read ',
             formfield.id);
           const finishLoadingTinymMce = function(event) {
             const editor = event.memo.editor;
@@ -769,6 +769,7 @@
           console.log('isDirty formDirtyOnLoad found. ');
           isDirty = true;
         } else {
+          console.debug('isDirty before _updateTinyMCETextAreas');
           _me._updateTinyMCETextAreas();
           _me._formElem.getElements().each(function(elem) {
             if (_me._isSubmittableField(elem) && _me._isDirtyField(elem)) {
