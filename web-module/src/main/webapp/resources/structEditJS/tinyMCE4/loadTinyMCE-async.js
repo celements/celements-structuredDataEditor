@@ -150,15 +150,14 @@
     initCelRTE4();
   };
 
-  $j(document).ready(function() {
+  document.addEventListener('DOMContentLoaded', () => {
     console.log("tinymce4: register document ready...");
+    $(document.body).observe('celements:contentChanged', event => lazyLoadTinyMCE(event.target));
     if ($('tabMenuPanel')) {
       $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
           delayedEditorOpeningHandler);
       $('tabMenuPanel').observe('tabedit:tabLoadingFinished',
           event => lazyLoadTinyMCE(event.memo.newTabBodyId));
-      $(document.body).observe('celements:contentChanged',
-          event => lazyLoadTinyMCE(event.target));
       console.log('loadTinyMCE-async on ready: before register initCelRTE4Listener');
       getCelementsTabEditor().addAfterInitListener(initCelRTE4Listener);
     }
