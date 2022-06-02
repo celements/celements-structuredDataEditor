@@ -101,7 +101,7 @@
   var lazyLoadTinyMCE = function(mceParentElem) {
     try {
       if (tinyConfigLoaded) {
-        getUninitializedMceEditors(mceParentElem).each(function(editorAreaId) {
+        getUninitializedMceEditors(mceParentElem).forEach(editorAreaId => {
           console.debug('lazyLoadTinyMCE: mceAddEditor for editorArea', editorAreaId, mceParentElem);
           tinymce.execCommand("mceAddEditor", false, editorAreaId);
         });
