@@ -140,6 +140,7 @@ $jsonBuilder.addProperty("theme", "modern")##
 $jsonBuilder.addProperty("height", "$!tinyMCE_height")##
 $jsonBuilder.addProperty("width", "$!tinyMCE_width")##
 $jsonBuilder.addProperty("menubar", false)##
+$jsonBuilder.addProperty("branding", false)##
 $jsonBuilder.addProperty("plugins", "$!rtePlugins")##
 $jsonBuilder.openProperty("external_plugins")##
 $jsonBuilder.openDictionary()##
@@ -173,8 +174,10 @@ $jsonBuilder.addProperty("wiki_filepicker_doc", "$filePickerDoc")##
 $jsonBuilder.addProperty("wiki_filebase_link", "$!{filebaseURL}")##
 $jsonBuilder.addProperty("wiki_filebase_single_doc", "$isSingle")##
 $jsonBuilder.addProperty("entity_encoding", "raw")##
-$jsonBuilder.openProperty("style_formats")
-$jsonBuilder.addValue($services.rteconfig.getRteJsonConfigField("style_formats"))
+$jsonBuilder.addProperty("autoresize_bottom_margin", 0)##
+$jsonBuilder.addProperty("autoresize_min_height", 45)##
+$jsonBuilder.openProperty("style_formats")##
+$jsonBuilder.addValue($services.rteconfig.getRteJsonConfigField("style_formats"))##
 $jsonBuilder.closeDictionary()## tiny4 config dictionary
 $jsonBuilder.getJSON()
 ##        image_advtab: true,
