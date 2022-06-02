@@ -322,6 +322,7 @@
     onAttributeChange() {
       // update picker config and validate in case max/min have changed
       const config = this.#collectPickerConfig();
+      console.debug('onAttributeChange', config);
       if (this.#inputDateField) {
         this.#inputDateField.pickerConfig = config;
         this.#inputDateField.validate();
@@ -539,15 +540,15 @@
      * format: "dd.MM.yyyy HH:mm"
      */
     get value() {
-      return this.getAttribute('value') || '';
+      return this.getAttribute('value') || null;
     }
 
     set value(newValue) {
-      this.setAttribute('value', newValue);
+      this.setAttribute('value', newValue || '');
     }
 
-    #getValuePart(idx) {
-      return this.value?.split(' ')[idx];
+    get #valueParts() {
+      return this.value?.split(' ').filter(Boolean) || [];
     }
 
     #setValueParts(...parts) {
@@ -555,17 +556,21 @@
     }
 
     get date() {
-      return this.hasDateField() ? (this.#getValuePart(0) || this.defaultDate) : null;
+      return this.hasDateField() 
+          ? (this.#valueParts.find(p => !p.includes(':')) || this.defaultDate)
+          : null;
     }
 
     set date(newValue) {
       if (this.hasDateField()) {
-        this.#setValueParts(newValue || this.defaultDate, this.time);
+        this.#setValueParts(newValue || this.defaultDate || '', this.time);
       }
     }
 
     get time() {
-      return this.hasTimeField() ? (this.#getValuePart(1) || this.defaultTime) : null;
+      return this.hasTimeField() 
+          ? (this.#valueParts.find(p => p.includes(':')) || this.defaultTime)
+          : null;
     }
 
     set time(newValue) {
@@ -585,14 +590,14 @@
      * the default date to be set if the input is empty (default none)
      */
     get defaultDate() {
-      return this.getAttribute('default-date');
+      return this.getAttribute('default-date') || null;
     }
 
     /**
      * the default date of the picker if the input is empty (default current)
      */
     get defaultPickerDate() {
-      return this.getAttribute('default-picker-date');
+      return this.getAttribute('default-picker-date') || null;
     }
 
     /**
@@ -602,12 +607,12 @@
      * 
      */
     get minDate() {
-      return this.getAttribute('min-date');
+      return this.getAttribute('min-date') || null;
     }
 
     set minDate(newValue) {
       if (newValue !== this.minDate) {
-        this.setAttribute('min-date', newValue);
+        this.setAttribute('min-date', newValue || '');
       }
     }
 
@@ -617,12 +622,12 @@
      * EXPERIMENTAL: validation failures will delete the value, see CELDEV-1038
      */
     get maxDate() {
-      return this.getAttribute('max-date');
+      return this.getAttribute('max-date') || null;
     }
 
     set maxDate(newValue) {
       if (newValue !== this.maxDate) {
-        this.setAttribute('max-date', newValue);
+        this.setAttribute('max-date', newValue || '');
       }
     }
 
@@ -637,7 +642,7 @@
      * the default time to be set if the input is empty (default none)
      */
     get defaultTime() {
-      return this.getAttribute('default-time');
+      return this.getAttribute('default-time') || null;
     }
 
     /**
@@ -646,13 +651,14 @@
      * EXPERIMENTAL: validation failures will delete the value, see CELDEV-1038
      */
     get minTime() {
-      return (!this.hasDateField() || this.date === this.minDate)
+      const min = (!this.hasDateField() || this.date === this.minDate)
              ? this.getAttribute('min-time') : null;
+      return min || null;
     }
 
     set minTime(newValue) {
       if (newValue !== this.getAttribute('min-time')) {
-        this.setAttribute('min-time', newValue);
+        this.setAttribute('min-time', newValue || '');
       }
     }
 
@@ -664,12 +670,12 @@
     get maxTime() {
       const max = (!this.hasDateField() || this.date === this.maxDate)
              ? this.getAttribute('max-time') : null;
-      return (max !== '00:00') ? max : null;
+      return (max && max !== '00:00') ? max : null;
     }
 
     set maxTime(newValue) {
       if (newValue !== this.getAttribute('max-time')) {
-        this.setAttribute('max-time', newValue);
+        this.setAttribute('max-time', newValue || '');
       }
     }
 
@@ -677,7 +683,7 @@
      * the default time of the picker if the input is empty (default current)
      */
     get defaultPickerTime() {
-      return this.getAttribute('default-picker-time');
+      return this.getAttribute('default-picker-time') || null;
     }
 
     /**
