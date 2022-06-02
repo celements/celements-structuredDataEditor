@@ -98,7 +98,7 @@
     }
   };
 
-  var lazyLoadTinyMCE = function(mceParentElem) {
+  const lazyLoadTinyMCE = function(mceParentElem) {
     try {
       if (tinyConfigLoaded) {
         getUninitializedMceEditors(mceParentElem).forEach(editorAreaId => {
