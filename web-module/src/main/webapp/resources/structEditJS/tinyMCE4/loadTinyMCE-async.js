@@ -98,22 +98,19 @@
     }
   };
 
-  var lazyLoadTinyMCEforTab = function(event) {
+  const lazyLoadTinyMCE = function(mceParentElem) {
     try {
-      var tabBodyId = event.memo.newTabBodyId;
       if (tinyConfigLoaded) {
-        getUninitializedMceEditors(tabBodyId).each(function(editorAreaId) {
-          console.log('lazyLoadTinyMCEforTab: mceAddEditor for editorArea ', editorAreaId,
-              tabBodyId);
+        getUninitializedMceEditors(mceParentElem).forEach(editorAreaId => {
+          console.debug('lazyLoadTinyMCE: mceAddEditor for editorArea', editorAreaId, mceParentElem);
           tinymce.execCommand("mceAddEditor", false, editorAreaId);
         });
-        console.log('lazyLoadTinyMCEforTab: finish', tabBodyId);
+        console.debug('lazyLoadTinyMCE: finish', mceParentElem);
       } else {
-        console.log('lazyLoadTinyMCEforTab: skip mceAddEditor because tinyConfig not yet loaded.',
-            tabBodyId);
+        console.warn('lazyLoadTinyMCE: skipped, tinyConfig not yet loaded', mceParentElem);
       }
     } catch (exp) {
-      console.error("lazyLoadTinyMCEforTab failed. ", exp);
+      console.error("lazyLoadTinyMCE failed. ", exp);
     }
   };
 
@@ -153,12 +150,14 @@
     initCelRTE4();
   };
 
-  $j(document).ready(function() {
+  document.addEventListener('DOMContentLoaded', () => {
     console.log("tinymce4: register document ready...");
+    $(document.body).observe('celements:contentChanged', event => lazyLoadTinyMCE(event.target));
     if ($('tabMenuPanel')) {
       $('tabMenuPanel').observe('tabedit:finishedLoadingDisplayNow',
           delayedEditorOpeningHandler);
-      $('tabMenuPanel').observe('tabedit:tabLoadingFinished', lazyLoadTinyMCEforTab);
+      $('tabMenuPanel').observe('tabedit:tabLoadingFinished',
+          event => lazyLoadTinyMCE(event.memo.newTabBodyId));
       console.log('loadTinyMCE-async on ready: before register initCelRTE4Listener');
       getCelementsTabEditor().addAfterInitListener(initCelRTE4Listener);
     }
