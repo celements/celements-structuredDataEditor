@@ -645,42 +645,49 @@
       }
     },
 
-    _startGetFieldValueAsync : function(formfield, cbFunc, cbFuncErr) {
+    _startGetFieldValueAsync : function(formfield) {
       const _me = this;
       if ((typeof tinyMCE !== 'undefined') && formfield.classList.contains('mceEditor')) {
         if (tinyMCE.get(formfield.id)) {
-          _me._updateOneTinyMCETextArea(formfield, cbFunc, cbFuncErr);
+          _me._updateOneTinyMCETextArea(formfield);
         } else {
           console.debug('_startGetFieldValueAsync: still loading, adding delayed read ',
             formfield.id);
-          const finishLoadingTinymMce = function(event) {
-            const editor = event.memo.editor;
-            if (editor.id === formfield.id) {
-              _me._updateOneTinyMCETextArea(formfield, cbFunc, cbFuncErr);
-              console.log('finishLoadingTinymMce: finished loading, updated tinyMCE for ',
-                editor.id);
-            } else {
-              console.debug('finishLoadingTinymMce: skip event for ', editor.id, ' waiting for ',
-                formfield.id);
-            }
-          };
-          $$('body')[0].observe('celRTE:finishedInit', finishLoadingTinymMce);
+          return new Promise((resolve, reject) => {
+            console.debug('_startGetFieldValueAsync: start Promise ', formfield.id);
+            const finishLoadingTinymMce = function(event) {
+              const editor = event.memo.editor;
+              if (editor.id === formfield.id) {
+                _me._updateOneTinyMCETextArea(formfield, resolve, reject);
+                console.log('finishLoadingTinymMce: finished loading, updated tinyMCE for ',
+                  editor.id);
+              } else {
+                console.debug('finishLoadingTinymMce: skip event for ', editor.id, ' waiting for ',
+                  formfield.id);
+              }
+            };
+            $$('body')[0].observe('celRTE:finishedInit', finishLoadingTinymMce);
+          });
         }
-        return true;
       } else {
         console.debug('_startGetFieldValueAsync: no tinyMCE or no mceEditor field ', formfield.id);
       }
-      return false;
+      return null;
     },
 
-    _getFieldValue : function(formfield) {
+    _getFieldValue : function(formfield, cblFunc) {
       const _me = this;
-      return new Promise((resolve, reject) => {
-        console.debug('_startGetFieldValueAsync: _startGetFieldValueAsync for ', formfield.id);
-        if (!_me._startGetFieldValueAsync(formfield, resolve, reject)) {
-          resolve(formfield.value);
-        }
-      });
+      console.debug('_startGetFieldValueAsync: _startGetFieldValueAsync for ', formfield.id);
+      const possiblePromise = _me._startGetFieldValueAsync(formfield, cblFunc);
+      if (possiblePromise) {
+        possiblePromise
+        .then(cblFunc)
+        .catch(exp => {
+          console.error('_getFieldValue: failed with exception ' + formfield.id, exp);
+        });
+      } else {
+        cblFunc(formfield.value);
+      }
     },
 
     _updateTinyMCETextAreas : function() {
@@ -717,7 +724,7 @@
           console.log('retrieveInitialValues: check field ', formId, elem);
           if (_me._isSubmittableField(elem) && (!_me._initialValues.get(elem.name)
               || (_me._initialValues.get(elem.name) == ''))) {
-            _me._getFieldValue(elem).then(elemFieldValue => {
+            _me._getFieldValue(elem, elemFieldValue => {
               console.log('initValue for: ', elem.name, elemFieldValue);
               const isInputElem = (elem.tagName.toLowerCase() == 'input');
               let elemValue = elemFieldValue;
