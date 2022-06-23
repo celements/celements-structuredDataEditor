@@ -150,7 +150,7 @@
     initCelRTE4();
   };
 
-  document.addEventListener('DOMContentLoaded', () => {
+  $j(document).ready(() => {
     console.log("tinymce4: register document ready...");
     $(document.body).observe('celements:contentChanged', event => lazyLoadTinyMCE(event.target));
     if ($('tabMenuPanel')) {
