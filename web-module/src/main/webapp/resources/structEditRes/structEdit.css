@@ -169,6 +169,9 @@ input[type=number]::-webkit-inner-spin-button {
   -webkit-flex-wrap: wrap; /** Safari 6.1+ **/
   flex-wrap: wrap;
 }
+.structEditorRoot .nowrap > .languageSelectorBar .languageVersions ul {
+  flex-wrap: nowrap;
+}
 .structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement {
   float: none;
   position: relative;
