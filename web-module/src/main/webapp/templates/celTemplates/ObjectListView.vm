@@ -37,6 +37,6 @@
   #end
   $!services.celementsweb.setGlobalContextValue('cell.number', $null)
 #else ## canRenderLayout
-  <li>No valid Layout found at '$!services.model.serialize($objectRowLayout.layoutSpaceRef)'</li>
+  <li>No valid Layout found at '$!objectRowLayoutName'</li>
 #end
 #set($objectRowLayoutName = '')
