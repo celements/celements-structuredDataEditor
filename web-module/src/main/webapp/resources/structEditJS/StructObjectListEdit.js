@@ -60,8 +60,8 @@
       entry.style.display = "none";
       entry.innerHTML = template.innerHTML;
       var objectNb = _nextCreateObjectNbMap[objectClassName] || -2;
-      var anyObjNbSet = setObjectNbIn(entry, 'input,select,textarea', 'name', objectNb);
-      if (anyObjNbSet) {
+      const objNbTags = 'input,select,textarea,cel-input-date,cel-input-time,cel-input-date-time';
+      if (setObjectNbIn(entry, objNbTags, 'name', objectNb)) {
         setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
         setObjectNbIn(entry, 'label', 'for', objectNb);
         _nextCreateObjectNbMap[objectClassName] = --objectNb;
@@ -72,7 +72,7 @@
 
   var setObjectNbIn = function(entry, selector, key, objectNb) {
     var changed = false;
-    entry.select(selector).each(function(elem) {
+    entry.querySelectorAll(selector).forEach(elem => {
       var oldValue = (elem.getAttribute(key) || '');
       var newValue = oldValue.replace(_REGEX_OBJ_NB, '$1' + objectNb + '$3');
       elem.setAttribute(key, newValue);
