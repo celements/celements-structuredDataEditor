@@ -36,6 +36,7 @@ import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.struct.edit.autocomplete.AutocompleteRole;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.web.Utils;
 
 @Component
 public class DefaultSelectTagService implements SelectTagServiceRole {
@@ -44,9 +45,6 @@ public class DefaultSelectTagService implements SelectTagServiceRole {
 
   @Requirement
   private IModelAccessFacade modelAccess;
-
-  @Requirement
-  private IPageTypeResolverRole ptResolver;
 
   @Override
   public Optional<AutocompleteRole> getTypeImpl(DocumentReference cellDocRef) {
@@ -65,7 +63,7 @@ public class DefaultSelectTagService implements SelectTagServiceRole {
     Optional<DocumentReference> selectCellDocRef = Optional.empty();
     try {
       selectCellDocRef = modelAccess.streamParents(modelAccess.getDocument(cellDocRef))
-          .filter(doc -> ptResolver.resolvePageTypeReference(doc).toJavaUtil()
+          .filter(doc -> getPtResolver().resolvePageTypeReference(doc).toJavaUtil()
               .filter(ptRef -> ptRef.getConfigName().equals(PAGETYPE_NAME))
               .isPresent())
           .map(XWikiDocument::getDocumentReference)
@@ -75,6 +73,13 @@ public class DefaultSelectTagService implements SelectTagServiceRole {
       LOGGER.warn("parent on doc '{}' doesn't exist", cellDocRef, exc);
     }
     return selectCellDocRef;
+  }
+
+  /**
+   * CAUTION: cyclic dependency with struct pageTypes like OptionTagPageType
+   */
+  private IPageTypeResolverRole getPtResolver() {
+    return Utils.getComponent(IPageTypeResolverRole.class);
   }
 
 }

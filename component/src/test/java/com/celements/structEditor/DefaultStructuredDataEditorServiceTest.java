@@ -24,24 +24,21 @@ import static com.celements.structEditor.classes.StructuredDataEditorClass.*;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
-import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.model.reference.EntityReference;
 import org.xwiki.model.reference.WikiReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
-import com.celements.pagetype.PageTypeReference;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
-import com.celements.structEditor.fields.FormFieldPageType;
 import com.celements.velocity.VelocityService;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.XWikiContext;
@@ -76,6 +73,7 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_resolveFormPrefix_null() throws Exception {
+    expect(modelAccessMock.streamParents(cellDoc)).andReturn(Stream.empty());
     replayDefault();
     Optional<String> ret = service.resolveFormPrefix(cellDoc);
     verifyDefault();
@@ -85,17 +83,11 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   @Test
   public void test_resolveFormPrefix() throws Exception {
     String prefix = "prefix";
-    XWikiDocument parentDoc = new XWikiDocument(new DocumentReference(wikiName, "layout",
-        "parent"));
-    cellDoc.setParentReference((EntityReference) parentDoc.getDocumentReference());
-    expect(modelAccessMock.getDocument(eq(parentDoc.getDocumentReference()))).andReturn(
-        parentDoc).once();
-    final PageTypeReference ptRef = new PageTypeReference(FormFieldPageType.PAGETYPE_NAME, "",
-        Collections.<String>emptyList());
-    expect(getMock(IPageTypeResolverRole.class).resolvePageTypeReference(same(
-        parentDoc))).andReturn(com.google.common.base.Optional.of(ptRef)).once();
+    XWikiDocument parentDoc = new XWikiDocument(
+        new DocumentReference(wikiName, "layout", "parent"));
     createObj(parentDoc, FormFieldEditorClass.CLASS_REF)
         .setStringValue(FormFieldEditorClass.FIELD_PREFIX.getName(), prefix);
+    expect(modelAccessMock.streamParents(cellDoc)).andReturn(Stream.of(parentDoc));
     replayDefault();
     Optional<String> ret = service.resolveFormPrefix(cellDoc);
     verifyDefault();
