@@ -155,23 +155,29 @@ public class DefaultAutocomplete implements AutocompleteRole {
   }
 
   protected final Optional<DocumentReference> getValueFromRequest(XWikiDocument cellDoc) {
-    return context.getCurrentDoc().toJavaUtil()
+    Optional<DocumentReference> ret = context.getCurrentDoc().toJavaUtil()
         .flatMap(onDoc -> structEditService.getAttributeName(cellDoc, onDoc))
         .flatMap(name -> context.getRequestParameter(name).toJavaUtil())
         .flatMap(this::resolve);
+    log.debug("getValueFromRequest - cellDoc [{}]: {}", cellDoc.getDocumentReference(), ret);
+    return ret;
   }
 
   protected final Optional<DocumentReference> getValueOnDoc(XWikiDocument cellDoc) {
-    return context.getCurrentDoc().toJavaUtil()
+    Optional<DocumentReference> ret = context.getCurrentDoc().toJavaUtil()
         .flatMap(onDoc -> structEditService.getCellValueAsString(cellDoc, onDoc))
         .flatMap(this::resolve);
+    log.debug("getValueOnDoc - cellDoc [{}]: {}", cellDoc.getDocumentReference(), ret);
+    return ret;
   }
 
   protected final Optional<DocumentReference> getDefaultValue(XWikiDocument cellDoc) {
-    return XWikiObjectFetcher.on(cellDoc)
+    Optional<DocumentReference> ret = XWikiObjectFetcher.on(cellDoc)
         .fetchField(OptionTagEditorClass.FIELD_VALUE)
         .stream().findFirst()
         .flatMap(this::resolve);
+    log.debug("getDefaultValue - cellDoc [{}]: {}", cellDoc.getDocumentReference(), ret);
+    return ret;
   }
 
   protected final Optional<DocumentReference> resolve(String fullName) {
