@@ -27,11 +27,13 @@ import static com.google.common.base.Predicates.*;
 import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -51,13 +53,16 @@ import com.celements.model.classes.ClassIdentity;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.classes.fields.CustomClassField;
 import com.celements.model.context.ModelContext;
+import com.celements.model.field.FieldAccessor;
 import com.celements.model.field.StringFieldAccessor;
+import com.celements.model.field.XObjectFieldAccessor;
 import com.celements.model.field.XObjectStringFieldAccessor;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.struct.SelectTagServiceRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
+import com.celements.structEditor.classes.KeyValueClass;
 import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.velocity.VelocityService;
@@ -102,6 +107,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Requirement
   protected VelocityService velocityService;
 
+  @Requirement(XObjectFieldAccessor.NAME)
+  protected FieldAccessor<BaseObject> xObjFieldAccessor;
+
   @Requirement(XObjectStringFieldAccessor.NAME)
   protected StringFieldAccessor<BaseObject> xObjStrFieldAccessor;
 
@@ -124,7 +132,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     }
     String name = Joiner.on('_').join(nameParts);
     LOGGER.info("getAttributeName: '{}' for cell '{}', onDoc '{}'", name, cellDoc, onDoc);
-    return asOptional(name);
+    return MoreOptional.asNonBlank(name);
   }
 
   private boolean isXObjectNumberNewOrExists(XWikiDocument cellDoc, XWikiDocument onDoc,
@@ -339,7 +347,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     if (classRef.isPresent() && (onDoc != null)) {
       XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
       getStructXObjectNumber(cellDoc, onDoc).ifPresent(fetcher::filter);
-      ret = fetcher.stream().findFirst();
+      ret = fetcher.stream()
+          .filter(getStructXObjectFilters(cellDoc, "object-filter", "object-filter-and")
+              .reduce((a, b) -> a.and(b)).orElse(alwaysTrue()))
+          .filter(getStructXObjectFilters(cellDoc, "object-filter-or")
+              .reduce((a, b) -> a.or(b)).orElse(alwaysTrue()))
+          .findFirst();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
         + "{}", cellDoc, onDoc, classRef.orElse(null), ret.map(BaseObject::getNumber).orElse(null),
@@ -371,17 +384,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Optional<Integer> getNumberFromComputedField(XWikiDocument cellDoc) {
-    try {
-      return XWikiObjectFetcher.on(cellDoc)
-          .fetchField(FIELD_COMPUTED_OBJ_NB)
-          .stream().findFirst()
-          .map(String::trim).filter(not(String::isEmpty))
-          .map(rethrowFunction(text -> velocityService.evaluateVelocityText(text)))
-          .map(Ints::tryParse);
-    } catch (XWikiVelocityException exc) {
-      LOGGER.warn("computeObjNb - failed for [{}]", cellDoc, exc);
-      return Optional.empty();
-    }
+    return XWikiObjectFetcher.on(cellDoc).filter(CLASS_REF).stream()
+        .map(obj -> getVelocityFieldValue(obj, FIELD_COMPUTED_OBJ_NB))
+        .flatMap(MoreOptional::stream)
+        .map(Ints::tryParse)
+        .filter(Objects::nonNull)
+        .findFirst();
   }
 
   private Optional<Integer> getNumberForMultilingual(XWikiDocument cellDoc, XWikiDocument onDoc) {
@@ -406,6 +414,20 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .map(func)
         .filter(Objects::nonNull)
         .findFirst();
+  }
+
+  private Stream<Predicate<BaseObject>> getStructXObjectFilters(XWikiDocument cellDoc,
+      String... labels) {
+    return XWikiObjectFetcher.on(cellDoc)
+        .filter(KeyValueClass.FIELD_LABEL, Arrays.asList(labels)).stream()
+        .map(this::keyValuePred)
+        .flatMap(MoreOptional::stream);
+  }
+
+  private Optional<Predicate<BaseObject>> keyValuePred(BaseObject kvObj) {
+    return getVelocityFieldValue(kvObj, KeyValueClass.FIELD_KEY)
+        .map(key -> obj -> Objects.equals(xObjStrFieldAccessor.get(obj, key),
+            getVelocityFieldValue(kvObj, KeyValueClass.FIELD_VALUE)));
   }
 
   @Override
@@ -440,8 +462,15 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .orElseGet(XWikiObjectFetcher::empty);
   }
 
-  private static Optional<String> asOptional(String str) {
-    return Optional.ofNullable(Strings.emptyToNull(str.trim()));
+  private Optional<String> getVelocityFieldValue(BaseObject obj, ClassField<String> field) {
+    Optional<String> value = xObjFieldAccessor.get(obj, field)
+        .map(String::trim).filter(not(String::isEmpty));
+    try {
+      return value.map(rethrowFunction(text -> velocityService.evaluateVelocityText(text)));
+    } catch (XWikiVelocityException exc) {
+      LOGGER.warn("getFieldValue - failed for [{}], [{}]", obj, field, exc);
+    }
+    return value;
   }
 
 }

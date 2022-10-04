@@ -182,11 +182,7 @@ public class DefaultAutocomplete implements AutocompleteRole {
 
   protected final Optional<DocumentReference> resolve(String fullName) {
     try {
-      log.debug("resolve: {}", fullName);
-      Optional<DocumentReference> ret = Optional.of(
-          modelUtils.resolveRef(fullName, DocumentReference.class));
-      log.debug("resolved: {}", ret);
-      return ret;
+      return Optional.of(modelUtils.resolveRef(fullName, DocumentReference.class));
     } catch (IllegalArgumentException exc) {
       log.debug("unable to resolve ref: {}", exc.getMessage(), exc);
       return Optional.empty();
