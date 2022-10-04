@@ -2,7 +2,8 @@
   "use strict";
 
   const _REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
-  var _nextCreateObjectNbMap = {};
+  const _nextCreateObjectNbMap = {};
+  let _createObjectCount = 0;
   
   var init_structObjectListEdit = function() {
     moveTemplatesOutOfForm();
@@ -38,11 +39,12 @@
       var objectClassName = objectList.getAttribute('data-struct-class');
       var newEntry = createEntryFor(objectClassName);
       if (newEntry) {
-          objectList.appendChild(newEntry);
-          $j(newEntry).fadeIn();
-          observeDeleteObject();
-          newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
-          console.debug('createObject - new object for ', objectClassName, ': ', newEntry);
+        _createObjectCount++;
+        objectList.appendChild(newEntry);
+        $j(newEntry).fadeIn();
+        observeDeleteObject();
+        newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
+        console.debug('createObject - new object for ', objectClassName, ': ', newEntry);
       } else {
         console.warn('createObject - illegal template for ', objectClassName);
       }
@@ -99,6 +101,7 @@
       $j(entry).fadeOut(400, function() {
         if (objNb < 0) {
           entry.remove();
+          _createObjectCount--;
         }
       });
       console.debug('deleteObject - removed: ', entry);
@@ -121,13 +124,23 @@
     return objNb;
   };
 
-  $j(document).ready(init_structObjectListEdit);
-  $j(document).ready(function() {
-    $(document.body).observe('celements:contentChanged', init_structObjectListEdit);
-    $(document.body).observe('tabedit:successfulSaved', function(event) {
-      location.reload();
-    });
-  });
-  
+  const reloadPage = () => _createObjectCount && location.reload();
+
+  const reloadOnSaveHandler = () => {
+    const structManager = window.celStructEditorManager;
+    if (structManager) {
+      if (structManager.isStartFinished()) {
+        structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', reloadPage);
+      } else {
+        structManager.celObserve('structEdit:finishedLoading', reloadOnSaveHandler);
+      }
+    } else {
+      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', );
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', init_structObjectListEdit);
+  $(document.body).observe('celements:contentChanged', init_structObjectListEdit);
+  document.addEventListener('DOMContentLoaded', reloadOnSaveHandler);
 
 })(window);
