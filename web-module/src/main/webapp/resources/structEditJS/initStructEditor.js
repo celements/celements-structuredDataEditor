@@ -34,7 +34,7 @@
   
   window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
 
-  celAddOnBeforeLoadListener(function() {
+  document.addEventListener('DOMContentLoaded', function() {
     $(document.body).stopObserving("celements:contentChanged", initStructEditorContentChangedHandler);
     $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
     window.celStructEditorManager.startEditorManager();
