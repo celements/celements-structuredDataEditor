@@ -57,11 +57,9 @@ import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.struct.SelectTagServiceRole;
-import com.celements.struct.StructUtilServiceRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
-import com.celements.structEditor.fields.FormFieldPageType;
 import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
@@ -100,9 +98,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Requirement
   private SelectTagServiceRole selectTagService;
-
-  @Requirement
-  private StructUtilServiceRole structUtils;
 
   @Requirement
   protected VelocityService velocityService;
@@ -188,18 +183,13 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   Optional<String> resolveFormPrefix(XWikiDocument cellDoc) {
-    try {
-      Optional<String> prefix = structUtils
-          .findParentCell(cellDoc, FormFieldPageType.PAGETYPE_NAME)
-          .flatMap(parentDoc -> XWikiObjectFetcher.on(parentDoc)
-              .fetchField(FormFieldEditorClass.FIELD_PREFIX)
-              .stream().findFirst());
-      LOGGER.debug("resolveFormPrefix: '{}' for cell '{}'", prefix, cellDoc);
-      return prefix;
-    } catch (DocumentNotExistsException exc) {
-      LOGGER.warn("parent on doc '{}' doesn't exist", cellDoc, exc);
-      return Optional.empty();
-    }
+    Optional<String> prefix = modelAccess.streamParents(cellDoc)
+        .flatMap(parentDoc -> XWikiObjectFetcher.on(parentDoc)
+            .fetchField(FormFieldEditorClass.FIELD_PREFIX)
+            .stream())
+        .findFirst();
+    LOGGER.debug("resolveFormPrefix: '{}' for cell '{}'", prefix, cellDoc);
+    return prefix;
   }
 
   Optional<String> getXClassPrettyName(XWikiDocument cellDoc) {
