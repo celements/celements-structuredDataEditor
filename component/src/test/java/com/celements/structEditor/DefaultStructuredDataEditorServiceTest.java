@@ -29,8 +29,10 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReference;
+import org.xwiki.model.reference.WikiReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.common.test.AbstractComponentTest;
@@ -68,6 +70,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     wikiName = context.getDatabase();
     cellDoc = new XWikiDocument(new DocumentReference(wikiName, "layout", "cell"));
     getContext().setRequest(createMockAndAddToDefault(XWikiRequest.class));
+    expect(getMock(ModelContext.class).getWikiRef())
+        .andReturn(new WikiReference(wikiName)).anyTimes();
   }
 
   @Test
@@ -90,8 +94,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
         Collections.<String>emptyList());
     expect(getMock(IPageTypeResolverRole.class).resolvePageTypeReference(same(
         parentDoc))).andReturn(com.google.common.base.Optional.of(ptRef)).once();
-    expect(modelAccessMock.getFieldValue(same(parentDoc), same(FormFieldEditorClass.FIELD_PREFIX)))
-        .andReturn(com.google.common.base.Optional.of(prefix)).once();
+    createObj(parentDoc, FormFieldEditorClass.CLASS_REF)
+        .setStringValue(FormFieldEditorClass.FIELD_PREFIX.getName(), prefix);
     replayDefault();
     Optional<String> ret = service.resolveFormPrefix(cellDoc);
     verifyDefault();
@@ -102,8 +106,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   @Test
   public void test_getXClassPrettyName() throws Exception {
     String editFieldName = "edit_field";
-    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_EDIT_FIELD_NAME)))
-        .andReturn(com.google.common.base.Optional.of(editFieldName)).once();
+    createObj(cellDoc, CLASS_REF)
+        .setStringValue(FIELD_EDIT_FIELD_NAME.getName(), editFieldName);
     BaseClass xClass = expectClass();
     String thePrettyFieldName = "the Pretty Field Name";
     xClass.addTextField(editFieldName, thePrettyFieldName, 30);
@@ -278,8 +282,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   private void expectComputed(String text) throws XWikiVelocityException {
     text = Strings.emptyToNull(text);
-    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_COMPUTED_OBJ_NB)))
-        .andReturn(com.google.common.base.Optional.fromNullable(text));
+    createObj(cellDoc, CLASS_REF)
+        .setStringValue(FIELD_COMPUTED_OBJ_NB.getName(), text);
     if (text != null) {
       expect(getMock(VelocityService.class).evaluateVelocityText(text)).andReturn(text);
     }
@@ -291,8 +295,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   }
 
   private void expectMultilingual(boolean isMultilingual, String contextLang) {
-    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_MULTILINGUAL)))
-        .andReturn(com.google.common.base.Optional.of(isMultilingual));
+    createObj(cellDoc, CLASS_REF)
+        .setIntValue(FIELD_MULTILINGUAL.getName(), isMultilingual ? 1 : 0);
     if (isMultilingual) {
       expect(getMock(ModelContext.class).getLanguage())
           .andReturn(Optional.ofNullable(Strings.emptyToNull(contextLang)))
@@ -301,12 +305,13 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   }
 
   private BaseClass expectClass() {
-    DocumentReference xClassDocRef = new DocumentReference(wikiName, "Celements", "TestXClassName");
-    expect(modelAccessMock.getFieldValue(same(cellDoc), same(FIELD_EDIT_FIELD_CLASS)))
-        .andReturn(com.google.common.base.Optional.of(xClassDocRef)).atLeastOnce();
-    XWikiDocument xClassDoc = new XWikiDocument(xClassDocRef);
+    ClassReference classRef = new ClassReference("Celements", "TestXClassName");
+    createObj(cellDoc, CLASS_REF) // TODO not CLASS_REF?
+        .setStringValue(FIELD_EDIT_FIELD_CLASS.getName(), classRef.serialize());
+    XWikiDocument xClassDoc = new XWikiDocument(classRef.getDocRef(new WikiReference(wikiName)));
     xClassDoc.setNew(false);
-    expect(modelAccessMock.getOrCreateDocument(xClassDocRef)).andReturn(xClassDoc).anyTimes();
+    expect(modelAccessMock.getOrCreateDocument(xClassDoc.getDocumentReference()))
+        .andReturn(xClassDoc).anyTimes();
     return xClassDoc.getXClass();
   }
 
@@ -316,11 +321,19 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     assertEquals(expNb, obj.get().getNumber());
   }
 
-  private static BaseObject createObj(XWikiDocument doc, DocumentReference classDocRef,
-      String lang) {
+  private BaseObject createObj(XWikiDocument doc, ClassReference classRef) {
+    return createObj(doc, classRef.getDocRef(new WikiReference(wikiName)));
+  }
+
+  private BaseObject createObj(XWikiDocument doc, DocumentReference classDocRef, String lang) {
+    BaseObject obj = createObj(doc, classDocRef);
+    obj.setStringValue("lang", lang);
+    return obj;
+  }
+
+  private BaseObject createObj(XWikiDocument doc, DocumentReference classDocRef) {
     BaseObject obj = new BaseObject();
     obj.setXClassReference(classDocRef);
-    obj.setStringValue("lang", lang);
     doc.addXObject(obj);
     return obj;
   }

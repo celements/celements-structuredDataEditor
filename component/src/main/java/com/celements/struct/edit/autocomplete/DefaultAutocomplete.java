@@ -1,5 +1,6 @@
 package com.celements.struct.edit.autocomplete;
 
+import static com.celements.common.MoreOptional.*;
 import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
 import static com.google.common.base.Predicates.*;
@@ -17,6 +18,7 @@ import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
+import com.celements.common.MoreOptional;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
@@ -139,7 +141,7 @@ public class DefaultAutocomplete implements AutocompleteRole {
     return Optional.ofNullable(cellDocRef)
         .map(modelAccess::getOrCreateDocument)
         .map(this::getValueSuppliers)
-        .flatMap(this::findFirstPresent);
+        .flatMap(MoreOptional::findFirstPresent);
   }
 
   /**
@@ -174,17 +176,15 @@ public class DefaultAutocomplete implements AutocompleteRole {
 
   protected final Optional<DocumentReference> resolve(String fullName) {
     try {
-      return Optional.of(modelUtils.resolveRef(fullName, DocumentReference.class));
+      log.debug("resolve: {}", fullName);
+      Optional<DocumentReference> ret = Optional.of(
+          modelUtils.resolveRef(fullName, DocumentReference.class));
+      log.debug("resolved: {}", ret);
+      return ret;
     } catch (IllegalArgumentException exc) {
       log.debug("unable to resolve ref: {}", exc.getMessage(), exc);
       return Optional.empty();
     }
-  }
-
-  private <T> Optional<T> findFirstPresent(Stream<Supplier<Optional<T>>> suppliers) {
-    return suppliers.map(Supplier::get)
-        .filter(Optional::isPresent).map(Optional::get)
-        .findFirst();
   }
 
 }
