@@ -7,7 +7,6 @@ com.celements.structEditor.classes.HiddenTagEditorClass
 com.celements.structEditor.classes.DateTimePickerEditorClass
 com.celements.structEditor.classes.OptionTagEditorClass
 com.celements.structEditor.classes.TextAreaFieldEditorClass
-com.celements.structEditor.classes.KeyValueClass
 com.celements.structEditor.fields.DateTimePickerPageType
 com.celements.structEditor.fields.DateTimePageType
 com.celements.structEditor.fields.FormFieldPageType
@@ -40,3 +39,4 @@ com.celements.tinymce4.TinyMce4Config
 com.celements.tinymce4.RteTinyMce4
 com.celements.struct.view.StructuredDataViewPageType
 com.celements.struct.edit.autocomplete.DefaultAutocomplete
+com.celements.struct.classes.KeyValueClass
