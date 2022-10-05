@@ -162,6 +162,8 @@
     };
   };
 
-  document.addEventListener('DOMContentLoaded', checkInitAutocomplete);
+  (document.readyState === 'loading')
+      ? document.addEventListener('DOMContentLoaded', checkInitAutocomplete)
+      : checkInitAutocomplete();
 
 })(window);

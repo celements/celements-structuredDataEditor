@@ -135,12 +135,16 @@
         structManager.celObserve('structEdit:finishedLoading', reloadOnSaveHandler);
       }
     } else {
-      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', );
+      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', reloadPage);
     }
   };
 
-  document.addEventListener('DOMContentLoaded', init_structObjectListEdit);
+  const onReady = (callback) => (document.readyState === 'loading')
+      ? document.addEventListener('DOMContentLoaded', callback)
+      : callback();
+
+  onReady(init_structObjectListEdit);
+  onReady(reloadOnSaveHandler);
   $(document.body).observe('celements:contentChanged', init_structObjectListEdit);
-  document.addEventListener('DOMContentLoaded', reloadOnSaveHandler);
 
 })(window);
