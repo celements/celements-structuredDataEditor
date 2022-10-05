@@ -1,22 +1,22 @@
 (function(window, undefined) {
   "use strict";
 
+  const _FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
   const _REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
   const _nextCreateObjectNbMap = {};
-  let _createObjectCount = 0;
   
-  var init_structObjectListEdit = function() {
+  const init_structObjectListEdit = function() {
     moveTemplatesOutOfForm();
     observeCreateObject();
     observeDeleteObject();
   };
 
-  var moveTemplatesOutOfForm = function() {
+  const moveTemplatesOutOfForm = function() {
     document.querySelectorAll('ul.struct_object li.struct_object_creation').forEach(element => {
-      var template = element.querySelector('.cel_template');
-      var form = element.closest('form');
+      const template = element.querySelector('.cel_template');
+      const form = element.closest('form');
       if (template && form) {
-        var objectClassName = element.closest('ul.struct_object')
+        const objectClassName = element.closest('ul.struct_object')
             .getAttribute('data-struct-class') || '';
         template.classList.add(objectClassName.replace('.', '_'));
         form.after(template);
@@ -25,21 +25,20 @@
     });
   };
 
-  var observeCreateObject = function() {
+  const observeCreateObject = function() {
     $$('ul.struct_object li.struct_object_creation a').each(function(link) {
       link.stopObserving('click', createObject);
       link.observe('click', createObject);
     });
   };
 
-  var createObject = function(event) {
+  const createObject = function(event) {
     event.stop();
-    var objectList = event.element().up('ul.struct_object');
+    const objectList = event.target.closest('ul.struct_object');
     if (objectList) {
-      var objectClassName = objectList.getAttribute('data-struct-class');
-      var newEntry = createEntryFor(objectClassName);
+      const objectClassName = objectList.getAttribute('data-struct-class');
+      const newEntry = createEntryFor(objectClassName);
       if (newEntry) {
-        _createObjectCount++;
         objectList.appendChild(newEntry);
         $j(newEntry).fadeIn();
         observeDeleteObject();
@@ -53,30 +52,29 @@
     }
   };
 
-  var createEntryFor = function(objectClassName) {
-    var objCssClass = '.' + (objectClassName.replace('.', '_') || 'none');
-    var template = document.querySelector('.cel_template' + objCssClass);
+  const createEntryFor = function(objectClassName) {
+    const objCssClass = '.' + (objectClassName.replace('.', '_') || 'none');
+    const template = document.querySelector('.cel_template' + objCssClass);
     if (template) {
-      var entry = document.createElement("li");
-      entry.addClassName('struct_object_created');
+      const entry = document.createElement("li");
+      entry.classList.add('struct_object_created');
       entry.style.display = "none";
       entry.innerHTML = template.innerHTML;
-      var objectNb = _nextCreateObjectNbMap[objectClassName] || -2;
-      const objNbTags = 'input,select,textarea,cel-input-date,cel-input-time,cel-input-date-time';
-      if (setObjectNbIn(entry, objNbTags, 'name', objectNb)) {
+      const objectNb = _nextCreateObjectNbMap[objectClassName] || -2;
+      if (setObjectNbIn(entry, _FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
         setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
         setObjectNbIn(entry, 'label', 'for', objectNb);
-        _nextCreateObjectNbMap[objectClassName] = --objectNb;
+        _nextCreateObjectNbMap[objectClassName] = objectNb - 1;
         return entry;
       }
     }
   };
 
-  var setObjectNbIn = function(entry, selector, key, objectNb) {
-    var changed = false;
+  const setObjectNbIn = function(entry, selector, key, objectNb) {
+    let changed = false;
     entry.querySelectorAll(selector).forEach(elem => {
-      var oldValue = (elem.getAttribute(key) || '');
-      var newValue = oldValue.replace(_REGEX_OBJ_NB, '$1' + objectNb + '$3');
+      const oldValue = (elem.getAttribute(key) || '');
+      const newValue = oldValue.replace(_REGEX_OBJ_NB, '$1' + objectNb + '$3');
       elem.setAttribute(key, newValue);
       changed = (changed || (oldValue !== newValue));
     });
@@ -84,22 +82,25 @@
   };
 
 
-  var observeDeleteObject = function() {
-    $$('ul.struct_object li a.struct_object_delete').each(function(link) {
+  const observeDeleteObject = function() {
+    const selector = 'ul.struct_object li a.struct_object_delete';
+    document.querySelectorAll(selector).forEach(link => {
       link.stopObserving('click', deleteObject);
       link.observe('click', deleteObject);
     });
   };
 
-  var deleteObject = function(event) {
-    event.stop();
-    var entry = event.element().up('li');
-    var objNb = extractAndMarkObjectNb(entry);
-    if (isNaN(objNb)) {
-      console.warn('deleteObject - unable to extract objNb on: ', entry);
+  const deleteObject = function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const entry = event.target.closest('li');
+    const fields = extractFields(entry);
+    if (fields.length === 0) {
+      console.warn('deleteObject - unable to extract field data from', entry);
     } else if (confirm(window.celMessages.structEditor.objectRemoveConfirm)) {
+      fields.forEach(markObjectAsDeleted);
       $j(entry).fadeOut(400, function() {
-        if (objNb < 0) {
+        if (entry.classList.contains('struct_object_created')) {
           entry.remove();
           _createObjectCount--;
         }
@@ -108,23 +109,36 @@
     }
   };
 
-  var extractAndMarkObjectNb = function(entry) {
-    var objNb = NaN;
-    var formElem = entry.down('input,select,textarea');
-    if (formElem) {
+  const extractFields = function(entry) {
+    return [...entry.querySelectorAll(_FORM_ELEM_TAGS.join(','))].map(formElem => {
       // name="Space.Class_1_field"
-      var nameParts = (formElem.getAttribute('name') || '').split('_');
-      objNb = parseInt(nameParts[1], 10);
-      if (objNb >= 0) {
-        // ^ in front of the object number is the delete marker
-        nameParts[1] = "^" + nameParts[1];
-        formElem.setAttribute("name", nameParts.join('_'));
-      }
-    }    
-    return objNb;
+      const nameParts = (formElem?.getAttribute('name') || '').split('_');
+      return {
+        formElem: formElem,
+        nameParts: nameParts,
+        objNb: parseInt(nameParts[1], 10),
+      };
+    }).filter(f => !isNaN(f.objNb));
   };
 
-  const reloadPage = () => _createObjectCount && location.reload();
+  const markObjectAsDeleted = function(field) {
+    if (field.objNb >= 0) {
+      const nameParts = [... field.nameParts];
+      // ^ in front of the object number is the delete marker
+      nameParts[1] = "^" + nameParts[1];
+      field.formElem.setAttribute("name", nameParts.join('_'));
+    }
+  };
+
+  const reloadPage = () => {
+    for (const objNb of Object.values(_nextCreateObjectNbMap)) {
+      if (objNb < -2) {
+        window.onbeforeunload = null;
+        location.reload();
+        break;
+      }
+    }
+  };
 
   const reloadOnSaveHandler = () => {
     const structManager = window.celStructEditorManager;
@@ -135,12 +149,16 @@
         structManager.celObserve('structEdit:finishedLoading', reloadOnSaveHandler);
       }
     } else {
-      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', );
+      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', reloadPage);
     }
   };
 
-  document.addEventListener('DOMContentLoaded', init_structObjectListEdit);
+  const onReady = callback => (document.readyState === 'loading')
+      ? document.addEventListener('DOMContentLoaded', callback)
+      : callback();
+
+  onReady(init_structObjectListEdit);
+  onReady(reloadOnSaveHandler);
   $(document.body).observe('celements:contentChanged', init_structObjectListEdit);
-  document.addEventListener('DOMContentLoaded', reloadOnSaveHandler);
 
 })(window);
