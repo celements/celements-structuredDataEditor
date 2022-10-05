@@ -34,7 +34,7 @@
   
   window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
 
-  const onReady = (callback) => (document.readyState === 'loading')
+  const onReady = callback => (document.readyState === 'loading')
       ? document.addEventListener('DOMContentLoaded', callback)
       : callback();
 
