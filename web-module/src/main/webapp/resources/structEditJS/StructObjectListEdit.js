@@ -3,6 +3,7 @@
 
   const _FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
   const _REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
+  const _START_CREATE_OBJ_NB = -2; // skip -1 in case it's already used statically in an editor
   const _nextCreateObjectNbMap = {};
   
   const init_structObjectListEdit = function() {
@@ -60,7 +61,7 @@
       entry.classList.add('struct_object_created');
       entry.style.display = "none";
       entry.innerHTML = template.innerHTML;
-      const objectNb = _nextCreateObjectNbMap[objectClassName] || -2;
+      const objectNb = _nextCreateObjectNbMap[objectClassName] || _START_CREATE_OBJ_NB;
       if (setObjectNbIn(entry, _FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
         setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
         setObjectNbIn(entry, 'label', 'for', objectNb);
@@ -129,9 +130,9 @@
     }
   };
 
-  const reloadPage = () => {
+  const reloadPage = function() {
     for (const objNb of Object.values(_nextCreateObjectNbMap)) {
-      if (objNb < -2) {
+      if (objNb < _START_CREATE_OBJ_NB) {
         window.onbeforeunload = null;
         location.reload();
         break;
@@ -139,7 +140,7 @@
     }
   };
 
-  const reloadOnSaveHandler = () => {
+  const reloadOnSaveHandler = function() {
     const structManager = window.celStructEditorManager;
     if (structManager) {
       if (structManager.isStartFinished()) {
