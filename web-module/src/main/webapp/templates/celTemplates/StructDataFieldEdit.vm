@@ -28,7 +28,36 @@
       #end
       #set($cel_editobj_readonly_properties = '')
       #parse("celTemplates/ObjectEdit.vm")
+
+      #set($cel_editobj_classname = 'Celements.CellAttributeClass')
+      #set($createIfNotExists = false)
+      #set($cel_embedded_editobj = true)
+      #set($cel_editobj_objects = $doc.getObjects($cel_editobj_classname))
+      #set($cel_editobj_hasObjAddLink = true)
+      #set($cel_editobj_hasObjRemoveLink = true)
+      #set($cel_editobj_externalForm = true)
+      #set($cel_editobj_properties = '')
+      #foreach($prop in $xwiki.getDocument($cel_editobj_classname).xWikiClass.properties)
+        #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
+      #end
+      #set($cel_editobj_readonly_properties = '')
+      #parse("celTemplates/ObjectEdit.vm")
+
+      #set($cel_editobj_classname = 'Classes.KeyValueClass')
+      #set($createIfNotExists = false)
+      #set($cel_embedded_editobj = true)
+      #set($cel_editobj_objects = $doc.getObjects($cel_editobj_classname))
+      #set($cel_editobj_hasObjAddLink = true)
+      #set($cel_editobj_hasObjRemoveLink = true)
+      #set($cel_editobj_externalForm = true)
+      #set($cel_editobj_properties = '')
+      #foreach($prop in $xwiki.getDocument($cel_editobj_classname).xWikiClass.properties)
+        #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
+      #end
+      #set($cel_editobj_readonly_properties = '')
+      #parse("celTemplates/ObjectEdit.vm")
+
+      $xwiki.parseTemplate("celTemplates/fieldTypeEdit/${page_type}.vm")
     </div>
-    $xwiki.parseTemplate("celTemplates/fieldTypeEdit/${page_type}.vm")
   </form>
 </div>
