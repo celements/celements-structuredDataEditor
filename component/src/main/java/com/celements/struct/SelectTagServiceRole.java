@@ -35,13 +35,13 @@ public interface SelectTagServiceRole {
   Optional<AutocompleteRole> getTypeImpl(@NotNull DocumentReference cellDocRef);
 
   /**
-   * returns the DocumentReference of the SelectTag parent cell. If the <param>optionDocRef</param>
+   * returns the DocumentReference of the SelectTag parent cell. If the <param>cellDocRef</param>
    * is provided. It must be a descendant of the searched SelectTag docRef.
    *
    * @param optionDocRef
    * @return
    */
   @NotNull
-  Optional<DocumentReference> getSelectCellDocRef(@NotNull DocumentReference optionDocRef);
+  Optional<DocumentReference> getSelectCellDocRef(@NotNull DocumentReference cellDocRef);
 
 }

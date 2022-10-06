@@ -61,11 +61,11 @@ import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.struct.SelectTagServiceRole;
-import com.celements.struct.classes.KeyValueClass;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.velocity.VelocityService;
+import com.celements.web.classes.KeyValueClass;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -348,9 +348,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
       getStructXObjectNumber(cellDoc, onDoc).ifPresent(fetcher::filter);
       ret = fetcher.stream()
-          .filter(getStructXObjectFilters(cellDoc, "object-filter", "object-filter-and")
+          .filter(getStructXObjectFilters(cellDoc, "struct-obj-filter", "struct-obj-filter-and")
               .reduce((a, b) -> a.and(b)).orElse(alwaysTrue()))
-          .filter(getStructXObjectFilters(cellDoc, "object-filter-or")
+          .filter(getStructXObjectFilters(cellDoc, "struct-obj-filter-or")
               .reduce((a, b) -> a.or(b)).orElse(alwaysTrue()))
           .findFirst();
     }

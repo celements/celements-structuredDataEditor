@@ -103,7 +103,6 @@
       $j(entry).fadeOut(400, function() {
         if (entry.classList.contains('struct_object_created')) {
           entry.remove();
-          _createObjectCount--;
         }
       });
       console.debug('deleteObject - removed: ', entry);

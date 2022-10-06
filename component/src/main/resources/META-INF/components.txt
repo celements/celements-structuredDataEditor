@@ -39,4 +39,3 @@ com.celements.tinymce4.TinyMce4Config
 com.celements.tinymce4.RteTinyMce4
 com.celements.struct.view.StructuredDataViewPageType
 com.celements.struct.edit.autocomplete.DefaultAutocomplete
-com.celements.struct.classes.KeyValueClass

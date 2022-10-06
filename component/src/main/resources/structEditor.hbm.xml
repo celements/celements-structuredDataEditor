@@ -131,19 +131,4 @@
       <column name="DTPEF_ATTRIBUTES" length="256"/>
     </property>
   </class>
-  <class entity-name="Celements.KeyValueClass" table="cel_key_value">
-    <id name="id" type="long" unsaved-value="undefined">
-      <column name="KV_ID" not-null="true" />
-      <generator class="assigned" />
-    </id>
-    <property name="label" type="string">
-      <column name="KV_LABEL" length="256"/>
-    </property>
-    <property name="key" type="string">
-      <column name="KV_KEY" length="256"/>
-    </property>
-    <property name="value" type="string">
-      <column name="KV_VALUE" length="256"/>
-    </property>
-  </class>
 </hibernate-mapping>
