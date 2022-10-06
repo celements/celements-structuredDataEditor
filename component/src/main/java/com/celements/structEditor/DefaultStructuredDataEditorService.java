@@ -27,11 +27,14 @@ import static com.google.common.base.Predicates.*;
 import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -69,6 +72,8 @@ import com.celements.web.classes.KeyValueClass;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -77,11 +82,19 @@ import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.DateClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 
+import one.util.streamex.EntryStream;
+import one.util.streamex.StreamEx;
+
 @Component
 public class DefaultStructuredDataEditorService implements StructuredDataEditorService {
 
   private static final Logger LOGGER = LoggerFactory
       .getLogger(DefaultStructuredDataEditorService.class);
+
+  static final Set<String> LABELS_AND = ImmutableSet.of(
+      "struct-obj-filter", "struct-obj-filter-and");
+  static final Set<String> LABELS_OR = ImmutableSet.of(
+      "struct-obj-filter-or");
 
   @Requirement
   private Execution exec;
@@ -146,7 +159,17 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .flatMap(doc -> newXObjFetcher(doc, onDoc).stream()
             .findFirst())
         .map(BaseObject::getNumber)
-        .orElse(-1);
+        .orElse(getCreateObjNb(cellDoc));
+  }
+
+  private int getCreateObjNb(XWikiDocument cellDoc) {
+    return getCellClassRef(cellDoc).map(classRef -> {
+      Map<String, Integer> nbs = getCreateObjNbCache().computeIfAbsent(classRef,
+          k -> new HashMap<>());
+      String key = getKeyValues(cellDoc, Sets.union(LABELS_AND, LABELS_OR))
+          .mapKeyValue((k, v) -> k + ":" + v.orElse("")).joining(",");
+      return nbs.computeIfAbsent(key, k -> (-1 - nbs.size()));
+    }).orElse(-1);
   }
 
   @Override
@@ -347,12 +370,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     if (classRef.isPresent() && (onDoc != null)) {
       XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
       getStructXObjectNumber(cellDoc, onDoc).ifPresent(fetcher::filter);
-      ret = fetcher.stream()
-          .filter(getStructXObjectFilters(cellDoc, "struct-obj-filter", "struct-obj-filter-and")
-              .reduce((a, b) -> a.and(b)).orElse(alwaysTrue()))
-          .filter(getStructXObjectFilters(cellDoc, "struct-obj-filter-or")
-              .reduce((a, b) -> a.or(b)).orElse(alwaysTrue()))
-          .findFirst();
+      ret = fetcher.stream().findFirst();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
         + "{}", cellDoc, onDoc, classRef.orElse(null), ret.map(BaseObject::getNumber).orElse(null),
@@ -416,20 +434,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .findFirst();
   }
 
-  private Stream<Predicate<BaseObject>> getStructXObjectFilters(XWikiDocument cellDoc,
-      String... labels) {
-    return XWikiObjectFetcher.on(cellDoc)
-        .filter(KeyValueClass.FIELD_LABEL, Arrays.asList(labels)).stream()
-        .map(this::keyValuePred)
-        .flatMap(MoreOptional::stream);
-  }
-
-  private Optional<Predicate<BaseObject>> keyValuePred(BaseObject kvObj) {
-    return getVelocityFieldValue(kvObj, KeyValueClass.FIELD_KEY)
-        .map(key -> obj -> Objects.equals(xObjStrFieldAccessor.get(obj, key),
-            getVelocityFieldValue(kvObj, KeyValueClass.FIELD_VALUE)));
-  }
-
   @Override
   public boolean hasEditField(XWikiDocument cellDoc) {
     return getCellFieldName(cellDoc).isPresent();
@@ -455,11 +459,28 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    return Optional.ofNullable(onDoc)
-        .map(XWikiObjectFetcher::on)
-        .flatMap(fetcher -> getCellClassRef(cellDoc)
-            .map(fetcher::filter))
-        .orElseGet(XWikiObjectFetcher::empty);
+    return XWikiObjectFetcher.on(onDoc)
+        .filter(getCellClassRef(cellDoc).orElseThrow())
+        .filter(getKeyValueFilters(cellDoc, LABELS_AND)
+            .reduce((a, b) -> a.and(b)).orElse(alwaysTrue()))
+        .filter(getKeyValueFilters(cellDoc, LABELS_OR)
+            .reduce((a, b) -> a.or(b)).orElse(alwaysTrue()));
+  }
+
+  private Stream<Predicate<BaseObject>> getKeyValueFilters(XWikiDocument cellDoc,
+      Collection<String> labels) {
+    return getKeyValues(cellDoc, labels).mapKeyValue(
+        (k, v) -> obj -> Objects.equals(xObjStrFieldAccessor.get(obj, k), v));
+  }
+
+  private EntryStream<String, Optional<String>> getKeyValues(XWikiDocument cellDoc,
+      Collection<String> labels) {
+    XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc)
+        .filter(KeyValueClass.FIELD_LABEL, labels);
+    return StreamEx.of(fetcher.stream()).mapToEntry(
+        kvObj -> getVelocityFieldValue(kvObj, KeyValueClass.FIELD_KEY),
+        kvObj -> getVelocityFieldValue(kvObj, KeyValueClass.FIELD_VALUE))
+        .flatMapKeys(MoreOptional::stream);
   }
 
   private Optional<String> getVelocityFieldValue(BaseObject obj, ClassField<String> field) {
@@ -471,6 +492,10 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       LOGGER.warn("getFieldValue - failed for [{}], [{}]", obj, field, exc);
     }
     return value;
+  }
+
+  private Map<ClassReference, Map<String, Integer>> getCreateObjNbCache() {
+    return modelUtils.computeExecPropIfAbsent("struct_create_obj_nbs", HashMap::new);
   }
 
 }
