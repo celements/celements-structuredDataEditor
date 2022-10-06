@@ -460,7 +460,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return XWikiObjectFetcher.on(onDoc)
-        .filter(getCellClassRef(cellDoc).orElseThrow())
+        .filter(getCellClassRef(cellDoc).orElseThrow(IllegalStateException::new))
         .filter(getKeyValueFilters(cellDoc, LABELS_AND)
             .reduce((a, b) -> a.and(b)).orElse(alwaysTrue()))
         .filter(getKeyValueFilters(cellDoc, LABELS_OR)
