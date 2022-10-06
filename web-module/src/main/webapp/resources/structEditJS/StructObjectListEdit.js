@@ -85,7 +85,7 @@
   const observeDeleteObject = function() {
     const selector = 'ul.struct_object li a.struct_object_delete';
     document.querySelectorAll(selector).forEach(link => {
-      link.stopObserving('click', deleteObject);
+      link.removeEventListener('click', deleteObject);
       link.observe('click', deleteObject);
     });
   };
