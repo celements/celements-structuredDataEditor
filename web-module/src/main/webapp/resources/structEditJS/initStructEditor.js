@@ -38,7 +38,7 @@
       ? document.addEventListener('DOMContentLoaded', callback)
       : callback();
 
-  onReady(window.celStructEditorManager.startEditorManager);
+  onReady(() => window.celStructEditorManager.startEditorManager());
   $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
 
 })(window);
