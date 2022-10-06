@@ -34,10 +34,11 @@
   
   window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
 
-  celAddOnBeforeLoadListener(function() {
-    $(document.body).stopObserving("celements:contentChanged", initStructEditorContentChangedHandler);
-    $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
-    window.celStructEditorManager.startEditorManager();
-  });
+  const onReady = callback => (document.readyState === 'loading')
+      ? document.addEventListener('DOMContentLoaded', callback)
+      : callback();
+
+  onReady(window.celStructEditorManager.startEditorManager);
+  $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
 
 })(window);

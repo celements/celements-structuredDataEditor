@@ -162,6 +162,8 @@
     };
   };
 
-  celAddOnBeforeLoadListener(checkInitAutocomplete);
+  (document.readyState === 'loading')
+      ? document.addEventListener('DOMContentLoaded', checkInitAutocomplete)
+      : checkInitAutocomplete();
 
 })(window);
