@@ -36,7 +36,7 @@
     event.stop();
     const objectList = event.target.closest('ul.struct_object');
     if (objectList) {
-      const objectClassName = objectList.getAttribute('data-struct-class');
+      const objectClassName = objectList.dataset.structClass;
       const newEntry = createEntryFor(objectClassName);
       if (newEntry) {
         objectList.appendChild(newEntry);
@@ -85,8 +85,8 @@
   const observeDeleteObject = function() {
     const selector = 'ul.struct_object li a.struct_object_delete';
     document.querySelectorAll(selector).forEach(link => {
-      link.stopObserving('click', deleteObject);
-      link.observe('click', deleteObject);
+      link.removeEventListener('click', deleteObject);
+      link.addEventListener('click', deleteObject);
     });
   };
 
