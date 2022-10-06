@@ -36,7 +36,7 @@
     event.stop();
     const objectList = event.target.closest('ul.struct_object');
     if (objectList) {
-      const objectClassName = objectList.getAttribute('data-struct-class');
+      const objectClassName = objectList.dataset.structClass;
       const newEntry = createEntryFor(objectClassName);
       if (newEntry) {
         objectList.appendChild(newEntry);
