@@ -189,7 +189,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       prettyName = getXClassPrettyName(cellDoc).orElse(dictKey);
     }
     LOGGER.info("getPrettyName: '{}' for cell '{}'", prettyName, cellDoc);
-    return asNonBlank(dictKey);
+    return asNonBlank(prettyName);
   }
 
   private Optional<String> getOptionTagValue(XWikiDocument cellDoc) {
@@ -473,7 +473,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private Optional<String> getVelocityFieldValue(BaseObject obj, ClassField<String> field) {
     Optional<String> value = xObjFieldAccessor.get(obj, field)
-        .map(String::trim).filter(not(String::isEmpty));
+        .flatMap(MoreOptional::asNonBlank);
     try {
       return value.map(rethrowFunction(text -> velocityService.evaluateVelocityText(text)));
     } catch (XWikiVelocityException exc) {
