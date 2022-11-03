@@ -27,9 +27,9 @@
         #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
       #end
       #parse("celTemplates/ObjectEdit.vm")
+      $xwiki.parseTemplate("celTemplates/fieldTypeEdit/${page_type}.vm")
 
-      <hr />
-      <h3>Object Filters</h3>
+      <h4>Object Filters</h4>
       #set($cel_editobj_classname = 'Classes.KeyValueClass')
       #set($createIfNotExists = false)
       #set($cel_embedded_editobj = true)
@@ -37,16 +37,14 @@
       #set($cel_editobj_hasObjAddLink = true)
       #set($cel_editobj_hasObjRemoveLink = true)
       #set($cel_editobj_externalForm = true)
-      #set($cel_editobj_properties = 'key,value')
-      #parse("celTemplates/ObjectEdit.vm")
-      #foreach($obj in $cel_editobj_objects)
-        <input type="hidden" name="$!{cel_editobj_classname}_$!{obj.number}_label" value="struct-obj-filter">
+      #set($cel_editobj_properties = '')
+      #foreach($prop in $xwiki.getDocument($cel_editobj_classname).xWikiClass.properties)
+        #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
       #end
-
-      $xwiki.parseTemplate("celTemplates/fieldTypeEdit/${page_type}.vm")
-
+      #parse("celTemplates/ObjectEdit.vm")
       <hr />
-      <h3>Attributes</h3>
+
+      <h4>Attributes</h4>
       #set($cel_editobj_classname = 'Celements.CellAttributeClass')
       #set($createIfNotExists = false)
       #set($cel_embedded_editobj = true)
@@ -59,6 +57,7 @@
         #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
       #end
       #parse("celTemplates/ObjectEdit.vm")
+      <hr />
 
     </div>
   </form>
