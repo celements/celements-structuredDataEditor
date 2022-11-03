@@ -249,7 +249,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     Optional<BaseObject> obj = service.getXObjectInStructEditor(cellDoc, onDoc);
     verifyDefault();
 
-    assertFalse(obj.isPresent());
+    assertObj(testClassRef, 0, obj); // no obj matches the ctxlang, thus we expect the first obj as
+                                     // fallback to read values from
   }
 
   @Test

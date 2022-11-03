@@ -135,7 +135,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       getCellClassRef(cellDoc).ifPresent(classRef -> {
         nameParts.add(modelUtils.serializeRef(classRef));
         if (onDoc != null) {
-          nameParts.add(Integer.toString(determineExistingObjNb(cellDoc, onDoc)
+          nameParts.add(Integer.toString(tryDetermineObjNb(cellDoc, onDoc)
               .orElseGet(() -> getCreateObjNb(cellDoc))));
         }
       });
@@ -146,12 +146,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return asNonBlank(name);
   }
 
-  private Optional<Integer> determineExistingObjNb(XWikiDocument cellDoc, XWikiDocument onDoc) {
+  private Optional<Integer> tryDetermineObjNb(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return findFirstPresent(
         () -> getContextDependentObjNb(cellDoc)
-            .filter(nb -> (nb < 0) || newXObjFetcher(cellDoc, onDoc).filter(nb).exists()),
-        () -> Optional.of(cellDoc)
-            .flatMap(doc -> newXObjFetcher(doc, onDoc).stream().findFirst())
+            .filter(nb -> (nb < 0) || newLangXObjFetcher(cellDoc, onDoc).filter(nb).exists()),
+        () -> newLangXObjFetcher(cellDoc, onDoc).stream().findFirst()
             .map(BaseObject::getNumber));
   }
 
@@ -278,7 +277,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   public Optional<String> getCellValueAsString(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return Optional.ofNullable(getCellValue(cellDoc, onDoc))
         .flatMap(value -> trySerializeForCustomClassField(cellDoc, value))
-        .map(Objects::toString).filter(not(String::isEmpty));
+        .map(Objects::toString)
+        .filter(not(String::isEmpty));
   }
 
   @SuppressWarnings("unchecked")
@@ -366,7 +366,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
       XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
-      getContextDependentObjNb(cellDoc).ifPresent(fetcher::filter);
+      getContextDependentObjNb(cellDoc).map(Optional::of) // replace with Optional#or in Java9+
+          .orElseGet(() -> getNumberForMultilingual(cellDoc, onDoc))
+          .ifPresent(fetcher::filter);
       ret = fetcher.stream().findFirst();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
@@ -406,11 +408,24 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .findFirst();
   }
 
+  private Optional<Integer> getNumberForMultilingual(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return newLangXObjFetcher(cellDoc, onDoc)
+        .stream().findFirst()
+        .map(BaseObject::getNumber);
+  }
+
+  XWikiObjectFetcher newLangXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
+    if (isMultilingual(cellDoc)) {
+      fetcher = fetcher.filter(this::isOfRequestOrDefaultLang);
+    }
+    return fetcher;
+  }
+
   private boolean isOfRequestOrDefaultLang(BaseObject xObj) {
-    return context.getLanguage()
-        .orElseGet(() -> context.getDefaultLanguage(xObj.getDocumentReference()))
-        .equals(getLangDependent(name -> xObjStrFieldAccessor.get(xObj, name).orElse(null))
-            .orElse(""));
+    return getLangDependent(name -> xObjStrFieldAccessor.get(xObj, name).orElse(null)).orElse("")
+        .equals(context.getLanguage().orElseGet(() -> context.getDefaultLanguage(
+            xObj.getDocumentReference())));
   }
 
   private <T> Optional<T> getLangDependent(Function<String, T> func) {
@@ -447,7 +462,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return XWikiObjectFetcher.on(onDoc)
         .filter(getCellClassRef(cellDoc).orElseThrow(IllegalStateException::new))
-        .filter(isMultilingual(cellDoc) ? this::isOfRequestOrDefaultLang : alwaysTrue())
         .filter(getKeyValueXObjFilters(cellDoc, LABELS_AND).reduce((a, b) -> a.and(b))
             .orElse(alwaysTrue()))
         .filter(getKeyValueXObjFilters(cellDoc, LABELS_OR).reduce((a, b) -> a.or(b))
