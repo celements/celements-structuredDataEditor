@@ -20,10 +20,12 @@
 package com.celements.structEditor;
 
 import static com.celements.common.MoreObjectsCel.*;
+import static com.celements.common.MoreOptional.*;
 import static com.celements.common.MoreOptional.findFirstPresent;
 import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.StructuredDataEditorClass.*;
 import static com.google.common.base.Predicates.*;
+import static com.google.common.base.Strings.*;
 import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
@@ -70,7 +72,6 @@ import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.velocity.VelocityService;
 import com.celements.web.classes.KeyValueClass;
 import com.celements.web.service.IWebUtilsService;
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -95,6 +96,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       "struct-obj-filter", "struct-obj-filter-and");
   static final Set<String> LABELS_OR = ImmutableSet.of(
       "struct-obj-filter-or");
+  static final Set<String> LABELS_ALL = Sets.union(LABELS_AND, LABELS_OR);
 
   @Requirement
   private Execution exec;
@@ -128,48 +130,46 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Override
   public Optional<String> getAttributeName(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    List<String> nameParts = new ArrayList<>();
-    Optional<ClassReference> classRef = getCellClassRef(cellDoc);
-    Optional<String> fieldName = getCellFieldName(cellDoc);
-    if (fieldName.isPresent()) {
-      if (classRef.isPresent()) {
-        nameParts.add(modelUtils.serializeRef(classRef.get()));
+    List<String> nameParts = new ArrayList<>(3);
+    getCellFieldName(cellDoc).ifPresent(fieldName -> {
+      getCellClassRef(cellDoc).ifPresent(classRef -> {
+        nameParts.add(modelUtils.serializeRef(classRef));
         if (onDoc != null) {
-          int objNb = getStructXObjectNumber(cellDoc, onDoc)
-              .filter(nb -> isXObjectNumberNewOrExists(cellDoc, onDoc, nb))
-              .orElseGet(() -> getFallbackXObjectNumber(cellDoc, onDoc));
-          nameParts.add(Integer.toString(objNb));
+          nameParts.add(Integer.toString(determineExistingObjNb(cellDoc, onDoc)
+              .orElseGet(() -> getCreateObjNb(cellDoc))));
         }
-      }
-      nameParts.add(fieldName.get());
-    }
-    String name = Joiner.on('_').join(nameParts);
+      });
+      nameParts.add(fieldName);
+    });
+    String name = nameParts.stream().collect(joining("_"));
     LOGGER.info("getAttributeName: '{}' for cell '{}', onDoc '{}'", name, cellDoc, onDoc);
-    return MoreOptional.asNonBlank(name);
+    return asNonBlank(name);
   }
 
-  private boolean isXObjectNumberNewOrExists(XWikiDocument cellDoc, XWikiDocument onDoc,
-      Integer nb) {
-    return (nb < 0) || newXObjFetcher(cellDoc, onDoc).filter(nb).exists();
+  private Optional<Integer> determineExistingObjNb(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return findFirstPresent(
+        () -> getContextDependentObjNb(cellDoc)
+            .filter(nb -> (nb < 0) || newXObjFetcher(cellDoc, onDoc).filter(nb).exists()),
+        () -> Optional.of(cellDoc)
+            .flatMap(doc -> newXObjFetcher(doc, onDoc).stream().findFirst())
+            .map(BaseObject::getNumber));
   }
 
-  private int getFallbackXObjectNumber(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    return Optional.of(cellDoc)
-        .filter(not(this::isMultilingual))
-        .flatMap(doc -> newXObjFetcher(doc, onDoc).stream()
-            .findFirst())
-        .map(BaseObject::getNumber)
-        .orElse(getCreateObjNb(cellDoc));
-  }
-
+  /**
+   * @return a execution-unique and -persistent create objNb for every class/key/value combination
+   */
   private int getCreateObjNb(XWikiDocument cellDoc) {
-    return getCellClassRef(cellDoc).map(classRef -> {
-      Map<String, Integer> nbs = getCreateObjNbCache().computeIfAbsent(classRef,
-          k -> new HashMap<>());
-      String key = getKeyValues(cellDoc, Sets.union(LABELS_AND, LABELS_OR))
-          .mapKeyValue((k, v) -> k + ":" + v.orElse("")).joining(",");
-      return nbs.computeIfAbsent(key, k -> (-1 - nbs.size()));
-    }).orElse(-1);
+    ClassReference classRef = getCellClassRef(cellDoc).orElseThrow(IllegalStateException::new);
+    Map<String, Integer> objNbs = getCreateObjNbExecutionCache()
+        .computeIfAbsent(classRef, k -> new HashMap<>());
+    String keyValueId = fetchKeyValues(cellDoc, LABELS_ALL)
+        .mapKeyValue((k, v) -> k + ":" + v.orElse(""))
+        .joining(",");
+    return objNbs.computeIfAbsent(keyValueId, k -> -(1 + objNbs.size()));
+  }
+
+  private Map<ClassReference, Map<String, Integer>> getCreateObjNbExecutionCache() {
+    return modelUtils.computeExecPropIfAbsent("struct_create_obj_nbs", HashMap::new);
   }
 
   @Override
@@ -184,15 +184,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .flatMap(MoreOptional::stream)
         .collect(joining("_"));
     LOGGER.debug("getPrettyName: dictKey '{}' for cell '{}'", dictKey, cellDoc);
-    prettyName = webUtils.getAdminMessageTool().get(dictKey);
+    prettyName = nullToEmpty(webUtils.getAdminMessageTool().get(dictKey));
     if (dictKey.equals(prettyName)) {
-      Optional<String> xClassPrettyName = getXClassPrettyName(cellDoc);
-      if (xClassPrettyName.isPresent()) {
-        prettyName = xClassPrettyName.get();
-      }
+      prettyName = getXClassPrettyName(cellDoc).orElse(dictKey);
     }
     LOGGER.info("getPrettyName: '{}' for cell '{}'", prettyName, cellDoc);
-    return Optional.ofNullable(prettyName);
+    return asNonBlank(dictKey);
   }
 
   private Optional<String> getOptionTagValue(XWikiDocument cellDoc) {
@@ -369,7 +366,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
       XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
-      getStructXObjectNumber(cellDoc, onDoc).ifPresent(fetcher::filter);
+      getContextDependentObjNb(cellDoc).ifPresent(fetcher::filter);
       ret = fetcher.stream().findFirst();
     }
     LOGGER.info("getXObjectInStructEditor - for cellDoc '{}', onDoc '{}', class '{}', objNb '{}': "
@@ -378,13 +375,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return ret;
   }
 
-  private Optional<Integer> getStructXObjectNumber(XWikiDocument cellDoc, XWikiDocument onDoc) {
+  private Optional<Integer> getContextDependentObjNb(XWikiDocument cellDoc) {
     Optional<Integer> ret = findFirstPresent(
         () -> getNumberFromRequest(),
         () -> getNumberFromExecutionContext(),
-        () -> getNumberFromComputedField(cellDoc),
-        () -> getNumberForMultilingual(cellDoc, onDoc));
-    ret.ifPresent(nb -> LOGGER.debug("getStructXObjectNumber: got [{}] for [{}]", nb, cellDoc));
+        () -> getNumberFromComputedField(cellDoc));
+    ret.ifPresent(nb -> LOGGER.debug("getContextDependentObjNb: got [{}] for [{}]", nb, cellDoc));
     return ret;
   }
 
@@ -410,21 +406,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .findFirst();
   }
 
-  private Optional<Integer> getNumberForMultilingual(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    return Optional.of(cellDoc)
-        .filter(this::isMultilingual)
-        .flatMap(doc -> newXObjFetcher(doc, onDoc)
-            .filter(this::isOfRequestOrDefaultLang)
-            .stream().findFirst())
-        .map(BaseObject::getNumber);
-  }
-
   private boolean isOfRequestOrDefaultLang(BaseObject xObj) {
-    String xObjLang = getLangDependent(name -> Strings.emptyToNull(xObj.getStringValue(name)))
-        .orElse("");
     return context.getLanguage()
         .orElseGet(() -> context.getDefaultLanguage(xObj.getDocumentReference()))
-        .equals(xObjLang);
+        .equals(getLangDependent(name -> xObjStrFieldAccessor.get(xObj, name).orElse(null))
+            .orElse(""));
   }
 
   private <T> Optional<T> getLangDependent(Function<String, T> func) {
@@ -458,22 +444,24 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
                 .map(fieldName -> attrName.replace(fieldName, prop.getName()))));
   }
 
-  private XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
+  XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return XWikiObjectFetcher.on(onDoc)
         .filter(getCellClassRef(cellDoc).orElseThrow(IllegalStateException::new))
-        .filter(getKeyValueFilters(cellDoc, LABELS_AND)
-            .reduce((a, b) -> a.and(b)).orElse(alwaysTrue()))
-        .filter(getKeyValueFilters(cellDoc, LABELS_OR)
-            .reduce((a, b) -> a.or(b)).orElse(alwaysTrue()));
+        .filter(isMultilingual(cellDoc) ? this::isOfRequestOrDefaultLang : alwaysTrue())
+        .filter(getKeyValueXObjFilters(cellDoc, LABELS_AND).reduce((a, b) -> a.and(b))
+            .orElse(alwaysTrue()))
+        .filter(getKeyValueXObjFilters(cellDoc, LABELS_OR).reduce((a, b) -> a.or(b))
+            .orElse(alwaysTrue()));
   }
 
-  private Stream<Predicate<BaseObject>> getKeyValueFilters(XWikiDocument cellDoc,
+  private Stream<Predicate<BaseObject>> getKeyValueXObjFilters(XWikiDocument cellDoc,
       Collection<String> labels) {
-    return getKeyValues(cellDoc, labels).mapKeyValue(
-        (k, v) -> obj -> Objects.equals(xObjStrFieldAccessor.get(obj, k), v));
+    return fetchKeyValues(cellDoc, labels).mapKeyValue(
+        (key, val) -> (obj -> Objects.equals(xObjStrFieldAccessor.get(obj, key), val)));
+
   }
 
-  private EntryStream<String, Optional<String>> getKeyValues(XWikiDocument cellDoc,
+  EntryStream<String, Optional<String>> fetchKeyValues(XWikiDocument cellDoc,
       Collection<String> labels) {
     XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc)
         .filter(KeyValueClass.FIELD_LABEL, labels);
@@ -492,10 +480,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       LOGGER.warn("getFieldValue - failed for [{}], [{}]", obj, field, exc);
     }
     return value;
-  }
-
-  private Map<ClassReference, Map<String, Integer>> getCreateObjNbCache() {
-    return modelUtils.computeExecPropIfAbsent("struct_create_obj_nbs", HashMap::new);
   }
 
 }
