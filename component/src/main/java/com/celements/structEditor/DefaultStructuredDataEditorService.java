@@ -25,7 +25,6 @@ import static com.celements.common.MoreOptional.findFirstPresent;
 import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.StructuredDataEditorClass.*;
 import static com.google.common.base.Predicates.*;
-import static com.google.common.base.Strings.*;
 import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
@@ -152,11 +151,11 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private int getCreateObjNb(XWikiDocument cellDoc) {
     ClassReference classRef = getCellClassRef(cellDoc).orElseThrow(IllegalStateException::new);
     Map<String, Integer> objNbs = getCreateObjNbExecutionCache()
-        .computeIfAbsent(classRef, k -> new HashMap<>());
+        .computeIfAbsent(classRef, ref -> new HashMap<>());
     String keyValueId = fetchKeyValues(cellDoc, Sets.union(LABELS_AND, LABELS_OR))
-        .mapKeyValue((k, v) -> k + ":" + v.orElse(""))
+        .mapKeyValue((key, val) -> key + ":" + val.orElse(""))
         .joining(",");
-    return objNbs.computeIfAbsent(keyValueId, k -> -(1 + objNbs.size()));
+    return objNbs.computeIfAbsent(keyValueId, key -> -(1 + objNbs.size()));
   }
 
   private Map<ClassReference, Map<String, Integer>> getCreateObjNbExecutionCache() {
@@ -175,7 +174,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .flatMap(MoreOptional::stream)
         .collect(joining("_"));
     LOGGER.debug("getPrettyName: dictKey '{}' for cell '{}'", dictKey, cellDoc);
-    prettyName = nullToEmpty(webUtils.getAdminMessageTool().get(dictKey));
+    prettyName = webUtils.getAdminMessageTool().get(dictKey);
     if (dictKey.equals(prettyName)) {
       prettyName = getXClassPrettyName(cellDoc).orElse(dictKey);
     }
@@ -407,11 +406,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   XWikiObjectFetcher newLangXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
-    if (isMultilingual(cellDoc)) {
-      fetcher = fetcher.filter(this::isOfRequestOrDefaultLang);
-    }
-    return fetcher;
+    return isMultilingual(cellDoc)
+        ? newXObjFetcher(cellDoc, onDoc).filter(this::isOfRequestOrDefaultLang)
+        : newXObjFetcher(cellDoc, onDoc);
   }
 
   private boolean isOfRequestOrDefaultLang(BaseObject xObj) {
