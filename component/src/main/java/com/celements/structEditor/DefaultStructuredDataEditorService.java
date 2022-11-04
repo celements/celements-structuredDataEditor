@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -73,7 +72,6 @@ import com.celements.velocity.VelocityService;
 import com.celements.web.classes.KeyValueClass;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.xpn.xwiki.XWikiException;
@@ -91,12 +89,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private static final Logger LOGGER = LoggerFactory
       .getLogger(DefaultStructuredDataEditorService.class);
-
-  static final Set<String> LABELS_AND = ImmutableSet.of(
-      "struct-obj-filter", "struct-obj-filter-and");
-  static final Set<String> LABELS_OR = ImmutableSet.of(
-      "struct-obj-filter-or");
-  static final Set<String> LABELS_ALL = Sets.union(LABELS_AND, LABELS_OR);
 
   @Requirement
   private Execution exec;
@@ -161,7 +153,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     ClassReference classRef = getCellClassRef(cellDoc).orElseThrow(IllegalStateException::new);
     Map<String, Integer> objNbs = getCreateObjNbExecutionCache()
         .computeIfAbsent(classRef, k -> new HashMap<>());
-    String keyValueId = fetchKeyValues(cellDoc, LABELS_ALL)
+    String keyValueId = fetchKeyValues(cellDoc, Sets.union(LABELS_AND, LABELS_OR))
         .mapKeyValue((k, v) -> k + ":" + v.orElse(""))
         .joining(",");
     return objNbs.computeIfAbsent(keyValueId, k -> -(1 + objNbs.size()));

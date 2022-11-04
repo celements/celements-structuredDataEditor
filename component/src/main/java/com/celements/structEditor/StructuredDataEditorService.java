@@ -22,6 +22,7 @@ package com.celements.structEditor;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -32,6 +33,7 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.struct.SelectTagServiceRole;
+import com.google.common.collect.ImmutableSet;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.BaseClass;
@@ -39,6 +41,9 @@ import com.xpn.xwiki.objects.classes.PropertyClass;
 
 @ComponentRole
 public interface StructuredDataEditorService {
+
+  Set<String> LABELS_AND = ImmutableSet.of("struct-obj-filter", "struct-obj-filter-and");
+  Set<String> LABELS_OR = ImmutableSet.of("struct-obj-filter-or");
 
   @NotNull
   Optional<String> getAttributeName(@NotNull XWikiDocument cellDoc, @Nullable XWikiDocument onDoc);
