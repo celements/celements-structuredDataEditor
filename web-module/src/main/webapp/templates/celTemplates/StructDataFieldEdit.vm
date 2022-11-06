@@ -27,7 +27,7 @@
         #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
       #end
       #parse("celTemplates/ObjectEdit.vm")
-      $xwiki.parseTemplate("celTemplates/fieldTypeEdit/${page_type}.vm")
+      #parse("celTemplates/fieldTypeEdit/${page_type}.vm")
 
       <h4>Object Filters</h4>
       #set($cel_editobj_classname = 'Classes.KeyValueClass')
