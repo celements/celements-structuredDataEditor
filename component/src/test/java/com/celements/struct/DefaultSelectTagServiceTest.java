@@ -24,6 +24,7 @@ import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -45,13 +46,13 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
   private IModelAccessFacade modelAccessMock;
 
   @Before
-  public void setUp_DefaultSelectTagServiceTest() throws Exception {
+  public void prepare() throws Exception {
     modelAccessMock = registerComponentMock(IModelAccessFacade.class);
     selectTagServ = (DefaultSelectTagService) Utils.getComponent(SelectTagServiceRole.class);
   }
 
   @Test
-  public void testGetTypeImpl_configMissing() throws Exception {
+  public void test_getTypeImpl_configMissing() throws Exception {
     DocumentReference cellDocRef = new RefBuilder().wiki(getContext().getDatabase()).space(
         "myTestSpace").doc("myTestDoc").build(DocumentReference.class);
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
@@ -63,7 +64,7 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
   }
 
   @Test
-  public void testGetTypeImpl_config_notSet() throws Exception {
+  public void test_getTypeImpl_config_notSet() throws Exception {
     DocumentReference cellDocRef = new RefBuilder().wiki(getContext().getDatabase()).space(
         "myTestSpace").doc("myTestDoc").build(DocumentReference.class);
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
@@ -76,10 +77,11 @@ public class DefaultSelectTagServiceTest extends AbstractComponentTest {
   }
 
   @Test
-  public void testGetSelectCellDocRef() throws Exception {
+  public void test_getSelectCellDocRef() throws Exception {
     DocumentReference cellDocRef = new RefBuilder().wiki(getContext().getDatabase()).space(
         "myTestSpace").doc("myTestPage").build(DocumentReference.class);
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
+    expect(modelAccessMock.streamParents(cellDoc)).andReturn(Stream.empty());
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(cellDoc);
     replayDefault();
     Optional<DocumentReference> selectCellDocRef = selectTagServ.getSelectCellDocRef(cellDocRef);

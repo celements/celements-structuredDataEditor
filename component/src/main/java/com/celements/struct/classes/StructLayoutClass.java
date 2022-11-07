@@ -39,26 +39,15 @@ public class StructLayoutClass extends AbstractClassDefinition implements Struct
   public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
   public static final ClassField<SpaceReference> FIELD_LAYOUT_SPACE = new SpaceReferenceField.Builder(
-      CLASS_DEF_HINT, "layoutSpace").build();
+      CLASS_REF, "layoutSpace").build();
 
-  @Override
-  public String getName() {
-    return CLASS_DEF_HINT;
+  public StructLayoutClass() {
+    super(CLASS_REF);
   }
 
   @Override
   public boolean isInternalMapping() {
     return false;
-  }
-
-  @Override
-  protected String getClassSpaceName() {
-    return SPACE_NAME;
-  }
-
-  @Override
-  protected String getClassDocName() {
-    return DOC_NAME;
   }
 
 }

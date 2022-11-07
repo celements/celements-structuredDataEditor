@@ -1,5 +1,6 @@
 package com.celements.struct.edit.autocomplete;
 
+import static com.celements.common.MoreOptional.*;
 import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
 import static com.google.common.base.Predicates.*;
@@ -17,6 +18,7 @@ import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
+import com.celements.common.MoreOptional;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
@@ -139,7 +141,7 @@ public class DefaultAutocomplete implements AutocompleteRole {
     return Optional.ofNullable(cellDocRef)
         .map(modelAccess::getOrCreateDocument)
         .map(this::getValueSuppliers)
-        .flatMap(this::findFirstPresent);
+        .flatMap(MoreOptional::findFirstPresent);
   }
 
   /**
@@ -153,23 +155,29 @@ public class DefaultAutocomplete implements AutocompleteRole {
   }
 
   protected final Optional<DocumentReference> getValueFromRequest(XWikiDocument cellDoc) {
-    return context.getCurrentDoc().toJavaUtil()
+    Optional<DocumentReference> ret = context.getCurrentDoc().toJavaUtil()
         .flatMap(onDoc -> structEditService.getAttributeName(cellDoc, onDoc))
         .flatMap(name -> context.getRequestParameter(name).toJavaUtil())
         .flatMap(this::resolve);
+    log.debug("getValueFromRequest - cellDoc [{}]: {}", cellDoc.getDocumentReference(), ret);
+    return ret;
   }
 
   protected final Optional<DocumentReference> getValueOnDoc(XWikiDocument cellDoc) {
-    return context.getCurrentDoc().toJavaUtil()
+    Optional<DocumentReference> ret = context.getCurrentDoc().toJavaUtil()
         .flatMap(onDoc -> structEditService.getCellValueAsString(cellDoc, onDoc))
         .flatMap(this::resolve);
+    log.debug("getValueOnDoc - cellDoc [{}]: {}", cellDoc.getDocumentReference(), ret);
+    return ret;
   }
 
   protected final Optional<DocumentReference> getDefaultValue(XWikiDocument cellDoc) {
-    return XWikiObjectFetcher.on(cellDoc)
+    Optional<DocumentReference> ret = XWikiObjectFetcher.on(cellDoc)
         .fetchField(OptionTagEditorClass.FIELD_VALUE)
         .stream().findFirst()
         .flatMap(this::resolve);
+    log.debug("getDefaultValue - cellDoc [{}]: {}", cellDoc.getDocumentReference(), ret);
+    return ret;
   }
 
   protected final Optional<DocumentReference> resolve(String fullName) {
@@ -179,12 +187,6 @@ public class DefaultAutocomplete implements AutocompleteRole {
       log.debug("unable to resolve ref: {}", exc.getMessage(), exc);
       return Optional.empty();
     }
-  }
-
-  private <T> Optional<T> findFirstPresent(Stream<Supplier<Optional<T>>> suppliers) {
-    return suppliers.map(Supplier::get)
-        .filter(Optional::isPresent).map(Optional::get)
-        .findFirst();
   }
 
 }

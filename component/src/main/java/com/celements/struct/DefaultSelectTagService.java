@@ -33,8 +33,10 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
+import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.struct.edit.autocomplete.AutocompleteRole;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.web.Utils;
 
 @Component
 public class DefaultSelectTagService implements SelectTagServiceRole {
@@ -43,9 +45,6 @@ public class DefaultSelectTagService implements SelectTagServiceRole {
 
   @Requirement
   private IModelAccessFacade modelAccess;
-
-  @Requirement
-  private StructUtilServiceRole structUtils;
 
   @Override
   public Optional<AutocompleteRole> getTypeImpl(DocumentReference cellDocRef) {
@@ -63,14 +62,24 @@ public class DefaultSelectTagService implements SelectTagServiceRole {
   public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef) {
     Optional<DocumentReference> selectCellDocRef = Optional.empty();
     try {
-      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      selectCellDocRef = structUtils.findParentCell(cellDoc, PAGETYPE_NAME)
-          .map(XWikiDocument::getDocumentReference);
+      selectCellDocRef = modelAccess.streamParents(modelAccess.getDocument(cellDocRef))
+          .filter(doc -> getPtResolver().resolvePageTypeReference(doc).toJavaUtil()
+              .filter(ptRef -> ptRef.getConfigName().equals(PAGETYPE_NAME))
+              .isPresent())
+          .map(XWikiDocument::getDocumentReference)
+          .findFirst();
       LOGGER.debug("getSelectCellDocRef: '{}' for cell '{}'", selectCellDocRef, cellDocRef);
     } catch (DocumentNotExistsException exc) {
       LOGGER.warn("parent on doc '{}' doesn't exist", cellDocRef, exc);
     }
     return selectCellDocRef;
+  }
+
+  /**
+   * CAUTION: cyclic dependency with struct pageTypes like OptionTagPageType
+   */
+  private IPageTypeResolverRole getPtResolver() {
+    return Utils.getComponent(IPageTypeResolverRole.class);
   }
 
 }

@@ -43,41 +43,30 @@ public class TableClass extends AbstractClassDefinition implements StructDataCla
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
   public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
-  public static final ClassField<String> FIELD_QUERY = new LargeStringField.Builder(CLASS_DEF_HINT,
-      "query").build();
+  public static final ClassField<String> FIELD_QUERY = new LargeStringField.Builder(
+      CLASS_REF, "query").build();
 
   public static final ClassField<List<String>> FIELD_SORT_FIELDS = new StringListField.Builder<>(
-      CLASS_DEF_HINT, "sort_fields").multiSelect(true).separator(",").displayType(
-          DisplayType.input).size(30).build();
+      CLASS_REF, "sort_fields").multiSelect(true).separator(",").displayType(DisplayType.input)
+          .size(30).build();
 
-  public static final ClassField<Integer> FIELD_RESULT_LIMIT = new IntField.Builder(CLASS_DEF_HINT,
-      "result_limit").build();
+  public static final ClassField<Integer> FIELD_RESULT_LIMIT = new IntField.Builder(
+      CLASS_REF, "result_limit").build();
 
-  public static final ClassField<String> FIELD_CSS_ID = new StringField.Builder(CLASS_DEF_HINT,
-      "css_id").build();
+  public static final ClassField<String> FIELD_CSS_ID = new StringField.Builder(
+      CLASS_REF, "css_id").build();
 
   public static final ClassField<List<String>> FIELD_CSS_CLASSES = new StringListField.Builder<>(
-      CLASS_DEF_HINT, "css_classes").multiSelect(true).separator(", ").displayType(
-          DisplayType.input).size(30).build();
+      CLASS_REF, "css_classes").multiSelect(true).separator(", ").displayType(DisplayType.input)
+          .size(30).build();
 
-  @Override
-  public String getName() {
-    return CLASS_DEF_HINT;
+  public TableClass() {
+    super(CLASS_REF);
   }
 
   @Override
   public boolean isInternalMapping() {
     return false;
-  }
-
-  @Override
-  protected String getClassSpaceName() {
-    return SPACE_NAME;
-  }
-
-  @Override
-  protected String getClassDocName() {
-    return DOC_NAME;
   }
 
 }

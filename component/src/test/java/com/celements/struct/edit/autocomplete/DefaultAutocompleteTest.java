@@ -11,7 +11,6 @@ import org.easymock.Capture;
 import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.model.reference.ImmutableDocumentReference;
 
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
@@ -34,8 +33,7 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   private XWikiDocument doc;
   private XWikiDocument cellDoc;
-  private final DocumentReference selectedDocRef = new ImmutableDocumentReference("wiki", "space",
-      "target");
+  private final DocumentReference selectedDocRef = new DocumentReference("wiki", "space", "target");
   private StructuredDataEditorService structMock;
 
   @Before

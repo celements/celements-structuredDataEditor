@@ -43,40 +43,29 @@ public class TableColumnClass extends AbstractClassDefinition implements StructD
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
   public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
 
-  public static final ClassField<String> FIELD_NAME = new StringField.Builder(CLASS_DEF_HINT,
-      "name").build();
+  public static final ClassField<String> FIELD_NAME = new StringField.Builder(
+      CLASS_REF, "name").build();
 
-  public static final ClassField<String> FIELD_TITLE = new StringField.Builder(CLASS_DEF_HINT,
-      "title").build();
+  public static final ClassField<String> FIELD_TITLE = new StringField.Builder(
+      CLASS_REF, "title").build();
 
   public static final ClassField<String> FIELD_CONTENT = new LargeStringField.Builder(
-      CLASS_DEF_HINT, "content").build();
+      CLASS_REF, "content").build();
 
-  public static final ClassField<Integer> FIELD_ORDER = new IntField.Builder(CLASS_DEF_HINT,
-      "order").build();
+  public static final ClassField<Integer> FIELD_ORDER = new IntField.Builder(
+      CLASS_REF, "order").build();
 
   public static final ClassField<List<String>> FIELD_CSS_CLASSES = new StringListField.Builder<>(
-      CLASS_DEF_HINT, "css_classes").multiSelect(true).separator(", ").displayType(
-          DisplayType.input).size(30).build();
+      CLASS_REF, "css_classes").multiSelect(true).separator(", ").displayType(DisplayType.input)
+          .size(30).build();
 
-  @Override
-  public String getName() {
-    return CLASS_DEF_HINT;
+  public TableColumnClass() {
+    super(CLASS_REF);
   }
 
   @Override
   public boolean isInternalMapping() {
     return false;
-  }
-
-  @Override
-  protected String getClassSpaceName() {
-    return SPACE_NAME;
-  }
-
-  @Override
-  protected String getClassDocName() {
-    return DOC_NAME;
   }
 
 }
