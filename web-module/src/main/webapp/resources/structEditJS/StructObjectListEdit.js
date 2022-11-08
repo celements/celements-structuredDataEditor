@@ -5,7 +5,7 @@
   const _REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
   const _START_CREATE_OBJ_NB = -2; // skip -1 in case it's already used statically in an editor
   const _nextCreateObjectNbMap = {};
-  
+
   const init_structObjectListEdit = function() {
     moveTemplatesOutOfForm();
     observeCreateObject();
@@ -14,7 +14,7 @@
 
   const moveTemplatesOutOfForm = function() {
     document.querySelectorAll('ul.struct_object li.struct_object_creation').forEach(element => {
-      const template = element.querySelector('.cel_template');
+      const template = element.querySelector('template.cel_template');
       const form = element.closest('form');
       if (template && form) {
         const objectClassName = element.closest('ul.struct_object')
@@ -27,10 +27,8 @@
   };
 
   const observeCreateObject = function() {
-    $$('ul.struct_object li.struct_object_creation a').each(function(link) {
-      link.stopObserving('click', createObject);
-      link.observe('click', createObject);
-    });
+    document.querySelectorAll('ul.struct_object li.struct_object_creation a.create')
+      .forEach(link => link.addEventListener('click', createObject));
   };
 
   const createObject = function(event) {
@@ -54,13 +52,13 @@
   };
 
   const createEntryFor = function(objectClassName) {
-    const objCssClass = '.' + (objectClassName.replace('.', '_') || 'none');
-    const template = document.querySelector('.cel_template' + objCssClass);
+    const objCssClass = objectClassName.replace('.', '_') || 'none';
+    const template = document.querySelector('template.cel_template.' + objCssClass);
     if (template) {
       const entry = document.createElement("li");
       entry.classList.add('struct_object_created');
       entry.style.display = "none";
-      entry.innerHTML = template.innerHTML;
+      entry.appendChild(template.content.cloneNode(true));
       const objectNb = _nextCreateObjectNbMap[objectClassName] || _START_CREATE_OBJ_NB;
       if (setObjectNbIn(entry, _FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
         setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
