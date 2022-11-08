@@ -97,7 +97,12 @@
       if (data.loading) return data.text;
       const templates = window.CELEMENTS.structEdit.autocomplete.templates;
       const templateBuilder = templates[type] || templates.default;
-      return templateBuilder(data);
+      const template = templateBuilder(data);
+      if (customElements.get('cel-data')) {
+        template.querySelectorAll('cel-data')
+          .forEach(celData => celData.updateData(data));
+      }
+      return template;
     };
   };
 
