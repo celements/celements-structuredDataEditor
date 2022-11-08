@@ -9,7 +9,7 @@
 <!-- fieldName: $!fieldName -->
 
 #set($className = $classRef.name.replace('Class', ''))
-#foreach($layoutName in ["$!objectRowLayoutName", "ObjectList-Row-$!className", "$!{className}-EditField"])
+#foreach($layoutName in ["$!objectRowLayoutName", "ObjectList-Row-$!className", "$!{className}-EditFields"])
   #set($layoutRef = $services.reference.create().space($layoutName).build())
   #set($objectRowLayout = $services.layout.getPageLayoutApiForRef($layoutRef))
   #if($objectRowLayout)#break#end
