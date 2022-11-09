@@ -139,8 +139,8 @@
           }
           const saveEvent = _me._editorManager.celFire(
             'structEdit:saveAndContinueButtonSuccessful', { jsonResponses });
-          if (saveEvent.reload) {
-            console.log('saveClickHandler: reload page after saveAndContinue', saveEvent);
+          if ((saveEvent.detail || saveEvent.memo).reload) {
+            console.log('saveClickHandler: reload flag set', saveEvent);
             window.onbeforeunload = null;
             window.location.reload();
           }
