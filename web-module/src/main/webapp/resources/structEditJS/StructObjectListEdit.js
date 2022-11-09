@@ -7,23 +7,8 @@
   const _nextCreateObjectNbMap = {};
 
   const init_structObjectListEdit = function() {
-    moveTemplatesOutOfForm();
     observeCreateObject();
     observeDeleteObject();
-  };
-
-  const moveTemplatesOutOfForm = function() {
-    document.querySelectorAll('ul.struct_object li.struct_object_creation').forEach(element => {
-      const template = element.querySelector('template.cel_template');
-      const form = element.closest('form');
-      if (template && form) {
-        const objectClassName = element.closest('ul.struct_object')
-            .getAttribute('data-struct-class') || '';
-        template.classList.add(objectClassName.replace('.', '_'));
-        form.after(template);
-        console.debug('moveTemplatesOutOfForm - moved ', template);
-      }
-    });
   };
 
   const observeCreateObject = function() {
@@ -35,25 +20,24 @@
     event.stop();
     const objectList = event.target.closest('ul.struct_object');
     if (objectList) {
-      const objectClassName = objectList.dataset.structClass;
-      const newEntry = createEntryFor(objectClassName);
+      const newEntry = createEntryFor(objectList);
       if (newEntry) {
         objectList.appendChild(newEntry);
         $j(newEntry).fadeIn();
         observeDeleteObject();
         newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
-        console.debug('createObject - new object for ', objectClassName, ': ', newEntry);
+        console.debug('createObject - new object for ', objectList, ': ', newEntry);
       } else {
-        console.warn('createObject - illegal template for ', objectClassName);
+        console.warn('createObject - illegal template for ', objectList);
       }
     } else {
       console.warn('createObject - missing list ', objectList);
     }
   };
 
-  const createEntryFor = function(objectClassName) {
-    const objCssClass = objectClassName.replace('.', '_') || 'none';
-    const template = document.querySelector('template.cel_template.' + objCssClass);
+  const createEntryFor = function(objectList) {
+    const objectClassName = objectList.dataset.structClass;
+    const template = objectList.querySelector('li.struct_object_creation template.cel_template');
     if (template) {
       const entry = document.createElement("li");
       entry.classList.add('struct_object_created');
