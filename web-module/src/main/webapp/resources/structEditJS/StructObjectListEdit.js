@@ -112,8 +112,9 @@
     }
   };
 
-  const markForReload = function(event) {
-    (event.detail || event.memo).reload = Object.values(_nextCreateObjectNbMap)
+  const markReload = function(event) {
+    const detail = (event.detail || event.memo);
+    detail.reload = detail.reload || Object.values(_nextCreateObjectNbMap)
       .some(objNb => objNb < _START_CREATE_OBJ_NB);
   };
 
@@ -121,12 +122,12 @@
     const structManager = window.celStructEditorManager;
     if (structManager) {
       if (structManager.isStartFinished()) {
-        structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', markForReload);
+        structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', markReload);
       } else {
         structManager.celObserve('structEdit:finishedLoading', reloadOnSaveHandler);
       }
     } else {
-      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', markForReload);
+      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', markReload);
     }
   };
 
