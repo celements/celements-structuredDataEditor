@@ -12,7 +12,7 @@
   };
 
   const observeCreateObject = function() {
-    document.querySelectorAll('ul.struct_object li.struct_object_creation a.create')
+    document.querySelectorAll('ul.struct_object a.struct_object_create')
       .forEach(link => link.addEventListener('click', createObject));
   };
 
@@ -37,7 +37,7 @@
 
   const createEntryFor = function(objectList) {
     const objectClassName = objectList.dataset.structClass;
-    const template = objectList.querySelector('li.struct_object_creation template.cel_template');
+    const template = objectList.querySelector('li.struct_object_header template.cel_template');
     if (template) {
       const entry = document.createElement("li");
       entry.classList.add('struct_object_created');
@@ -66,7 +66,7 @@
 
 
   const observeDeleteObject = function() {
-    const selector = 'ul.struct_object li a.struct_object_delete';
+    const selector = 'ul.struct_object a.struct_object_delete';
     document.querySelectorAll(selector).forEach(link => {
       link.removeEventListener('click', deleteObject);
       link.addEventListener('click', deleteObject);

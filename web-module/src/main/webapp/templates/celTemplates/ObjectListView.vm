@@ -21,13 +21,13 @@
   <!-- objectRowLayout: $!objectRowLayout.layoutSpaceRef -->
   #if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings icon-plus") #end
   #if("$!iconDeleteCssClass" == '') #set($iconDeleteCssClass = "halflings icon-trash") #end
-  <li class="struct_object_creation">
+  <li class="struct_object_header">
     #if($objectHeaderLayout)
     <!-- objectHeaderLayout: $!objectHeaderLayout.layoutSpaceRef -->
     $!services.layout.renderPageLayout($objectHeaderLayout.layoutSpaceRef)
     #else
     <label class="struct_object_label">$adminMsg.get($services.model.serialize($classRef))</label>
-    <a class="create" href="#"><i class="icon $!{iconCreateCssClass}" title="create"></i></a>
+    <a class="struct_object_create" href="#"><i class="icon $!{iconCreateCssClass}" title="create"></i></a>
     #end
     <template class="cel_template">
       $!services.celementsweb.setGlobalContextValue('cell.number', -1)
