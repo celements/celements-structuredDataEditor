@@ -137,13 +137,15 @@
           } catch (err) {
             console.error('_saveClickHandler: error in saveAndContinue callback ', err);
           }
-          _me._editorManager.celFire('structEdit:saveAndContinueButtonSuccessful', {
-            'jsonResponses' :jsonResponses
-          });
+          const saveEvent = _me._editorManager.celFire(
+            'structEdit:saveAndContinueButtonSuccessful', { jsonResponses });
+          if (saveEvent.reload) {
+            console.log('saveClickHandler: reload page after saveAndContinue', saveEvent);
+            window.onbeforeunload = null;
+            window.location.reload();
+          }
         } else {
-          _me._editorManager.celFire('structEdit:saveAndContinueButtonFailed', {
-            'jsonResponses' :jsonResponses
-          });
+          _me._editorManager.celFire('structEdit:saveAndContinueButtonFailed', { jsonResponses });
         }
       });
     }

@@ -112,26 +112,21 @@
     }
   };
 
-  const reloadPage = function() {
-    for (const objNb of Object.values(_nextCreateObjectNbMap)) {
-      if (objNb < _START_CREATE_OBJ_NB) {
-        window.onbeforeunload = null;
-        location.reload();
-        break;
-      }
-    }
+  const markForReload = function(event) {
+    (event.detail || event.memo).reload = Object.values(_nextCreateObjectNbMap)
+      .some(objNb => objNb < _START_CREATE_OBJ_NB);
   };
 
   const reloadOnSaveHandler = function() {
     const structManager = window.celStructEditorManager;
     if (structManager) {
       if (structManager.isStartFinished()) {
-        structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', reloadPage);
+        structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', markForReload);
       } else {
         structManager.celObserve('structEdit:finishedLoading', reloadOnSaveHandler);
       }
     } else {
-      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', reloadPage);
+      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', markForReload);
     }
   };
 
