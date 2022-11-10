@@ -19,6 +19,7 @@
 
 #if($objectRowLayout)
   <!-- objectRowLayout: $!objectRowLayout.layoutSpaceRef -->
+  $services.javascript.addExtJSfileOnce(':structEditJS/CelStructList.mjs', 'file')
   #if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings icon-plus") #end
   #if("$!iconDeleteCssClass" == '') #set($iconDeleteCssClass = "halflings icon-trash") #end
   <li class="struct_object_header">
