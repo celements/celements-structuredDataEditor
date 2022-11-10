@@ -19,12 +19,14 @@
  */
 package com.celements.structEditor;
 
-import java.util.ArrayList;
+import static java.util.stream.Collectors.*;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +38,8 @@ import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.script.service.ScriptService;
 
-import com.celements.common.lambda.LambdaExceptionUtil.ThrowingFunction;
+import com.celements.common.MoreOptional;
 import com.celements.model.access.IModelAccessFacade;
-import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.rights.access.EAccessLevel;
@@ -91,33 +91,34 @@ public class StructuredDataEditorScriptService implements ScriptService {
   }
 
   public String getPrettyName(DocumentReference cellDocRef) {
-    return getFromCellDocRef(cellDocRef, service::getPrettyName)
-        .orElse(Optional.empty())
+    return getFromCellDoc(cellDocRef, service::getPrettyName)
         .orElse("");
   }
 
   public Map<String, String> getTextAttributes(DocumentReference cellDocRef) {
-    final Map<String, String> retMap = new LinkedHashMap<>();
-    getFromCellDoc(cellDocRef, cellDoc -> {
+    return getFromCellDoc(cellDocRef, cellDoc -> {
+      Map<String, String> retMap = new LinkedHashMap<>();
       retMap.put("type", "text");
       addNameAttributeToMap(retMap, cellDoc);
       retMap.put("value", context.getCurrentDoc().toJavaUtil()
           .map(XWikiDocument::getTemplate).orElse(""));
-      return Optional.empty();
-    });
-    return retMap;
+      return Optional.of(retMap);
+    }).orElseGet(LinkedHashMap::new);
   }
 
   public Map<String, String> getTextAreaAttributes(DocumentReference cellDocRef) {
-    final Map<String, String> retMap = new LinkedHashMap<>();
-    getFromCellDoc(cellDocRef, cellDoc -> {
+    return getFromCellDoc(cellDocRef, cellDoc -> {
+      Map<String, String> retMap = new LinkedHashMap<>();
       addNameAttributeToMap(retMap, cellDoc);
-      addAttributeToMap(retMap, "rows", cellDoc, TextAreaFieldEditorClass.FIELD_ROWS);
-      addAttributeToMap(retMap, "cols", cellDoc, TextAreaFieldEditorClass.FIELD_COLS);
-      addAttributeToMap(retMap, "isRichtext", cellDoc, TextAreaFieldEditorClass.FIELD_IS_RICHTEXT);
-      return Optional.empty();
-    });
-    return retMap;
+      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc);
+      fetcher.fetchField(TextAreaFieldEditorClass.FIELD_ROWS).stream()
+          .forEach(val -> retMap.put("rows", val.toString()));
+      fetcher.fetchField(TextAreaFieldEditorClass.FIELD_COLS).stream()
+          .forEach(val -> retMap.put("cols", val.toString()));
+      fetcher.fetchField(TextAreaFieldEditorClass.FIELD_IS_RICHTEXT).stream()
+          .forEach(val -> retMap.put("isRichtext", val.toString()));
+      return Optional.of(retMap);
+    }).orElseGet(LinkedHashMap::new);
   }
 
   public String getTextAreaContent(DocumentReference cellDocRef) {
@@ -126,22 +127,21 @@ public class StructuredDataEditorScriptService implements ScriptService {
             .orElse("");
   }
 
-  private void addAttributeToMap(Map<String, String> map, String attrName, XWikiDocument cellDoc,
-      ClassField<?> field) {
-    modelAccess.getFieldValue(cellDoc, field).toJavaUtil()
-        .map(Object::toString)
-        .ifPresent(val -> map.put(attrName, val));
-  }
-
   private void addNameAttributeToMap(Map<String, String> map, XWikiDocument cellDoc) {
     service.getAttributeName(cellDoc, context.getCurrentDoc().orNull())
         .ifPresent(val -> map.put("name", val));
   }
 
+  public List<com.xpn.xwiki.api.Object> getObjectsForCell(DocumentReference cellDocRef) {
+    return streamFromCellDoc(cellDocRef, cellDoc -> service
+        .streamXObjectsForCell(cellDoc, context.getCurrentDoc().orNull()))
+            .map(o -> new com.xpn.xwiki.api.Object(o, context.getXWikiContext()))
+            .collect(toList());
+  }
+
   public String getCellValueAsString(DocumentReference cellDocRef) {
-    return getFromCellDocRef(cellDocRef,
-        ref -> service.getCellValueAsString(cellDocRef, context.getCurrentDoc().orNull()))
-            .orElse(Optional.empty())
+    return getFromCellDoc(cellDocRef, cellDoc -> service
+        .getCellValueAsString(cellDoc, context.getCurrentDoc().orNull()))
             .orElse("");
   }
 
@@ -151,8 +151,9 @@ public class StructuredDataEditorScriptService implements ScriptService {
   }
 
   public List<String> getCellListValue(DocumentReference cellDocRef) {
-    return getFromCellDocRef(cellDocRef, ref -> service.getCellListValue(ref,
-        context.getCurrentDoc().orNull())).orElseGet(ArrayList::new);
+    return streamFromCellDoc(cellDocRef, cellDoc -> service
+        .getCellListValue(cellDoc, context.getCurrentDoc().orNull()).stream())
+            .collect(toList());
   }
 
   public com.google.common.base.Optional<com.xpn.xwiki.api.PropertyClass> getCellPropertyClass(
@@ -199,20 +200,14 @@ public class StructuredDataEditorScriptService implements ScriptService {
         .flatMap(onDoc -> service.getLangNameAttribute(cellDoc, onDoc)));
   }
 
-  private <T> Optional<T> getFromCellDocRef(DocumentReference cellDocRef,
-      ThrowingFunction<DocumentReference, T, DocumentNotExistsException> func) {
-    try {
-      if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
-        return Optional.ofNullable(func.apply(cellDocRef));
-      }
-    } catch (Exception exc) {
-      LOGGER.info("getFromCellDocRef - failed for [{}]", cellDocRef, exc);
-    }
-    return Optional.empty();
-  }
-
   private <T> Optional<T> getFromCellDoc(DocumentReference cellDocRef,
       Function<XWikiDocument, Optional<T>> func) {
+    return streamFromCellDoc(cellDocRef, func.andThen(MoreOptional::stream))
+        .findFirst();
+  }
+
+  private <T> Stream<T> streamFromCellDoc(DocumentReference cellDocRef,
+      Function<XWikiDocument, Stream<T>> func) {
     try {
       if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
         return func.apply(modelAccess.getDocument(cellDocRef));
@@ -220,6 +215,6 @@ public class StructuredDataEditorScriptService implements ScriptService {
     } catch (Exception exc) {
       LOGGER.info("getFromCellDoc - failed for [{}]", cellDocRef, exc);
     }
-    return Optional.empty();
+    return Stream.empty();
   }
 }

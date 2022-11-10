@@ -106,7 +106,7 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
         .andReturn(Optional.of("Space.Class_0_field"));
     expect(structDataEditorSrvMock.getAttributeName(cellDoc, null))
         .andReturn(Optional.of("Space.Class_field"));
-    expect(structDataEditorSrvMock.getCellValueAsString(cellDoc.getDocumentReference(), currentDoc))
+    expect(structDataEditorSrvMock.getCellValueAsString(cellDoc, currentDoc))
         .andReturn(Optional.of("Space.Class"));
     expect(selectTagSrvMock.getTypeImpl(cellDoc.getDocumentReference()))
         .andReturn(Optional.of(autocompleteMock));

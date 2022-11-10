@@ -82,7 +82,7 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
         getContext().getDatabase(), "Layout", "Cell"));
     expect(structDataEditorSrvMock.getAttributeName(same(cellDoc), same(getContext().getDoc())))
         .andReturn(Optional.of("Space.Class_1_field"));
-    expect(structDataEditorSrvMock.getCellValueAsString(eq(cellDoc.getDocumentReference()),
+    expect(structDataEditorSrvMock.getCellValueAsString(same(cellDoc),
         same(getContext().getDoc()))).andReturn(Optional.of("3421"));
     AttributeBuilder attributes = new DefaultAttributeBuilder();
 

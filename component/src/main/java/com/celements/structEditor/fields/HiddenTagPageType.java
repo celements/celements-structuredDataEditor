@@ -66,7 +66,7 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
           name = getStructDataEditorService().getAttributeName(cellDoc, onDoc);
         }
         if (!value.isPresent()) {
-          value = getStructDataEditorService().getCellValueAsString(cellDocRef, onDoc);
+          value = getStructDataEditorService().getCellValueAsString(cellDoc, onDoc);
         }
       }
       if (!value.isPresent() && name.isPresent()) {

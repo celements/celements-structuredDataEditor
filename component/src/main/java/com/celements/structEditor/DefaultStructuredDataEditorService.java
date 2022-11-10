@@ -45,12 +45,10 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.context.Execution;
 import org.xwiki.model.reference.ClassReference;
-import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.common.MoreOptional;
 import com.celements.model.access.IModelAccessFacade;
-import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.classes.ClassIdentity;
 import com.celements.model.classes.fields.ClassField;
@@ -63,12 +61,12 @@ import com.celements.model.field.XObjectStringFieldAccessor;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.service.IPageTypeResolverRole;
-import com.celements.struct.SelectTagServiceRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.velocity.VelocityService;
 import com.celements.web.classes.KeyValueClass;
+import com.celements.web.comparators.BaseObjectComparator;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -106,9 +104,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Requirement
   private ModelContext context;
-
-  @Requirement
-  private SelectTagServiceRole selectTagService;
 
   @Requirement
   protected VelocityService velocityService;
@@ -163,10 +158,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public Optional<String> getPrettyName(DocumentReference cellDocRef)
-      throws DocumentNotExistsException {
+  public Optional<String> getPrettyName(XWikiDocument cellDoc) {
     String prettyName = "";
-    XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
     String dictKey = Stream.of(
         resolveFormPrefix(cellDoc),
         getAttributeName(cellDoc, null),
@@ -189,9 +182,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public Optional<String> getDateFormatFromField(DocumentReference cellDocRef)
-      throws DocumentNotExistsException {
-    XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+  public Optional<String> getDateFormatFromField(XWikiDocument cellDoc) {
     Optional<PropertyClass> field = getCellPropertyClass(cellDoc);
     if (field.isPresent() && (field.get() instanceof DateClass)) {
       DateClass dateField = (DateClass) field.get();
@@ -259,12 +250,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public Optional<String> getCellValueAsString(DocumentReference cellDocRef, XWikiDocument onDoc)
-      throws DocumentNotExistsException {
-    return getCellValueAsString(modelAccess.getDocument(cellDocRef), onDoc);
-  }
-
-  @Override
   public Optional<String> getCellValueAsString(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return Optional.ofNullable(getCellValue(cellDoc, onDoc))
         .flatMap(value -> trySerializeForCustomClassField(cellDoc, value))
@@ -292,9 +277,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public Optional<Date> getCellDateValue(DocumentReference cellDocRef, XWikiDocument onDoc)
-      throws DocumentNotExistsException {
-    Object value = getCellValue(modelAccess.getDocument(cellDocRef), onDoc);
+  public Optional<Date> getCellDateValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    Object value = getCellValue(cellDoc, onDoc);
     if (value instanceof Date) {
       return Optional.of((Date) value);
     }
@@ -302,10 +286,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  public List<String> getCellListValue(DocumentReference cellDocRef, XWikiDocument onDoc)
-      throws DocumentNotExistsException {
+  public List<String> getCellListValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
     List<String> ret = new ArrayList<>();
-    Object value = getCellValue(modelAccess.getDocument(cellDocRef), onDoc);
+    Object value = getCellValue(cellDoc, onDoc);
     if (value instanceof List) {
       for (Object elem : (List<?>) value) {
         ret.add(elem != null ? elem.toString() : "");
@@ -346,12 +329,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
-  @Deprecated
-  public Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef) {
-    return selectTagService.getSelectCellDocRef(cellDocRef);
-  }
-
-  @Override
   public Optional<BaseObject> getXObjectInStructEditor(XWikiDocument cellDoc, XWikiDocument onDoc) {
     Optional<BaseObject> ret = Optional.empty();
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
@@ -366,6 +343,16 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         + "{}", cellDoc, onDoc, classRef.orElse(null), ret.map(BaseObject::getNumber).orElse(null),
         ret.orElse(null));
     return ret;
+  }
+
+  @Override
+  public Stream<BaseObject> streamXObjectsForCell(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    Stream<BaseObject> objs = (onDoc != null)
+        ? newXObjFetcher(cellDoc, onDoc).stream()
+        : Stream.empty();
+    getCellFieldName(cellDoc).ifPresent(fieldName -> objs.sorted(new BaseObjectComparator(
+        fieldName.replaceFirst("-", ""), !fieldName.startsWith("-"), null, false)));
+    return objs;
   }
 
   private Optional<Integer> getContextDependentObjNb(XWikiDocument cellDoc) {
@@ -449,12 +436,13 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    return XWikiObjectFetcher.on(onDoc)
-        .filter(getCellClassRef(cellDoc).orElseThrow(IllegalStateException::new))
-        .filter(getKeyValueXObjFilters(cellDoc, LABELS_AND).reduce((a, b) -> a.and(b))
-            .orElse(alwaysTrue()))
-        .filter(getKeyValueXObjFilters(cellDoc, LABELS_OR).reduce((a, b) -> a.or(b))
-            .orElse(alwaysTrue()));
+    XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(onDoc);
+    getCellClassRef(cellDoc).ifPresent(fetcher::filter);
+    getKeyValueXObjFilters(cellDoc, LABELS_AND).reduce((a, b) -> a.and(b))
+        .ifPresent(fetcher::filter);
+    getKeyValueXObjFilters(cellDoc, LABELS_OR).reduce((a, b) -> a.or(b))
+        .ifPresent(fetcher::filter);
+    return fetcher;
   }
 
   private Stream<Predicate<BaseObject>> getKeyValueXObjFilters(XWikiDocument cellDoc,
