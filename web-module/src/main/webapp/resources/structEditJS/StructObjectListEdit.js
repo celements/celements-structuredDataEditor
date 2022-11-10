@@ -1,98 +1,101 @@
-(function(window, undefined) {
-  "use strict";
+const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
+const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
+const START_CREATE_OBJ_NB = -2; // skip -1 in case it's already used statically in an editor
 
-  const _FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
-  const _REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
-  const _START_CREATE_OBJ_NB = -2; // skip -1 in case it's already used statically in an editor
-  const _nextCreateObjectNbMap = {};
+class CelStructList extends HTMLUListElement {
 
-  const init_structObjectListEdit = function() {
-    observeCreateObject();
-    observeDeleteObject();
-  };
+  #nextCreateObjectNb = START_CREATE_OBJ_NB;
 
-  const observeCreateObject = function() {
-    document.querySelectorAll('ul.struct_object a.struct_object_create')
-      .forEach(link => link.addEventListener('click', createObject));
-  };
+  constructor() {
+    super();
+  }
 
-  const createObject = function(event) {
-    event.stop();
-    const objectList = event.target.closest('ul.struct_object');
-    if (objectList) {
-      const newEntry = createEntryFor(objectList);
-      if (newEntry) {
-        objectList.appendChild(newEntry);
-        $j(newEntry).fadeIn();
-        observeDeleteObject();
-        newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
-        console.debug('createObject - new object for ', objectList, ': ', newEntry);
-      } else {
-        console.warn('createObject - illegal template for ', objectList);
-      }
-    } else {
-      console.warn('createObject - missing list ', objectList);
+  connectedCallback() {
+    console.debug('connectedCallback', this.isConnected, this);
+    this.#observeCreate();
+    this.#observeDelete();
+    this.#observeSaveAndContinue();
+  }
+
+  #observeCreate() {
+    this.#observe('a.struct_object_create', () => this.create());
+  }
+
+  #observeDelete(entry) {
+    this.#observe('a.struct_object_delete', e => this.delete(e), entry);
+  }
+
+  #observe(selector, action, entry) {
+    (entry || this).querySelectorAll(selector)
+      .forEach(link => link.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        action(entry || event.target.closest('li'));
+      }));
+  }
+
+  get template() {
+    return this.querySelector('template.cel_template');
+  }
+  
+  create() {
+    const newEntry = this.#newEntry();
+    if (newEntry) {
+      this.appendChild(newEntry);
+      $j(newEntry).fadeIn();
+      this.#observeDelete(newEntry);
+      newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
+      console.debug('create - new object for ', this, ': ', newEntry);
+      return newEntry;
     }
-  };
-
-  const createEntryFor = function(objectList) {
-    const objectClassName = objectList.dataset.structClass;
-    const template = objectList.querySelector('li.struct_object_header template.cel_template');
-    if (template) {
+  }
+  
+  #newEntry() {
+    if (this.template) {
       const entry = document.createElement("li");
       entry.classList.add('struct_object_created');
       entry.style.display = "none";
-      entry.appendChild(template.content.cloneNode(true));
-      const objectNb = _nextCreateObjectNbMap[objectClassName] || _START_CREATE_OBJ_NB;
-      if (setObjectNbIn(entry, _FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
-        setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
-        setObjectNbIn(entry, 'label', 'for', objectNb);
-        _nextCreateObjectNbMap[objectClassName] = objectNb - 1;
+      entry.appendChild(this.template.content.cloneNode(true));
+      const objectNb = this.#nextCreateObjectNb;
+      if (this.#setObjectNbIn(entry, FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
+        this.#setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
+        this.#setObjectNbIn(entry, 'label', 'for', objectNb);
+        this.#nextCreateObjectNb--;
         return entry;
       }
+    } else {
+      console.warn('create - illegal template for ', this);
     }
-  };
+  }
 
-  const setObjectNbIn = function(entry, selector, key, objectNb) {
+  #setObjectNbIn(entry, selector, key, objectNb) {
     let changed = false;
     entry.querySelectorAll(selector).forEach(elem => {
       const oldValue = (elem.getAttribute(key) || '');
-      const newValue = oldValue.replace(_REGEX_OBJ_NB, '$1' + objectNb + '$3');
+      const newValue = oldValue.replace(REGEX_OBJ_NB, '$1' + objectNb + '$3');
       elem.setAttribute(key, newValue);
       changed = (changed || (oldValue !== newValue));
     });
     return changed;
-  };
-
-
-  const observeDeleteObject = function() {
-    const selector = 'ul.struct_object a.struct_object_delete';
-    document.querySelectorAll(selector).forEach(link => {
-      link.removeEventListener('click', deleteObject);
-      link.addEventListener('click', deleteObject);
-    });
-  };
-
-  const deleteObject = function(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const entry = event.target.closest('li');
-    const fields = extractFields(entry);
+  }
+  
+  delete(entry) {
+    const fields = entry ? this.#extractFields(entry) : [];
     if (fields.length === 0) {
-      console.warn('deleteObject - unable to extract field data from', entry);
+      console.warn('delete - unable to extract field data from', entry);
     } else if (confirm(window.celMessages.structEditor.objectRemoveConfirm)) {
-      fields.forEach(markObjectAsDeleted);
+      fields.forEach(this.#markObjectAsDeleted);
       $j(entry).fadeOut(400, function() {
         if (entry.classList.contains('struct_object_created')) {
           entry.remove();
         }
       });
-      console.debug('deleteObject - removed: ', entry);
+      console.debug('delete - removed: ', entry);
     }
-  };
-
-  const extractFields = function(entry) {
-    return [...entry.querySelectorAll(_FORM_ELEM_TAGS.join(','))].map(formElem => {
+  }
+  
+  #extractFields(entry) {
+    return [...entry.querySelectorAll(FORM_ELEM_TAGS.join(','))].map(formElem => {
       // name="Space.Class_1_field"
       const nameParts = (formElem?.getAttribute('name') || '').split('_');
       return {
@@ -101,42 +104,32 @@
         objNb: parseInt(nameParts[1], 10),
       };
     }).filter(f => !isNaN(f.objNb));
-  };
-
-  const markObjectAsDeleted = function(field) {
+  }
+  
+  #markObjectAsDeleted(field) {
     if (field.objNb >= 0) {
       const nameParts = [... field.nameParts];
       // ^ in front of the object number is the delete marker
       nameParts[1] = "^" + nameParts[1];
       field.formElem.setAttribute("name", nameParts.join('_'));
     }
-  };
+  }
 
-  const markReload = function(event) {
-    const detail = (event.detail || event.memo);
-    detail.reload = detail.reload || Object.values(_nextCreateObjectNbMap)
-      .some(objNb => objNb < _START_CREATE_OBJ_NB);
-  };
-
-  const reloadOnSaveHandler = function() {
+  #observeSaveAndContinue() {
     const structManager = window.celStructEditorManager;
     if (structManager) {
-      if (structManager.isStartFinished()) {
-        structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', markReload);
-      } else {
-        structManager.celObserve('structEdit:finishedLoading', reloadOnSaveHandler);
-      }
-    } else {
-      $(document.body).observe('tabedit:saveAndContinueButtonSuccessful', markReload);
+      structManager.isStartFinished()
+        ? structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', event => this.#markReload(event))
+        : structManager.celObserve('structEdit:finishedLoading', event => this.#observeSaveAndContinue());
     }
-  };
+  }
+  
+  #markReload(event) {
+    const detail = (event.detail || event.memo);
+    detail.reload = detail.reload || (this.#nextCreateObjectNb < START_CREATE_OBJ_NB);
+  }
+}
 
-  const onReady = callback => (document.readyState === 'loading')
-      ? document.addEventListener('DOMContentLoaded', callback)
-      : callback();
-
-  onReady(init_structObjectListEdit);
-  onReady(reloadOnSaveHandler);
-  $(document.body).observe('celements:contentChanged', init_structObjectListEdit);
-
-})(window);
+if (!customElements.get('cel-struct-list')) {
+  customElements.define('cel-struct-list', CelStructList, { extends: 'ul' });
+}
