@@ -87,7 +87,7 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
       }
       fetcher.fetchField(FIELD_AUTOCOMPLETE_SEPARATOR).stream().findFirst()
           .ifPresent(separator -> attrBuilder.addNonEmptyAttribute("data-separator", separator));
-      getStructDataEditorService().getCellValueAsString(cellDocRef, currDoc)
+      getStructDataEditorService().getCellValueAsString(cellDoc, currDoc)
           .ifPresent(docFN -> attrBuilder.addNonEmptyAttribute("data-value", docFN));
     } catch (DocumentNotExistsException exc) {
       log.warn("cell doesn't exist '{}'", cellDocRef, exc);
