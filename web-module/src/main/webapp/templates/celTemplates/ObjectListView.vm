@@ -3,10 +3,6 @@
   #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null).docRef)
 #end
 <!-- classRef: $!services.model.serialize($classRef) -->
-#if("$!celldoc" != '')
-  #set($fieldName = $services.structuredDataEditor.getCellFieldName($celldoc.documentReference).orElse(''))
-#end
-<!-- fieldName: $!fieldName -->
 
 #set($className = $classRef.name.replace('Class', ''))
 #foreach($layoutName in ["$!objectRowLayoutName", "ObjectList-Row-$!className", "$!{className}-EditFields"])
@@ -16,7 +12,6 @@
 #end
 #set($objectHeaderLayoutRef = $services.reference.create().space("ObjectList-Header-$!{className}").build())
 #set($objectHeaderLayout = $services.layout.getPageLayoutApiForRef($objectHeaderLayoutRef))
-
 #if($objectRowLayout)
   <!-- objectRowLayout: $!objectRowLayout.layoutSpaceRef -->
   $services.javascript.addExtJSfileOnce(':structEditJS/CelStructList.mjs', 'file')
@@ -36,11 +31,7 @@
       <a class="struct_object_delete" href="#"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
     </template>
   </li>
-  #set($asc = !$fieldName.startsWith('-'))
-  #set($sortFieldName  = $fieldName.replaceFirst('-', ''))
-  <!-- sortFieldName: $!sortFieldName -->
-  <!-- asc: $!asc -->
-  #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef, $sortFieldName, $asc))
+  #foreach($obj in $services.structuredDataEditor.getObjectsForCell($celldoc.documentReference))
   <li>
     $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
     $!services.layout.renderPageLayout($objectRowLayout.layoutSpaceRef)
