@@ -42,7 +42,7 @@ class CelStructList extends HTMLUListElement {
     const newEntry = this.#newEntry();
     if (newEntry) {
       this.appendChild(newEntry);
-      $j(newEntry).fadeIn();
+      requestAnimationFrame(() => newEntry.style.opacity = '1');
       this.#observeDelete(newEntry);
       newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
       console.debug('create - new object for ', this, ': ', newEntry);
@@ -54,7 +54,8 @@ class CelStructList extends HTMLUListElement {
     if (this.template) {
       const entry = document.createElement("li");
       entry.classList.add('struct_object_created');
-      entry.style.display = "none";
+      entry.style.opacity = '0';
+      entry.style.transition = 'opacity .5s ease-out';
       entry.appendChild(this.template.content.cloneNode(true));
       const objectNb = this.#nextCreateObjectNb;
       if (this.#setObjectNbIn(entry, FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
@@ -85,11 +86,11 @@ class CelStructList extends HTMLUListElement {
       console.warn('delete - unable to extract field data from', entry);
     } else if (confirm(window.celMessages.structEditor.objectRemoveConfirm)) {
       fields.forEach(this.#markObjectAsDeleted);
-      $j(entry).fadeOut(400, function() {
-        if (entry.classList.contains('struct_object_created')) {
-          entry.remove();
-        }
-      });
+      entry.style.transition = 'opacity .4s ease-in';
+      requestAnimationFrame(() => entry.style.opacity = '0');
+      entry.addEventListener('transitionend', entry.classList.contains('struct_object_created')
+          ? () => entry.remove()
+          : () => entry.style.display = 'none');
       console.debug('delete - removed: ', entry);
     }
   }
