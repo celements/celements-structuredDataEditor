@@ -22,6 +22,7 @@ package com.celements.struct.table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Requirement;
+import org.xwiki.context.Execution;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 
@@ -42,7 +43,9 @@ import com.celements.web.service.IWebUtilsService;
 
 public abstract class AbstractTablePresentationType implements IPresentationTypeRole<TableConfig> {
 
-  protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+  public static final String NAME = "struct-table";
+
+  protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   public static final String STRUCT_TABLE_DIR = "/templates/celStruct/table";
   public static final String CSS_CLASS = "struct_table";
@@ -73,6 +76,9 @@ public abstract class AbstractTablePresentationType implements IPresentationType
 
   @Requirement
   protected ModelContext context;
+
+  @Requirement
+  protected Execution execution;
 
   @Override
   public void writeNodeContent(StringBuilder writer, boolean isFirstItem, boolean isLastItem,
