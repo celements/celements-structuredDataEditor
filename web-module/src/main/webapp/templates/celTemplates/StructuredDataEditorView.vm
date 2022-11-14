@@ -22,8 +22,12 @@
     #set($structDataEditorSpaceRef = $structDataEditorNav.getNodeSpaceRef())
   #end
   #set($structDataEditorSpace = $structDataEditorSpaceRef.name)
+  #set($cssClasses = "structDataEditor $!{structDataEditorNav.cssClass}")
+  #if($doc.isNew())
+    #set($cssClasses = "$!{cssClasses} create")
+  #end
   <div id="GP$!{structDataEditorPresentationCount}$!{contentDoc.getName()}:$!{structDataEditorSpace}:"##
-   class="structDataEditor $!{structDataEditorNav.cssClass}">
+   class="$!{cssClasses}">
   #parse('celMacros/struct/renderEditorLayout.vm')
   </div>
 #else
