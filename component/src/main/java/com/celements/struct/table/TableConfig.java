@@ -22,12 +22,15 @@ package com.celements.struct.table;
 import static com.google.common.base.MoreObjects.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.SpaceReference;
 
 import com.celements.navigation.presentation.PresentationNodeData;
+import com.celements.struct.classes.TableClass.Type;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -36,12 +39,17 @@ import com.google.common.collect.Ordering;
 @NotThreadSafe
 public class TableConfig implements PresentationNodeData {
 
+  private boolean headerMode = false;
+
   private DocumentReference documentReference;
+  private Type type = Type.DOC;
   private String query = "";
   private List<String> sortFields = ImmutableList.of();
   private int resultLimit = 0;
   private String cssId = "";
   private List<String> cssClasses = ImmutableList.of();
+  private SpaceReference rowLayout;
+  private SpaceReference headerLayout;
   private List<ColumnConfig> columns = ImmutableList.of();
 
   public DocumentReference getDocumentReference() {
@@ -50,6 +58,14 @@ public class TableConfig implements PresentationNodeData {
 
   public void setDocumentReference(DocumentReference documentReference) {
     this.documentReference = documentReference;
+  }
+
+  public Type getType() {
+    return type;
+  }
+
+  public void setType(Type type) {
+    this.type = Optional.ofNullable(type).orElse(Type.DOC);
   }
 
   public String getQuery() {
@@ -92,6 +108,22 @@ public class TableConfig implements PresentationNodeData {
     this.cssClasses = ImmutableList.copyOf(cssClasses);
   }
 
+  public SpaceReference getHeaderLayout() {
+    return headerLayout;
+  }
+
+  public void setHeaderLayout(SpaceReference headerLayout) {
+    this.headerLayout = headerLayout;
+  }
+
+  public SpaceReference getRowLayout() {
+    return rowLayout;
+  }
+
+  public void setRowLayout(SpaceReference rowLayout) {
+    this.rowLayout = rowLayout;
+  }
+
   public List<ColumnConfig> getColumns() {
     return columns;
   }
@@ -103,7 +135,12 @@ public class TableConfig implements PresentationNodeData {
     this.columns = FluentIterable.from(columns).toSortedList(Ordering.natural());
   }
 
+  public boolean isHeaderMode() {
+    return headerMode;
+  }
+
   public void setHeaderMode(boolean headerMode) {
+    this.headerMode = headerMode;
     for (ColumnConfig col : columns) {
       col.setHeaderMode(headerMode);
     }
