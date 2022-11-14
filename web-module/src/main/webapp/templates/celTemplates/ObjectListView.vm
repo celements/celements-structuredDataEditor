@@ -28,7 +28,7 @@
     <template class="cel_template">
       $!services.celementsweb.setGlobalContextValue('cell.number', -1)
       $!services.layout.renderPageLayout($objectRowLayout.layoutSpaceRef)
-      <a class="struct_object_delete" href="#"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
+      <a class="struct_object_delete" href><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
     </template>
   </li>
   #foreach($obj in $services.structuredDataEditor.getObjectsForCell($celldoc.documentReference))

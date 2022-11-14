@@ -29,6 +29,7 @@ import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -350,9 +351,14 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Stream<BaseObject> objs = (onDoc != null)
         ? newXObjFetcher(cellDoc, onDoc).stream()
         : Stream.empty();
-    getCellFieldName(cellDoc).ifPresent(fieldName -> objs.sorted(new BaseObjectComparator(
-        fieldName.replaceFirst("-", ""), !fieldName.startsWith("-"), null, false)));
-    return objs;
+    Comparator<BaseObject> comp = Stream
+        .of(getCellFieldName(cellDoc).orElse("").split(","))
+        .map(String::trim).filter(not(String::isEmpty))
+        .map(fieldName -> BaseObjectComparator.create(fieldName.replaceFirst("-", ""),
+            !fieldName.startsWith("-")))
+        .reduce((c1, c2) -> c1.thenComparing(c2))
+        .orElse(null);
+    return (comp != null) ? objs.sorted(comp) : objs;
   }
 
   private Optional<Integer> getContextDependentObjNb(XWikiDocument cellDoc) {
@@ -369,7 +375,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Optional<Integer> getNumberFromExecutionContext() {
-    return Stream.of("objNb", "celements.globalvalues.cell.number")
+    return Stream.of("objNb", EXEC_CTX_KEY_OBJ_NB)
         .map(exec.getContext()::getProperty)
         .map(Objects::toString)
         .map(Ints::tryParse)
