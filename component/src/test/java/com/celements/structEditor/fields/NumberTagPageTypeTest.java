@@ -124,7 +124,7 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
   private static void assertAttribute(AttributeBuilder attributes, String name, String value) {
     assertEquals(name, value, attributes.build().stream()
         .filter(attr -> attr.getName().equals(name))
-        .map(attr -> attr.getValue().or(""))
+        .map(attr -> attr.getValue().orElse(""))
         .findFirst().orElse(""));
   }
 
