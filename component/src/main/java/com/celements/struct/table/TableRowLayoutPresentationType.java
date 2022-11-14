@@ -25,6 +25,7 @@ import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 
 import com.celements.cells.ICellWriter;
+import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.pagelayout.LayoutServiceRole;
 import com.xpn.xwiki.doc.XWikiDocument;
 
@@ -51,9 +52,8 @@ public class TableRowLayoutPresentationType extends AbstractTableRowPresentation
       inContextDoc(rowDocRef, () -> writer
           .appendContent(layoutService.renderPageLayout(layout)));
     } else if (tableCfg.isHeaderMode()) {
-      writer.openLevel("label", newAttributeBuilder()
-          .addCssClasses(CSS_CLASS + "_label")
-          .build());
+      writer.openLevel("label", new DefaultAttributeBuilder()
+          .addCssClasses(CSS_CLASS + "_label").build());
       writer.appendContent(resolveTitleFromDictionary(modelAccess.getOrCreateDocument(
           tableCfg.getDocumentReference()), NAME));
       writer.closeLevel();

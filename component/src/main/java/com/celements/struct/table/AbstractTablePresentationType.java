@@ -19,14 +19,9 @@
  */
 package com.celements.struct.table;
 
-import static com.google.common.base.Strings.*;
-
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Requirement;
-import org.xwiki.context.Execution;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 
@@ -34,58 +29,102 @@ import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
-import com.celements.model.access.IModelAccessFacade;
-import com.celements.model.classes.ClassDefinition;
 import com.celements.model.context.ModelContext;
-import com.celements.model.util.ModelUtils;
-import com.celements.pagetype.service.IPageTypeResolverRole;
-import com.celements.struct.StructDataService;
-import com.celements.structEditor.StructuredDataEditorService;
-import com.celements.structEditor.classes.StructuredDataEditorClass;
-import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 
 public abstract class AbstractTablePresentationType implements ITablePresentationType {
 
-  public static final String NAME = "struct-table";
-
   protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  public static final String STRUCT_TABLE_DIR = "/templates/celStruct/table";
-  public static final String CSS_CLASS = "struct_table";
+  @Requirement(TableRowColumnPresentationType.NAME)
+  protected ITablePresentationType rowColumnPresentationType;
 
-  private static final Set<String> EDIT_ACTIONS = ImmutableSet.of("edit", "inline");
-
-  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
-  protected ClassDefinition structFieldClassDef;
-
-  @Requirement
-  protected StructDataService structService;
-
-  @Requirement
-  protected StructuredDataEditorService editorService;
-
-  @Requirement
-  protected VelocityService velocityService;
-
-  @Requirement
-  protected IPageTypeResolverRole pageTypeResolver;
+  @Requirement(TableRowLayoutPresentationType.NAME)
+  protected ITablePresentationType rowLayoutPresentationType;
 
   @Requirement
   protected IWebUtilsService webUtils;
 
   @Requirement
-  protected IModelAccessFacade modelAccess;
-
-  @Requirement
-  protected ModelUtils modelUtils;
-
-  @Requirement
   protected ModelContext context;
 
-  @Requirement
-  protected Execution execution;
+  @Override
+  public String getDefaultCssClass() {
+    return CSS_CLASS;
+  }
+
+  @Override
+  public String getEmptyDictionaryKey() {
+    return CSS_CLASS + "_nodata";
+  }
+
+  @Override
+  public void writeNodeContent(ICellWriter writer, DocumentReference tableDocRef,
+      TableConfig tableCfg) {
+    logger.info("writeNodeContent - for [{}] with [{}]", tableDocRef, tableCfg);
+    AttributeBuilder attributes = new DefaultAttributeBuilder();
+    attributes.addId(tableCfg.getCssId());
+    attributes.addCssClasses(getDefaultCssClass());
+    attributes.addCssClasses(tableCfg.getCssClasses());
+    writer.openLevel("div", attributes.build());
+    writeHeader(writer, tableDocRef, tableCfg);
+    writer.openLevel("div", new DefaultAttributeBuilder()
+        .addCssClasses(CSS_CLASS + "_scroll").build());
+    writer.openLevel("ul", new DefaultAttributeBuilder()
+        .addCssClasses(CSS_CLASS + "_data").build());
+    writeTableContent(writer, tableDocRef, tableCfg);
+    if (!writer.hasLevelContent()) {
+      writeEmptyRow(writer, tableDocRef, tableCfg);
+    }
+    writer.closeLevel(); // ul
+    writer.closeLevel(); // div scroll
+    writer.closeLevel(); // div main
+  }
+
+  protected abstract void writeTableContent(ICellWriter writer,
+      DocumentReference tableDocRef, TableConfig tableCfg);
+
+  protected void writeHeader(ICellWriter writer, DocumentReference tableDocRef,
+      TableConfig tableCfg) {
+    logger.debug("writeHeader - for [{}]", tableCfg);
+    writer.openLevel("ul", new DefaultAttributeBuilder()
+        .addCssClasses(CSS_CLASS + "_header")
+        .build());
+    tableCfg.setHeaderMode(true);
+    getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, tableCfg);
+    tableCfg.setHeaderMode(false);
+    if (EDIT_ACTIONS.contains(context.getXWikiContext().getAction())) {
+      writeTemplate(writer, tableDocRef, tableCfg);
+    }
+    writer.closeLevel(); // ul
+  }
+
+  private void writeTemplate(ICellWriter writer, DocumentReference tableDocRef,
+      TableConfig tableCfg) {
+    writer.openLevel("template", new DefaultAttributeBuilder()
+        .addCssClasses("cel_template")
+        .build());
+    getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, tableCfg);
+    writer.closeLevel(); // template
+  }
+
+  private void writeEmptyRow(ICellWriter writer, DocumentReference tableDocRef,
+      TableConfig tableCfg) {
+    TableConfig emptyTableCfg = new TableConfig();
+    ColumnConfig emptyColCfg = new ColumnConfig();
+    emptyColCfg.setName("empty");
+    emptyColCfg.setCssClasses(ImmutableList.of("row_span"));
+    emptyColCfg.setContent(webUtils.getAdminMessageTool().get(getEmptyDictionaryKey()));
+    emptyTableCfg.setColumns(ImmutableList.of(emptyColCfg));
+    getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, emptyTableCfg);
+  }
+
+  protected ITablePresentationType getRowPresentationType(TableConfig tableCfg) {
+    return tableCfg.getColumns().isEmpty()
+        ? rowLayoutPresentationType
+        : rowColumnPresentationType;
+  }
 
   @Override
   public void writeNodeContent(StringBuilder writer, boolean isFirstItem, boolean isLastItem,
@@ -96,35 +135,6 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
   @Override
   public SpaceReference getPageLayoutForDoc(DocumentReference docRef) {
     return null;
-  }
-
-  protected AttributeBuilder newAttributeBuilder() {
-    return new DefaultAttributeBuilder();
-  }
-
-  protected boolean isEditAction() {
-    return EDIT_ACTIONS.contains(context.getXWikiContext().getAction());
-  }
-
-  protected void writeCreateLink(ICellWriter writer) {
-    writeLink(writer, "create", "halflings icon-plus");
-  }
-
-  protected void writeDeleteLink(ICellWriter writer) {
-    writeLink(writer, "delete", "halflings icon-trash");
-  }
-
-  protected void writeLink(ICellWriter writer, String name, String icon) {
-    writer.openLevel("a", newAttributeBuilder()
-        .addCssClasses(CSS_CLASS + "_" + name)
-        .addEmptyAttribute("href")
-        .build());
-    writer.openLevel("i", newAttributeBuilder()
-        .addCssClasses("icon " + nullToEmpty(icon))
-        .addAttribute("title", name)
-        .build());
-    writer.closeLevel(); // i
-    writer.closeLevel(); // a
   }
 
 }

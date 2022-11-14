@@ -22,15 +22,40 @@ package com.celements.struct.table;
 import static com.celements.cells.CellRenderStrategy.*;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.component.annotation.Requirement;
+import org.xwiki.context.Execution;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.ICellWriter;
+import com.celements.model.access.IModelAccessFacade;
+import com.celements.structEditor.StructuredDataEditorService;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(TableObjPresentationType.NAME)
-public class TableObjPresentationType extends TablePresentationType {
+public class TableObjPresentationType extends AbstractTablePresentationType {
 
-  public static final String NAME = AbstractTablePresentationType.NAME + "-obj";
+  public static final String NAME = ITablePresentationType.NAME + "-obj";
+
+  @Requirement
+  private StructuredDataEditorService editorService;
+
+  @Requirement
+  private IModelAccessFacade modelAccess;
+
+  @Requirement
+  private Execution execution;
+
+  @Override
+  protected void writeHeader(ICellWriter writer,
+      DocumentReference tableDocRef, TableConfig tableCfg) {
+    try {
+      // template in header should have negative objNb
+      execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, -1);
+      super.writeHeader(writer, tableDocRef, tableCfg);
+    } finally {
+      execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, null);
+    }
+  }
 
   @Override
   protected void writeTableContent(ICellWriter writer,
@@ -40,25 +65,13 @@ public class TableObjPresentationType extends TablePresentationType {
         XWikiDocument tableDoc = modelAccess.getOrCreateDocument(tableDocRef);
         XWikiDocument onDoc = context.getCurrentDoc().get();
         editorService.streamXObjectsForCell(tableDoc, onDoc).forEach(obj -> {
-          writeObjectRow(writer, onDoc.getDocumentReference(), tableCfg, obj.getNumber());
+          execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, obj.getNumber());
+          getRowPresentationType(tableCfg).writeNodeContent(writer,
+              onDoc.getDocumentReference(), tableCfg);
         });
-        if (isEditAction()) {
-          writer.openLevel("template");
-          writeObjectRow(writer, onDoc.getDocumentReference(), tableCfg, -1);
-          writer.closeLevel(); // template
-        }
       } finally {
         execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, null);
       }
-    }
-  }
-
-  private void writeObjectRow(ICellWriter writer, DocumentReference docRef,
-      TableConfig tableCfg, int objNb) {
-    execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, objNb);
-    getRowPresentationType(tableCfg).writeNodeContent(writer, docRef, tableCfg);
-    if (isEditAction()) {
-      writeDeleteLink(writer);
     }
   }
 

@@ -33,16 +33,20 @@ import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.search.lucene.ILuceneSearchService;
 import com.celements.search.lucene.LuceneSearchException;
 import com.celements.search.lucene.LuceneSearchResult;
+import com.celements.velocity.VelocityService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 
 @Component(TableDocPresentationType.NAME)
-public class TableDocPresentationType extends TablePresentationType {
+public class TableDocPresentationType extends AbstractTablePresentationType {
 
-  public static final String NAME = AbstractTablePresentationType.NAME + "-doc";
+  public static final String NAME = ITablePresentationType.NAME + "-doc";
 
   @Requirement
   private ILuceneSearchService searchService;
+
+  @Requirement
+  private VelocityService velocityService;
 
   @Override
   protected void writeTableContent(ICellWriter writer,

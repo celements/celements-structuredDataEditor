@@ -20,19 +20,48 @@
 package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
+import static com.google.common.base.Strings.*;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.SpaceReference;
 
+import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
+import com.celements.cells.attribute.DefaultAttributeBuilder;
+import com.celements.model.access.IModelAccessFacade;
+import com.celements.model.context.ModelContext;
+import com.celements.model.util.ModelUtils;
+import com.celements.structEditor.StructuredDataEditorService;
+import com.celements.web.service.IWebUtilsService;
 import com.xpn.xwiki.doc.XWikiDocument;
 
-public abstract class AbstractTableRowPresentationType extends AbstractTablePresentationType {
+public abstract class AbstractTableRowPresentationType implements ITablePresentationType {
 
-  public static final String NAME = AbstractTablePresentationType.NAME + "-row";
+  public static final String NAME = ITablePresentationType.NAME + "-row";
+
+  protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  @Requirement
+  protected StructuredDataEditorService editorService;
+
+  @Requirement
+  protected IWebUtilsService webUtils;
+
+  @Requirement
+  protected IModelAccessFacade modelAccess;
+
+  @Requirement
+  protected ModelUtils modelUtils;
+
+  @Requirement
+  protected ModelContext context;
 
   @Override
   public String getDefaultCssClass() {
@@ -48,13 +77,17 @@ public abstract class AbstractTableRowPresentationType extends AbstractTablePres
   public void writeNodeContent(ICellWriter writer, DocumentReference rowDocRef,
       TableConfig tableCfg) {
     logger.info("writeNodeContent - for [{}] with [{}]", rowDocRef, tableCfg);
-    AttributeBuilder attributes = newAttributeBuilder();
+    AttributeBuilder attributes = new DefaultAttributeBuilder();
     attributes.addCssClasses(getDefaultCssClass());
     attributes.addAttribute("data-ref", modelUtils.serializeRef(rowDocRef, COMPACT_WIKI));
     writer.openLevel("li", attributes.build());
     writeRowContent(writer, rowDocRef, tableCfg);
-    if (tableCfg.isHeaderMode() && isEditAction()) {
-      writeCreateLink(writer);
+    if (EDIT_ACTIONS.contains(context.getXWikiContext().getAction())) {
+      if (tableCfg.isHeaderMode()) {
+        writeLink(writer, "create", "halflings icon-plus");
+      } else {
+        writeLink(writer, "delete", "halflings icon-trash");
+      }
     }
     writer.closeLevel(); // li
   }
@@ -75,6 +108,30 @@ public abstract class AbstractTableRowPresentationType extends AbstractTablePres
       }
     }
     return title;
+  }
+
+  private void writeLink(ICellWriter writer, String name, String icon) {
+    writer.openLevel("a", new DefaultAttributeBuilder()
+        .addCssClasses(CSS_CLASS + "_" + name)
+        .addEmptyAttribute("href")
+        .build());
+    writer.openLevel("i", new DefaultAttributeBuilder()
+        .addCssClasses("icon " + nullToEmpty(icon))
+        .addAttribute("title", name)
+        .build());
+    writer.closeLevel(); // i
+    writer.closeLevel(); // a
+  }
+
+  @Override
+  public void writeNodeContent(StringBuilder writer, boolean isFirstItem, boolean isLastItem,
+      DocumentReference nodeDocRef, boolean isLeaf, int numItem, TableConfig table) {
+    writeNodeContent(new DivWriter(writer), nodeDocRef, table);
+  }
+
+  @Override
+  public SpaceReference getPageLayoutForDoc(DocumentReference docRef) {
+    return null;
   }
 
 }

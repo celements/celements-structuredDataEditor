@@ -38,6 +38,7 @@ import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
+import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.field.FieldAccessor;
@@ -45,8 +46,11 @@ import com.celements.model.field.StringFieldAccessor;
 import com.celements.model.field.XDocumentFieldAccessor;
 import com.celements.model.field.XObjectStringFieldAccessor;
 import com.celements.pagetype.PageTypeReference;
+import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.rights.access.exceptions.NoAccessRightsException;
+import com.celements.struct.StructDataService;
 import com.celements.velocity.VelocityContextModifier;
+import com.celements.velocity.VelocityService;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -58,6 +62,7 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
 
   public static final String NAME = AbstractTableRowPresentationType.NAME + "-column";
 
+  private static final String STRUCT_TABLE_DIR = "/templates/celStruct/table";
   private static final Pattern PATTERN_NON_ALPHANUMERIC = Pattern.compile("[^a-zA-Z0-9]");
 
   @Requirement(XDocumentFieldAccessor.NAME)
@@ -69,13 +74,22 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
   @Requirement(CLASS_DEF_HINT)
   private ClassDefinition xwikiDocPseudoClass;
 
+  @Requirement
+  private StructDataService structService;
+
+  @Requirement
+  private VelocityService velocityService;
+
+  @Requirement
+  private IPageTypeResolverRole pageTypeResolver;
+
   @Override
   protected void writeRowContent(ICellWriter writer, DocumentReference rowDocRef,
       TableConfig tableCfg) {
     for (ColumnConfig colCfg : tableCfg.getColumns()) {
       try {
         XWikiDocument rowDoc = modelAccess.getDocument(rowDocRef);
-        AttributeBuilder attributes = newAttributeBuilder();
+        AttributeBuilder attributes = new DefaultAttributeBuilder();
         attributes.addCssClasses(CSS_CLASS + "_cell");
         attributes.addCssClasses("cell_" + colCfg.getNumber());
         attributes.addCssClasses(colCfg.getName());
