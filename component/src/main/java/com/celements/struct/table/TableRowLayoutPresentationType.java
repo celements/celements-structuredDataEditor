@@ -26,6 +26,7 @@ import org.xwiki.model.reference.SpaceReference;
 
 import com.celements.cells.ICellWriter;
 import com.celements.pagelayout.LayoutServiceRole;
+import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(TableRowLayoutPresentationType.NAME)
 public class TableRowLayoutPresentationType extends AbstractTableRowPresentationType {
@@ -38,8 +39,7 @@ public class TableRowLayoutPresentationType extends AbstractTableRowPresentation
   @Override
   protected void writeRowContent(ICellWriter writer, DocumentReference rowDocRef,
       TableConfig tableCfg) {
-    // TODO set rowDocRef as contextDoc if rowDocRef isn't $doc already
-    SpaceReference layout = tableCfg.isHeaderMode()
+    final SpaceReference layout = tableCfg.isHeaderMode()
         ? tableCfg.getHeaderLayout()
         : tableCfg.getRowLayout();
     if (layout != null) {
@@ -48,11 +48,27 @@ public class TableRowLayoutPresentationType extends AbstractTableRowPresentation
       // attributes.addCssClasses("cell_" + colCfg.getNumber());
       // attributes.addCssClasses(colCfg.getName());
       // attributes.addCssClasses(colCfg.getCssClasses());
-      writer.appendContent(layoutService.renderPageLayout(layout));
+      inContextDoc(rowDocRef, () -> writer
+          .appendContent(layoutService.renderPageLayout(layout)));
     } else if (tableCfg.isHeaderMode()) {
-      // TODO render default (object?) header
+      writer.openLevel("label", newAttributeBuilder()
+          .addCssClasses(CSS_CLASS + "_label")
+          .build());
       writer.appendContent(resolveTitleFromDictionary(modelAccess.getOrCreateDocument(
           tableCfg.getDocumentReference()), NAME));
+      writer.closeLevel();
+    }
+  }
+
+  private void inContextDoc(DocumentReference docRef, Runnable runnable) {
+    XWikiDocument currDoc = context.getCurrentDoc().orNull();
+    if ((currDoc != null) && !currDoc.getDocumentReference().equals(docRef)) {
+      context.setDoc(modelAccess.getOrCreateDocument(docRef));
+    }
+    try {
+      runnable.run();
+    } finally {
+      context.setDoc(currDoc);
     }
   }
 

@@ -47,7 +47,7 @@ import com.xpn.xwiki.web.Utils;
 
 public class TableRowPresentationTypeTest extends AbstractComponentTest {
 
-  private TableRowPresentationType presentationType;
+  private TableRowColumnPresentationType presentationType;
   private XWikiDocument doc;
 
   @Before
@@ -55,8 +55,8 @@ public class TableRowPresentationTypeTest extends AbstractComponentTest {
     registerComponentMocks(IModelAccessFacade.class, IWebUtilsService.class,
         IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityService.class,
         StructDataService.class);
-    presentationType = (TableRowPresentationType) Utils.getComponent(IPresentationTypeRole.class,
-        TableRowPresentationType.NAME);
+    presentationType = (TableRowColumnPresentationType) Utils.getComponent(IPresentationTypeRole.class,
+        TableRowColumnPresentationType.NAME);
     doc = new XWikiDocument(new DocumentReference("xwikidb", "layoutspace", "tabledoc"));
     getContext().setDoc(doc);
   }

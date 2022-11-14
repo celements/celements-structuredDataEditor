@@ -45,6 +45,8 @@ import com.celements.model.field.StringFieldAccessor;
 import com.celements.model.field.XDocumentFieldAccessor;
 import com.celements.model.field.XObjectStringFieldAccessor;
 import com.celements.pagetype.PageTypeReference;
+import com.celements.rights.access.exceptions.NoAccessRightsException;
+import com.celements.velocity.VelocityContextModifier;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -122,7 +124,7 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
 
   private String loadColumnFieldValue(XWikiDocument cellDoc, XWikiDocument rowDoc, String name) {
     String value = "";
-    Optional<BaseObject> obj = structDataEditorService.getXObjectInStructEditor(cellDoc, rowDoc);
+    Optional<BaseObject> obj = editorService.getXObjectInStructEditor(cellDoc, rowDoc);
     if (obj.isPresent() && hasValue(obj.get(), name)) {
       value = obj.get().displayView(name, context.getXWikiContext());
     } else if (xwikiDocPseudoClass.getField(name).isPresent()) {
@@ -143,7 +145,7 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
    */
   List<String> resolvePossibleTableNames(XWikiDocument tableDoc) {
     ImmutableList.Builder<String> tableNames = new ImmutableList.Builder<>();
-    structDataService.getStructLayoutSpaceRef(tableDoc)
+    structService.getStructLayoutSpaceRef(tableDoc)
         .map(this::getFirstPartOfLayoutName).ifPresent(tableNames::add);
     pageTypeResolver.resolvePageTypeReference(tableDoc).toJavaUtil()
         .map(PageTypeReference::getConfigName).ifPresent(tableNames::add);
@@ -160,6 +162,19 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
     return Strings.nullToEmpty(webUtils.getTranslatedDiscTemplateContent(
         Stream.of(paths).filter(not(String::isEmpty)).collect(joining("/")),
         null, null)).trim();
+  }
+
+  protected VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,
+      final ColumnConfig colCfg) {
+    return vContext -> {
+      vContext.put("colcfg", colCfg);
+      try {
+        vContext.put("rowdoc", modelAccess.getApiDocument(rowDoc));
+      } catch (NoAccessRightsException exc) {
+        logger.info("missing access rights on row", exc);
+      }
+      return vContext;
+    };
   }
 
 }

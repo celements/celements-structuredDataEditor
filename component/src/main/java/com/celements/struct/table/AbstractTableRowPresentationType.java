@@ -21,6 +21,7 @@ package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.xwiki.model.reference.ClassReference;
@@ -28,8 +29,6 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
-import com.celements.rights.access.exceptions.NoAccessRightsException;
-import com.celements.velocity.VelocityContextModifier;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 public abstract class AbstractTableRowPresentationType extends AbstractTablePresentationType {
@@ -51,11 +50,15 @@ public abstract class AbstractTableRowPresentationType extends AbstractTablePres
       TableConfig tableCfg) {
     logger.info("writeNodeContent - for [{}] with [{}]", rowDocRef, tableCfg);
     AttributeBuilder attributes = newAttributeBuilder();
-    attributes.addCssClasses(getDefaultCssClass());
+    attributes.addCssClasses(Arrays.asList(getDefaultCssClass(),
+        tableCfg.isHeaderMode() ? (CSS_CLASS + "_header") : ""));
     attributes.addAttribute("data-ref", modelUtils.serializeRef(rowDocRef, COMPACT_WIKI));
     writer.openLevel("li", attributes.build());
     writeRowContent(writer, rowDocRef, tableCfg);
-    writer.closeLevel();
+    if (tableCfg.isHeaderMode() && isEditAction()) {
+      writeCreateLink(writer);
+    }
+    writer.closeLevel(); // li
   }
 
   protected abstract void writeRowContent(ICellWriter writer,
@@ -63,7 +66,7 @@ public abstract class AbstractTableRowPresentationType extends AbstractTablePres
 
   protected String resolveTitleFromDictionary(XWikiDocument cellDoc, String name) {
     String title = "";
-    Optional<ClassReference> classRef = structDataEditorService.getCellClassRef(cellDoc);
+    Optional<ClassReference> classRef = editorService.getCellClassRef(cellDoc);
     if (classRef.isPresent()) {
       String dictKey = modelUtils.serializeRef(classRef.get()) + "_" + name;
       String msg = webUtils.getAdminMessageTool().get(dictKey);
@@ -74,19 +77,6 @@ public abstract class AbstractTableRowPresentationType extends AbstractTablePres
       }
     }
     return title;
-  }
-
-  protected VelocityContextModifier getVelocityContextModifier(final XWikiDocument rowDoc,
-      final ColumnConfig colCfg) {
-    return vContext -> {
-      vContext.put("colcfg", colCfg);
-      try {
-        vContext.put("rowdoc", modelAccess.getApiDocument(rowDoc));
-      } catch (NoAccessRightsException exc) {
-        logger.info("missing access rights on row", exc);
-      }
-      return vContext;
-    };
   }
 
 }

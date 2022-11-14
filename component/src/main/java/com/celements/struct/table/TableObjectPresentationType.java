@@ -25,7 +25,6 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.ICellWriter;
-import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(TableObjectPresentationType.NAME)
@@ -38,17 +37,28 @@ public class TableObjectPresentationType extends TablePresentationType {
       DocumentReference tableDocRef, TableConfig tableCfg) {
     if (context.getCurrentDoc().isPresent()) {
       try {
-        IPresentationTypeRole<TableConfig> presentationType = getRowPresentationType(tableCfg);
         XWikiDocument tableDoc = modelAccess.getOrCreateDocument(tableDocRef);
         XWikiDocument onDoc = context.getCurrentDoc().get();
-        structDataEditorService.streamXObjectsForCell(tableDoc, onDoc)
-            .forEach(obj -> {
-              execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, obj.getNumber());
-              presentationType.writeNodeContent(writer, onDoc.getDocumentReference(), tableCfg);
-            });
+        editorService.streamXObjectsForCell(tableDoc, onDoc).forEach(obj -> {
+          writeObjectRow(writer, onDoc.getDocumentReference(), tableCfg, obj.getNumber());
+        });
+        if (isEditAction()) {
+          writer.openLevel("template");
+          writeObjectRow(writer, onDoc.getDocumentReference(), tableCfg, -1);
+          writer.closeLevel(); // template
+        }
       } finally {
         execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, null);
       }
+    }
+  }
+
+  private void writeObjectRow(ICellWriter writer, DocumentReference docRef,
+      TableConfig tableCfg, int objNb) {
+    execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, objNb);
+    getRowPresentationType(tableCfg).writeNodeContent(writer, docRef, tableCfg);
+    if (isEditAction()) {
+      writeDeleteLink(writer);
     }
   }
 
