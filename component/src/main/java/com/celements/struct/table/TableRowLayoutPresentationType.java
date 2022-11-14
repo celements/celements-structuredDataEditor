@@ -49,14 +49,20 @@ public class TableRowLayoutPresentationType extends AbstractTableRowPresentation
       // attributes.addCssClasses("cell_" + colCfg.getNumber());
       // attributes.addCssClasses(colCfg.getName());
       // attributes.addCssClasses(colCfg.getCssClasses());
-      inContextDoc(rowDocRef, () -> writer
-          .appendContent(layoutService.renderPageLayout(layout)));
+      if (layoutService.canRenderLayout(layout)) {
+        inContextDoc(rowDocRef, () -> writer.appendContent(
+            layoutService.renderPageLayout(layout)));
+      } else {
+        writer.appendContent("Layout " + layout.getName() + " not valid");
+      }
     } else if (tableCfg.isHeaderMode()) {
       writer.openLevel("label", new DefaultAttributeBuilder()
           .addCssClasses(CSS_CLASS + "_label").build());
       writer.appendContent(resolveTitleFromDictionary(modelAccess.getOrCreateDocument(
           tableCfg.getDocumentReference()), NAME));
       writer.closeLevel();
+    } else {
+      writer.appendContent("No layout defined");
     }
   }
 
