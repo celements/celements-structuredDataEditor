@@ -19,7 +19,7 @@
  */
 package com.celements.struct.table;
 
-import static com.celements.structEditor.StructuredDataEditorService.*;
+import static com.celements.cells.CellRenderStrategy.*;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;

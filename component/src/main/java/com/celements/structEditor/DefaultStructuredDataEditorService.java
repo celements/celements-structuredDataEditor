@@ -48,6 +48,7 @@ import org.xwiki.context.Execution;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
+import com.celements.cells.CellRenderStrategy;
 import com.celements.common.MoreOptional;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.classes.ClassDefinition;
@@ -375,7 +376,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Optional<Integer> getNumberFromExecutionContext() {
-    return Stream.of("objNb", EXEC_CTX_KEY_OBJ_NB)
+    return Stream.of("objNb", CellRenderStrategy.EXEC_CTX_KEY_OBJ_NB)
         .map(exec.getContext()::getProperty)
         .map(Objects::toString)
         .map(Ints::tryParse)
