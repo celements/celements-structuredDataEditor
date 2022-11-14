@@ -40,6 +40,7 @@ import com.xpn.xwiki.objects.classes.PropertyClass;
 @ComponentRole
 public interface StructuredDataEditorService {
 
+  String EXEC_CTX_KEY_OBJ_NB = "celements.globalvalues.cell.number";
   Set<String> LABELS_AND = ImmutableSet.of("struct-obj-filter", "struct-obj-filter-and");
   Set<String> LABELS_OR = ImmutableSet.of("struct-obj-filter-or");
 
