@@ -21,7 +21,6 @@ package com.celements.struct.table;
 
 import static com.celements.model.util.ReferenceSerializationMode.*;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import org.xwiki.model.reference.ClassReference;
@@ -50,8 +49,7 @@ public abstract class AbstractTableRowPresentationType extends AbstractTablePres
       TableConfig tableCfg) {
     logger.info("writeNodeContent - for [{}] with [{}]", rowDocRef, tableCfg);
     AttributeBuilder attributes = newAttributeBuilder();
-    attributes.addCssClasses(Arrays.asList(getDefaultCssClass(),
-        tableCfg.isHeaderMode() ? (CSS_CLASS + "_header") : ""));
+    attributes.addCssClasses(getDefaultCssClass());
     attributes.addAttribute("data-ref", modelUtils.serializeRef(rowDocRef, COMPACT_WIKI));
     writer.openLevel("li", attributes.build());
     writeRowContent(writer, rowDocRef, tableCfg);

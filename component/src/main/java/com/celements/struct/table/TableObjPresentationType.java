@@ -27,8 +27,8 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.ICellWriter;
 import com.xpn.xwiki.doc.XWikiDocument;
 
-@Component(TableObjectPresentationType.NAME)
-public class TableObjectPresentationType extends TablePresentationType {
+@Component(TableObjPresentationType.NAME)
+public class TableObjPresentationType extends TablePresentationType {
 
   public static final String NAME = AbstractTablePresentationType.NAME + "-obj";
 

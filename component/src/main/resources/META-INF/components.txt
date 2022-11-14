@@ -31,8 +31,10 @@ com.celements.struct.StructDataScriptService
 com.celements.struct.classes.TableClass
 com.celements.struct.classes.TableColumnClass
 com.celements.struct.classes.StructLayoutClass
-com.celements.struct.table.TablePresentationType
-com.celements.struct.table.TableRowPresentationType
+com.celements.struct.table.TableDocPresentationType
+com.celements.struct.table.TableObjPresentationType
+com.celements.struct.table.TableRowColumnPresentationType
+com.celements.struct.table.TableRowLayoutPresentationType
 com.celements.struct.table.TablePageType
 com.celements.struct.DefaultSelectTagService
 com.celements.tinymce4.TinyMce4Config
