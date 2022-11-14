@@ -21,6 +21,9 @@ package com.celements.struct.table;
 
 import static com.celements.cells.CellRenderStrategy.*;
 
+import java.util.Comparator;
+import java.util.stream.Stream;
+
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.context.Execution;
@@ -29,7 +32,9 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.ICellWriter;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.structEditor.StructuredDataEditorService;
+import com.celements.web.comparators.BaseObjectComparator;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.objects.BaseObject;
 
 @Component(TableObjPresentationType.NAME)
 public class TableObjPresentationType extends AbstractTablePresentationType {
@@ -64,7 +69,10 @@ public class TableObjPresentationType extends AbstractTablePresentationType {
       try {
         XWikiDocument tableDoc = modelAccess.getOrCreateDocument(tableDocRef);
         XWikiDocument onDoc = context.getCurrentDoc().get();
-        editorService.streamXObjectsForCell(tableDoc, onDoc).forEach(obj -> {
+        Stream<BaseObject> objs = editorService.streamXObjectsForCell(tableDoc, onDoc);
+        Comparator<BaseObject> comp = BaseObjectComparator
+            .create(tableCfg.getSortFields()).orElse(null);
+        ((comp != null) ? objs.sorted(comp) : objs).forEach(obj -> {
           execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, obj.getNumber());
           getRowPresentationType(tableCfg).writeNodeContent(writer,
               onDoc.getDocumentReference(), tableCfg);
