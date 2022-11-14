@@ -19,6 +19,8 @@
  */
 package com.celements.struct;
 
+import static java.util.stream.Collectors.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -37,13 +39,13 @@ import com.celements.convert.bean.XObjectBeanConverter;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.reference.RefBuilder;
+import com.celements.pagelayout.LayoutServiceRole;
 import com.celements.struct.classes.StructLayoutClass;
 import com.celements.struct.classes.TableClass;
 import com.celements.struct.classes.TableColumnClass;
 import com.celements.struct.table.ColumnConfig;
 import com.celements.struct.table.TableConfig;
 import com.celements.web.CelConstant;
-import com.celements.web.plugin.cmd.PageLayoutCommand;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -51,6 +53,9 @@ import com.xpn.xwiki.objects.BaseObject;
 public class DefaultStructDataService implements StructDataService, Initializable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultStructDataService.class);
+
+  @Requirement
+  private LayoutServiceRole layoutService;
 
   @Requirement(XObjectBeanConverter.NAME)
   private BeanClassDefConverter<BaseObject, TableConfig> tableConverter;
@@ -79,31 +84,29 @@ public class DefaultStructDataService implements StructDataService, Initializabl
 
   @Override
   public Optional<TableConfig> loadTableConfig(XWikiDocument cellDoc) {
-    Optional<TableConfig> tableCfg = XWikiObjectFetcher.on(cellDoc).filter(
-        tableClass).iter().transform(tableConverter).first().toJavaUtil();
-    if (tableCfg.isPresent()) {
-      List<ColumnConfig> columns = XWikiObjectFetcher.on(cellDoc).filter(
-          columnClass).iter().transform(columnConverter).toList();
-      tableCfg.get().setColumns(columns);
-    }
+    Optional<TableConfig> tableCfg = XWikiObjectFetcher.on(cellDoc).filter(tableClass).stream()
+        .map(tableConverter).findFirst();
+    tableCfg.ifPresent(cfg -> {
+      List<ColumnConfig> columns = XWikiObjectFetcher.on(cellDoc).filter(columnClass).stream()
+          .map(columnConverter).collect(toList());
+      cfg.setColumns(columns);
+    });
     LOGGER.info("loadTableConfig: for '{}' got '{}'", cellDoc, tableCfg);
     return tableCfg;
   }
 
   @Override
   public Optional<SpaceReference> getStructLayoutSpaceRef(XWikiDocument doc) {
-    SpaceReference structLayoutRef = XWikiObjectFetcher.on(doc)
-        .fetchField(StructLayoutClass.FIELD_LAYOUT_SPACE).first().orNull();
-    if (structLayoutRef != null) {
-      SpaceReference centralLayoutRef = RefBuilder.from(structLayoutRef).with(getCentralWikiRef())
-          .build(SpaceReference.class);
-      if (new PageLayoutCommand().layoutExists(structLayoutRef)) {
-        return Optional.of(structLayoutRef);
-      } else if (new PageLayoutCommand().layoutExists(centralLayoutRef)) {
-        return Optional.of(centralLayoutRef);
-      }
-    }
-    return Optional.empty();
+    Optional<SpaceReference> structLayoutRef = XWikiObjectFetcher.on(doc)
+        .fetchField(StructLayoutClass.FIELD_LAYOUT_SPACE)
+        .stream().findFirst();
+    return structLayoutRef
+        .filter(layoutService::existsLayout)
+        .map(Optional::of) // replace with #or in Java9+
+        .orElseGet(() -> RefBuilder.from(structLayoutRef.orElse(null))
+            .with(getCentralWikiRef())
+            .buildOpt(SpaceReference.class)
+            .filter(layoutService::existsLayout));
   }
 
 }

@@ -70,6 +70,15 @@ public class StructDataScriptService implements ScriptService {
   @Requirement
   private ModelContext context;
 
+  public TableConfig loadTableConfig(DocumentReference cellDocRef) {
+    if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
+      LOGGER.debug("loadTableConfig - [{}]", cellDocRef);
+      XWikiDocument doc = modelAccess.getOrCreateDocument(cellDocRef);
+      return service.loadTableConfig(doc).orElse(null);
+    }
+    return null;
+  }
+
   public String renderTable(DocumentReference cellDocRef) {
     ICellWriter writer = new DivWriter();
     if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
