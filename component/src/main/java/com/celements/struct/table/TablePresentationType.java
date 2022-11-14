@@ -24,16 +24,15 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
-import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.google.common.collect.ImmutableList;
 
 public abstract class TablePresentationType extends AbstractTablePresentationType {
 
   @Requirement(TableRowColumnPresentationType.NAME)
-  protected IPresentationTypeRole<TableConfig> rowColumnPresentationType;
+  protected ITablePresentationType rowColumnPresentationType;
 
   @Requirement(TableRowLayoutPresentationType.NAME)
-  protected IPresentationTypeRole<TableConfig> rowLayoutPresentationType;
+  protected ITablePresentationType rowLayoutPresentationType;
 
   @Override
   public String getDefaultCssClass() {
@@ -90,7 +89,7 @@ public abstract class TablePresentationType extends AbstractTablePresentationTyp
     getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, emptyTableCfg);
   }
 
-  protected IPresentationTypeRole<TableConfig> getRowPresentationType(TableConfig tableCfg) {
+  protected ITablePresentationType getRowPresentationType(TableConfig tableCfg) {
     return tableCfg.getColumns().isEmpty()
         ? rowLayoutPresentationType
         : rowColumnPresentationType;

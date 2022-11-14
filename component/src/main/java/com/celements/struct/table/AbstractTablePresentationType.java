@@ -38,7 +38,6 @@ import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;
-import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.struct.StructDataService;
 import com.celements.structEditor.StructuredDataEditorService;
@@ -47,7 +46,7 @@ import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.collect.ImmutableSet;
 
-public abstract class AbstractTablePresentationType implements IPresentationTypeRole<TableConfig> {
+public abstract class AbstractTablePresentationType implements ITablePresentationType {
 
   public static final String NAME = "struct-table";
 

@@ -41,12 +41,12 @@ import com.celements.javascript.JavaScriptExternalFilesClass;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
-import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
 import com.celements.struct.classes.TableClass;
 import com.celements.struct.classes.TableClass.Type;
 import com.celements.struct.table.AbstractTablePresentationType;
+import com.celements.struct.table.ITablePresentationType;
 import com.celements.struct.table.TableConfig;
 import com.xpn.xwiki.doc.XWikiDocument;
 
@@ -59,7 +59,7 @@ public class StructDataScriptService implements ScriptService {
   private StructDataService service;
 
   @Requirement
-  private Map<String, IPresentationTypeRole<TableConfig>> tablePresentationTypes;
+  private Map<String, ITablePresentationType> tablePresentationTypes;
 
   @Requirement
   private IRightsAccessFacadeRole rightsAccess;
@@ -76,7 +76,7 @@ public class StructDataScriptService implements ScriptService {
       LOGGER.debug("renderTable - [{}]", cellDocRef);
       XWikiDocument doc = modelAccess.getOrCreateDocument(cellDocRef);
       Optional<TableConfig> tableCfg = service.loadTableConfig(doc);
-      IPresentationTypeRole<TableConfig> presentationType = getPresentationType(tableCfg
+      ITablePresentationType presentationType = getPresentationType(tableCfg
           .map(TableConfig::getType).orElse(Type.DOC));
       if (tableCfg.isPresent()) {
         presentationType.writeNodeContent(writer, cellDocRef, tableCfg.get());
@@ -90,7 +90,7 @@ public class StructDataScriptService implements ScriptService {
     return writer.getAsString();
   }
 
-  private IPresentationTypeRole<TableConfig> getPresentationType(TableClass.Type type) {
+  private ITablePresentationType getPresentationType(TableClass.Type type) {
     return checkNotNull(tablePresentationTypes.get(AbstractTablePresentationType.NAME
         + "-" + type.name().toLowerCase()));
   }
