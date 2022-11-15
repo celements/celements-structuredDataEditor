@@ -20,6 +20,8 @@
 package com.celements.struct.table;
 
 import static com.google.common.base.MoreObjects.*;
+import static java.util.Comparator.*;
+import static java.util.stream.Collectors.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,9 +34,7 @@ import org.xwiki.model.reference.SpaceReference;
 import com.celements.navigation.presentation.PresentationNodeData;
 import com.celements.struct.classes.TableClass.Type;
 import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
 
 @NotThreadSafe
 public class TableConfig implements PresentationNodeData {
@@ -132,7 +132,7 @@ public class TableConfig implements PresentationNodeData {
     for (ColumnConfig colCfg : columns) {
       colCfg.setTableConfig(this);
     }
-    this.columns = FluentIterable.from(columns).toSortedList(Ordering.natural());
+    this.columns = columns.stream().sorted(naturalOrder()).collect(toList());
   }
 
   public boolean isHeaderMode() {
@@ -141,9 +141,6 @@ public class TableConfig implements PresentationNodeData {
 
   public void setHeaderMode(boolean headerMode) {
     this.headerMode = headerMode;
-    for (ColumnConfig col : columns) {
-      col.setHeaderMode(headerMode);
-    }
   }
 
   @Override

@@ -108,7 +108,7 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
     if (content.isEmpty() && !colCfg.getName().isEmpty()) {
       XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
           colCfg.getTableConfig().getDocumentReference());
-      if (colCfg.isHeaderMode()) {
+      if (colCfg.getTableConfig().isHeaderMode()) {
         content = resolveTitleFromDictionary(tableCfgDoc, colCfg.getName());
       } else {
         content = loadColumnFieldValue(tableCfgDoc, rowDoc, colCfg.getName());
@@ -122,7 +122,7 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
     try {
       String text = colCfg.getContent().trim();
       String macroName = "col_" + colCfg.getName() + ".vm";
-      if (text.isEmpty() && !colCfg.isHeaderMode()) {
+      if (text.isEmpty() && !colCfg.getTableConfig().isHeaderMode()) {
         for (Iterator<String> iter = resolvePossibleTableNames(context.getCurrentDoc().get())
             .iterator(); (text.isEmpty() && iter.hasNext());) {
           text = getMacroContent(STRUCT_TABLE_DIR, iter.next(), macroName);

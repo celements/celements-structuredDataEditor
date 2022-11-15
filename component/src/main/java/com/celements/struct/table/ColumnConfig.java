@@ -34,7 +34,6 @@ import com.google.common.collect.Ordering;
 public class ColumnConfig implements Comparable<ColumnConfig> {
 
   private TableConfig tableConfig;
-  private boolean headerMode = false;
 
   private int number = 0;
   private int order = -1;
@@ -84,7 +83,7 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
   }
 
   public String getContent() {
-    if (isHeaderMode()) {
+    if (getTableConfig().isHeaderMode()) {
       return getTitle();
     } else {
       return content;
@@ -101,14 +100,6 @@ public class ColumnConfig implements Comparable<ColumnConfig> {
 
   public void setCssClasses(List<String> cssClasses) {
     this.cssClasses = ImmutableList.copyOf(cssClasses);
-  }
-
-  public boolean isHeaderMode() {
-    return headerMode;
-  }
-
-  public void setHeaderMode(boolean headerMode) {
-    this.headerMode = headerMode;
   }
 
   @Override

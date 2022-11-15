@@ -27,7 +27,6 @@ import org.xwiki.model.reference.SpaceReference;
 
 import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
-import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.model.context.ModelContext;
 import com.celements.web.service.IWebUtilsService;
@@ -63,11 +62,11 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
   public void writeNodeContent(ICellWriter writer, DocumentReference tableDocRef,
       TableConfig tableCfg) {
     logger.info("writeNodeContent - for [{}] with [{}]", tableDocRef, tableCfg);
-    AttributeBuilder attributes = new DefaultAttributeBuilder();
-    attributes.addId(tableCfg.getCssId());
-    attributes.addCssClasses(getDefaultCssClass());
-    attributes.addCssClasses(tableCfg.getCssClasses());
-    writer.openLevel("div", attributes.build());
+    writer.openLevel("cel-table", new DefaultAttributeBuilder()
+        .addId(tableCfg.getCssId())
+        .addCssClasses(getDefaultCssClass())
+        .addCssClasses(tableCfg.getCssClasses())
+        .build());
     writeHeader(writer, tableDocRef, tableCfg);
     writer.openLevel("div", new DefaultAttributeBuilder()
         .addCssClasses(CSS_CLASS + "_scroll").build());
@@ -79,7 +78,7 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
     }
     writer.closeLevel(); // ul
     writer.closeLevel(); // div scroll
-    writer.closeLevel(); // div main
+    writer.closeLevel(); // cel-table
   }
 
   protected abstract void writeTableContent(ICellWriter writer,
@@ -89,8 +88,7 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
       TableConfig tableCfg) {
     logger.debug("writeHeader - for [{}]", tableCfg);
     writer.openLevel("ul", new DefaultAttributeBuilder()
-        .addCssClasses(CSS_CLASS + "_header")
-        .build());
+        .addCssClasses(CSS_CLASS + "_header").build());
     tableCfg.setHeaderMode(true);
     getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, tableCfg);
     tableCfg.setHeaderMode(false);
@@ -103,8 +101,7 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
   private void writeTemplate(ICellWriter writer, DocumentReference tableDocRef,
       TableConfig tableCfg) {
     writer.openLevel("template", new DefaultAttributeBuilder()
-        .addCssClasses("cel_template")
-        .build());
+        .addCssClasses("cel_template").build());
     getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, tableCfg);
     writer.closeLevel(); // template
   }
