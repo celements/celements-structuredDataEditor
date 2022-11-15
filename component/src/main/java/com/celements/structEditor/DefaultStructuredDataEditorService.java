@@ -28,6 +28,7 @@ import static com.google.common.base.Predicates.*;
 import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -352,12 +353,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Stream<BaseObject> objs = (onDoc != null)
         ? newXObjFetcher(cellDoc, onDoc).stream()
         : Stream.empty();
-    Comparator<BaseObject> comp = Stream
-        .of(getCellFieldName(cellDoc).orElse("").split(","))
-        .map(String::trim).filter(not(String::isEmpty))
-        .map(fieldName -> BaseObjectComparator.create(fieldName.replaceFirst("-", ""),
-            !fieldName.startsWith("-")))
-        .reduce((c1, c2) -> c1.thenComparing(c2))
+    Comparator<BaseObject> comp = getCellFieldName(cellDoc)
+        .map(field -> Arrays.asList(field.split(",")))
+        .flatMap(BaseObjectComparator::create)
         .orElse(null);
     return (comp != null) ? objs.sorted(comp) : objs;
   }
