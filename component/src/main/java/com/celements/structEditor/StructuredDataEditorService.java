@@ -23,16 +23,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.xwiki.component.annotation.ComponentRole;
 import org.xwiki.model.reference.ClassReference;
-import org.xwiki.model.reference.DocumentReference;
 
-import com.celements.model.access.exception.DocumentNotExistsException;
-import com.celements.struct.SelectTagServiceRole;
 import com.google.common.collect.ImmutableSet;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -42,6 +40,7 @@ import com.xpn.xwiki.objects.classes.PropertyClass;
 @ComponentRole
 public interface StructuredDataEditorService {
 
+  String EXEC_CTX_KEY_OBJ_NB = "celements.globalvalues.cell.number";
   Set<String> LABELS_AND = ImmutableSet.of("struct-obj-filter", "struct-obj-filter-and");
   Set<String> LABELS_OR = ImmutableSet.of("struct-obj-filter-or");
 
@@ -49,8 +48,7 @@ public interface StructuredDataEditorService {
   Optional<String> getAttributeName(@NotNull XWikiDocument cellDoc, @Nullable XWikiDocument onDoc);
 
   @NotNull
-  Optional<String> getPrettyName(@NotNull DocumentReference cellDocRef)
-      throws DocumentNotExistsException;
+  Optional<String> getPrettyName(@NotNull XWikiDocument cellDoc);
 
   @NotNull
   Optional<ClassReference> getCellClassRef(@NotNull XWikiDocument cellDoc);
@@ -69,29 +67,20 @@ public interface StructuredDataEditorService {
       @Nullable XWikiDocument onDoc);
 
   @NotNull
-  Optional<String> getCellValueAsString(@NotNull DocumentReference cellDocRef,
-      @Nullable XWikiDocument onDoc) throws DocumentNotExistsException;
+  Stream<BaseObject> streamXObjectsForCell(@NotNull XWikiDocument cellDoc,
+      @Nullable XWikiDocument onDoc);
 
   @NotNull
   Optional<String> getCellValueAsString(@NotNull XWikiDocument cellDoc,
       @Nullable XWikiDocument onDoc);
 
-  /**
-   * since 4.0 instead use {@link SelectTagServiceRole#getSelectCellDocRef}
-   */
-  @Deprecated
-  Optional<DocumentReference> getSelectCellDocRef(DocumentReference cellDocRef);
-
-  Optional<String> getDateFormatFromField(DocumentReference cellDocRef)
-      throws DocumentNotExistsException;
+  Optional<String> getDateFormatFromField(XWikiDocument cellDoc);
 
   @NotNull
-  Optional<Date> getCellDateValue(@NotNull DocumentReference cellDocRef,
-      @Nullable XWikiDocument onDoc) throws DocumentNotExistsException;
+  Optional<Date> getCellDateValue(@NotNull XWikiDocument cellDoc, @Nullable XWikiDocument onDoc);
 
   @NotNull
-  List<String> getCellListValue(@NotNull DocumentReference cellDocRef,
-      @Nullable XWikiDocument onDoc) throws DocumentNotExistsException;
+  List<String> getCellListValue(@NotNull XWikiDocument cellDoc, @Nullable XWikiDocument onDoc);
 
   boolean hasEditField(@NotNull XWikiDocument cellDoc);
 

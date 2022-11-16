@@ -77,10 +77,10 @@ public class DateTimePageTypeTest extends AbstractComponentTest {
     XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
     expect(modelAccessMock.getDocument(eq(cellDocRef))).andReturn(cellDoc);
     Date myTestDateValue = new Date();
-    expect(structDataEditorSrvMock.getCellDateValue(eq(cellDocRef), eq(currentPageDoc)))
+    expect(structDataEditorSrvMock.getCellDateValue(same(cellDoc), eq(currentPageDoc)))
         .andReturn(Optional.of(myTestDateValue));
     String dateFormat = "mm.dd.yyy HH:MM";
-    expect(structDataEditorSrvMock.getDateFormatFromField(eq(cellDocRef)))
+    expect(structDataEditorSrvMock.getDateFormatFromField(same(cellDoc)))
         .andReturn(Optional.of(dateFormat));
     String attrName = "class_property_name";
     expect(structDataEditorSrvMock.getAttributeName(same(cellDoc), same(currentPageDoc)))

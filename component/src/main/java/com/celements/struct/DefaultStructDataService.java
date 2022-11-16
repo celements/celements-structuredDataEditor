@@ -42,6 +42,7 @@ import com.celements.struct.classes.TableClass;
 import com.celements.struct.classes.TableColumnClass;
 import com.celements.struct.table.ColumnConfig;
 import com.celements.struct.table.TableConfig;
+import com.celements.web.CelConstant;
 import com.celements.web.plugin.cmd.PageLayoutCommand;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -73,7 +74,7 @@ public class DefaultStructDataService implements StructDataService, Initializabl
 
   @Override
   public WikiReference getCentralWikiRef() {
-    return new WikiReference("celements2web");
+    return new WikiReference(CelConstant.CENTRAL_WIKI_NAME);
   }
 
   @Override

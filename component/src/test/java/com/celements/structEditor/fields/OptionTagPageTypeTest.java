@@ -47,11 +47,13 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
   private OptionTagPageType optionTagPT;
   private SelectTagServiceRole selectTagSrvMock;
   private StructuredDataEditorService structDataEditorSrvMock;
+  private IModelAccessFacade modelAccessMock;
 
   @Before
   public void setUp_OptionTagPageTypeTest() throws Exception {
     selectTagSrvMock = registerComponentMock(SelectTagServiceRole.class);
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
+    modelAccessMock = registerComponentMock(IModelAccessFacade.class);
     optionTagPT = (OptionTagPageType) Utils.getComponent(IJavaPageTypeRole.class,
         OptionTagPageType.PAGETYPE_NAME);
   }
@@ -90,24 +92,26 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
         "CurrentTestPage");
     XWikiDocument currentPageDoc = new XWikiDocument(currentDocRef);
     getContext().setDoc(currentPageDoc);
-    final IModelAccessFacade modelAccessMock = createMockAndAddToDefault(IModelAccessFacade.class);
-    optionTagPT.modelAccess = modelAccessMock;
     AttributeBuilder attributes = new DefaultAttributeBuilder();
     DocumentReference cellDocRef = new DocumentReference(getContext().getDatabase(), "TestSpace",
         "TestPage");
+    XWikiDocument cellDoc = new XWikiDocument(cellDocRef);
+    expect(modelAccessMock.getDocument(cellDocRef)).andReturn(cellDoc);
     String myTestValue = "myTestValue";
-    expect(modelAccessMock.getFieldValue(eq(cellDocRef), eq(FIELD_VALUE))).andReturn(
+    expect(modelAccessMock.getFieldValue(eq(cellDoc), eq(FIELD_VALUE))).andReturn(
         com.google.common.base.Optional.of(myTestValue)).atLeastOnce();
-    DocumentReference parentCell = new DocumentReference(getContext().getDatabase(), "TestSpace",
-        "TestParentSelectCell");
-    java.util.Optional<DocumentReference> selectCellDocRef = java.util.Optional.of(parentCell);
-    expect(selectTagSrvMock.getSelectCellDocRef(eq(cellDocRef))).andReturn(selectCellDocRef);
+    DocumentReference selectCellDocRef = new DocumentReference(getContext().getDatabase(),
+        "TestSpace", "TestParentSelectCell");
+    expect(selectTagSrvMock.getSelectCellDocRef(eq(cellDocRef)))
+        .andReturn(Optional.of(selectCellDocRef));
+    XWikiDocument selectCellDoc = new XWikiDocument(cellDocRef);
+    expect(modelAccessMock.getDocument(selectCellDocRef)).andReturn(selectCellDoc);
     Optional<String> currentStoredValue = Optional.of(myTestValue);
-    expect(structDataEditorSrvMock.getCellValueAsString(eq(parentCell), same(
-        currentPageDoc))).andReturn(currentStoredValue);
-    expect(modelAccessMock.getFieldValue(eq(cellDocRef), eq(FIELD_DISABLED))).andReturn(
+    expect(structDataEditorSrvMock.getCellValueAsString(selectCellDoc, currentPageDoc))
+        .andReturn(currentStoredValue);
+    expect(modelAccessMock.getFieldValue(eq(cellDoc), eq(FIELD_DISABLED))).andReturn(
         com.google.common.base.Optional.absent());
-    expect(modelAccessMock.getFieldValue(eq(cellDocRef), eq(FIELD_LABEL))).andReturn(
+    expect(modelAccessMock.getFieldValue(eq(cellDoc), eq(FIELD_LABEL))).andReturn(
         com.google.common.base.Optional.absent());
     replayDefault();
     optionTagPT.collectAttributes(attributes, cellDocRef);

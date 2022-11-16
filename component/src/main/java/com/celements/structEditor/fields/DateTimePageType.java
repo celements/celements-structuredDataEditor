@@ -70,18 +70,13 @@ public class DateTimePageType extends AbstractStructFieldPageType {
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     attrBuilder.addNonEmptyAttribute("type", "text");
     try {
-      Optional<Date> cellValue = getStructDataEditorService().getCellDateValue(cellDocRef,
-          modelContext.getCurrentDoc().orNull());
-      if (cellValue.isPresent()) {
-        Optional<String> dateFormat = getStructDataEditorService().getDateFormatFromField(
-            cellDocRef);
-        String value = null;
-        if (dateFormat.isPresent()) {
-          value = DateFormat.formatter(dateFormat.get()).apply(cellValue.get().toInstant());
-        }
-        attrBuilder.addNonEmptyAttribute("value", value);
-      }
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      getStructDataEditorService().getCellDateValue(cellDoc, modelContext.getCurrentDoc().orNull())
+          .map(Date::toInstant)
+          .map(getStructDataEditorService().getDateFormatFromField(cellDoc)
+              .map(DateFormat::formatter)
+              .orElse(i -> null))
+          .ifPresent(value -> attrBuilder.addNonEmptyAttribute("value", value));
       attrBuilder.addNonEmptyAttribute("type", "text");
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
           cellDoc, modelContext.getCurrentDoc().orNull()).orElse(""));

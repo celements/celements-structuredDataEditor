@@ -70,30 +70,29 @@ public class DateTimePickerPageType extends AbstractStructFieldPageType {
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     attrBuilder.addNonEmptyAttribute("type", "text");
     try {
-      Optional<Date> cellValue = getStructDataEditorService().getCellDateValue(cellDocRef,
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      Optional<Date> cellValue = getStructDataEditorService().getCellDateValue(cellDoc,
           modelContext.getCurrentDoc().orNull());
       if (cellValue.isPresent()) {
-        Optional<String> dateFormat = getStructDataEditorService().getDateFormatFromField(
-            cellDocRef);
+        Optional<String> dateFormat = getStructDataEditorService().getDateFormatFromField(cellDoc);
         String value = null;
         if (dateFormat.isPresent()) {
           value = DateFormat.formatter(dateFormat.get()).apply(cellValue.get().toInstant());
         }
         attrBuilder.addNonEmptyAttribute("value", value);
       }
-      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       attrBuilder.addNonEmptyAttribute("type", "text");
       attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
           cellDoc, modelContext.getCurrentDoc().orNull()).orElse(""));
-      List<Type> typeList = modelAccess.getFieldValue(cellDocRef, FIELD_TYPE)
+      List<Type> typeList = modelAccess.getFieldValue(cellDoc, FIELD_TYPE)
           .or(Collections.<Type>emptyList());
       Type pickerType = Iterables.getFirst(typeList, Type.DATE_PICKER);
       attrBuilder.addCssClasses(PICKER_TYPE_CSS_CLASS_MAP.get(pickerType));
       List<String> dataValueList = new ArrayList<>();
-      modelAccess.getFieldValue(cellDocRef, FIELD_FORMAT).toJavaUtil()
+      modelAccess.getFieldValue(cellDoc, FIELD_FORMAT).toJavaUtil()
           .map(format -> "\"format\" : \"" + format + "\"")
           .ifPresent(dataValueList::add);
-      modelAccess.getFieldValue(cellDocRef, FIELD_ATTRIBUTES).toJavaUtil()
+      modelAccess.getFieldValue(cellDoc, FIELD_ATTRIBUTES).toJavaUtil()
           .ifPresent(dataValueList::add);
       String dataAttr = Joiner.on(',').skipNulls().join(dataValueList);
       if (!dataAttr.isEmpty()) {
