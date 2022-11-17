@@ -2,6 +2,7 @@
 #if("$!celldoc" != '')
   #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null).docRef)
 #end
+<!-- celldoc: $!celldoc.documentReference -->
 <!-- classRef: $!services.model.serialize($classRef) -->
 
 #set($className = $classRef.name.replace('Class', ''))
@@ -32,8 +33,8 @@
     </template>
   </li>
   #foreach($obj in $services.structuredDataEditor.getObjectsForCell($celldoc.documentReference))
-  <li>
-    $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
+  <li data-obj-nb="$!obj.number">
+    $!services.celementsweb.setGlobalContextValue('cell.number', $obj.number)
     $!services.layout.renderPageLayout($objectRowLayout.layoutSpaceRef)
     <a class="struct_object_delete" href="#"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
   </li>
