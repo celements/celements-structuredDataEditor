@@ -30,7 +30,6 @@ import org.xwiki.context.Execution;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.ICellWriter;
-import com.celements.model.access.IModelAccessFacade;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.web.comparators.BaseObjectComparator;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -43,9 +42,6 @@ public class TableObjPresentationType extends AbstractTablePresentationType {
 
   @Requirement
   private StructuredDataEditorService editorService;
-
-  @Requirement
-  private IModelAccessFacade modelAccess;
 
   @Requirement
   private Execution execution;

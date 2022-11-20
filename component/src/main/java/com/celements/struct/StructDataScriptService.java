@@ -45,7 +45,6 @@ import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
 import com.celements.struct.classes.TableClass;
 import com.celements.struct.classes.TableClass.Type;
-import com.celements.struct.table.AbstractTablePresentationType;
 import com.celements.struct.table.ITablePresentationType;
 import com.celements.struct.table.TableConfig;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -100,7 +99,7 @@ public class StructDataScriptService implements ScriptService {
   }
 
   private ITablePresentationType getPresentationType(TableClass.Type type) {
-    return checkNotNull(tablePresentationTypes.get(AbstractTablePresentationType.NAME
+    return checkNotNull(tablePresentationTypes.get(ITablePresentationType.NAME
         + "-" + type.name().toLowerCase()));
   }
 

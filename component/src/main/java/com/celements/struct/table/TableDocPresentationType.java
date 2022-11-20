@@ -26,13 +26,13 @@ import java.util.List;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.ICellWriter;
 import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.search.lucene.ILuceneSearchService;
 import com.celements.search.lucene.LuceneSearchException;
 import com.celements.search.lucene.LuceneSearchResult;
+import com.celements.search.web.IWebSearchService;
 import com.celements.velocity.VelocityService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
@@ -41,6 +41,9 @@ import com.google.common.primitives.Ints;
 public class TableDocPresentationType extends AbstractTablePresentationType {
 
   public static final String NAME = ITablePresentationType.NAME + "-doc";
+
+  @Requirement
+  private IWebSearchService webSearchService;
 
   @Requirement
   private ILuceneSearchService searchService;
@@ -56,18 +59,19 @@ public class TableDocPresentationType extends AbstractTablePresentationType {
       for (DocumentReference resultDocRef : executeTableQuery(tableCfg)) {
         presentationType.writeNodeContent(writer, resultDocRef, tableCfg);
       }
-    } catch (XWikiVelocityException | LuceneSearchException exc) {
+    } catch (LuceneSearchException exc) {
       logger.warn("writeTableContent - failed for [{}]", tableCfg, exc);
       writer.appendContent("search failed: " + exc.getMessage());
     }
   }
 
   private List<DocumentReference> executeTableQuery(TableConfig tableCfg)
-      throws XWikiVelocityException, LuceneSearchException {
+      throws LuceneSearchException {
     int offset = firstNonNull(Ints.tryParse(context.getRequestParameter("offset").or("")), 0);
-    String query = velocityService.evaluateVelocityText(tableCfg.getQuery());
-    LuceneSearchResult result = searchService.search(query, tableCfg.getSortFields(),
-        ImmutableList.of());
+    LuceneSearchResult result = velocityService.evaluate(tableCfg.getQuery())
+        .map(query -> searchService.search(query, tableCfg.getSortFields(), ImmutableList.of()))
+        .orElseGet(() -> webSearchService.webSearch("", modelAccess
+            .getOrCreateDocument(tableCfg.getDocumentReference())));
     logger.debug("executeTableQuery - [{}]", result);
     return result.getResults(offset, tableCfg.getResultLimit(), DocumentReference.class);
   }

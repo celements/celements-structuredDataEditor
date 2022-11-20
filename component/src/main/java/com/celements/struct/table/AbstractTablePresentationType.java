@@ -28,6 +28,7 @@ import org.xwiki.model.reference.SpaceReference;
 import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
+import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.collect.ImmutableList;
@@ -41,6 +42,9 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
 
   @Requirement(TableRowLayoutPresentationType.NAME)
   protected ITablePresentationType rowLayoutPresentationType;
+
+  @Requirement
+  protected IModelAccessFacade modelAccess;
 
   @Requirement
   protected IWebUtilsService webUtils;
