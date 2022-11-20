@@ -1,3 +1,4 @@
 <!-- TableView -->
 #set($cellDocRef = $celldoc.getDocumentReference())
 $!services.structData.renderTable($cellDocRef)
+$!services.javascript.addExtJSfileOnce(':structEditJS/CelTable.mjs', 'file')

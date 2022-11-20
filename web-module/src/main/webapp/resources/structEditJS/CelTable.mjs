@@ -2,13 +2,9 @@ const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-in
 const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
 const START_CREATE_OBJ_NB = -2; // skip -1 in case it's already used statically in an editor
 
-class CelStructList extends HTMLUListElement {
+class CelTable {
 
   #nextCreateObjectNb = START_CREATE_OBJ_NB;
-
-  constructor() {
-    super();
-  }
 
   connectedCallback() {
     console.debug('connectedCallback', this.isConnected, this);
@@ -18,11 +14,11 @@ class CelStructList extends HTMLUListElement {
   }
 
   #observeCreate() {
-    this.#observe('a.struct_object_create', () => this.create());
+    this.#observe('a.struct_table_create', () => this.create());
   }
 
   #observeDelete(entry) {
-    this.#observe('a.struct_object_delete', e => this.delete(e), entry);
+    this.#observe('a.struct_table_delete', e => this.delete(e), entry);
   }
 
   #observe(selector, action, entry) {
@@ -53,7 +49,7 @@ class CelStructList extends HTMLUListElement {
   #newEntry() {
     if (this.template) {
       const entry = document.createElement("li");
-      entry.classList.add('struct_object_created');
+      entry.classList.add('struct_table_created');
       entry.style.opacity = '0';
       entry.style.transition = 'opacity .5s ease-out';
       entry.appendChild(this.template.content.cloneNode(true));
@@ -88,7 +84,7 @@ class CelStructList extends HTMLUListElement {
       fields.forEach(this.#markObjectAsDeleted);
       entry.style.transition = 'opacity .4s ease-in';
       requestAnimationFrame(() => entry.style.opacity = '0');
-      entry.addEventListener('transitionend', entry.classList.contains('struct_object_created')
+      entry.addEventListener('transitionend', entry.classList.contains('struct_table_created')
           ? () => entry.remove()
           : () => entry.style.display = 'none');
       console.debug('delete - removed: ', entry);
@@ -131,6 +127,6 @@ class CelStructList extends HTMLUListElement {
   }
 }
 
-if (!customElements.get('cel-struct-list')) {
-  customElements.define('cel-struct-list', CelStructList, { extends: 'ul' });
+if (!customElements.get('cel-table')) {
+  customElements.define('cel-table', CelTable);
 }
