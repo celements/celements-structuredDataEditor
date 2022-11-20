@@ -19,6 +19,9 @@
  */
 package com.celements.struct.table;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
@@ -27,7 +30,10 @@ import org.xwiki.model.reference.SpaceReference;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.pagelayout.LayoutServiceRole;
+import com.celements.web.CelConstant;
 import com.xpn.xwiki.doc.XWikiDocument;
+
+import one.util.streamex.StreamEx;
 
 @Component(TableRowLayoutPresentationType.NAME)
 public class TableRowLayoutPresentationType extends AbstractTableRowPresentationType {
@@ -40,30 +46,40 @@ public class TableRowLayoutPresentationType extends AbstractTableRowPresentation
   @Override
   protected void writeRowContent(ICellWriter writer, DocumentReference rowDocRef,
       TableConfig tableCfg) {
-    final SpaceReference layout = tableCfg.isHeaderMode()
+    final SpaceReference tableCfgLayout = tableCfg.isHeaderMode()
         ? tableCfg.getHeaderLayout()
         : tableCfg.getRowLayout();
-    if (layout != null) {
+    if (tableCfgLayout != null) {
       // TODO add attributes to subcells somehow ?
       // attributes.addCssClasses(CSS_CLASS + "_cell");
       // attributes.addCssClasses("cell_" + colCfg.getNumber());
       // attributes.addCssClasses(colCfg.getName());
       // attributes.addCssClasses(colCfg.getCssClasses());
-      if (layoutService.canRenderLayout(layout)) {
+      Optional<SpaceReference> layout = StreamEx.of(tableCfgLayout)
+          .append(Stream.of(context.getWikiRef(), CelConstant.CENTRAL_WIKI)
+              .map(wiki -> new SpaceReference(tableCfgLayout.getName(), wiki)))
+          .distinct()
+          .filter(layoutService::canRenderLayout)
+          .findFirst();
+      if (layout.isPresent()) {
         inContextDoc(rowDocRef, () -> writer.appendContent(
-            layoutService.renderPageLayout(layout)));
+            layoutService.renderPageLayout(layout.get())));
       } else {
-        writer.appendContent("Layout " + layout.getName() + " not valid");
+        writer.appendContent("Layout " + tableCfgLayout.getName() + " not valid");
       }
     } else if (tableCfg.isHeaderMode()) {
-      writer.openLevel("label", new DefaultAttributeBuilder()
-          .addCssClasses(CSS_CLASS + "_label").build());
-      writer.appendContent(resolveTitleFromDictionary(modelAccess.getOrCreateDocument(
-          tableCfg.getDocumentReference()), NAME));
-      writer.closeLevel();
+      writeDefaultLabel(writer, tableCfg);
     } else {
       writer.appendContent("No layout defined");
     }
+  }
+
+  private void writeDefaultLabel(ICellWriter writer, TableConfig tableCfg) {
+    writer.openLevel("label", new DefaultAttributeBuilder()
+        .addCssClasses(CSS_CLASS + "_label").build());
+    writer.appendContent(resolveTitleFromDictionary(modelAccess.getOrCreateDocument(
+        tableCfg.getDocumentReference()), NAME));
+    writer.closeLevel();
   }
 
   private void inContextDoc(DocumentReference docRef, Runnable runnable) {

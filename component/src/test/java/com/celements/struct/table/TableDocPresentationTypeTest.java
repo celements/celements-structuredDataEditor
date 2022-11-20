@@ -32,6 +32,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -178,8 +179,8 @@ public class TableDocPresentationTypeTest extends AbstractComponentTest {
   private void expectLuceneSearch(TableConfig table, List<DocumentReference> result, int offset)
       throws LuceneSearchException, XWikiVelocityException {
     String queryEvaluated = table.getQuery() + "Evaluated";
-    expect(getMock(VelocityService.class).evaluateVelocityText(table.getQuery()))
-        .andReturn(queryEvaluated);
+    expect(getMock(VelocityService.class).evaluate(table.getQuery()))
+        .andReturn(Optional.of(queryEvaluated));
     LuceneSearchResult resultMock = createMockAndAddToDefault(LuceneSearchResult.class);
     expect(getMock(ILuceneSearchService.class).search(queryEvaluated, table.getSortFields(),
         ImmutableList.<String>of())).andReturn(resultMock);
