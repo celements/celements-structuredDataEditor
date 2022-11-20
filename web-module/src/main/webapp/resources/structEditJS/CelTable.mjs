@@ -6,6 +6,10 @@ class CelTable {
 
   #nextCreateObjectNb = START_CREATE_OBJ_NB;
 
+  constructor() {
+    super();
+  }
+
   connectedCallback() {
     console.debug('connectedCallback', this.isConnected, this);
     this.#observeCreate();

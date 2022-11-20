@@ -79,7 +79,7 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
         .addCssClasses(CSS_CLASS + "_data").build());
     writeTableContent(writer, tableDocRef, tableCfg);
     if (!writer.hasLevelContent()) {
-      writeEmptyRow(writer, tableDocRef, tableCfg);
+      writeEmptyRow(writer, tableDocRef);
     }
     writer.closeLevel(); // ul
     writer.closeLevel(); // div scroll
@@ -111,15 +111,14 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
     writer.closeLevel(); // template
   }
 
-  private void writeEmptyRow(ICellWriter writer, DocumentReference tableDocRef,
-      TableConfig tableCfg) {
+  private void writeEmptyRow(ICellWriter writer, DocumentReference tableDocRef) {
     TableConfig emptyTableCfg = new TableConfig();
     ColumnConfig emptyColCfg = new ColumnConfig();
     emptyColCfg.setName("empty");
     emptyColCfg.setCssClasses(ImmutableList.of("row_span"));
     emptyColCfg.setContent(webUtils.getAdminMessageTool().get(getEmptyDictionaryKey()));
     emptyTableCfg.setColumns(ImmutableList.of(emptyColCfg));
-    getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, emptyTableCfg);
+    getRowPresentationType(emptyTableCfg).writeNodeContent(writer, tableDocRef, emptyTableCfg);
   }
 
   protected ITablePresentationType getRowPresentationType(TableConfig tableCfg) {
