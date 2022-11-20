@@ -33,7 +33,6 @@ import org.xwiki.model.reference.SpaceReference;
 
 import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
-import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
@@ -77,10 +76,11 @@ public abstract class AbstractTableRowPresentationType implements ITablePresenta
   public void writeNodeContent(ICellWriter writer, DocumentReference rowDocRef,
       TableConfig tableCfg) {
     logger.info("writeNodeContent - for [{}] with [{}]", rowDocRef, tableCfg);
-    AttributeBuilder attributes = new DefaultAttributeBuilder();
-    attributes.addCssClasses(getDefaultCssClass());
-    attributes.addAttribute("data-ref", modelUtils.serializeRef(rowDocRef, COMPACT_WIKI));
-    writer.openLevel("li", attributes.build());
+    writer.openLevel("li", new DefaultAttributeBuilder()
+        .addCssClasses(getDefaultCssClass())
+        .addCssClasses("cel-data-root")
+        .addAttribute("data-ref", modelUtils.serializeRef(rowDocRef, COMPACT_WIKI))
+        .build());
     writeRowContent(writer, rowDocRef, tableCfg);
     if (EDIT_ACTIONS.contains(context.getXWikiContext().getAction())) {
       if (tableCfg.isHeaderMode()) {

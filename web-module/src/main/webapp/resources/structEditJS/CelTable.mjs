@@ -34,35 +34,38 @@ class CelTable {
     return this.querySelector('template.cel_template');
   }
   
-  create() {
-    const newEntry = this.#newEntry();
-    if (newEntry) {
-      this.appendChild(newEntry);
-      requestAnimationFrame(() => newEntry.style.opacity = '1');
-      this.#observeDelete(newEntry);
-      newEntry.fire('celements:contentChanged', { 'htmlElem' : newEntry });
-      console.debug('create - new object for ', this, ': ', newEntry);
-      return newEntry;
+  create(data) {
+    const entry = this.#newEntry();
+    if (entry) {
+      this.appendChild(entry);
+      requestAnimationFrame(() => entry.style.opacity = '1');
+      this.#observeDelete(entry);
+      if (data) {
+        entry.dispatchEvent(new CustomEvent('celData:update', { detail: data }));
+      }
+      entry.fire('celements:contentChanged', { 'htmlElem' : entry });
+      console.debug('create - new row for ', this, ': ', entry);
+      return entry;
+    } else {
+      console.warn('create - illegal template in ', this);
     }
   }
 
   #newEntry() {
-    if (this.template) {
-      const entry = document.createElement("li");
+    const fragment = this.template?.content.cloneNode(true);
+    const entry = fragment?.querySelector('li');
+    if (entry) {
       entry.classList.add('struct_table_created');
       entry.style.opacity = '0';
       entry.style.transition = 'opacity .5s ease-out';
-      entry.appendChild(this.template.content.cloneNode(true));
       const objectNb = this.#nextCreateObjectNb;
       if (this.#setObjectNbIn(entry, FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
         this.#setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
         this.#setObjectNbIn(entry, 'label', 'for', objectNb);
         this.#nextCreateObjectNb--;
-        return entry;
       }
-    } else {
-      console.warn('create - illegal template for ', this);
     }
+    return entry;
   }
 
   #setObjectNbIn(entry, selector, key, objectNb) {
