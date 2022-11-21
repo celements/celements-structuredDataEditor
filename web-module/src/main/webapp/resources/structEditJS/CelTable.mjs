@@ -18,7 +18,7 @@ class CelTable extends HTMLElement {
   }
 
   #observeCreate() {
-    this.#observe('a.struct_table_create', () => this.create());
+    this.#observe('a.struct_table_create', () => this.createEntry());
   }
 
   #observeDelete(entry) {
@@ -37,21 +37,25 @@ class CelTable extends HTMLElement {
   get template() {
     return this.querySelector('template.cel_template');
   }
-  
-  create(data) {
+
+  get #dataList() {
+    return this.querySelector('ul.struct_table_data');
+  }
+
+  createEntry(data) {
     const entry = this.#newEntry();
     if (entry) {
-      this.appendChild(entry);
+      this.#dataList.appendChild(entry);
       requestAnimationFrame(() => entry.style.opacity = '1');
       this.#observeDelete(entry);
       if (data) {
         entry.dispatchEvent(new CustomEvent('celData:update', { detail: data }));
       }
       entry.fire('celements:contentChanged', { 'htmlElem' : entry });
-      console.debug('create - new row for ', this, ': ', entry);
+      console.debug('createEntry - new row for ', this, ': ', entry);
       return entry;
     } else {
-      console.warn('create - illegal template in ', this);
+      console.warn('createEntry - illegal template in ', this);
     }
   }
 
