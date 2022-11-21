@@ -2,7 +2,7 @@ const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-in
 const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
 const START_CREATE_OBJ_NB = -2; // skip -1 in case it's already used statically in an editor
 
-class CelTable {
+class CelTable extends HTMLElement {
 
   #nextCreateObjectNb = START_CREATE_OBJ_NB;
 

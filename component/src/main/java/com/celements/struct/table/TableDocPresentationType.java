@@ -56,8 +56,8 @@ public class TableDocPresentationType extends AbstractTablePresentationType {
       DocumentReference tableDocRef, TableConfig tableCfg) {
     try {
       IPresentationTypeRole<TableConfig> presentationType = getRowPresentationType(tableCfg);
-      for (DocumentReference resultDocRef : executeTableQuery(tableCfg)) {
-        presentationType.writeNodeContent(writer, resultDocRef, tableCfg);
+      for (DocumentReference result : executeTableQuery(tableCfg)) {
+        presentationType.writeNodeContent(writer, result, tableCfg);
       }
     } catch (LuceneSearchException exc) {
       logger.warn("writeTableContent - failed for [{}]", tableCfg, exc);

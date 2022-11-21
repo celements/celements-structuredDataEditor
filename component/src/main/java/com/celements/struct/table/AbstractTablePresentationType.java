@@ -78,7 +78,7 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
     writer.openLevel("ul", new DefaultAttributeBuilder()
         .addCssClasses(CSS_CLASS + "_data").build());
     writeTableContent(writer, tableDocRef, tableCfg);
-    if (!writer.hasLevelContent()) {
+    if (!isEditAction() && !writer.hasLevelContent()) {
       writeEmptyRow(writer, tableDocRef);
     }
     writer.closeLevel(); // ul
@@ -97,10 +97,14 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
     tableCfg.setHeaderMode(true);
     getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, tableCfg);
     tableCfg.setHeaderMode(false);
-    if (EDIT_ACTIONS.contains(context.getXWikiContext().getAction())) {
+    if (isEditAction()) {
       writeTemplate(writer, tableDocRef, tableCfg);
     }
     writer.closeLevel(); // ul
+  }
+
+  private boolean isEditAction() {
+    return EDIT_ACTIONS.contains(context.getXWikiContext().getAction());
   }
 
   private void writeTemplate(ICellWriter writer, DocumentReference tableDocRef,
