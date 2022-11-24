@@ -19,29 +19,34 @@
  */
 package com.celements.struct;
 
-import java.util.ArrayList;
+import static com.google.common.base.Preconditions.*;
+import static java.util.stream.Collectors.*;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
-import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.script.service.ScriptService;
 
 import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
+import com.celements.javascript.JavaScriptExternalFilesClass;
 import com.celements.model.access.IModelAccessFacade;
-import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.context.ModelContext;
-import com.celements.navigation.presentation.IPresentationTypeRole;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
+import com.celements.struct.classes.TableClass;
+import com.celements.struct.classes.TableClass.Type;
+import com.celements.struct.table.ITablePresentationType;
 import com.celements.struct.table.TableConfig;
-import com.celements.struct.table.TablePresentationType;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component("structData")
@@ -52,8 +57,8 @@ public class StructDataScriptService implements ScriptService {
   @Requirement
   private StructDataService service;
 
-  @Requirement(TablePresentationType.NAME)
-  private IPresentationTypeRole<TableConfig> tablePresentationType;
+  @Requirement
+  private Map<String, ITablePresentationType> tablePresentationTypes;
 
   @Requirement
   private IRightsAccessFacadeRole rightsAccess;
@@ -64,17 +69,28 @@ public class StructDataScriptService implements ScriptService {
   @Requirement
   private ModelContext context;
 
+  public TableConfig loadTableConfig(DocumentReference cellDocRef) {
+    if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
+      LOGGER.debug("loadTableConfig - [{}]", cellDocRef);
+      XWikiDocument doc = modelAccess.getOrCreateDocument(cellDocRef);
+      return service.loadTableConfig(doc).orElse(null);
+    }
+    return null;
+  }
+
   public String renderTable(DocumentReference cellDocRef) {
     ICellWriter writer = new DivWriter();
     if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
       LOGGER.debug("renderTable - [{}]", cellDocRef);
       XWikiDocument doc = modelAccess.getOrCreateDocument(cellDocRef);
       Optional<TableConfig> tableCfg = service.loadTableConfig(doc);
+      ITablePresentationType presentationType = getPresentationType(tableCfg
+          .map(TableConfig::getType).orElse(Type.DOC));
       if (tableCfg.isPresent()) {
-        tablePresentationType.writeNodeContent(writer, cellDocRef, tableCfg.get());
+        presentationType.writeNodeContent(writer, cellDocRef, tableCfg.get());
       } else {
         writer.openLevel(new DefaultAttributeBuilder().addCssClasses(
-            tablePresentationType.getDefaultCssClass()).build());
+            presentationType.getDefaultCssClass()).build());
         writer.appendContent("no valid table config found on: " + cellDocRef);
         writer.closeLevel();
       }
@@ -82,20 +98,19 @@ public class StructDataScriptService implements ScriptService {
     return writer.getAsString();
   }
 
+  private ITablePresentationType getPresentationType(TableClass.Type type) {
+    return checkNotNull(tablePresentationTypes.get(ITablePresentationType.NAME
+        + "-" + type.name().toLowerCase()));
+  }
+
   public List<String> getJavaScriptFiles(DocumentReference configDocRef) {
-    List<String> jsFiles = new ArrayList<>();
+    Stream<String> jsFiles = Stream.empty();
     if (rightsAccess.hasAccessLevel(configDocRef, EAccessLevel.VIEW)) {
-      try {
-        modelAccess.getXObjects(configDocRef, new ClassReference("JavaScript",
-            "ExternalFiles").getDocRef(configDocRef.getWikiReference())).stream()
-            .map(xObj -> xObj.getStringValue("filepath"))
-            .filter(file -> !file.trim().isEmpty())
-            .forEach(jsFiles::add);
-      } catch (DocumentNotExistsException exc) {
-        LOGGER.info("getLayoutJavaScriptFiles - [{}]", configDocRef, exc);
-      }
+      jsFiles = XWikiObjectFetcher.on(modelAccess.getOrCreateDocument(configDocRef))
+          .fetchField(JavaScriptExternalFilesClass.FIELD_FILEPATH)
+          .stream();
     }
-    return jsFiles;
+    return jsFiles.collect(toList());
   }
 
 }

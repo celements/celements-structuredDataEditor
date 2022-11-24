@@ -2,41 +2,45 @@
 #if("$!celldoc" != '')
   #set($classRef = $services.structuredDataEditor.getCellClassRef($celldoc.documentReference).orElse($null).docRef)
 #end
+<!-- celldoc: $!celldoc.documentReference -->
 <!-- classRef: $!services.model.serialize($classRef) -->
-#if("$!celldoc" != '')
-  #set($fieldName = $services.structuredDataEditor.getCellFieldName($celldoc.documentReference).orElse(''))
+
+#set($className = $classRef.name.replace('Class', ''))
+#foreach($layoutName in ["$!objectRowLayoutName", "ObjectList-Row-$!className", "$!{className}-EditFields"])
+  #set($layoutRef = $services.reference.create().space($layoutName).build())
+  #set($objectRowLayout = $services.layout.getPageLayoutApiForRef($layoutRef))
+  #if($objectRowLayout)#break#end
 #end
-<!-- fieldName: $!fieldName -->
-#if("$!objectRowLayoutName" == '')
-  #set($objectRowLayoutName = "$!{classRef.name.replace('Class','')}-EditFields")
-#end
-#set($objectRowLayout = $services.layout.getPageLayoutApiForRef($services.reference.create().space($objectRowLayoutName).build()))
-#if($services.layout.canRenderLayout($objectRowLayout.layoutSpaceRef))
+#set($objectHeaderLayoutRef = $services.reference.create().space("ObjectList-Header-$!{className}").build())
+#set($objectHeaderLayout = $services.layout.getPageLayoutApiForRef($objectHeaderLayoutRef))
+#if($objectRowLayout)
   <!-- objectRowLayout: $!objectRowLayout.layoutSpaceRef -->
+  $services.javascript.addExtJSfileOnce(':structEditJS/StructObjectListEdit.mjs', 'file')
   #if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings icon-plus") #end
   #if("$!iconDeleteCssClass" == '') #set($iconDeleteCssClass = "halflings icon-trash") #end
-  <li class="struct_object_creation">
+  <li class="struct_object_header">
+    #if($objectHeaderLayout)
+    <!-- objectHeaderLayout: $!objectHeaderLayout.layoutSpaceRef -->
+    $!services.layout.renderPageLayout($objectHeaderLayout.layoutSpaceRef)
+    #else
     <label class="struct_object_label">$adminMsg.get($services.model.serialize($classRef))</label>
-    <a href="#"><i class="icon $!{iconCreateCssClass}" title="create"></i></a>
-    <div class="cel_template">
+    <a class="struct_object_create" href="#"><i class="icon $!{iconCreateCssClass}" title="create"></i></a>
+    #end
+    <template class="cel_template">
       $!services.celementsweb.setGlobalContextValue('cell.number', -1)
       $!services.layout.renderPageLayout($objectRowLayout.layoutSpaceRef)
-      <a class="struct_object_delete" href="#"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
-    </div>
+      <a class="struct_object_delete" href><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
+    </template>
   </li>
-  #set($asc = !$fieldName.startsWith('-'))
-  #set($sortFieldName  = $fieldName.replaceFirst('-', ''))
-  <!-- sortFieldName: $!sortFieldName -->
-  <!-- asc: $!asc -->
-  #foreach($obj in $services.collections.getObjectsOrdered($doc, $classRef, $sortFieldName, $asc))
-  <li>
-    $!services.celementsweb.setGlobalContextValue('cell.number', $obj.getNumber())
+  #foreach($obj in $services.structuredDataEditor.getObjectsForCell($celldoc.documentReference))
+  <li data-obj-nb="$!obj.number">
+    $!services.celementsweb.setGlobalContextValue('cell.number', $obj.number)
     $!services.layout.renderPageLayout($objectRowLayout.layoutSpaceRef)
     <a class="struct_object_delete" href="#"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
   </li>
   #end
   $!services.celementsweb.setGlobalContextValue('cell.number', $null)
 #else ## canRenderLayout
-  <li>No valid Layout found at '$!objectRowLayoutName'</li>
+  <li>No valid Layout found at '$!objectRowLayoutName' or 'ObjectList-Row-$!className'</li>
 #end
 #set($objectRowLayoutName = '')

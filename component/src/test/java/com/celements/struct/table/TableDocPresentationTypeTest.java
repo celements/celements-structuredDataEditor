@@ -32,6 +32,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,9 +57,9 @@ import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
 import com.xpn.xwiki.web.XWikiRequest;
 
-public class TablePresentationTypeTest extends AbstractComponentTest {
+public class TableDocPresentationTypeTest extends AbstractComponentTest {
 
-  private TablePresentationType presentationType;
+  private TableDocPresentationType presentationType;
   private XWikiDocument tableDoc;
 
   private XWikiMessageTool msgToolMock;
@@ -67,8 +68,8 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
   public void prepareTest() throws Exception {
     registerComponentMocks(IModelAccessFacade.class, IWebUtilsService.class,
         IPageTypeResolverRole.class, ILuceneSearchService.class, VelocityService.class);
-    presentationType = (TablePresentationType) Utils.getComponent(IPresentationTypeRole.class,
-        TablePresentationType.NAME);
+    presentationType = (TableDocPresentationType) Utils.getComponent(IPresentationTypeRole.class,
+        TableDocPresentationType.NAME);
     tableDoc = new XWikiDocument(new DocumentReference("xwikidb", "space", "tabledoc"));
     msgToolMock = createMockAndAddToDefault(XWikiMessageTool.class);
     expect(getMock(IWebUtilsService.class).getAdminMessageTool()).andReturn(msgToolMock).anyTimes();
@@ -178,8 +179,8 @@ public class TablePresentationTypeTest extends AbstractComponentTest {
   private void expectLuceneSearch(TableConfig table, List<DocumentReference> result, int offset)
       throws LuceneSearchException, XWikiVelocityException {
     String queryEvaluated = table.getQuery() + "Evaluated";
-    expect(getMock(VelocityService.class).evaluateVelocityText(table.getQuery()))
-        .andReturn(queryEvaluated);
+    expect(getMock(VelocityService.class).evaluate(table.getQuery()))
+        .andReturn(Optional.of(queryEvaluated));
     LuceneSearchResult resultMock = createMockAndAddToDefault(LuceneSearchResult.class);
     expect(getMock(ILuceneSearchService.class).search(queryEvaluated, table.getSortFields(),
         ImmutableList.<String>of())).andReturn(resultMock);

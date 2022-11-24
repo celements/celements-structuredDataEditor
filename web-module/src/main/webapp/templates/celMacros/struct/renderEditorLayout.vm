@@ -8,6 +8,7 @@
 #if("$!structDataEditorSpace" != '')
  #set($structDataEditorSpaceRef = $services.reference.create().space($structDataEditorSpace).build())
 #end
+<!-- structDataEditorSpaceRef: $!structDataEditorSpaceRef -->
 #set($structDataEditorSpace = $structDataEditorSpaceRef.name)
 #set($layout = $services.layout.getPageLayoutApiForRef($structDataEditorSpaceRef))
 #if($services.layout.canRenderLayout($layout.layoutSpaceRef))

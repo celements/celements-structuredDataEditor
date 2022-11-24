@@ -25,4 +25,6 @@
   #set($cel_editobj_properties = "${cel_editobj_properties},${prop.name}")
 #end
 #set($cel_editobj_readonly_properties = '')
+#if($cel_editobj_objects.size() > 0)
 #parse("celTemplates/ObjectEdit.vm")
+#end

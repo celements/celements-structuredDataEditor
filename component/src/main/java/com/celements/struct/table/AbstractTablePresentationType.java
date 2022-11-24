@@ -26,53 +26,110 @@ import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 
 import com.celements.cells.DivWriter;
-import com.celements.cells.attribute.AttributeBuilder;
+import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.model.access.IModelAccessFacade;
-import com.celements.model.classes.ClassDefinition;
 import com.celements.model.context.ModelContext;
-import com.celements.model.util.ModelUtils;
-import com.celements.navigation.presentation.IPresentationTypeRole;
-import com.celements.pagetype.service.IPageTypeResolverRole;
-import com.celements.struct.StructDataService;
-import com.celements.structEditor.StructuredDataEditorService;
-import com.celements.structEditor.classes.StructuredDataEditorClass;
-import com.celements.velocity.VelocityService;
 import com.celements.web.service.IWebUtilsService;
+import com.google.common.collect.ImmutableList;
 
-public abstract class AbstractTablePresentationType implements IPresentationTypeRole<TableConfig> {
+public abstract class AbstractTablePresentationType implements ITablePresentationType {
 
-  protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+  protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  public static final String STRUCT_TABLE_DIR = "/templates/celStruct/table";
-  public static final String CSS_CLASS = "struct_table";
+  @Requirement(TableRowColumnPresentationType.NAME)
+  protected ITablePresentationType rowColumnPresentationType;
 
-  @Requirement(StructuredDataEditorClass.CLASS_DEF_HINT)
-  protected ClassDefinition structFieldClassDef;
-
-  @Requirement
-  protected StructDataService structDataService;
-
-  @Requirement
-  protected StructuredDataEditorService structDataEditorService;
-
-  @Requirement
-  protected VelocityService velocityService;
-
-  @Requirement
-  protected IPageTypeResolverRole pageTypeResolver;
-
-  @Requirement
-  protected IWebUtilsService webUtils;
+  @Requirement(TableRowLayoutPresentationType.NAME)
+  protected ITablePresentationType rowLayoutPresentationType;
 
   @Requirement
   protected IModelAccessFacade modelAccess;
 
   @Requirement
-  protected ModelUtils modelUtils;
+  protected IWebUtilsService webUtils;
 
   @Requirement
   protected ModelContext context;
+
+  @Override
+  public String getDefaultCssClass() {
+    return CSS_CLASS;
+  }
+
+  @Override
+  public String getEmptyDictionaryKey() {
+    return CSS_CLASS + "_nodata";
+  }
+
+  @Override
+  public void writeNodeContent(ICellWriter writer, DocumentReference tableDocRef,
+      TableConfig tableCfg) {
+    logger.info("writeNodeContent - for [{}] with [{}]", tableDocRef, tableCfg);
+    writer.openLevel("cel-table", new DefaultAttributeBuilder()
+        .addId(tableCfg.getCssId())
+        .addCssClasses(getDefaultCssClass())
+        .addCssClasses(tableCfg.getCssClasses())
+        .addNonEmptyAttribute("type", tableCfg.getType().name())
+        .build());
+    writeHeader(writer, tableDocRef, tableCfg);
+    writer.openLevel("div", new DefaultAttributeBuilder()
+        .addCssClasses(CSS_CLASS + "_scroll").build());
+    writer.openLevel("ul", new DefaultAttributeBuilder()
+        .addCssClasses(CSS_CLASS + "_data").build());
+    writeTableContent(writer, tableDocRef, tableCfg);
+    if (!isEditAction() && !writer.hasLevelContent()) {
+      writeEmptyRow(writer, tableDocRef);
+    }
+    writer.closeLevel(); // ul
+    writer.closeLevel(); // div scroll
+    writer.closeLevel(); // cel-table
+  }
+
+  protected abstract void writeTableContent(ICellWriter writer,
+      DocumentReference tableDocRef, TableConfig tableCfg);
+
+  protected void writeHeader(ICellWriter writer, DocumentReference tableDocRef,
+      TableConfig tableCfg) {
+    logger.debug("writeHeader - for [{}]", tableCfg);
+    writer.openLevel("ul", new DefaultAttributeBuilder()
+        .addCssClasses(CSS_CLASS + "_header").build());
+    tableCfg.setHeaderMode(true);
+    getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, tableCfg);
+    tableCfg.setHeaderMode(false);
+    if (isEditAction()) {
+      writeTemplate(writer, tableDocRef, tableCfg);
+    }
+    writer.closeLevel(); // ul
+  }
+
+  private boolean isEditAction() {
+    return EDIT_ACTIONS.contains(context.getXWikiContext().getAction());
+  }
+
+  private void writeTemplate(ICellWriter writer, DocumentReference tableDocRef,
+      TableConfig tableCfg) {
+    writer.openLevel("template", new DefaultAttributeBuilder()
+        .addCssClasses("cel_template").build());
+    getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, tableCfg);
+    writer.closeLevel(); // template
+  }
+
+  private void writeEmptyRow(ICellWriter writer, DocumentReference tableDocRef) {
+    TableConfig emptyTableCfg = new TableConfig();
+    ColumnConfig emptyColCfg = new ColumnConfig();
+    emptyColCfg.setName("empty");
+    emptyColCfg.setCssClasses(ImmutableList.of("row_span"));
+    emptyColCfg.setContent(webUtils.getAdminMessageTool().get(getEmptyDictionaryKey()));
+    emptyTableCfg.setColumns(ImmutableList.of(emptyColCfg));
+    getRowPresentationType(emptyTableCfg).writeNodeContent(writer, tableDocRef, emptyTableCfg);
+  }
+
+  protected ITablePresentationType getRowPresentationType(TableConfig tableCfg) {
+    return tableCfg.getColumns().isEmpty()
+        ? rowLayoutPresentationType
+        : rowColumnPresentationType;
+  }
 
   @Override
   public void writeNodeContent(StringBuilder writer, boolean isFirstItem, boolean isLastItem,
@@ -83,10 +140,6 @@ public abstract class AbstractTablePresentationType implements IPresentationType
   @Override
   public SpaceReference getPageLayoutForDoc(DocumentReference docRef) {
     return null;
-  }
-
-  protected AttributeBuilder newAttributeBuilder() {
-    return new DefaultAttributeBuilder();
   }
 
 }

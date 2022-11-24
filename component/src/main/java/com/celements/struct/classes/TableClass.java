@@ -25,6 +25,7 @@ import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.ClassReference;
+import org.xwiki.model.reference.SpaceReference;
 
 import com.celements.model.classes.AbstractClassDefinition;
 import com.celements.model.classes.fields.ClassField;
@@ -32,16 +33,25 @@ import com.celements.model.classes.fields.LargeStringField;
 import com.celements.model.classes.fields.StringField;
 import com.celements.model.classes.fields.list.DisplayType;
 import com.celements.model.classes.fields.list.StringListField;
+import com.celements.model.classes.fields.list.single.EnumSingleListField;
 import com.celements.model.classes.fields.number.IntField;
+import com.celements.model.classes.fields.ref.SpaceReferenceField;
 
 @Singleton
 @Component(TableClass.CLASS_DEF_HINT)
 public class TableClass extends AbstractClassDefinition implements StructDataClass {
 
+  public enum Type {
+    DOC, OBJ;
+  }
+
   public static final String SPACE_NAME = "Celements";
   public static final String DOC_NAME = "StructTableClass";
   public static final String CLASS_DEF_HINT = SPACE_NAME + "." + DOC_NAME;
   public static final ClassReference CLASS_REF = new ClassReference(SPACE_NAME, DOC_NAME);
+
+  public static final ClassField<Type> FIELD_TYPE = new EnumSingleListField.Builder<>(
+      CLASS_REF, "type", Type.class).build();
 
   public static final ClassField<String> FIELD_QUERY = new LargeStringField.Builder(
       CLASS_REF, "query").build();
@@ -59,6 +69,12 @@ public class TableClass extends AbstractClassDefinition implements StructDataCla
   public static final ClassField<List<String>> FIELD_CSS_CLASSES = new StringListField.Builder<>(
       CLASS_REF, "css_classes").multiSelect(true).separator(", ").displayType(DisplayType.input)
           .size(30).build();
+
+  public static final ClassField<SpaceReference> FIELD_LAYOUT_HEADER = new SpaceReferenceField.Builder(
+      CLASS_REF, "header_layout").build();
+
+  public static final ClassField<SpaceReference> FIELD_LAYOUT_ROW = new SpaceReferenceField.Builder(
+      CLASS_REF, "row_layout").build();
 
   public TableClass() {
     super(CLASS_REF);
