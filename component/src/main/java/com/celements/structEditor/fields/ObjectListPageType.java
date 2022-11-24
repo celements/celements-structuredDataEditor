@@ -52,7 +52,7 @@ public class ObjectListPageType extends AbstractStructFieldPageType {
   public void collectAttributes(final AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      attrBuilder.addAttribute("is", "cel-struct-list");
+      attrBuilder.addAttribute("is", "cel-struct-object-list");
       attrBuilder.addCssClasses("struct_object");
       getStructDataEditorService().getCellClassRef(cellDoc)
           .ifPresent(classRef -> attrBuilder.addNonEmptyAttribute("data-struct-class",

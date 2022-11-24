@@ -2,76 +2,48 @@ const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-in
 const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
 const START_CREATE_OBJ_NB = -2; // skip -1 in case it's already used statically in an editor
 
-class CelTable extends HTMLElement {
+export class StructEntryHandler {
 
   #nextCreateObjectNb = START_CREATE_OBJ_NB;
+  #rootElem;
+  #cssClassCreated;
 
-  constructor() {
-    super();
+  constructor(rootElem, cssClassCreated) {
+    this.#rootElem = rootElem;
+    this.#cssClassCreated = cssClassCreated;
   }
 
-  connectedCallback() {
-    console.debug('connectedCallback', this.isConnected, this);
-    this.#observeCreate();
-    this.#observeDelete();
-    this.#observeSaveAndContinue();
+  hasCreatedEntry() {
+    return this.#nextCreateObjectNb < START_CREATE_OBJ_NB;
   }
 
-  #observeCreate() {
-    this.#observe('a.struct_table_create', () => this.createEntry());
-  }
-
-  #observeDelete(entry) {
-    this.#observe('a.struct_table_delete', e => this.delete(e), entry);
-  }
-
-  #observe(selector, action, entry) {
-    (entry || this).querySelectorAll(selector)
-      .forEach(link => link.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        action(entry || event.target.closest('li'));
-      }));
-  }
-
-  get template() {
-    return this.querySelector('template.cel_template');
-  }
-
-  get #dataList() {
-    return this.querySelector('ul.struct_table_data');
-  }
-
-  createEntry(data) {
-    const entry = this.#newEntry();
-    if (entry) {
-      this.#dataList.appendChild(entry);
-      requestAnimationFrame(() => entry.style.opacity = '1');
-      this.#observeDelete(entry);
-      if (data) {
-        entry.dispatchEvent(new CustomEvent('celData:update', { detail: data }));
-      }
-      entry.fire('celements:contentChanged', { 'htmlElem' : entry });
-      console.debug('createEntry - new row for ', this, ': ', entry);
-      return entry;
-    } else {
-      console.warn('createEntry - illegal template in ', this);
+  create(template, data) {
+    const entry = this.#createEntry(template);
+    this.#rootElem.appendChild(entry);
+    requestAnimationFrame(() => entry.style.opacity = '1');
+    if (data) {
+      entry.dispatchEvent(new CustomEvent('celData:update', { detail: data }));
     }
+    entry.fire('celements:contentChanged', { 'htmlElem' : entry });
+    console.debug('create - new row in', this.#rootElem, ':', entry);
+    return entry;
   }
 
-  #newEntry() {
-    const fragment = this.template?.content.cloneNode(true);
-    const entry = fragment?.querySelector('li');
-    if (entry) {
-      entry.classList.add('struct_table_created');
-      entry.style.opacity = '0';
-      entry.style.transition = 'opacity .5s ease-out';
-      const objectNb = this.#nextCreateObjectNb;
-      if (this.#setObjectNbIn(entry, FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
-        this.#setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
-        this.#setObjectNbIn(entry, 'label', 'for', objectNb);
-        this.#nextCreateObjectNb--;
-      }
+  #createEntry(template) {
+    const fragment = template?.content.cloneNode(true);
+    let entry = fragment?.firstElementChild;
+    if (fragment?.childElementCount != 1 || entry?.tagName !== 'LI') {
+      entry = document.createElement('li');
+      entry.appendChild(fragment);
+    }
+    entry.classList.add(this.#cssClassCreated);
+    entry.style.opacity = '0';
+    entry.style.transition = 'opacity .5s ease-out';
+    const objectNb = this.#nextCreateObjectNb;
+    if (this.#setObjectNbIn(entry, FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
+      this.#setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
+      this.#setObjectNbIn(entry, 'label', 'for', objectNb);
+      this.#nextCreateObjectNb--;
     }
     return entry;
   }
@@ -95,10 +67,10 @@ class CelTable extends HTMLElement {
       fields.forEach(this.#markObjectAsDeleted);
       entry.style.transition = 'opacity .4s ease-in';
       requestAnimationFrame(() => entry.style.opacity = '0');
-      entry.addEventListener('transitionend', entry.classList.contains('struct_table_created')
+      entry.addEventListener('transitionend', entry.classList.contains(this.#cssClassCreated)
           ? () => entry.remove()
           : () => entry.style.display = 'none');
-      console.debug('delete - removed: ', entry);
+      console.debug('delete - removed:', entry);
     }
   }
 
@@ -123,18 +95,72 @@ class CelTable extends HTMLElement {
     }
   }
 
-  #observeSaveAndContinue() {
+  observeClick(link, action) {
+    link?.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      action(event);
+    });
+  }
+
+  observeSave() {
     const structManager = window.celStructEditorManager;
-    if (structManager) {
-      structManager.isStartFinished()
-        ? structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', event => this.#markReload(event))
-        : structManager.celObserve('structEdit:finishedLoading', event => this.#observeSaveAndContinue());
-    }
+    if (!structManager) return;
+    structManager.isStartFinished()
+      ? structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', event => this.#markReload(event))
+      : structManager.celObserve('structEdit:finishedLoading', event => this.observeSave());
   }
 
   #markReload(event) {
     const detail = (event.detail || event.memo);
-    detail.reload = detail.reload || (this.#nextCreateObjectNb < START_CREATE_OBJ_NB);
+    detail.reload = detail.reload || this.hasCreatedEntry();
+  }
+}
+
+export class CelTable extends HTMLElement {
+
+  #handler;
+
+  constructor() {
+    super();
+    this.#handler = new StructEntryHandler(this.#dataList, 'struct_table_created');
+  }
+
+  get template() {
+    return this.querySelector('template.cel_template');
+  }
+
+  get #dataList() {
+    return this.querySelector('ul.struct_table_data');
+  }
+
+  connectedCallback() {
+    console.debug('connectedCallback', this);
+    this.#observeCreate();
+    this.#observeDelete();
+    this.#handler.observeSave();
+  }
+
+  #observeCreate() {
+    this.querySelectorAll('a.struct_table_create')
+      .forEach(link => this.#handler.observeClick(link,
+        event => this.createEntry()));
+  }
+
+  #observeDelete(entry) {
+    (entry || this).querySelectorAll('a.struct_table_delete')
+      .forEach(link => this.#handler.observeClick(link,
+        event => this.delete(event.target.closest('li'))));
+  }
+
+  createEntry(data) {
+    const entry = this.#handler.create(this.template, data);
+    this.#observeDelete(entry);
+    return entry;
+  }
+
+  delete(entry) {
+    return this.#handler.delete(entry);
   }
 }
 

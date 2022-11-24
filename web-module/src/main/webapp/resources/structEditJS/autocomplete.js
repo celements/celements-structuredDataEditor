@@ -97,8 +97,7 @@
       if (data.loading) return data.text;
       const templates = window.CELEMENTS.structEdit.autocomplete.templates;
       const templateBuilder = templates[type] || templates.default;
-      const template = templateBuilder(data);
-      return template;
+      return templateBuilder(data);
     };
   };
 
