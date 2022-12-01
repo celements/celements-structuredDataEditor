@@ -19,7 +19,6 @@
  */
 package com.celements.struct.table;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.xwiki.component.annotation.Component;
@@ -29,9 +28,9 @@ import org.xwiki.model.reference.SpaceReference;
 
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
+import com.celements.model.context.Contextualiser;
 import com.celements.pagelayout.LayoutServiceRole;
 import com.celements.web.CelConstant;
-import com.xpn.xwiki.doc.XWikiDocument;
 
 import one.util.streamex.StreamEx;
 
@@ -55,23 +54,27 @@ public class TableRowLayoutPresentationType extends AbstractTableRowPresentation
       // attributes.addCssClasses("cell_" + colCfg.getNumber());
       // attributes.addCssClasses(colCfg.getName());
       // attributes.addCssClasses(colCfg.getCssClasses());
-      Optional<SpaceReference> layout = StreamEx.of(tableCfgLayout)
+      writer.appendContent(StreamEx.of(tableCfgLayout)
           .append(Stream.of(context.getWikiRef(), CelConstant.CENTRAL_WIKI)
               .map(wiki -> new SpaceReference(tableCfgLayout.getName(), wiki)))
           .distinct()
           .filter(layoutService::canRenderLayout)
-          .findFirst();
-      if (layout.isPresent()) {
-        inContextDoc(rowDocRef, () -> writer.appendContent(
-            layoutService.renderPageLayout(layout.get())));
-      } else {
-        writer.appendContent("Layout " + tableCfgLayout.getName() + " not valid");
-      }
+          .findFirst()
+          .map(layout -> renderRowLayout(rowDocRef, layout))
+          .orElseGet(() -> "Layout " + tableCfgLayout.getName() + " not valid"));
     } else if (tableCfg.isHeaderMode()) {
       writeDefaultLabel(writer, tableCfg);
     } else {
       writer.appendContent("No layout defined");
     }
+  }
+
+  private String renderRowLayout(DocumentReference rowDocRef, SpaceReference layout) {
+    return new Contextualiser()
+        .withDoc(context.getCurrentDoc().toJavaUtil()
+            .filter(doc -> doc.getDocumentReference().equals(rowDocRef))
+            .orElseGet(() -> modelAccess.getOrCreateDocument(rowDocRef)))
+        .execute(() -> layoutService.renderPageLayout(layout));
   }
 
   private void writeDefaultLabel(ICellWriter writer, TableConfig tableCfg) {
@@ -80,18 +83,6 @@ public class TableRowLayoutPresentationType extends AbstractTableRowPresentation
     writer.appendContent(resolveTitleFromDictionary(modelAccess.getOrCreateDocument(
         tableCfg.getDocumentReference()), NAME));
     writer.closeLevel();
-  }
-
-  private void inContextDoc(DocumentReference docRef, Runnable runnable) {
-    XWikiDocument currDoc = context.getCurrentDoc().orNull();
-    if ((currDoc != null) && !currDoc.getDocumentReference().equals(docRef)) {
-      context.setDoc(modelAccess.getOrCreateDocument(docRef));
-    }
-    try {
-      runnable.run();
-    } finally {
-      context.setDoc(currDoc);
-    }
   }
 
 }
