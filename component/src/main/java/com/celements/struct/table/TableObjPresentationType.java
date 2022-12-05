@@ -42,7 +42,7 @@ public class TableObjPresentationType extends AbstractTablePresentationType {
   public static final String NAME = ITablePresentationType.NAME + "-obj";
 
   @Requirement
-  private StructuredDataEditorService editorService;
+  protected StructuredDataEditorService editorService;
 
   @Override
   protected void writeHeader(ICellWriter writer,
