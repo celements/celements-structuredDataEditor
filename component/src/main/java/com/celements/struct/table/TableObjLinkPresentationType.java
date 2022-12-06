@@ -20,11 +20,13 @@
 package com.celements.struct.table;
 
 import static com.celements.cells.CellRenderStrategy.*;
+import static java.util.Comparator.*;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
@@ -38,6 +40,7 @@ import com.celements.model.field.XObjectStringFieldAccessor;
 import com.celements.model.util.ReferenceSerializationMode;
 import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.web.comparators.XDocumentFieldComparator;
+import com.celements.web.comparators.XDocumentFieldComparator.SortField;
 import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -47,7 +50,7 @@ import one.util.streamex.StreamEx;
 @Component(TableObjLinkPresentationType.NAME)
 public class TableObjLinkPresentationType extends TableObjPresentationType {
 
-  public static final String NAME = ITablePresentationType.NAME + "-obj-link";
+  public static final String NAME = ITablePresentationType.NAME + "-objlink";
 
   private static final String CTX_PREFIX = EXEC_CTX_KEY + ".source";
   private static final List<String> LINK_FIELDS = ImmutableList.of("reference", "ref", "link");
@@ -64,9 +67,7 @@ public class TableObjLinkPresentationType extends TableObjPresentationType {
       XWikiDocument onDoc = context.getCurrentDoc().get();
       StreamEx.of(editorService.streamXObjectsForCell(tableDoc, onDoc))
           .mapPartial(this::buildObjLinkRow)
-          .sorted(Comparator.comparing(row -> row.linkedDoc,
-              new XDocumentFieldComparator(StreamEx.of(tableCfg.getSortFields())
-                  .mapPartial(XDocumentFieldComparator.SortField::parse))))
+          .sorted(getRowComparator(tableCfg))
           .forEach(row -> new Contextualiser()
               .withExecContext(CTX_PREFIX + EXEC_CTX_KEY_DOC_SUFFIX, onDoc)
               .withExecContext(CTX_PREFIX + EXEC_CTX_KEY_OBJ_NB_SUFFIX, row.linkObj.getNumber())
@@ -84,6 +85,12 @@ public class TableObjLinkPresentationType extends TableObjPresentationType {
             .baseRef(context.getCurrentDocRef().get())
             .build().getResolver())
         .map(ref -> new ObjLinkRow(obj, modelAccess.getOrCreateDocument(ref)));
+  }
+
+  private Comparator<ObjLinkRow> getRowComparator(TableConfig tableCfg) {
+    Stream<SortField> sorts = StreamEx.of(tableCfg.getSortFields())
+        .mapPartial(SortField::parse);
+    return comparing(row -> row.linkedDoc, new XDocumentFieldComparator(sorts));
   }
 
   private class ObjLinkRow {
