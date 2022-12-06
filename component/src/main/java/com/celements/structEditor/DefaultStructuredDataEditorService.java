@@ -70,7 +70,6 @@ import com.celements.structEditor.classes.StructuredDataEditorClass;
 import com.celements.velocity.VelocityService;
 import com.celements.web.classes.KeyValueClass;
 import com.celements.web.comparators.BaseObjectComparator;
-import com.celements.web.service.CelementsWebScriptService;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -376,8 +375,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private Optional<Integer> getNumberFromExecutionContext() {
     return Stream.of("objNb", CellRenderStrategy.EXEC_CTX_KEY_OBJ_NB,
-        CelementsWebScriptService.CEL_GLOBALVAL_PREFIX + "cell"
-            + CellRenderStrategy.EXEC_CTX_KEY_OBJ_NB_SUFFIX)
+        CellRenderStrategy.EXEC_CTX_KEY_GLOBAL_OBJ_NB)
         .map(exec.getContext()::getProperty)
         .map(Objects::toString)
         .map(Ints::tryParse)
