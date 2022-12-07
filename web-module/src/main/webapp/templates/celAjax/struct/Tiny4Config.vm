@@ -37,10 +37,10 @@ $!services.rteconfig.setRteConfigHint("tinymce4")
 #end
 ## lookup the rte valid elements in XWiki- and WebPreferences and
 ## default back to the standard configuration
-#set($rte_valid_elements = $celementsweb.getRTEConfigField('valid_elements'))
+#set($rte_valid_elements = $services.rteconfig.getRTEConfigField('valid_elements'))
 ## lookup the rte invalid elements in XWiki- and WebPreferences and
 ## default back to the standard configuration
-#set($rte_invalid_elements = $celementsweb.getRTEConfigField('invalid_elements'))
+#set($rte_invalid_elements = $services.rteconfig.getRTEConfigField('invalid_elements'))
 ## lookup the rte button layout in XWiki- and WebPreferences and
 ## default back to the standard fields
 #set($rteRows = [])
