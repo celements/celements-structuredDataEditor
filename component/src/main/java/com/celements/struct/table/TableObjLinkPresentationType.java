@@ -61,20 +61,18 @@ public class TableObjLinkPresentationType extends TableObjPresentationType {
   @Override
   protected void writeTableContent(ICellWriter writer,
       DocumentReference tableDocRef, TableConfig tableCfg) {
-    if (context.getCurrentDoc().isPresent()) {
-      IPresentationTypeRole<TableConfig> presentationType = getRowPresentationType(tableCfg);
-      XWikiDocument tableDoc = modelAccess.getOrCreateDocument(tableDocRef);
-      XWikiDocument onDoc = context.getCurrentDoc().get();
-      StreamEx.of(editorService.streamXObjectsForCell(tableDoc, onDoc))
-          .mapPartial(this::buildObjLinkRow)
-          .sorted(getRowComparator(tableCfg))
-          .forEach(row -> new Contextualiser()
-              .withExecContext(CTX_PREFIX + EXEC_CTX_KEY_DOC_SUFFIX, onDoc)
-              .withExecContext(CTX_PREFIX + EXEC_CTX_KEY_OBJ_NB_SUFFIX, row.linkObj.getNumber())
-              .withVeloContext("srcdoc", onDoc.newDocument(context.getXWikiContext()))
-              .withVeloContext("rowdoc", row.linkedDoc.newDocument(context.getXWikiContext()))
-              .execute(() -> presentationType.writeNodeContent(writer, row.getDocRef(), tableCfg)));
-    }
+    IPresentationTypeRole<TableConfig> presentationType = getRowPresentationType(tableCfg);
+    XWikiDocument tableDoc = modelAccess.getOrCreateDocument(tableDocRef);
+    XWikiDocument onDoc = context.getCurrentDoc().or(tableDoc);
+    StreamEx.of(editorService.streamXObjectsForCell(tableDoc, onDoc))
+        .mapPartial(this::buildObjLinkRow)
+        .sorted(getRowComparator(tableCfg))
+        .forEach(row -> new Contextualiser()
+            .withExecContext(CTX_PREFIX + EXEC_CTX_KEY_DOC_SUFFIX, onDoc)
+            .withExecContext(CTX_PREFIX + EXEC_CTX_KEY_OBJ_NB_SUFFIX, row.linkObj.getNumber())
+            .withVeloContext("srcdoc", onDoc.newDocument(context.getXWikiContext()))
+            .withVeloContext("rowdoc", row.linkedDoc.newDocument(context.getXWikiContext()))
+            .execute(() -> presentationType.writeNodeContent(writer, row.getDocRef(), tableCfg)));
   }
 
   private Optional<ObjLinkRow> buildObjLinkRow(BaseObject obj) {

@@ -45,6 +45,7 @@ public class TableRowLayoutPresentationType extends AbstractTableRowPresentation
   @Override
   protected void writeRowContent(ICellWriter writer, DocumentReference rowDocRef,
       TableConfig tableCfg) {
+    logger.debug("rendering row [{}]", rowDocRef);
     final SpaceReference tableCfgLayout = tableCfg.isHeaderMode()
         ? tableCfg.getHeaderLayout()
         : tableCfg.getRowLayout();
