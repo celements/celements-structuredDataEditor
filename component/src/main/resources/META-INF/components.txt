@@ -37,7 +37,5 @@ com.celements.struct.table.TableRowColumnPresentationType
 com.celements.struct.table.TableRowLayoutPresentationType
 com.celements.struct.table.TablePageType
 com.celements.struct.DefaultSelectTagService
-com.celements.tinymce4.TinyMce4Config
-com.celements.tinymce4.RteTinyMce4
 com.celements.struct.view.StructuredDataViewPageType
 com.celements.struct.edit.autocomplete.DefaultAutocomplete
