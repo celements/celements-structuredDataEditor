@@ -56,5 +56,5 @@ $!services.layout.renderPageLayout($layout.layoutSpaceRef)
 #set($structDataEditorSpace = $null)
 
 #elseif($isSuperAdmin) ## canRenderLayout && isEditorLayoutType
-  <p>No Editor Layout found for: ${structDataEditorSpaceRef}</p>
+  <!-- Editor Layout not found -->
 #end
