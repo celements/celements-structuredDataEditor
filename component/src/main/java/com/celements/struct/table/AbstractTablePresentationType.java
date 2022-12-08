@@ -92,18 +92,18 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
 
   protected void writeHeader(ICellWriter writer, DocumentReference tableDocRef,
       TableConfig tableCfg) {
-    tableCfg.setHeaderMode(true);
     logger.debug("writeHeader - for [{}]", tableCfg);
     writer.openLevel("ul", new DefaultAttributeBuilder()
         .addCssClasses(CSS_CLASS + "_header").build());
     getHeaderContexualiser().execute(() -> {
+      tableCfg.setHeaderMode(true);
       getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, tableCfg);
+      tableCfg.setHeaderMode(false);
       if (isEditAction()) {
         writeTemplate(writer, tableDocRef, tableCfg);
       }
     });
     writer.closeLevel(); // ul
-    tableCfg.setHeaderMode(false);
   }
 
   protected Contextualiser getHeaderContexualiser() {
