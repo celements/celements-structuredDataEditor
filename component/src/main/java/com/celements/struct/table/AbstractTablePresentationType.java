@@ -29,6 +29,7 @@ import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.model.access.IModelAccessFacade;
+import com.celements.model.context.Contextualiser;
 import com.celements.model.context.ModelContext;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.collect.ImmutableList;
@@ -95,12 +96,18 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
     writer.openLevel("ul", new DefaultAttributeBuilder()
         .addCssClasses(CSS_CLASS + "_header").build());
     tableCfg.setHeaderMode(true);
-    getRowPresentationType(tableCfg).writeNodeContent(writer, tableDocRef, tableCfg);
+    getHeaderContexualiser().execute(() -> getRowPresentationType(tableCfg)
+        .writeNodeContent(writer, tableDocRef, tableCfg));
     tableCfg.setHeaderMode(false);
     if (isEditAction()) {
       writeTemplate(writer, tableDocRef, tableCfg);
     }
     writer.closeLevel(); // ul
+  }
+
+  protected Contextualiser getHeaderContexualiser() {
+    return new Contextualiser()
+        .withVeloContext("isHeaderMode", true);
   }
 
   private boolean isEditAction() {

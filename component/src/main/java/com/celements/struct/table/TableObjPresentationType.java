@@ -45,12 +45,10 @@ public class TableObjPresentationType extends AbstractTablePresentationType {
   protected StructuredDataEditorService editorService;
 
   @Override
-  protected void writeHeader(ICellWriter writer,
-      DocumentReference tableDocRef, TableConfig tableCfg) {
-    // template in header should have negative objNb
-    new Contextualiser()
-        .withExecContext(EXEC_CTX_KEY_OBJ_NB, -1)
-        .execute(() -> super.writeHeader(writer, tableDocRef, tableCfg));
+  protected Contextualiser getHeaderContexualiser() {
+    return super.getHeaderContexualiser()
+        // template in header should have negative objNb
+        .withExecContext(EXEC_CTX_KEY_OBJ_NB, -1);
   }
 
   @Override
