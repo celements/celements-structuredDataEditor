@@ -52,8 +52,8 @@ public class TableObjLinkPresentationType extends TableObjPresentationType {
 
   public static final String NAME = ITablePresentationType.NAME + "-objlink";
 
-  private static final String CTX_PREFIX = EXEC_CTX_KEY + ".source";
-  private static final List<String> LINK_FIELDS = ImmutableList.of("reference", "ref", "link");
+  static final String CTX_PREFIX = EXEC_CTX_KEY + ".source";
+  static final List<String> LINK_FIELDS = ImmutableList.of("reference", "ref", "link");
 
   @Requirement(XObjectStringFieldAccessor.NAME)
   protected StringFieldAccessor<BaseObject> xObjStrFieldAccessor;
