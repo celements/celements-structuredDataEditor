@@ -350,6 +350,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Override
   public Stream<BaseObject> streamXObjectsForCell(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    LOGGER.trace("streamXObjectsForCell: for [{}] on [{}]", cellDoc, onDoc);
     Stream<BaseObject> objs = (onDoc != null)
         ? newXObjFetcher(cellDoc, onDoc).stream()
         : Stream.empty();
@@ -365,7 +366,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         () -> getNumberFromRequest(),
         () -> getNumberFromExecutionContext(),
         () -> getNumberFromComputedField(cellDoc));
-    ret.ifPresent(nb -> LOGGER.debug("getContextDependentObjNb: got [{}] for [{}]", nb, cellDoc));
+    LOGGER.debug("getContextDependentObjNb: got [{}] for [{}]", ret, cellDoc);
     return ret;
   }
 
@@ -374,7 +375,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Optional<Integer> getNumberFromExecutionContext() {
-    return Stream.of("objNb", CellRenderStrategy.EXEC_CTX_KEY_OBJ_NB)
+    return Stream.of("objNb", CellRenderStrategy.EXEC_CTX_KEY_OBJ_NB,
+        CellRenderStrategy.EXEC_CTX_KEY_GLOBAL_OBJ_NB)
         .map(exec.getContext()::getProperty)
         .map(Objects::toString)
         .map(Ints::tryParse)

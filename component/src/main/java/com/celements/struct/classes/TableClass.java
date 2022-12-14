@@ -42,7 +42,7 @@ import com.celements.model.classes.fields.ref.SpaceReferenceField;
 public class TableClass extends AbstractClassDefinition implements StructDataClass {
 
   public enum Type {
-    DOC, OBJ;
+    DOC, OBJ, OBJLINK;
   }
 
   public static final String SPACE_NAME = "Celements";

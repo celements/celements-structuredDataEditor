@@ -33,6 +33,7 @@ com.celements.struct.classes.TableColumnClass
 com.celements.struct.classes.StructLayoutClass
 com.celements.struct.table.TableDocPresentationType
 com.celements.struct.table.TableObjPresentationType
+com.celements.struct.table.TableObjLinkPresentationType
 com.celements.struct.table.TableRowColumnPresentationType
 com.celements.struct.table.TableRowLayoutPresentationType
 com.celements.struct.table.TablePageType

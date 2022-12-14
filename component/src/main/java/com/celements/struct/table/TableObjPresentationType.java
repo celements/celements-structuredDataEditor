@@ -26,10 +26,11 @@ import java.util.stream.Stream;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.Requirement;
-import org.xwiki.context.Execution;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.ICellWriter;
+import com.celements.model.context.Contextualiser;
+import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.web.comparators.BaseObjectComparator;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -41,41 +42,29 @@ public class TableObjPresentationType extends AbstractTablePresentationType {
   public static final String NAME = ITablePresentationType.NAME + "-obj";
 
   @Requirement
-  private StructuredDataEditorService editorService;
-
-  @Requirement
-  private Execution execution;
+  protected StructuredDataEditorService editorService;
 
   @Override
-  protected void writeHeader(ICellWriter writer,
-      DocumentReference tableDocRef, TableConfig tableCfg) {
-    try {
-      // template in header should have negative objNb
-      execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, -1);
-      super.writeHeader(writer, tableDocRef, tableCfg);
-    } finally {
-      execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, null);
-    }
+  protected Contextualiser getHeaderContexualiser() {
+    return super.getHeaderContexualiser()
+        // template in header should have negative objNb
+        .withExecContext(EXEC_CTX_KEY_OBJ_NB, -1);
   }
 
   @Override
   protected void writeTableContent(ICellWriter writer,
       DocumentReference tableDocRef, TableConfig tableCfg) {
     if (context.getCurrentDoc().isPresent()) {
-      try {
-        XWikiDocument tableDoc = modelAccess.getOrCreateDocument(tableDocRef);
-        XWikiDocument onDoc = context.getCurrentDoc().get();
-        Stream<BaseObject> objs = editorService.streamXObjectsForCell(tableDoc, onDoc);
-        Comparator<BaseObject> comp = BaseObjectComparator
-            .create(tableCfg.getSortFields()).orElse(null);
-        ((comp != null) ? objs.sorted(comp) : objs).forEach(obj -> {
-          execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, obj.getNumber());
-          getRowPresentationType(tableCfg).writeNodeContent(writer,
-              onDoc.getDocumentReference(), tableCfg);
-        });
-      } finally {
-        execution.getContext().setProperty(EXEC_CTX_KEY_OBJ_NB, null);
-      }
+      IPresentationTypeRole<TableConfig> presentationType = getRowPresentationType(tableCfg);
+      XWikiDocument tableDoc = modelAccess.getOrCreateDocument(tableDocRef);
+      XWikiDocument onDoc = context.getCurrentDoc().get();
+      Stream<BaseObject> objs = editorService.streamXObjectsForCell(tableDoc, onDoc);
+      Comparator<BaseObject> comp = BaseObjectComparator
+          .create(tableCfg.getSortFields()).orElse(null);
+      ((comp != null) ? objs.sorted(comp) : objs).forEach(obj -> new Contextualiser()
+          .withExecContext(EXEC_CTX_KEY_OBJ_NB, obj.getNumber())
+          .execute(() -> presentationType.writeNodeContent(writer,
+              onDoc.getDocumentReference(), tableCfg)));
     }
   }
 
