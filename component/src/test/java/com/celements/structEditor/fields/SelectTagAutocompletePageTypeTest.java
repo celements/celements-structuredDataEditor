@@ -35,7 +35,8 @@ import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.cells.classes.CellClass;
 import com.celements.common.test.AbstractComponentTest;
-import com.celements.model.access.ModelAccessStrategy;
+import com.celements.model.access.IModelAccessFacade;
+import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.celements.struct.SelectTagServiceRole;
 import com.celements.struct.edit.autocomplete.AutocompleteRole;
@@ -53,7 +54,7 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
 
   @Before
   public void setUp_OptionTagPageTypeTest() throws Exception {
-    registerComponentMock(ModelAccessStrategy.class);
+    registerComponentMock(IModelAccessFacade.class);
     selectTagSrvMock = registerComponentMock(SelectTagServiceRole.class);
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
     autocompleteMock = createMockAndAddToDefault(AutocompleteRole.class);
@@ -128,10 +129,11 @@ public class SelectTagAutocompletePageTypeTest extends AbstractComponentTest {
 
   }
 
-  private static final XWikiDocument expectDoc(DocumentReference docRef) {
+  private static final XWikiDocument expectDoc(DocumentReference docRef)
+      throws DocumentNotExistsException {
     XWikiDocument doc = new XWikiDocument(docRef);
     doc.setNew(false);
-    expect(getMock(ModelAccessStrategy.class).getDocument(doc.getDocumentReference(), ""))
+    expect(getMock(IModelAccessFacade.class).getDocument(doc.getDocumentReference()))
         .andReturn(doc);
     return doc;
   }
