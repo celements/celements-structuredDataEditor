@@ -30,6 +30,7 @@ public class DateTimePageTypeTest extends AbstractComponentTest {
 
   @Before
   public void setUp_DateTimePageTypeTest() throws Exception {
+    registerComponentMocks(IModelAccessFacade.class);
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
     dateTimePT = (DateTimePageType) Utils.getComponent(IJavaPageTypeRole.class,
         DateTimePageType.PAGETYPE_NAME);
