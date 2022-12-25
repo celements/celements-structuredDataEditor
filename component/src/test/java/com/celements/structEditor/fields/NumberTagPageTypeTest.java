@@ -32,7 +32,8 @@ import org.xwiki.model.reference.DocumentReference;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.common.test.AbstractComponentTest;
-import com.celements.model.access.ModelAccessStrategy;
+import com.celements.model.access.IModelAccessFacade;
+import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -45,7 +46,7 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
 
   @Before
   public void prepareTest() throws Exception {
-    registerComponentMock(ModelAccessStrategy.class);
+    registerComponentMock(IModelAccessFacade.class);
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
     pageType = (NumberTagPageType) Utils.getComponent(IJavaPageTypeRole.class,
         NumberTagPageType.PAGETYPE_NAME);
@@ -98,25 +99,25 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
 
   @Test
   public void test_collectAttributes_cellDocNotExists() throws Exception {
-    XWikiDocument cellDoc = new XWikiDocument(new DocumentReference(
-        getContext().getDatabase(), "Layout", "Cell"));
-    cellDoc.setNew(true);
-    expect(getMock(ModelAccessStrategy.class).getDocument(cellDoc.getDocumentReference(), ""))
-        .andReturn(cellDoc);
+    DocumentReference cellDocRef = new DocumentReference(
+        getContext().getDatabase(), "Layout", "Cell");
+    expect(getMock(IModelAccessFacade.class).getDocument(cellDocRef))
+        .andThrow(new DocumentNotExistsException(cellDocRef));
     AttributeBuilder attributes = new DefaultAttributeBuilder();
 
     replayDefault();
-    pageType.collectAttributes(attributes, cellDoc.getDocumentReference());
+    pageType.collectAttributes(attributes, cellDocRef);
     verifyDefault();
 
     assertEquals(1, attributes.build().size());
     assertAttribute(attributes, "type", "number");
   }
 
-  private static final XWikiDocument expectDoc(DocumentReference docRef) {
+  private static final XWikiDocument expectDoc(DocumentReference docRef)
+      throws DocumentNotExistsException {
     XWikiDocument doc = new XWikiDocument(docRef);
     doc.setNew(false);
-    expect(getMock(ModelAccessStrategy.class).getDocument(doc.getDocumentReference(), ""))
+    expect(getMock(IModelAccessFacade.class).getDocument(doc.getDocumentReference()))
         .andReturn(doc);
     return doc;
   }
