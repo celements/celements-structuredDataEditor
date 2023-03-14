@@ -5,7 +5,8 @@ $jsonBuilder.openDictionary()##
   $jsonBuilder.addProperty('type', "$!autoComplete.name")##
   $jsonBuilder.addProperty('cellRef', "$!request.cellRef")##
   $jsonBuilder.addProperty('searchterm', "$!request.searchterm")##
-  $jsonBuilder.addProperty('addNewUrl', "$!autoComplete.addNewUrl")##
+##  $jsonBuilder.addProperty('addNewUrl', "$!autoComplete.addNewUrl")##
+  $jsonBuilder.addProperty('addNewUrl', "https://jazztime.progdev.sneakapeek.ch/ajax/struct/testNewPlace")##
   #set($offset = $util.parseInt("$!request.offset"))##
   #if($offset < 0) #set($offset = 0) #end##
   $jsonBuilder.addProperty('offset', $offset)##
