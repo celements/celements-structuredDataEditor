@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,6 +188,25 @@ public class DefaultAutocomplete implements AutocompleteRole {
       log.debug("unable to resolve ref: {}", exc.getMessage(), exc);
       return Optional.empty();
     }
+  }
+
+  @Override
+  public final String getAddNewUrl() {
+    try {
+      @NotNull
+      Optional<UriBuilder> newUriBuilderOpt = getAddNewUri();
+      if (newUriBuilderOpt.isPresent()) {
+        return newUriBuilderOpt.get().build().toString();
+      }
+    } catch (Exception exp) {
+      log.warn("getAddNewUrl UriBuilder failed.", exp);
+    }
+    return "";
+  }
+
+  @NotNull
+  protected Optional<UriBuilder> getAddNewUri() {
+    return Optional.empty();
   }
 
 }

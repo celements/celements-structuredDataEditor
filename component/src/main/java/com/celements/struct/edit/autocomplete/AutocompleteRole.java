@@ -58,4 +58,7 @@ public interface AutocompleteRole {
   String displayNameForValue(@Nullable DocumentReference onDocRef,
       @Nullable DocumentReference cellDocRef);
 
+  @NotNull
+  String getAddNewUrl();
+
 }

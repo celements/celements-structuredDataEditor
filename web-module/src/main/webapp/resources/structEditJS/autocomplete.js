@@ -75,13 +75,22 @@
    */
   const processResults = function (response, params) {
     params.page = params.page || 1;
-    return {
-      results: (response.results || [])
+    const resultElems = (response.results || [])
         .map(elem => {
           elem.id = elem.fullName;
           elem.text = elem.name;
           return elem;
-        }).filter(elem => elem.id && elem.text),
+        }).filter(elem => elem.id && elem.text);
+    if (!response.hasMore && (response.addNewUrl !== '')) {
+      resultElems.push({
+          'id' : 'addNewButton',
+          'text' : 'nothing found? add new',
+          'addNewUrl' : response.addNewUrl,
+          'addNewButton' : true
+      });
+    }
+    return {
+      results: resultElems,
       pagination: {
         more: response.hasMore
       }

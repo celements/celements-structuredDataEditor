@@ -5,6 +5,7 @@ $jsonBuilder.openDictionary()##
   $jsonBuilder.addProperty('type', "$!autoComplete.name")##
   $jsonBuilder.addProperty('cellRef', "$!request.cellRef")##
   $jsonBuilder.addProperty('searchterm', "$!request.searchterm")##
+  $jsonBuilder.addProperty('addNewUrl', "$!autoComplete.addNewUrl")##
   #set($offset = $util.parseInt("$!request.offset"))##
   #if($offset < 0) #set($offset = 0) #end##
   $jsonBuilder.addProperty('offset', $offset)##
