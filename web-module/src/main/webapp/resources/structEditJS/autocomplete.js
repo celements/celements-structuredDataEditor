@@ -86,7 +86,8 @@
           'id' : 'addNewButton',
           'text' : 'nothing found? add new',
           'addNewUrl' : response.addNewUrl,
-          'addNewButton' : true
+          'addNewButton' : true,
+          'disabled': true
       });
     }
     return {
