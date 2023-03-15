@@ -74,6 +74,7 @@
    * scrolling can be used
    */
   const processResults = function (response, params) {
+    const selectElem = this;
     params.page = params.page || 1;
     const resultElems = (response.results || [])
         .map(elem => {
@@ -81,13 +82,14 @@
           elem.text = elem.name;
           return elem;
         }).filter(elem => elem.id && elem.text);
-    if (!response.hasMore && (response.addNewUrl !== '')) {
+    if (!response.hasMore && ((response.addNewUrl || '') !== '')) {
       resultElems.push({
           'id' : 'addNewButton',
           'text' : 'nothing found? add new',
           'addNewUrl' : response.addNewUrl,
           'addNewButton' : true,
-          'disabled': true
+          'disabled': true,
+          'select2' : selectElem
       });
     }
     return {
@@ -130,7 +132,7 @@
       allowClear: true,
       selectionCssClass: "structSelectContainer " + type + "SelectContainer " + cssClasses,
       dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown " + cssClasses,
-      ajax: buildSelect2Request(type, cellRef),
+      ajax: buildSelect2Request.bind(selectElem)(type, cellRef),
       escapeMarkup: function (markup) {
         // default Utils.escapeMarkup is HTML-escaping the value. Because
         // we formated the value using HTML it must not be further escaped.
@@ -143,13 +145,14 @@
   };
 
   const buildSelect2Request = function(type, cellRef, limit = 10) {
+    const selectElem = this;
     return {
       url: "/OrgExport/REST",
       dataType: 'json',
       delay: 250,
       cache: true,
       timeout: 30000,
-      processResults : processResults,
+      processResults : processResults.bind(selectElem),
       data: function(params) {
         const page = params.page || 1;
         const offset = (page - 1 ) * limit;
