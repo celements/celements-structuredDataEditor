@@ -79,7 +79,12 @@
         console.log('addNewButton returned', event.data);
         theAddNewPopup.close();
         const option = new Option(event.data.text, event.data.id, true, true);
-        selectElem.append(option).trigger('change');
+        selectElem.append(option);
+        selectElem.dispatchEvent(new Event("change", {
+          view: window,
+          bubbles: true,
+          cancelable: true,
+        }));
       });
     });
     const itemElem = document.createElement('div')
