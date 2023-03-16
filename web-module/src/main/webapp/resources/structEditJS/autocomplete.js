@@ -82,7 +82,9 @@
           elem.text = elem.name;
           return elem;
         }).filter(elem => elem.id && elem.text);
-    if (!response.hasMore && ((response.addNewUrl || '') !== '')) {
+    const addNewUrl = response.addNewUrl || '';
+    if (!response.hasMore && (addNewUrl !== '')) {
+      console.debug('add new url', addNewUrl);
       resultElems.push({
           'id' : 'addNewButton',
           'text' : 'nothing found? add new',
