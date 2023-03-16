@@ -30,27 +30,7 @@
   if(typeof window.CELEMENTS.structEdit.autocomplete.templates==="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
   if(typeof window.CELEMENTS.structEdit.autocomplete.templates.default==="undefined"){
     window.CELEMENTS.structEdit.autocomplete.templates.default = function templateDefault(data) {
-      if (data.addNewButton) {
-        const selectElem = data.select2;
-        console.log('default autocomplete template: ', data);
-        const buttonElem = document.createElement('div');
-        buttonElem.classList.add('button', 'celOpenInOverlay');
-        buttonElem.setAttribute('data-url', data.addNewUrl);
-        buttonElem.insertAdjacentText('beforeend', data.text)
-        buttonElem.addEventListener('click', function(e) {
-          console.log('add new default entity:.');
-          if (confirm('add new default entity?')) {
-            const option = new Option("Beispiel neue default entity", "DefaultNEUTest123", true, true);
-            selectElem.append(option).trigger('change');
-          }
-        });
-        const itemElem = document.createElement('div')
-          .appendChild(buttonElem);
-        itemElem.classList.add('result', 'clearfix');
-        return itemElem;
-      } else {
-        return data.html || `<div class="result">${data.name}</div>`
-      }
+      return data.html || `<div class="result">${data.name}</div>`
     };
   }
 
@@ -87,6 +67,24 @@
     });
   };
 
+  const addNewButtonElem = function(selectElem, addNewUrl) {
+    const buttonElem = document.createElement('div');
+    buttonElem.classList.add('button', 'celOpenInOverlay');
+    buttonElem.setAttribute('data-url', addNewUrl);
+    buttonElem.insertAdjacentText('beforeend', 'nothing found? add new')
+    buttonElem.addEventListener('click', function() {
+      console.log('add new default entity:.');
+      if (confirm('add new default entity?')) {
+        const option = new Option("Beispiel neue default entity", "DefaultNEUTest123", true, true);
+        selectElem.append(option).trigger('change');
+      }
+    });
+    const itemElem = document.createElement('div')
+      .appendChild(buttonElem);
+    itemElem.classList.add('result', 'clearfix');
+    return itemElem;
+  };
+
   /**
    * parse the results into the format expected by Select2
    * since we are using custom formatting functions we do not need to
@@ -106,12 +104,7 @@
     if (!response.hasMore && (addNewUrl !== '')) {
       console.debug('add new url', addNewUrl);
       resultElems.push({
-          'id' : 'addNewButton',
-          'text' : 'nothing found? add new',
-          'addNewUrl' : response.addNewUrl,
-          'addNewButton' : true,
-          'disabled': true,
-          'select2' : selectElem
+          'html' : addNewButtonElem(selectElem, addNewUrl)
       });
     }
     return {
