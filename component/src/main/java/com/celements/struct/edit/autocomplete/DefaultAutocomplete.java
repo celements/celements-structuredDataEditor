@@ -196,7 +196,7 @@ public class DefaultAutocomplete implements AutocompleteRole {
       @NotNull
       Optional<UriBuilder> newUriBuilderOpt = getAddNewUri();
       if (newUriBuilderOpt.isPresent()) {
-        return newUriBuilderOpt.get().build().toString();
+        return newUriBuilderOpt.get().build().toURL().toExternalForm();
       }
     } catch (Exception exp) {
       log.warn("getAddNewUrl UriBuilder failed.", exp);
