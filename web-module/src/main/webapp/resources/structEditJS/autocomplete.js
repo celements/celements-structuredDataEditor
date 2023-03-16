@@ -30,7 +30,27 @@
   if(typeof window.CELEMENTS.structEdit.autocomplete.templates==="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
   if(typeof window.CELEMENTS.structEdit.autocomplete.templates.default==="undefined"){
     window.CELEMENTS.structEdit.autocomplete.templates.default = function templateDefault(data) {
-      return data.html || `<div class="result">${data.name}</div>`
+      if (data.addNewButton) {
+        const selectElem = data.select2;
+        console.log('default autocomplete template: ', data);
+        const buttonElem = document.createElement('div');
+        buttonElem.classList.add('button', 'celOpenInOverlay');
+        buttonElem.setAttribute('data-url', data.addNewUrl);
+        buttonElem.insertAdjacentText('beforeend', data.text)
+        buttonElem.addEventListener('click', function(e) {
+          console.log('add new default entity:.');
+          if (confirm('add new default entity?')) {
+            const option = new Option("Beispiel neue default entity", "DefaultNEUTest123", true, true);
+            selectElem.append(option).trigger('change');
+          }
+        });
+        const itemElem = document.createElement('div')
+          .appendChild(buttonElem);
+        itemElem.classList.add('result', 'clearfix');
+        return itemElem;
+      } else {
+        return data.html || `<div class="result">${data.name}</div>`
+      }
     };
   }
 
