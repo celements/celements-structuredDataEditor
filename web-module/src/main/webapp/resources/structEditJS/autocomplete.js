@@ -74,10 +74,13 @@
     buttonElem.insertAdjacentText('beforeend', 'nothing found? add new')
     buttonElem.addEventListener('click', function() {
       console.log('add new default entity:.');
-      if (confirm('add new default entity?')) {
-        const option = new Option("Beispiel neue default entity", "DefaultNEUTest123", true, true);
+      const theAddNewPopup = window.open(addNewUrl, '_blank', 'popup=true');
+      theAddNewPopup.addEventListener('message', (event) => {
+        console.log('addNewButton returned', event.data);
+        theAddNewPopup.close();
+        const option = new Option(event.data.text, event.data.id, true, true);
         selectElem.append(option).trigger('change');
-      }
+      });
     });
     const itemElem = document.createElement('div')
       .appendChild(buttonElem);
