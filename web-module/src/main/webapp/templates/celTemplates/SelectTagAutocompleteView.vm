@@ -7,13 +7,15 @@
 #set($autoComplete = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($cellDocRef).orElse($null))
 #set($propClass = $services.structuredDataEditor.getCellPropertyClass($cellDocRef))
 #if("$!autoComplete" != '')
-  $services.javascript.addExtJSfileOnce(':structEditJS/select2/select2.full.min.js', 'file')
-  $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/de.js', 'file')
-  $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/fr.js', 'file')
-  $services.javascript.addExtJSfileOnce(':structEditJS/select2/i18n/en.js', 'file')
-  $services.javascript.addExtJSfileOnce(":structEditJS/autocomplete.js", 'file')
+  #set($jsService = $services.javascript)
+  #set($extJsParamSync = $!jsService.createExtJSParam().setAction('file'))
+  $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':structEditJS/select2/select2.full.min.js'))##
+  $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':structEditJS/select2/i18n/de.js'))##
+  $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':structEditJS/select2/i18n/fr.js'))##
+  $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':structEditJS/select2/i18n/en.js'))##
+  $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':structEditJS/autocomplete.mjs'))##
   #if("$!autoComplete.jsFilePath" != '')
-    $services.javascript.addExtJSfileOnce(":${autoComplete.jsFilePath}", 'file')
+    $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':${autoComplete.jsFilePath}'))##
   #end
   #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef).orElse($null))
   #if("$!currentDocRefValue" != '')
