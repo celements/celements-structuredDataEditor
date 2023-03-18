@@ -18,39 +18,66 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-(function(window, undefined) {
-  "use strict";
+if(typeof window.CELEMENTS.structEdit==="undefined"){window.CELEMENTS.structEdit={}}
+if(typeof window.CELEMENTS.structEdit.autocomplete==="undefined"){window.CELEMENTS.structEdit.autocomplete={};}
 
-  //TODO [CELDEV-937] Struct autocomplete.js refactoring to Class 
+// templates for rendering autocomplete results may be defined within this object
+if(typeof window.CELEMENTS.structEdit.autocomplete.templates==="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
 
-  if(typeof window.CELEMENTS.structEdit==="undefined"){window.CELEMENTS.structEdit={}}
-  if(typeof window.CELEMENTS.structEdit.autocomplete==="undefined"){window.CELEMENTS.structEdit.autocomplete={};}
+class AutocompleteTemplates {
+  #templates;
 
-  // templates for rendering autocomplete results may be defined within this object
-  if(typeof window.CELEMENTS.structEdit.autocomplete.templates==="undefined"){window.CELEMENTS.structEdit.autocomplete.templates={};}
-  if(typeof window.CELEMENTS.structEdit.autocomplete.templates.default==="undefined"){
-    window.CELEMENTS.structEdit.autocomplete.templates.default = function templateDefault(data) {
-      return data.html || `<div class="result">${data.name}</div>`
+  constructor() {
+    this.#templates = [];
+    this.registerTemplate('default', data => data.html || `<div class="result">${data.name}</div>`);
+  }
+  
+  registerTemplate(name, templateFunc) {
+    if (typof(templateFunc) === 'function') {
+      this.#templates[name] = templateFunc;
+    } else {
+      console.error('cannot register template', name, templateFunc);
+    }
+  }  
+  
+  getTemplateSupplier(type) {
+    const _me = this;
+    return function(data) {
+      if (data.loading) return data.text;
+      const templateBuilder = _me.#templates.get(type) || _me.#templates('default');
+      return templateBuilder(data);
     };
   }
 
-  const checkInitAutocomplete = function() {
-    $(document.body).stopObserving('structEdit:initAutocomplete',  initAutocomplete);
-    $(document.body).observe('structEdit:initAutocomplete',  initAutocomplete);
-    $(document.body).stopObserving("celements:contentChanged", initAutocomplete);
-    $(document.body).observe("celements:contentChanged", initAutocomplete);
-    $(document.body).stopObserving("cel_yuiOverlay:contentChanged", initAutocomplete);
-    $(document.body).observe("cel_yuiOverlay:contentChanged", initAutocomplete);
-    if (!celMessages.isLoaded) {
-      console.debug('observe cel:messagesLoaded for initAutocomplete ');
-      $(document.body).stopObserving('cel:messagesLoaded',  initAutocomplete);
-      $(document.body).observe('cel:messagesLoaded',  initAutocomplete);
-    } else {
-      initAutocomplete();
-    }
-  };
+}
 
-  const initAutocomplete = function() {
+export class CelAutocomplete {
+  static #renderTemplates;
+  
+  constructor() {
+    CelAutocomplete.#renderTemplates = new AutocompleteTemplates();
+    (document.readyState === 'loading')
+        ? document.addEventListener('DOMContentLoaded', () => this.#checkInitAutocomplete)
+        : this.#checkInitAutocomplete();
+  }
+
+  registerTemplate(name, templateFunc) {
+    CelAutocomplete.#renderTemplates.registerTemplate(name, templateFunc);
+  }  
+
+  #checkInitAutocomplete() {
+    $(document.body).observe('structEdit:initAutocomplete',  () => this.#initAutocomplete);
+    $(document.body).observe("celements:contentChanged", () => this.#initAutocomplete);
+    $(document.body).observe("cel_yuiOverlay:contentChanged", () => this.#initAutocomplete);
+    if (!celMessages.isLoaded) {
+      console.debug('observe cel:messagesLoaded for initAutocomplete');
+      $(document.body).observe('cel:messagesLoaded', () => this.#initAutocomplete);
+    } else {
+      this.#initAutocomplete();
+    }
+  }
+
+  #initAutocomplete() {
     //TODO: lazily load i18n/de.js"
     const language = ((window.celMessages && window.celMessages.celmeta)
         ? window.celMessages.celmeta.language : '')
@@ -58,56 +85,26 @@
     document.querySelectorAll('.structAutocomplete:not(.initialised)').forEach(selectElem => {
       try {
         selectElem.classList.add('initialised');
-        $j(selectElem).select2(buildSelect2Config(selectElem, language))
-        $j(selectElem).on('select2:unselect', clearSelectOptions);
+        $j(selectElem).select2(this.#buildSelect2Config(selectElem, language))
+        $j(selectElem).on('select2:unselect', () => this.clearSelectOptions);
         console.debug('initAutocomplete: done', selectElem, language)
       } catch (exc) {
         console.error('initAutocomplete: failed', selectElem, exc);
       }
     });
-  };
+    this.#registerDeprecatedTemplates();
+  }
 
-  /**
-   * parse the results into the format expected by Select2
-   * since we are using custom formatting functions we do not need to
-   * alter the remote JSON data, except to indicate that infinite
-   * scrolling can be used
-   */
-  const processResults = function (response, params) {
-    params.page = params.page || 1;
-    return {
-      results: (response.results || [])
-        .map(elem => {
-          elem.id = elem.fullName;
-          elem.text = elem.name;
-          return elem;
-        }).filter(elem => elem.id && elem.text),
-      pagination: {
-        more: response.hasMore
-      }
-    };
-  };
+  #registerDeprecatedTemplates() {
+    const templates = window.CELEMENTS.structEdit.autocomplete.templates;
+    for(const type in templates) {
+      console.warn('Deprecated registering of autocomplete template.'
+        + ' Instead use celAutocompleteInstance.registerTemplate', type);
+      CelAutocomplete.#renderTemplates.registerTemplate(type, templates[type]);
+    }
+  }
 
-  const templateSelection = function(data) {
-    return data.text || data.id;
-  };
-
-  const getTemplateSupplier = function(type) {
-    return function(data) {
-      if (data.loading) return data.text;
-      const templates = window.CELEMENTS.structEdit.autocomplete.templates;
-      const templateBuilder = templates[type] || templates.default;
-      return templateBuilder(data);
-    };
-  };
-
-  const clearSelectOptions = function(event) {
-    const selectElem = event.target;
-    console.debug('clearSelectOptions', selectElem);
-    selectElem.innerHTML = '<option selected="selected" value="">delete</option>';
-  };
-
-  const buildSelect2Config = function(selectElem, language) {
+  #buildSelect2Config(selectElem, language) {
     const cellRef = selectElem.dataset.cellRef || '';
     const classField = selectElem.dataset.classField || ''; 
     const type = selectElem.dataset.autocompleteType || '';
@@ -120,26 +117,53 @@
       allowClear: true,
       selectionCssClass: "structSelectContainer " + type + "SelectContainer " + cssClasses,
       dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown " + cssClasses,
-      ajax: buildSelect2Request(type, cellRef),
+      ajax: () => this.buildSelect2Request(type, cellRef),
       escapeMarkup: function (markup) {
         // default Utils.escapeMarkup is HTML-escaping the value. Because
         // we formated the value using HTML it must not be further escaped.
         return markup;
       },
       minimumInputLength: 3,
-      templateResult: getTemplateSupplier(type),
-      templateSelection: templateSelection
+      templateResult: CelAutocomplete.#renderTemplates.getTemplateSupplier(type),
+      templateSelection: (data) => data.text || data.id
     };
-  };
+  }
 
-  const buildSelect2Request = function(type, cellRef, limit = 10) {
+  clearSelectOptions(event) {
+    const selectElem = event.target;
+    console.debug('clearSelectOptions', selectElem);
+    selectElem.innerHTML = '<option selected="selected" value="">delete</option>';
+  }
+  
+  /**
+   * parse the results into the format expected by Select2
+   * since we are using custom formatting functions we do not need to
+   * alter the remote JSON data, except to indicate that infinite
+   * scrolling can be used
+   */
+  processResultsFunc(response, params) {
+    params.page = params.page || 1;
+    return {
+      results: (response.results || [])
+        .map(elem => {
+          elem.id = elem.fullName;
+          elem.text = elem.name;
+          return elem;
+        }).filter(elem => elem.id && elem.text),
+      pagination: {
+        more: response.hasMore
+      }
+    };
+  }
+
+  buildSelect2Request(type, cellRef, limit = 10) {
     return {
       url: "/OrgExport/REST",
       dataType: 'json',
       delay: 250,
       cache: true,
       timeout: 30000,
-      processResults : processResults,
+      processResults : this.processResultsFunc,
       data: function(params) {
         const page = params.page || 1;
         const offset = (page - 1 ) * limit;
@@ -160,10 +184,9 @@
         console.log("lookup exception:", e.statusText);
       }
     };
-  };
+  }
 
-  (document.readyState === 'loading')
-      ? document.addEventListener('DOMContentLoaded', checkInitAutocomplete)
-      : checkInitAutocomplete();
+}
+export const celAutocompleteInstance = new CelAutocomplete;
+window.CELEMENTS.structEdit.autocomplete.autocompleteInstance = celAutocompleteInstance;
 
-})(window);
