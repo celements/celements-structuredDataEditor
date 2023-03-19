@@ -16,7 +16,7 @@
   $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':structEditJS/autocomplete.mjs'))##
   #if("$!{autoComplete.jsFilePath}" != '')
     <!-- autoComplete : $!{autoComplete} -->
-##    <!-- autoComplete.jsFilePath : $!{autoComplete.jsFilePath} -->
+    <!-- autoComplete.jsFilePath : $!{autoComplete.getJsFilePath} -->
  ##   $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':${autoComplete.jsFilePath}'))##
   #end
   #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef).orElse($null))
