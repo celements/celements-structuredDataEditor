@@ -59,7 +59,7 @@ export class CelAutocompleteInitialiser {
   
   constructor() {
     (document.readyState === 'loading')
-        ? document.addEventListener('DOMContentLoaded', () => this.#checkInitAutocomplete)
+        ? document.addEventListener('DOMContentLoaded', () => this.#checkInitAutocomplete())
         : this.#checkInitAutocomplete();
   }
 
