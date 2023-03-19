@@ -28,7 +28,7 @@ class AutocompleteTemplates {
   #templates;
 
   constructor() {
-    this.#templates = [];
+    this.#templates = {};
     this.registerTemplate('default', data => data.html || `<div class="result">${data.name}</div>`);
   }
   
