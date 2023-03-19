@@ -185,6 +185,6 @@ export class CelAutocomplete {
   }
 
 }
-export const celAutocompleteInstance = new CelAutocomplete;
+export const celAutocompleteInstance = new CelAutocomplete();
 window.CELEMENTS.structEdit.autocomplete.autocompleteInstance = celAutocompleteInstance;
 
