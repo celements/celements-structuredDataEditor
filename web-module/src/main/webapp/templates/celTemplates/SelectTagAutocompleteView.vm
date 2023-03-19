@@ -17,7 +17,7 @@
   #if("$!{autoComplete.jsFilePath}" != '')
     <!-- autoComplete : $!{autoComplete} -->
     <!-- autoComplete.getJsFilePath() : $!{autoComplete.getJsFilePath()} -->
- ##   $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':${autoComplete.jsFilePath}'))##
+   $!jsService.includeExtJsFile($extJsParamSync.setJsFile(":${autoComplete.getJsFilePath()}"))##
   #end
   #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef).orElse($null))
   #if("$!currentDocRefValue" != '')
