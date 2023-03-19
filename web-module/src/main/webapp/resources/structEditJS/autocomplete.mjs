@@ -41,10 +41,9 @@ class AutocompleteTemplates {
   }  
   
   getTemplateSupplier(type) {
-    const _me = this;
-    return function(data) {
+    return data => {
       if (data.loading) return data.text;
-      const templateBuilder = _me.#templates.get(type) || _me.#templates('default');
+      const templateBuilder = this.#templates[type] || this.#templates.default;
       return templateBuilder(data);
     };
   }
