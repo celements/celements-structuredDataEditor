@@ -33,7 +33,7 @@ class AutocompleteTemplates {
   }
   
   registerTemplate(name, templateFunc) {
-    if (typof(templateFunc) === 'function') {
+    if (typeof(templateFunc) === 'function') {
       this.#templates[name] = templateFunc;
     } else {
       console.error('cannot register template', name, templateFunc);
