@@ -29,10 +29,14 @@ class AutocompleteTemplates {
 
   constructor() {
     this.#templates = {};
-    this.registerTemplate('default', data => data.html || `<div class="result">${data.name}</div>`);
+    this.register('default', data => data.html || `<div class="result">${data.name}</div>`);
   }
   
-  registerTemplate(name, templateFunc) {
+  exists(type) {
+    return typeof this.#templates[type] !== "undefined";
+  }
+
+  register(name, templateFunc) {
     if (typeof(templateFunc) === 'function') {
       this.#templates[name] = templateFunc;
     } else {
@@ -50,7 +54,7 @@ class AutocompleteTemplates {
 
 }
 
-export class CelAutocomplete {
+export class CelAutocompleteInitialiser {
   static #renderTemplates = new AutocompleteTemplates();
   
   constructor() {
@@ -60,7 +64,7 @@ export class CelAutocomplete {
   }
 
   registerTemplate(name, templateFunc) {
-    CelAutocomplete.#renderTemplates.registerTemplate(name, templateFunc);
+    CelAutocompleteInitialiser.#renderTemplates.register(name, templateFunc);
   }  
 
   #checkInitAutocomplete() {
@@ -96,9 +100,11 @@ export class CelAutocomplete {
   #registerDeprecatedTemplates() {
     const templates = window.CELEMENTS.structEdit.autocomplete.templates;
     for(const type in templates) {
-      console.warn('Deprecated registering of autocomplete template.'
-        + ' Instead use celAutocompleteInstance.registerTemplate', type);
-      CelAutocomplete.#renderTemplates.registerTemplate(type, templates[type]);
+      if (!CelAutocompleteInitialiser.#renderTemplates.exists(type)) {
+        console.warn('Deprecated registering of autocomplete template.'
+          + ' Instead use celAutocompleteInstance.registerTemplate', type);
+        this.registerTemplate(type, templates[type]);
+      }
     }
   }
 
@@ -122,7 +128,7 @@ export class CelAutocomplete {
         return markup;
       },
       minimumInputLength: 3,
-      templateResult: CelAutocomplete.#renderTemplates.getTemplateSupplier(type),
+      templateResult: CelAutocompleteInitialiser.#renderTemplates.getTemplateSupplier(type),
       templateSelection: (data) => data.text || data.id
     };
   }
@@ -185,6 +191,6 @@ export class CelAutocomplete {
   }
 
 }
-export const celAutocompleteInstance = new CelAutocomplete();
+export const celAutocompleteInstance = new CelAutocompleteInitialiser();
 window.CELEMENTS.structEdit.autocomplete.autocompleteInstance = celAutocompleteInstance;
 
