@@ -73,7 +73,7 @@ export class CelAutocompleteInitialiser {
     $(document.body).observe("cel_yuiOverlay:contentChanged", () => this.#initAutocomplete());
     if (!celMessages.isLoaded) {
       console.debug('observe cel:messagesLoaded for initAutocomplete');
-      $(document.body).observe('cel:messagesLoaded', () => this.#initAutocomplete);
+      $(document.body).observe('cel:messagesLoaded', () => this.#initAutocomplete());
     } else {
       this.#initAutocomplete();
     }
