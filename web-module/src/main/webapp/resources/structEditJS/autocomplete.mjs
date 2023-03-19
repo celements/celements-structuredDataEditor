@@ -51,10 +51,9 @@ class AutocompleteTemplates {
 }
 
 export class CelAutocomplete {
-  static #renderTemplates;
+  static #renderTemplates = new AutocompleteTemplates();
   
   constructor() {
-    CelAutocomplete.#renderTemplates = new AutocompleteTemplates();
     (document.readyState === 'loading')
         ? document.addEventListener('DOMContentLoaded', () => this.#checkInitAutocomplete)
         : this.#checkInitAutocomplete();
