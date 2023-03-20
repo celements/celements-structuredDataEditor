@@ -54,7 +54,7 @@ class AutocompleteTemplates {
 
 }
 
-export class CelAutocompleteInitialiser {
+class CelAutocompleteInitialiser {
   static #renderTemplates = new AutocompleteTemplates();
   
   constructor() {
