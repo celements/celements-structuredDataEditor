@@ -32,8 +32,6 @@ class AutocompleteTemplates {
     this.register('default', data => data.html || `<div class="result">${data.name}</div>`);
   }
   
-  registerTemplate(name, templateFunc) {
-    if (typeof(templateFunc) === 'function') {
   exists(type) {
     return typeof this.#templates[type] !== "undefined";
   }
