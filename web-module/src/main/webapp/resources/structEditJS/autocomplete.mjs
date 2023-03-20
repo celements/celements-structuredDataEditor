@@ -191,6 +191,7 @@ class CelAutocompleteInitialiser {
   }
 
 }
-export default const instance = new CelAutocompleteInitialiser();
+const instance = new CelAutocompleteInitialiser();
+export default instance;
 window.CELEMENTS.structEdit.autocomplete.initaliserInstance = instance;
 
