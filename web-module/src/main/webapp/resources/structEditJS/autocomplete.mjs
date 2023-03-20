@@ -121,7 +121,7 @@ class CelAutocompleteInitialiser {
       allowClear: true,
       selectionCssClass: "structSelectContainer " + type + "SelectContainer " + cssClasses,
       dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown " + cssClasses,
-      ajax: () => this.buildSelect2Request(type, cellRef),
+      ajax: this.buildSelect2Request(type, cellRef),
       escapeMarkup: function (markup) {
         // default Utils.escapeMarkup is HTML-escaping the value. Because
         // we formated the value using HTML it must not be further escaped.
