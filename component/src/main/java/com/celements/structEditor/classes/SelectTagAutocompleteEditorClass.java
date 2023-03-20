@@ -67,6 +67,9 @@ public class SelectTagAutocompleteEditorClass extends AbstractClassDefinition
   public static final ClassField<String> FIELD_RESULT_HTML = new LargeStringField.Builder(
       CLASS_REF, "result_html").build();
 
+  public static final ClassField<String> FIELD_ADD_NEW_LINK = new StringField.Builder(
+      CLASS_REF, "add_new_link").prettyName("Add new link").build();
+
   public SelectTagAutocompleteEditorClass() {
     super(CLASS_REF);
   }
