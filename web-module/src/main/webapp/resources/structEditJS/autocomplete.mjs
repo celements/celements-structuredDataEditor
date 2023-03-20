@@ -210,7 +210,12 @@ class CelAutocompleteInitialiser {
       delay: 250,
       cache: true,
       timeout: 30000,
-      processResults : (response, params) => this.processResultsFunc(selectElem, response, params),
+      processResults : (response, params) => {
+        console.log('before processResultsFunc', response);
+        const ret = this.processResultsFunc(selectElem, response, params);
+        console.log('after processResultsFunc return', ret);
+        return ret;
+      },
       data: function(params) {
         const page = params.page || 1;
         const offset = (page - 1 ) * limit;
