@@ -88,7 +88,7 @@ export class CelAutocompleteInitialiser {
       try {
         selectElem.classList.add('initialised');
         $j(selectElem).select2(this.#buildSelect2Config(selectElem, language))
-        $j(selectElem).on('select2:unselect', () => this.clearSelectOptions);
+        $j(selectElem).on('select2:unselect', () => this.clearSelectOptions());
         console.debug('initAutocomplete: done', selectElem, language)
       } catch (exc) {
         console.error('initAutocomplete: failed', selectElem, exc);
