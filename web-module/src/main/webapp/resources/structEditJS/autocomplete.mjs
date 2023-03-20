@@ -178,6 +178,7 @@ export class CelAutocompleteInitialiser {
           'html' : this.addNewButtonElem(selectElem, addNewUrl)
       });
     }
+    console.debug('concatAddNewButtonToResults return', results);
     return results;
   }
 
@@ -189,6 +190,7 @@ export class CelAutocompleteInitialiser {
    */
   processResultsFunc(selectElem, response, params) {
     params.page = params.page || 1;
+    console.debug('processResultsFunc', selectElem, response, params);
     return {
       results: this.concatAddNewButtonToResults(selectElem, response).map(elem => {
           elem.id = elem.fullName;
@@ -208,7 +210,7 @@ export class CelAutocompleteInitialiser {
       delay: 250,
       cache: true,
       timeout: 30000,
-      processResults : (response, params) => this.processResultsFunc(selectElem,response, params),
+      processResults : (response, params) => this.processResultsFunc(selectElem, response, params),
       data: function(params) {
         const page = params.page || 1;
         const offset = (page - 1 ) * limit;
