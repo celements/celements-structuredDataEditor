@@ -54,7 +54,7 @@ class AutocompleteTemplates {
 
 }
 
-export class CelAutocompleteInitialiser {
+class CelAutocompleteInitialiser {
   static #renderTemplates = new AutocompleteTemplates();
   
   constructor() {
@@ -234,6 +234,7 @@ export class CelAutocompleteInitialiser {
   }
 
 }
-export const celAutocompleteInstance = new CelAutocompleteInitialiser();
-window.CELEMENTS.structEdit.autocomplete.autocompleteInstance = celAutocompleteInstance;
+const instance = new CelAutocompleteInitialiser();
+export default instance;
+window.CELEMENTS.structEdit.autocomplete.initaliserInstance = instance;
 
