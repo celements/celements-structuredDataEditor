@@ -151,7 +151,7 @@ class CelAutocompleteInitialiser {
     }));
   }
 
-  #addNewButtonClickHandler(event, selectElem) {
+  #addNewButtonClickHandler(event, selectElem, addNewUrl) {
     console.debug('add new default entity');
     const theAddNewPopup = window.open(addNewUrl, '_blank', 'popup=true');
     theAddNewPopup.addEventListener('message', (ev) => this.#handleAddNewMessage(ev, selectElem));
@@ -162,7 +162,8 @@ class CelAutocompleteInitialiser {
     buttonElem.classList.add('button', 'celOpenInOverlay');
     buttonElem.setAttribute('data-url', addNewUrl);
     buttonElem.insertAdjacentText('beforeend', 'nothing found? add new')
-    buttonElem.addEventListener('click', (ev) => this.#addNewButtonClickHandler(ev, selectElem));
+    buttonElem.addEventListener('click', (ev) => this.#addNewButtonClickHandler(ev, selectElem,
+      addNewUrl));
     const itemElem = document.createElement('div')
       .appendChild(buttonElem);
     itemElem.classList.add('result', 'clearfix');
