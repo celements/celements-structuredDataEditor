@@ -5,12 +5,14 @@ import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
 import static com.google.common.base.Predicates.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,7 @@ import com.celements.search.web.IWebSearchService;
 import com.celements.search.web.classes.WebSearchConfigClass;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.structEditor.classes.OptionTagEditorClass;
+import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.celements.velocity.VelocityService;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -191,21 +194,29 @@ public class DefaultAutocomplete implements AutocompleteRole {
   }
 
   @Override
-  public final String getAddNewUrl() {
+  public final Optional<URL> getUrlToNewElementEditor(@NotNull DocumentReference cellDocRef) {
     try {
-      @NotNull
-      Optional<UriBuilder> newUriBuilderOpt = getAddNewUri();
-      if (newUriBuilderOpt.isPresent()) {
-        return newUriBuilderOpt.get().build().toURL().toExternalForm();
-      }
+      return getUriToNewElementEditor(cellDocRef)
+          .map(rethrowFunction(URI::toURL));
     } catch (Exception exp) {
       log.warn("getAddNewUrl UriBuilder failed.", exp);
     }
-    return "";
+    return Optional.empty();
   }
 
-  @NotNull
-  protected Optional<UriBuilder> getAddNewUri() {
+  protected @NotNull Optional<URI> getUriToNewElementEditor(@NotNull DocumentReference cellDocRef) {
+    if (context.getURL().isPresent()) {
+      try {
+        return XWikiObjectFetcher
+            .on(modelAccess.getOrCreateDocument(cellDocRef))
+            .fetchField(SelectTagAutocompleteEditorClass.FIELD_ADD_NEW_LINK)
+            .findFirst()
+            .map(rethrowFunction(urlInConfigStr -> context.getURL().get().toURI()
+                .resolve(urlInConfigStr)));
+      } catch (URISyntaxException exp) {
+        log.debug("failed to build addNewUri.", exp);
+      }
+    }
     return Optional.empty();
   }
 
