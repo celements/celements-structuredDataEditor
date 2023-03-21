@@ -2,18 +2,18 @@
 $jsonBuilder.openDictionary()##
 #set($autoComplete = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($request.type).orElse($null))##
 #if($services.rightsAccess.isLoggedIn() && "$!autoComplete" != '')##
-  $jsonBuilder.addProperty('type', "$!autoComplete.name")##
-  $jsonBuilder.addProperty('cellRef', "$!request.cellRef")##
-  $jsonBuilder.addProperty('searchterm', "$!request.searchterm")##
+  $jsonBuilder.addProperty('type', "$!{autoComplete.name}")##
+  $jsonBuilder.addProperty('cellRef', "$!{request.cellRef}")##
+  $jsonBuilder.addProperty('searchterm', "$!{request.searchterm}")##
   #set($addNewUrl = "")
   #if(${autoComplete.urlToNewElementEditor.isPresent()})
-    #set($addNewUrl = "$!{autoComplete.urlToNewElementEditor.get().toExternalForm()")
+    #set($addNewUrl = "$!{autoComplete.urlToNewElementEditor.get().toExternalForm()}")
   #end
   $jsonBuilder.addProperty('addNewUrl', "$!{addNewUrl}")##
-  #set($offset = $util.parseInt("$!request.offset"))##
+  #set($offset = $util.parseInt("$!{request.offset}"))##
   #if($offset < 0) #set($offset = 0) #end##
   $jsonBuilder.addProperty('offset', $offset)##
-  #set($limit = $util.parseInt("$!request.limit"))##
+  #set($limit = $util.parseInt("$!{request.limit}"))##
   #if($limit <= 0) #set($limit = 10) #end##
   $jsonBuilder.addProperty('limit', $limit)##
   #set($cellDocRef = $services.model.resolveDocument($request.cellRef))##
