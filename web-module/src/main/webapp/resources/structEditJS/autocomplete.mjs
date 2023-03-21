@@ -162,7 +162,9 @@ class CelAutocompleteInitialiser {
   #addNewButtonElem(selectElem, addNewUrl) {
     const classField = selectElem.dataset.classField || ''; 
     const type = selectElem.dataset.autocompleteType || '';
-    const buttonText = window.celMessages.structEditor.autocomplete['addNewButtonText_' + classField]
+    const cellRef = selectElem.dataset.cellRef || '';
+    const buttonText = window.celMessages.structEditor.autocomplete['addNewButtonText_' + cellRef]
+                || window.celMessages.structEditor.autocomplete['addNewButtonText_' + classField]
                 || window.celMessages.structEditor.autocomplete['addNewButtonText_' + type]
                 || window.celMessages.structEditor.autocomplete['addNewButtonText_default']
                 || 'nothing found? add new';
