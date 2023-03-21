@@ -151,7 +151,9 @@ class CelAutocompleteInitialiser {
     }));
   }
 
-  #addNewButtonClickHandler(event, selectElem, addNewUrl) {
+  #addNewButtonClickHandler(event, selectElem) {
+    const buttonElem = event.target;
+    const addNewUrl = buttonElem.getAttribute('data-url');
     console.debug('addNewButtonClickHandler start', event, selectElem, addNewUrl);
     const theAddNewPopup = window.open(addNewUrl, '_blank', 'popup=true');
     theAddNewPopup.addEventListener('message', (ev) => this.#handleAddNewMessage(ev, selectElem));
@@ -160,16 +162,22 @@ class CelAutocompleteInitialiser {
   #addNewButtonElem(selectElem, addNewUrl) {
     const classField = selectElem.dataset.classField || ''; 
     const type = selectElem.dataset.autocompleteType || '';
-    const buttonElem = document.createElement('div');
-    buttonElem.classList.add('button', 'celOpenInOverlay');
-    buttonElem.setAttribute('data-url', addNewUrl);
     const buttonText = window.celMessages.structEditor.autocomplete['addNewButtonText_' + classField]
                 || window.celMessages.structEditor.autocomplete['addNewButtonText_' + type]
                 || window.celMessages.structEditor.autocomplete['addNewButtonText_default']
                 || 'nothing found? add new';
-    buttonElem.insertAdjacentText('beforeend', buttonText)
-    buttonElem.addEventListener('click', (ev) => this.#addNewButtonClickHandler(ev, selectElem,
-      addNewUrl));
+    const iconElem = document.createElement('span');
+    iconElem.classList.add('halflings', 'halflings-plus-sign');
+    const buttonInnerElem = document.createElement('div')
+      .appendChild(iconElem);
+    buttonInnerElem.classList.add('view_progon_buttonLink');
+    buttonInnerElem.setAttribute('data-url', addNewUrl);
+    buttonInnerElem.insertAdjacentText('beforeend', buttonText)
+    buttonInnerElem.addEventListener('click', 
+        (ev) => this.#addNewButtonClickHandler(ev, selectElem));
+    const buttonElem = document.createElement('div')
+      .appendChild(buttonInnerElem);
+    buttonElem.classList.add('box', 'progon_button', 'struct_autocomplete_addnew');
     const itemElem = document.createElement('div')
       .appendChild(buttonElem);
     itemElem.classList.add('result', 'clearfix');
