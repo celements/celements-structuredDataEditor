@@ -14,6 +14,7 @@ $jsonBuilder.openDictionary('structEditor')
 
   $jsonBuilder.openDictionary('autocomplete')
     $jsonBuilder.addStringProperty('placeholder_default', "$!adminMsg.cel_struct_autocomplete_placeholder_default")
+    $jsonBuilder.addStringProperty('addNewButtonText_default', "$!adminMsg.cel_struct_autocomplete_addNewButtonText_default")
   $jsonBuilder.closeDictionary()
 
 $jsonBuilder.closeDictionary()

@@ -140,7 +140,7 @@ class CelAutocompleteInitialiser {
   }
   
   #handleAddNewMessage(event, selectElem) {
-    console.log('addNewButton returned', event.data);
+    console.debug('addNewButton popup returned', event.data);
     event.source?.close();
     const option = new Option(event.data.text, event.data.id, true, true);
     selectElem.append(option);
@@ -152,16 +152,20 @@ class CelAutocompleteInitialiser {
   }
 
   #addNewButtonClickHandler(event, selectElem, addNewUrl) {
-    console.debug('add new default entity');
+    console.debug('addNewButtonClickHandler start', event, selectElem, addNewUrl);
     const theAddNewPopup = window.open(addNewUrl, '_blank', 'popup=true');
     theAddNewPopup.addEventListener('message', (ev) => this.#handleAddNewMessage(ev, selectElem));
   }
 
-  addNewButtonElem(selectElem, addNewUrl) {
+  #addNewButtonElem(selectElem, addNewUrl) {
     const buttonElem = document.createElement('div');
     buttonElem.classList.add('button', 'celOpenInOverlay');
     buttonElem.setAttribute('data-url', addNewUrl);
-    buttonElem.insertAdjacentText('beforeend', 'nothing found? add new')
+    const buttonText = celMessages.structEditor.autocomplete['addNewButtonText_' + classField]
+                || celMessages.structEditor.autocomplete['addNewButtonText_' + type]
+                || celMessages.structEditor.autocomplete['addNewButtonText_default']
+                || 'nothing found? add new';
+    buttonElem.insertAdjacentText('beforeend', buttonText)
     buttonElem.addEventListener('click', (ev) => this.#addNewButtonClickHandler(ev, selectElem,
       addNewUrl));
     const itemElem = document.createElement('div')
@@ -170,13 +174,13 @@ class CelAutocompleteInitialiser {
     return itemElem;
   }
 
-  concatAddNewButtonToResults(selectElem, response) {
+  #concatAddNewButtonToResults(selectElem, response) {
     const results = response.results || [];
     const addNewUrl = response.addNewUrl || '';
     if (!response.hasMore && (addNewUrl !== '')) {
       console.debug('add new url', addNewUrl);
       results.push({
-          'html' : this.addNewButtonElem(selectElem, addNewUrl)
+          'html' : this.#addNewButtonElem(selectElem, addNewUrl)
       });
     }
     console.debug('concatAddNewButtonToResults return', results);
@@ -193,7 +197,7 @@ class CelAutocompleteInitialiser {
     params.page = params.page || 1;
     console.debug('processResultsFunc', selectElem, response, params);
     return {
-      results: this.concatAddNewButtonToResults(selectElem, response).map(elem => {
+      results: this.#concatAddNewButtonToResults(selectElem, response).map(elem => {
           elem.id = elem.fullName;
           elem.text = elem.name;
           return elem;
@@ -211,12 +215,7 @@ class CelAutocompleteInitialiser {
       delay: 250,
       cache: true,
       timeout: 30000,
-      processResults : (response, params) => {
-        console.log('before processResultsFunc', response);
-        const ret = this.processResultsFunc(selectElem, response, params);
-        console.log('after processResultsFunc return', ret);
-        return ret;
-      },
+      processResults : (response, params) => this.processResultsFunc(selectElem, response, params),
       data: function(params) {
         const page = params.page || 1;
         const offset = (page - 1 ) * limit;
@@ -234,7 +233,7 @@ class CelAutocompleteInitialiser {
       },
       error: function(e) {
         //TODO: PROGON-1088 - handle errors in requesting data (e.g. timeout) appropriately
-        console.log("lookup exception:", e.statusText);
+        console.error("lookup exception:", e.statusText);
       }
     };
   }
