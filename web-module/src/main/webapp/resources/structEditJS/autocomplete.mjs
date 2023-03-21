@@ -115,9 +115,9 @@ class CelAutocompleteInitialiser {
     const cssClasses = selectElem.dataset.autocompleteCss || '';
     return {
       language: language,
-      placeholder: celMessages.structEditor.autocomplete['placeholder_' + classField]
-                || celMessages.structEditor.autocomplete['placeholder_' + type]
-                || celMessages.structEditor.autocomplete['placeholder_default'],
+      placeholder: window.celMessages.structEditor.autocomplete['placeholder_' + classField]
+                || window.celMessages.structEditor.autocomplete['placeholder_' + type]
+                || window.celMessages.structEditor.autocomplete['placeholder_default'],
       allowClear: true,
       selectionCssClass: "structSelectContainer " + type + "SelectContainer " + cssClasses,
       dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown " + cssClasses,
@@ -158,12 +158,14 @@ class CelAutocompleteInitialiser {
   }
 
   #addNewButtonElem(selectElem, addNewUrl) {
+    const classField = selectElem.dataset.classField || ''; 
+    const type = selectElem.dataset.autocompleteType || '';
     const buttonElem = document.createElement('div');
     buttonElem.classList.add('button', 'celOpenInOverlay');
     buttonElem.setAttribute('data-url', addNewUrl);
-    const buttonText = celMessages.structEditor.autocomplete['addNewButtonText_' + classField]
-                || celMessages.structEditor.autocomplete['addNewButtonText_' + type]
-                || celMessages.structEditor.autocomplete['addNewButtonText_default']
+    const buttonText = window.celMessages.structEditor.autocomplete['addNewButtonText_' + classField]
+                || window.celMessages.structEditor.autocomplete['addNewButtonText_' + type]
+                || window.celMessages.structEditor.autocomplete['addNewButtonText_default']
                 || 'nothing found? add new';
     buttonElem.insertAdjacentText('beforeend', buttonText)
     buttonElem.addEventListener('click', (ev) => this.#addNewButtonClickHandler(ev, selectElem,
