@@ -5,9 +5,10 @@ $jsonBuilder.openDictionary()##
   $jsonBuilder.addProperty('type', "$!{autoComplete.name}")##
   $jsonBuilder.addProperty('cellRef', "$!{request.cellRef}")##
   $jsonBuilder.addProperty('searchterm', "$!{request.searchterm}")##
+  #set($cellDocRef = $services.model.resolveDocument($request.cellRef))##
   #set($addNewUrl = "")
-  #if(${autoComplete.urlToNewElementEditor.isPresent()})
-    #set($addNewUrl = "$!{autoComplete.urlToNewElementEditor.get().toExternalForm()}")
+  #if(${autoComplete.getUrlToNewElementEditor($cellDocRef).isPresent()})
+    #set($addNewUrl = "$!{autoComplete.getUrlToNewElementEditor($cellDocRef).get().toExternalForm()}")
   #end
   $jsonBuilder.addProperty('addNewUrl', "$!{addNewUrl}")##
   #set($offset = $util.parseInt("$!{request.offset}"))##
@@ -16,7 +17,6 @@ $jsonBuilder.openDictionary()##
   #set($limit = $util.parseInt("$!{request.limit}"))##
   #if($limit <= 0) #set($limit = 10) #end##
   $jsonBuilder.addProperty('limit', $limit)##
-  #set($cellDocRef = $services.model.resolveDocument($request.cellRef))##
   #set($luceneSearchResult = $autoComplete.search($cellDocRef, $request.searchterm))##
   #if($isSuperAdmin)##
     $jsonBuilder.addProperty('luceneSearchResult', $luceneSearchResult)##
