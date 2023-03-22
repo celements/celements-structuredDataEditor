@@ -142,8 +142,7 @@ class CelAutocompleteInitialiser {
   #handleAddNewMessage(event, selectElem) {
     console.debug('addNewButton popup returned', event.data);
     event.source?.close();
-    const option = new Option(event.data.text, event.data.id, true, true);
-    selectElem.append(option);
+    selectElem.replaceChildren(new Option(event.data.text, event.data.id, true, true));
     selectElem.dispatchEvent(new Event("change", {
       view: window,
       bubbles: true,
