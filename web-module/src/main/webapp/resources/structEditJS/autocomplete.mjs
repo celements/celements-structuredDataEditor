@@ -153,27 +153,27 @@ class CelAutocompleteInitialiser {
 
   #addNewButtonClickHandler(event, selectElem) {
     const buttonElem = event.target;
-    const addNewUrl = buttonElem.getAttribute('data-url');
-    console.debug('addNewButtonClickHandler start', event, selectElem, addNewUrl);
-    const theAddNewPopup = window.open(addNewUrl, '_blank', 'popup=true');
+    const urlToNewElementEditor = buttonElem.getAttribute('data-url');
+    console.debug('addNewButtonClickHandler start', event, selectElem, urlToNewElementEditor);
+    const theAddNewPopup = window.open(urlToNewElementEditor, '_blank', 'popup=true');
     theAddNewPopup.addEventListener('message', (ev) => this.#handleAddNewMessage(ev, selectElem));
   }
 
-  #addNewButtonElem(selectElem, addNewUrl) {
+  #addNewButtonElem(selectElem, urlToNewElementEditor) {
     const classField = selectElem.dataset.classField || ''; 
     const type = selectElem.dataset.autocompleteType || '';
     const cellRef = selectElem.dataset.cellRef || '';
-    const buttonText = window.celMessages.structEditor.autocomplete['addNewButtonText_' + cellRef]
-                || window.celMessages.structEditor.autocomplete['addNewButtonText_' + classField]
-                || window.celMessages.structEditor.autocomplete['addNewButtonText_' + type]
-                || window.celMessages.structEditor.autocomplete['addNewButtonText_default']
+    const buttonText = window.celMessages.structEditor.autocomplete['UrlToNewElementEditorButtonText_' + cellRef]
+                || window.celMessages.structEditor.autocomplete['UrlToNewElementEditorButtonText_' + classField]
+                || window.celMessages.structEditor.autocomplete['UrlToNewElementEditorButtonText_' + type]
+                || window.celMessages.structEditor.autocomplete['UrlToNewElementEditorButtonText_default']
                 || 'nothing found? add new';
     const iconElem = document.createElement('span');
     iconElem.classList.add('halflings', 'halflings-plus-sign');
     const buttonInnerElem = document.createElement('div');
     buttonInnerElem.appendChild(iconElem);
     buttonInnerElem.classList.add('view_cel_buttonLink');
-    buttonInnerElem.setAttribute('data-url', addNewUrl);
+    buttonInnerElem.setAttribute('data-url', urlToNewElementEditor);
     buttonInnerElem.insertAdjacentText('beforeend', buttonText)
     buttonInnerElem.addEventListener('click', 
         (ev) => this.#addNewButtonClickHandler(ev, selectElem));
@@ -188,11 +188,11 @@ class CelAutocompleteInitialiser {
 
   #concatAddNewButtonToResults(selectElem, response) {
     const results = response.results || [];
-    const addNewUrl = response.addNewUrl || '';
-    if (!response.hasMore && (addNewUrl !== '')) {
-      console.debug('add new url', addNewUrl);
+    const urlToNewElementEditor = response.urlToNewElementEditor || '';
+    if (!response.hasMore && (urlToNewElementEditor !== '')) {
+      console.debug('add new url', urlToNewElementEditor);
       results.push({
-          'html' : this.#addNewButtonElem(selectElem, addNewUrl)
+          'html' : this.#addNewButtonElem(selectElem, urlToNewElementEditor)
       });
     }
     console.debug('concatAddNewButtonToResults return', results);

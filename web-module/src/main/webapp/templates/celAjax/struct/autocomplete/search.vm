@@ -6,11 +6,11 @@ $jsonBuilder.openDictionary()##
   $jsonBuilder.addProperty('cellRef', "$!{request.cellRef}")##
   $jsonBuilder.addProperty('searchterm', "$!{request.searchterm}")##
   #set($cellDocRef = $services.model.resolveDocument($request.cellRef))##
-  #set($addNewUrl = "")
+  #set($urlToNewElementEditor = "")
   #if(${autoComplete.getUrlToNewElementEditor($cellDocRef).isPresent()})
-    #set($addNewUrl = "$!{autoComplete.getUrlToNewElementEditor($cellDocRef).get().toExternalForm()}")
+    #set($urlToNewElementEditor = "$!{autoComplete.getUrlToNewElementEditor($cellDocRef).get().toExternalForm()}")
   #end
-  $jsonBuilder.addProperty('addNewUrl', "$!{addNewUrl}")##
+  $jsonBuilder.addProperty('urlToNewElementEditor', "$!{urlToNewElementEditor}")##
   #set($offset = $util.parseInt("$!{request.offset}"))##
   #if($offset < 0) #set($offset = 0) #end##
   $jsonBuilder.addProperty('offset', $offset)##
