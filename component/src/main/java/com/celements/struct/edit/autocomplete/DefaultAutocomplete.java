@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -194,12 +195,15 @@ public class DefaultAutocomplete implements AutocompleteRole {
   }
 
   @Override
-  public final Optional<URL> getUrlToNewElementEditor(@NotNull DocumentReference cellDocRef) {
-    try {
-      return getUriToNewElementEditor(cellDocRef)
-          .map(rethrowFunction(URI::toURL));
-    } catch (Exception exp) {
-      log.warn("getAddNewUrl UriBuilder failed.", exp);
+  public final @NotNull Optional<URL> getUrlToNewElementEditor(
+      @Nullable DocumentReference cellDocRef) {
+    if (cellDocRef != null) {
+      try {
+        return getUriToNewElementEditor(cellDocRef)
+            .map(rethrowFunction(URI::toURL));
+      } catch (Exception exp) {
+        log.warn("getAddNewUrl UriBuilder failed.", exp);
+      }
     }
     return Optional.empty();
   }

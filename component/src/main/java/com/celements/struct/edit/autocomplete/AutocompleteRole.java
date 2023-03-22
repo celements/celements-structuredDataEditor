@@ -60,6 +60,6 @@ public interface AutocompleteRole {
       @Nullable DocumentReference cellDocRef);
 
   @NotNull
-  Optional<URL> getUrlToNewElementEditor(@NotNull DocumentReference cellDocRef);
+  Optional<URL> getUrlToNewElementEditor(@Nullable DocumentReference cellDocRef);
 
 }
