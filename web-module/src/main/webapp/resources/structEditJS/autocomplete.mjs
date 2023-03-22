@@ -88,7 +88,7 @@ class CelAutocompleteInitialiser {
       try {
         selectElem.classList.add('initialised');
         $j(selectElem).select2(this.#buildSelect2Config(selectElem, language))
-        $j(selectElem).on('select2:unselect', () => this.clearSelectOptions());
+        $j(selectElem).on('select2:unselect', (ev) => this.clearSelectOptions(ev));
         console.debug('initAutocomplete: done', selectElem, language)
       } catch (exc) {
         console.error('initAutocomplete: failed', selectElem, exc);
@@ -140,7 +140,7 @@ class CelAutocompleteInitialiser {
   }
   
   #handleAddNewMessage(event, selectElem) {
-    console.debug('addNewButton popup returned', event.data);
+    console.debug('urlToNewElementEditorButton popup returned', event.data);
     event.source?.close();
     selectElem.replaceChildren(new Option(event.data.text, event.data.id, true, true));
     selectElem.dispatchEvent(new Event("change", {
@@ -150,15 +150,16 @@ class CelAutocompleteInitialiser {
     }));
   }
 
-  #addNewButtonClickHandler(event, selectElem) {
+  #urlToNewElementEditorButtonClickHandler(event, selectElem) {
     const buttonElem = event.target;
     const urlToNewElementEditor = buttonElem.getAttribute('data-url');
-    console.debug('addNewButtonClickHandler start', event, selectElem, urlToNewElementEditor);
+    console.debug('urlToNewElementEditorButtonClickHandler start', event, selectElem,
+      urlToNewElementEditor);
     const theAddNewPopup = window.open(urlToNewElementEditor, '_blank', 'popup=true');
     theAddNewPopup.addEventListener('message', (ev) => this.#handleAddNewMessage(ev, selectElem));
   }
 
-  #addNewButtonElem(selectElem, urlToNewElementEditor) {
+  #getUrlToNewElementEditorButton(selectElem, urlToNewElementEditor) {
     const classField = selectElem.dataset.classField || ''; 
     const type = selectElem.dataset.autocompleteType || '';
     const cellRef = selectElem.dataset.cellRef || '';
@@ -175,7 +176,7 @@ class CelAutocompleteInitialiser {
     buttonInnerElem.setAttribute('data-url', urlToNewElementEditor);
     buttonInnerElem.insertAdjacentText('beforeend', buttonText)
     buttonInnerElem.addEventListener('click', 
-        (ev) => this.#addNewButtonClickHandler(ev, selectElem));
+        (ev) => this.#urlToNewElementEditorButtonClickHandler(ev, selectElem));
     const buttonElem = document.createElement('div');
     buttonElem.appendChild(buttonInnerElem);
     buttonElem.classList.add('box', 'cel_button', 'struct_autocomplete_addnew');
@@ -185,17 +186,13 @@ class CelAutocompleteInitialiser {
     return itemElem;
   }
 
-  #concatAddNewButtonToResults(selectElem, response) {
-    const results = response.results || [];
-    const urlToNewElementEditor = response.urlToNewElementEditor || '';
-    if (!response.hasMore && (urlToNewElementEditor !== '')) {
-      console.debug('add new url', urlToNewElementEditor);
-      results.push({
-          'html' : this.#addNewButtonElem(selectElem, urlToNewElementEditor)
-      });
+  #createUrlToNewElementEditorButton(selectElem, response) {
+    if (!response.hasMore && response.urlToNewElementEditor) {
+      return {
+          'html' : this.#getUrlToNewElementEditorButton(selectElem, response.urlToNewElementEditor)
+      };
     }
-    console.debug('concatAddNewButtonToResults return', results);
-    return results;
+    return undefined;
   }
 
   /**
@@ -208,11 +205,14 @@ class CelAutocompleteInitialiser {
     params.page = params.page || 1;
     console.debug('processResultsFunc', selectElem, response, params);
     return {
-      results: this.#concatAddNewButtonToResults(selectElem, response).map(elem => {
+      results: response.results || []
+      .map(elem => {
           elem.id = elem.fullName;
           elem.text = elem.name;
           return elem;
-        }).filter(elem => elem.html || elem.id && elem.text),
+      }).filter(elem => elem.html || elem.id && elem.text)
+      .concat([this.#createUrlToNewElementEditorButton(response.addNewUrl, selectElem)]
+        .filter(Boolean)),
       pagination: {
         more: response.hasMore
       }
