@@ -172,14 +172,14 @@ class CelAutocompleteInitialiser {
     iconElem.classList.add('halflings', 'halflings-plus-sign');
     const buttonInnerElem = document.createElement('div');
     buttonInnerElem.appendChild(iconElem);
-    buttonInnerElem.classList.add('view_progon_buttonLink');
+    buttonInnerElem.classList.add('view_cel_buttonLink');
     buttonInnerElem.setAttribute('data-url', addNewUrl);
     buttonInnerElem.insertAdjacentText('beforeend', buttonText)
     buttonInnerElem.addEventListener('click', 
         (ev) => this.#addNewButtonClickHandler(ev, selectElem));
     const buttonElem = document.createElement('div');
     buttonElem.appendChild(buttonInnerElem);
-    buttonElem.classList.add('box', 'progon_button', 'struct_autocomplete_addnew');
+    buttonElem.classList.add('box', 'cel_button', 'struct_autocomplete_addnew');
     const itemElem = document.createElement('div');
     itemElem.appendChild(buttonElem);
     itemElem.classList.add('result', 'clearfix');

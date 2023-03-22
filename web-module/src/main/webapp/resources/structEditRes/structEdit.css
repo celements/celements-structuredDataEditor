@@ -182,3 +182,28 @@ input[type=number]::-webkit-inner-spin-button {
 .structEditorRoot .languageSelectorBar .languageVersions ul li.languageListElement.active {
   border-top: 2px solid #555;
 }
+
+/*--- autocomplete --*/
+.select2-container .view_cel_buttonLink .halflings {
+  float: right;
+  padding-left: 5px;
+  line-height: 15px;
+}
+.select2-container .view_cel_buttonLink .halflings:before {
+  color: #9fb0cd;
+}
+.select2-container .cel_button {
+  display: inline-block;
+  margin-right: 0px;
+}
+.select2-container .cel_button .view_cel_buttonLink {
+  float: none;
+  width: 170px;
+  border: 1px solid #9fb0cd;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  padding: 3px;
+  cursor: pointer;
+}
+
+
