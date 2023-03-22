@@ -204,15 +204,17 @@ class CelAutocompleteInitialiser {
   processResultsFunc(selectElem, response, params) {
     params.page = params.page || 1;
     console.debug('processResultsFunc', selectElem, response, params);
-    return {
-      results: response.results || []
+    const resultsArray = response.results || []
       .map(elem => {
           elem.id = elem.fullName;
           elem.text = elem.name;
           return elem;
       }).filter(elem => elem.html || elem.id && elem.text)
-      .concat([this.#createUrlToNewElementEditorButton(response.addNewUrl, selectElem)]
-        .filter(Boolean)),
+      .concat([this.#createUrlToNewElementEditorButton(selectElem, response)]
+        .filter(Boolean));
+    console.log('DEBUG: resultsArray', resultsArray);
+    return {
+      results: resultsArray,
       pagination: {
         more: response.hasMore
       }
