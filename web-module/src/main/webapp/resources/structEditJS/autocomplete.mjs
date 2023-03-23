@@ -188,14 +188,11 @@ class CelAutocompleteInitialiser {
 
   #createUrlToNewElementEditorButton(selectElem, response) {
     if (!response.hasMore && response.urlToNewElementEditor) {
-      console.log('DEBUG createUrlToNewElementEditorButton: start', selectElem, response);
-      const newButton = {
+      console.debug('createUrlToNewElementEditorButton: start', selectElem, response);
+      return {
           'html' : this.#getUrlToNewElementEditorButton(selectElem, response.urlToNewElementEditor)
       };
-      console.log('DEBUG createUrlToNewElementEditorButton: newButton', newButton);
-      return newButton;
     }
-    console.log('DEBUG createUrlToNewElementEditorButton: return undefined');
     return undefined;
   }
 
@@ -208,18 +205,15 @@ class CelAutocompleteInitialiser {
   processResultsFunc(selectElem, response, params) {
     params.page = params.page || 1;
     console.debug('processResultsFunc', selectElem, response, params);
-    let resultsArray = (response.results || [])
+    return {
+      results: (response.results || [])
       .map(elem => {
           elem.id = elem.fullName;
           elem.text = elem.name;
           return elem;
-      }).filter(elem => elem.html || elem.id && elem.text);
-    console.log('DEBUG: resultsArray 1', resultsArray);
-    resultsArray = resultsArray.concat([this.#createUrlToNewElementEditorButton(selectElem, response)]
-      .filter(Boolean));
-    console.log('DEBUG: resultsArray 2', resultsArray);
-    return {
-      results: resultsArray,
+      }).filter(elem => elem.html || elem.id && elem.text)
+      .concat([this.#createUrlToNewElementEditorButton(selectElem, response)]
+        .filter(Boolean)),
       pagination: {
         more: response.hasMore
       }
