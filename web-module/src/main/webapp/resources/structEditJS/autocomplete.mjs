@@ -208,7 +208,7 @@ class CelAutocompleteInitialiser {
   processResultsFunc(selectElem, response, params) {
     params.page = params.page || 1;
     console.debug('processResultsFunc', selectElem, response, params);
-    let resultsArray = response.results || []
+    let resultsArray = (response.results || [])
       .map(elem => {
           elem.id = elem.fullName;
           elem.text = elem.name;
