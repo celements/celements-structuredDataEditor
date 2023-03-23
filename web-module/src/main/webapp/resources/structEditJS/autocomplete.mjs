@@ -139,7 +139,7 @@ class CelAutocompleteInitialiser {
     selectElem.innerHTML = '<option selected="selected" value="">delete</option>';
   }
   
-  #handleAddNewMessage(event, selectElem) {
+  #handleAddNewElementMessage(event, selectElem) {
     console.debug('urlToNewElementEditorButton popup returned', event.data);
     event.source?.close();
     selectElem.replaceChildren(new Option(event.data.text, event.data.id, true, true));
@@ -156,7 +156,8 @@ class CelAutocompleteInitialiser {
     console.debug('urlToNewElementEditorButtonClickHandler start', event, selectElem,
       urlToNewElementEditor);
     const theAddNewPopup = window.open(urlToNewElementEditor, '_blank', 'popup=true');
-    theAddNewPopup.addEventListener('message', (ev) => this.#handleAddNewMessage(ev, selectElem));
+    theAddNewPopup.addEventListener('message',
+      (ev) => this.#handleAddNewElementMessage(ev, selectElem));
   }
 
   #getUrlToNewElementEditorButton(selectElem, urlToNewElementEditor) {
