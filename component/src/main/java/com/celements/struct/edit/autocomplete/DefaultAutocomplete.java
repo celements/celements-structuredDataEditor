@@ -5,10 +5,14 @@ import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.SelectTagAutocompleteEditorClass.*;
 import static com.google.common.base.Predicates.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -30,6 +34,7 @@ import com.celements.search.web.IWebSearchService;
 import com.celements.search.web.classes.WebSearchConfigClass;
 import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.structEditor.classes.OptionTagEditorClass;
+import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.celements.velocity.VelocityService;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -187,6 +192,36 @@ public class DefaultAutocomplete implements AutocompleteRole {
       log.debug("unable to resolve ref: {}", exc.getMessage(), exc);
       return Optional.empty();
     }
+  }
+
+  @Override
+  public final @NotNull Optional<URL> getUrlToNewElementEditor(
+      @Nullable DocumentReference cellDocRef) {
+    if (cellDocRef != null) {
+      try {
+        return getUriToNewElementEditor(cellDocRef)
+            .map(rethrowFunction(URI::toURL));
+      } catch (Exception exp) {
+        log.warn("getAddNewUrl UriBuilder failed.", exp);
+      }
+    }
+    return Optional.empty();
+  }
+
+  protected @NotNull Optional<URI> getUriToNewElementEditor(@NotNull DocumentReference cellDocRef) {
+    if (context.getURL().isPresent()) {
+      try {
+        return XWikiObjectFetcher
+            .on(modelAccess.getOrCreateDocument(cellDocRef))
+            .fetchField(SelectTagAutocompleteEditorClass.FIELD_ADD_NEW_LINK)
+            .findFirst()
+            .map(rethrowFunction(urlInConfigStr -> context.getURL().get().toURI()
+                .resolve(urlInConfigStr)));
+      } catch (URISyntaxException exp) {
+        log.debug("failed to build addNewUri.", exp);
+      }
+    }
+    return Optional.empty();
   }
 
 }

@@ -88,7 +88,7 @@ class CelAutocompleteInitialiser {
       try {
         selectElem.classList.add('initialised');
         $j(selectElem).select2(this.#buildSelect2Config(selectElem, language))
-        $j(selectElem).on('select2:unselect', () => this.clearSelectOptions());
+        $j(selectElem).on('select2:unselect', (ev) => this.clearSelectOptions(ev));
         console.debug('initAutocomplete: done', selectElem, language)
       } catch (exc) {
         console.error('initAutocomplete: failed', selectElem, exc);
@@ -115,13 +115,13 @@ class CelAutocompleteInitialiser {
     const cssClasses = selectElem.dataset.autocompleteCss || '';
     return {
       language: language,
-      placeholder: celMessages.structEditor.autocomplete['placeholder_' + classField]
-                || celMessages.structEditor.autocomplete['placeholder_' + type]
-                || celMessages.structEditor.autocomplete['placeholder_default'],
+      placeholder: window.celMessages.structEditor.autocomplete['placeholder_' + classField]
+                || window.celMessages.structEditor.autocomplete['placeholder_' + type]
+                || window.celMessages.structEditor.autocomplete['placeholder_default'],
       allowClear: true,
       selectionCssClass: "structSelectContainer " + type + "SelectContainer " + cssClasses,
       dropdownCssClass: "structSelectDropDown " + type + "SelectDropDown " + cssClasses,
-      ajax: this.buildSelect2Request(type, cellRef),
+      ajax: this.buildSelect2Request(type, cellRef, selectElem),
       escapeMarkup: function (markup) {
         // default Utils.escapeMarkup is HTML-escaping the value. Because
         // we formated the value using HTML it must not be further escaped.
@@ -139,35 +139,96 @@ class CelAutocompleteInitialiser {
     selectElem.innerHTML = '<option selected="selected" value="">delete</option>';
   }
   
+  #handleAddNewElementMessage(event, selectElem) {
+    console.debug('urlToNewElementEditorButton popup returned', event.data);
+    event.source?.close();
+    selectElem.replaceChildren(new Option(event.data.text, event.data.id, true, true));
+    selectElem.dispatchEvent(new Event("change", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    }));
+  }
+
+  #urlToNewElementEditorButtonClickHandler(event, selectElem) {
+    const buttonElem = event.target;
+    const urlToNewElementEditor = buttonElem.getAttribute('data-url');
+    console.debug('urlToNewElementEditorButtonClickHandler start', event, selectElem,
+      urlToNewElementEditor);
+    const theAddNewPopup = window.open(urlToNewElementEditor, '_blank', 'popup=true');
+    theAddNewPopup.addEventListener('message',
+      (ev) => this.#handleAddNewElementMessage(ev, selectElem));
+  }
+
+  #getUrlToNewElementEditorButton(selectElem, urlToNewElementEditor) {
+    const classField = selectElem.dataset.classField || ''; 
+    const type = selectElem.dataset.autocompleteType || '';
+    const cellRef = selectElem.dataset.cellRef || '';
+    const buttonText = window.celMessages.structEditor.autocomplete['UrlToNewElementEditorButtonText_' + cellRef]
+                || window.celMessages.structEditor.autocomplete['UrlToNewElementEditorButtonText_' + classField]
+                || window.celMessages.structEditor.autocomplete['UrlToNewElementEditorButtonText_' + type]
+                || window.celMessages.structEditor.autocomplete['UrlToNewElementEditorButtonText_default']
+                || 'nothing found? add new';
+    const iconElem = document.createElement('span');
+    iconElem.classList.add('halflings', 'halflings-plus-sign');
+    const buttonInnerElem = document.createElement('div');
+    buttonInnerElem.appendChild(iconElem);
+    buttonInnerElem.classList.add('view_cel_buttonLink');
+    buttonInnerElem.setAttribute('data-url', urlToNewElementEditor);
+    buttonInnerElem.insertAdjacentText('beforeend', buttonText)
+    buttonInnerElem.addEventListener('click', 
+        (ev) => this.#urlToNewElementEditorButtonClickHandler(ev, selectElem));
+    const buttonElem = document.createElement('div');
+    buttonElem.appendChild(buttonInnerElem);
+    buttonElem.classList.add('box', 'cel_button', 'struct_autocomplete_addnew');
+    const itemElem = document.createElement('div');
+    itemElem.appendChild(buttonElem);
+    itemElem.classList.add('result', 'clearfix');
+    return itemElem;
+  }
+
+  #createUrlToNewElementEditorButton(selectElem, response) {
+    if (!response.hasMore && response.urlToNewElementEditor) {
+      console.debug('createUrlToNewElementEditorButton: start', selectElem, response);
+      return {
+          'html' : this.#getUrlToNewElementEditorButton(selectElem, response.urlToNewElementEditor)
+      };
+    }
+    return undefined;
+  }
+
   /**
    * parse the results into the format expected by Select2
    * since we are using custom formatting functions we do not need to
    * alter the remote JSON data, except to indicate that infinite
    * scrolling can be used
    */
-  processResultsFunc(response, params) {
+  processResultsFunc(selectElem, response, params) {
     params.page = params.page || 1;
+    console.debug('processResultsFunc', selectElem, response, params);
     return {
       results: (response.results || [])
-        .map(elem => {
+      .map(elem => {
           elem.id = elem.fullName;
           elem.text = elem.name;
           return elem;
-        }).filter(elem => elem.id && elem.text),
+      }).filter(elem => elem.html || elem.id && elem.text)
+      .concat([this.#createUrlToNewElementEditorButton(selectElem, response)]
+        .filter(Boolean)),
       pagination: {
         more: response.hasMore
       }
     };
   }
 
-  buildSelect2Request(type, cellRef, limit = 10) {
+  buildSelect2Request(type, cellRef, selectElem, limit = 10) {
     return {
       url: "/OrgExport/REST",
       dataType: 'json',
       delay: 250,
       cache: true,
       timeout: 30000,
-      processResults : this.processResultsFunc,
+      processResults : (response, params) => this.processResultsFunc(selectElem, response, params),
       data: function(params) {
         const page = params.page || 1;
         const offset = (page - 1 ) * limit;
@@ -185,7 +246,7 @@ class CelAutocompleteInitialiser {
       },
       error: function(e) {
         //TODO: PROGON-1088 - handle errors in requesting data (e.g. timeout) appropriately
-        console.log("lookup exception:", e.statusText);
+        console.error("lookup exception:", e.statusText);
       }
     };
   }

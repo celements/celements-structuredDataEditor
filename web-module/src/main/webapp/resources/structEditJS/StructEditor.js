@@ -443,9 +443,9 @@
         console.log('execShowProgressDialog: after hide savingDialog');
         var failed = _me._showErrorMessages(jsonResponses);
         if (failed) {
-          _me.celFire('structEdit:failingSaved', jsonResponses);
+          _me.celFire('structEdit:failingSaved', { 'jsonResponses' : jsonResponses });
         } else {
-          _me.celFire('structEdit:successfulSaved', jsonResponses);
+          _me.celFire('structEdit:successfulSaved', { 'jsonResponses' : jsonResponses });
         }
         _me._execFn(jsonResponses, failed);
       });

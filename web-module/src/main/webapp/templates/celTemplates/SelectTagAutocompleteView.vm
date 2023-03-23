@@ -14,8 +14,8 @@
   $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':structEditJS/select2/i18n/fr.js'))##
   $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':structEditJS/select2/i18n/en.js'))##
   $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':structEditJS/autocomplete.mjs'))##
-  #if("$!autoComplete.jsFilePath" != '')
-    $!jsService.includeExtJsFile($extJsParamSync.setJsFile(':${autoComplete.jsFilePath}'))##
+  #if("$!{autoComplete.jsFilePath}" != '')
+    $!jsService.includeExtJsFile($extJsParamSync.setJsFile(":${autoComplete.jsFilePath}"))##
   #end
   #set($currentDocRefValue = $autoComplete.getSelectedValue($cellDocRef).orElse($null))
   #if("$!currentDocRefValue" != '')

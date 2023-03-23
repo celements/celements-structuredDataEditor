@@ -2,16 +2,17 @@
 $jsonBuilder.openDictionary()##
 #set($autoComplete = $services.structuredDataEditor.getSelectTagAutoCompleteImpl($request.type).orElse($null))##
 #if($services.rightsAccess.isLoggedIn() && "$!autoComplete" != '')##
-  $jsonBuilder.addProperty('type', "$!autoComplete.name")##
-  $jsonBuilder.addProperty('cellRef', "$!request.cellRef")##
-  $jsonBuilder.addProperty('searchterm', "$!request.searchterm")##
-  #set($offset = $util.parseInt("$!request.offset"))##
+  $jsonBuilder.addProperty('type', "$!{autoComplete.name}")##
+  $jsonBuilder.addProperty('cellRef', "$!{request.cellRef}")##
+  $jsonBuilder.addProperty('searchterm', "$!{request.searchterm}")##
+  #set($cellDocRef = $services.model.resolveDocument($request.cellRef))##
+  $jsonBuilder.addProperty('urlToNewElementEditor', "$!{autoComplete.getUrlToNewElementEditor($cellDocRef).orElse(null).toExternalForm()}")##
+  #set($offset = $util.parseInt("$!{request.offset}"))##
   #if($offset < 0) #set($offset = 0) #end##
   $jsonBuilder.addProperty('offset', $offset)##
-  #set($limit = $util.parseInt("$!request.limit"))##
+  #set($limit = $util.parseInt("$!{request.limit}"))##
   #if($limit <= 0) #set($limit = 10) #end##
   $jsonBuilder.addProperty('limit', $limit)##
-  #set($cellDocRef = $services.model.resolveDocument($request.cellRef))##
   #set($luceneSearchResult = $autoComplete.search($cellDocRef, $request.searchterm))##
   #if($isSuperAdmin)##
     $jsonBuilder.addProperty('luceneSearchResult', $luceneSearchResult)##

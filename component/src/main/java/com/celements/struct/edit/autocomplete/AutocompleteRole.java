@@ -19,6 +19,7 @@
  */
 package com.celements.struct.edit.autocomplete;
 
+import java.net.URL;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -57,5 +58,8 @@ public interface AutocompleteRole {
   @NotNull
   String displayNameForValue(@Nullable DocumentReference onDocRef,
       @Nullable DocumentReference cellDocRef);
+
+  @NotNull
+  Optional<URL> getUrlToNewElementEditor(@Nullable DocumentReference cellDocRef);
 
 }
