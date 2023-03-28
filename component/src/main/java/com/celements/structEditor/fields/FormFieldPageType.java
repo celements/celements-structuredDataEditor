@@ -70,15 +70,15 @@ public class FormFieldPageType extends AbstractStructFieldPageType {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
       XWikiObjectFetcher objFetcher = XWikiObjectFetcher.on(cellDoc).filter(classDef);
       if (objFetcher.fetchField(FIELD_SEND_DATA_ENCODED).stream().anyMatch(TRUE::equals)) {
-        attrBuilder.addNonEmptyAttribute("enctype", "multipart/form-data");
+        attrBuilder.addUniqAttribute("enctype", "multipart/form-data");
       }
-      attrBuilder.addNonEmptyAttribute("action", getVelocityFieldValue(cellDoc, FIELD_ACTION)
+      attrBuilder.addUniqAttribute("action", getVelocityFieldValue(cellDoc, FIELD_ACTION)
           .orElse("?"));
-      attrBuilder.addNonEmptyAttribute("method", objFetcher.fetchField(FIELD_METHOD)
+      attrBuilder.addUniqAttribute("method", objFetcher.fetchField(FIELD_METHOD)
           .stream().flatMap(Collection::stream)
           .findFirst().orElse(Method.POST)
           .name());
-      attrBuilder.addNonEmptyAttribute("autocomplete", "off");
+      attrBuilder.addUniqAttribute("autocomplete", "off");
     } catch (DocumentNotExistsException | XWikiVelocityException exc) {
       log.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }

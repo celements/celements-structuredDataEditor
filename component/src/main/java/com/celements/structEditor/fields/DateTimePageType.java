@@ -68,34 +68,34 @@ public class DateTimePageType extends AbstractStructFieldPageType {
 
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
-    attrBuilder.addNonEmptyAttribute("type", "text");
+    attrBuilder.addUniqAttribute("type", "text");
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      getStructDataEditorService().getCellDateValue(cellDoc, modelContext.getCurrentDoc().orNull())
+      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc);
+      XWikiDocument onDoc = modelContext.getDocument().orElse(null);
+      getStructDataEditorService().getCellDateValue(cellDoc, onDoc)
           .map(Date::toInstant)
           .map(getStructDataEditorService().getDateFormatFromField(cellDoc)
               .map(DateFormat::formatter)
               .orElse(i -> null))
-          .ifPresent(value -> attrBuilder.addNonEmptyAttribute("value", value));
-      attrBuilder.addNonEmptyAttribute("type", "text");
-      attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
-          cellDoc, modelContext.getCurrentDoc().orNull()).orElse(""));
-      Type pickerType = XWikiObjectFetcher.on(cellDoc)
-          .fetchField(FIELD_TYPE)
+          .ifPresent(value -> attrBuilder.addUniqAttribute("value", value));
+      getStructDataEditorService().getAttributeName(cellDoc, onDoc)
+          .ifPresent(name -> attrBuilder.addUniqAttribute("name", name));
+      Type pickerType = fetcher.fetchField(FIELD_TYPE)
           .stream().flatMap(List::stream)
           .findFirst().orElse(Type.DATE_PICKER);
       attrBuilder.addCssClasses(PICKER_TYPE_CSS_CLASS_MAP.get(pickerType));
       List<String> dataValueList = new ArrayList<>();
-      XWikiObjectFetcher.on(cellDoc).fetchField(FIELD_FORMAT)
+      fetcher.fetchField(FIELD_FORMAT)
           .stream().findFirst()
           .map(format -> "\"format\" : \"" + format + "\"")
           .ifPresent(dataValueList::add);
-      XWikiObjectFetcher.on(cellDoc).fetchField(FIELD_ATTRIBUTES)
+      fetcher.fetchField(FIELD_ATTRIBUTES)
           .stream().findFirst()
           .ifPresent(dataValueList::add);
       String dataAttr = Joiner.on(',').skipNulls().join(dataValueList);
       if (!dataAttr.isEmpty()) {
-        attrBuilder.addNonEmptyAttribute("data-pickerAttr", "{" + dataAttr + "}");
+        attrBuilder.addUniqAttribute("data-pickerAttr", "{" + dataAttr + "}");
       }
     } catch (DocumentNotExistsException exc) {
       log.error("cell doesn't exist '{}'", cellDocRef, exc);

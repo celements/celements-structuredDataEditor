@@ -30,8 +30,8 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.struct.SelectTagServiceRole;
-import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(OptionTagPageType.PAGETYPE_NAME)
 public class OptionTagPageType extends AbstractStructFieldPageType {
@@ -61,26 +61,25 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
-      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(modelAccess.getDocument(cellDocRef));
       selectTagService.getSelectCellDocRef(cellDocRef)
           .map(rethrowFunction(modelAccess::getDocument))
           .ifPresent(selectCellDoc -> {
-            Optional<String> optionValue = modelAccess.getFieldValue(cellDoc, FIELD_VALUE)
-                .toJavaUtil();
+            Optional<String> optionValue = fetcher.fetchField(FIELD_VALUE).findFirst();
             Optional<String> cellValue = getStructDataEditorService().getCellValueAsString(
-                selectCellDoc, modelContext.getCurrentDoc().orNull());
+                selectCellDoc, modelContext.getDocument().orElse(null));
             if ((cellValue.isPresent() && cellValue.equals(optionValue)) || (!cellValue.isPresent()
-                && modelAccess.getFieldValue(cellDoc, FIELD_SELECTED).or(false))) {
+                && fetcher.fetchField(FIELD_SELECTED).findFirst().orElse(false))) {
               attrBuilder.addEmptyAttribute("selected");
             }
           });
-      if (modelAccess.getFieldValue(cellDoc, FIELD_DISABLED).or(false)) {
+      if (fetcher.fetchField(FIELD_DISABLED).findFirst().orElse(false)) {
         attrBuilder.addEmptyAttribute("disabled");
       }
-      attrBuilder.addNonEmptyAttribute("value", modelAccess.getFieldValue(cellDoc,
-          FIELD_VALUE).or(""));
-      attrBuilder.addNonEmptyAttribute("label", modelAccess.getFieldValue(cellDoc,
-          FIELD_LABEL).or(""));
+      fetcher.fetchField(FIELD_VALUE).findFirst()
+          .ifPresent(value -> attrBuilder.addUniqAttribute("value", value));
+      fetcher.fetchField(FIELD_LABEL).findFirst()
+          .ifPresent(label -> attrBuilder.addUniqAttribute("label", label));
     } catch (DocumentNotExistsException exc) {
       log.error("cell doesn't exist '{}'", cellDocRef, exc);
     }

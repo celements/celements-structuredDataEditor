@@ -57,7 +57,7 @@ public class LabelTagPageType extends AbstractStructFieldPageType {
         .fetchField(CellClass.FIELD_ID_NAME)
         .stream().findFirst().ifPresent(id -> {
           attrBuilder.addId(id + "_Label");
-          attrBuilder.addNonEmptyAttribute("for", id);
+          attrBuilder.addUniqAttribute("for", id);
         });
   }
 

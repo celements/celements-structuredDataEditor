@@ -32,6 +32,7 @@ import org.xwiki.velocity.XWikiVelocityException;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.classes.fields.ClassField;
 import com.celements.model.context.ModelContext;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.model.util.ModelUtils;
 import com.celements.pagetype.category.IPageTypeCategoryRole;
 import com.celements.pagetype.java.AbstractJavaPageType;
@@ -117,7 +118,9 @@ public abstract class AbstractStructFieldPageType extends AbstractJavaPageType {
 
   protected Optional<String> getVelocityFieldValue(XWikiDocument cellDoc,
       ClassField<String> classField) throws XWikiVelocityException {
-    return modelAccess.getFieldValue(cellDoc, classField).toJavaUtil()
+    return XWikiObjectFetcher.on(cellDoc)
+        .fetchField(classField)
+        .findFirst()
         .map(rethrowFunction(velocityService::evaluateVelocityText));
   }
 

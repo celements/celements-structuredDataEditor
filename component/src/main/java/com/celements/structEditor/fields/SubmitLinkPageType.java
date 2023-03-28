@@ -51,7 +51,7 @@ public class SubmitLinkPageType extends AbstractStructFieldPageType {
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     attrBuilder.addCssClasses("celSubmitFormWithValidation submit");
-    attrBuilder.addNonEmptyAttribute("href", "#");
+    attrBuilder.addUniqAttribute("href", "#");
   }
 
 }
