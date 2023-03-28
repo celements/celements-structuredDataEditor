@@ -28,6 +28,7 @@ import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(SelectTagPageType.PAGETYPE_NAME)
@@ -56,18 +57,20 @@ public class SelectTagPageType extends AbstractStructFieldPageType {
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
-          cellDoc, modelContext.getCurrentDoc().orNull()).orElse(""));
-      boolean isBootstrap = modelAccess.getFieldValue(cellDoc, FIELD_IS_BOOTSTRAP).or(false);
-      boolean isMultiselect = modelAccess.getFieldValue(cellDoc, FIELD_IS_MULTISELECT).or(false);
+      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc);
+      XWikiDocument currDoc = modelContext.getDocument().orElse(null);
+      getStructDataEditorService().getAttributeName(cellDoc, currDoc)
+          .ifPresent(name -> attrBuilder.addUniqAttribute("name", name));
+      boolean isBootstrap = fetcher.fetchField(FIELD_IS_BOOTSTRAP).findFirst().orElse(false);
+      boolean isMultiselect = fetcher.fetchField(FIELD_IS_MULTISELECT).findFirst().orElse(false);
       if (isBootstrap || isMultiselect) {
         attrBuilder.addCssClasses("celBootstrap");
-        attrBuilder.addNonEmptyAttribute("data-bootstrapConfig", modelAccess.getFieldValue(cellDoc,
-            FIELD_BOOTSTRAP_CONFIG).or(""));
+        fetcher.fetchField(FIELD_BOOTSTRAP_CONFIG).findFirst()
+            .ifPresent(cfg -> attrBuilder.addUniqAttribute("data-bootstrapConfig", cfg));
       }
       if (isMultiselect) {
         attrBuilder.addCssClasses("celMultiselect");
-        attrBuilder.addNonEmptyAttribute("multiple", "multiple");
+        attrBuilder.addUniqAttribute("multiple", "multiple");
 
       }
     } catch (DocumentNotExistsException exc) {

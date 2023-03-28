@@ -29,6 +29,7 @@ import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
+import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(HiddenTagPageType.PAGETYPE_NAME)
@@ -55,13 +56,13 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
 
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
-    attrBuilder.addNonEmptyAttribute("type", "hidden");
+    attrBuilder.addUniqAttribute("type", "hidden");
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      Optional<String> name = modelAccess.getFieldValue(cellDoc, FIELD_NAME).toJavaUtil();
+      Optional<String> name = XWikiObjectFetcher.on(cellDoc).fetchField(FIELD_NAME).findFirst();
       Optional<String> value = getVelocityFieldValue(cellDoc, FIELD_VALUE);
       if (getStructDataEditorService().hasEditField(cellDoc)) {
-        XWikiDocument onDoc = modelContext.getCurrentDoc().orNull();
+        XWikiDocument onDoc = modelContext.getDocument().orElse(null);
         if (!name.isPresent()) {
           name = getStructDataEditorService().getAttributeName(cellDoc, onDoc);
         }
@@ -70,12 +71,10 @@ public class HiddenTagPageType extends AbstractStructFieldPageType {
         }
       }
       if (!value.isPresent() && name.isPresent()) {
-        final String paramName = name.get();
-        value = modelContext.getRequest().toJavaUtil().map(
-            request -> request.getParameter(paramName));
+        value = modelContext.getRequestParam(name.get());
       }
-      attrBuilder.addNonEmptyAttribute("name", name.orElse(cellDocRef.getName()));
-      attrBuilder.addNonEmptyAttribute("value", value.orElse(""));
+      name.ifPresent(n -> attrBuilder.addUniqAttribute("name", n));
+      value.ifPresent(v -> attrBuilder.addUniqAttribute("value", v));
     } catch (DocumentNotExistsException | XWikiVelocityException exc) {
       log.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }

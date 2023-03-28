@@ -52,15 +52,15 @@ public class NumberTagPageType extends AbstractStructFieldPageType {
 
   @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
-    attrBuilder.addNonEmptyAttribute("type", "number");
+    attrBuilder.addUniqAttribute("type", "number");
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      String name = getStructDataEditorService().getAttributeName(cellDoc,
-          modelContext.getCurrentDoc().orNull()).orElse("");
-      attrBuilder.addNonEmptyAttribute("name", name);
-      String value = getStructDataEditorService().getCellValueAsString(cellDoc,
-          modelContext.getCurrentDoc().orNull()).orElse("0");
-      attrBuilder.addNonEmptyAttribute("value", value);
+      getStructDataEditorService()
+          .getAttributeName(cellDoc, modelContext.getDocument().orElse(null))
+          .ifPresent(name -> attrBuilder.addUniqAttribute("name", name));
+      getStructDataEditorService()
+          .getCellValueAsString(cellDoc, modelContext.getDocument().orElse(null))
+          .ifPresent(value -> attrBuilder.addUniqAttribute("value", value));
     } catch (DocumentNotExistsException exc) {
       log.error("failed to add all attributes for '{}'", cellDocRef, exc);
     }
