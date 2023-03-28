@@ -69,26 +69,26 @@ public class SelectTagAutocompletePageType extends AbstractStructFieldPageType {
   public void collectAttributes(final AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
     try {
       XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
-      XWikiDocument currDoc = modelContext.getCurrentDoc().orNull();
+      XWikiDocument currDoc = modelContext.getDocument().orElse(null);
       attrBuilder.addCssClasses("structAutocomplete");
-      attrBuilder.addNonEmptyAttribute("name", getStructDataEditorService().getAttributeName(
-          cellDoc, currDoc).orElse(""));
+      getStructDataEditorService().getAttributeName(cellDoc, currDoc)
+          .ifPresent(name -> attrBuilder.addUniqAttribute("name", name));
       getStructDataEditorService().getAttributeName(cellDoc, null)
-          .ifPresent(name -> attrBuilder.addNonEmptyAttribute("data-class-field", name));
+          .ifPresent(name -> attrBuilder.addUniqAttribute("data-class-field", name));
       selectTagService.getTypeImpl(cellDocRef).ifPresent(type -> {
         attrBuilder.addCssClasses(type.getName());
-        attrBuilder.addNonEmptyAttribute("data-autocomplete-type", type.getName());
+        attrBuilder.addUniqAttribute("data-autocomplete-type", type.getName());
       });
       XWikiObjectFetcher.on(cellDoc).fetchField(CellClass.FIELD_CSS_CLASSES).stream().findFirst()
           .ifPresent(css -> attrBuilder.addNonEmptyAttribute("data-autocomplete-css", css));
       XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc).filter(classDef);
       if (fetcher.fetchField(FIELD_AUTOCOMPLETE_IS_MULTISELECT).stream().anyMatch(TRUE::equals)) {
-        attrBuilder.addNonEmptyAttribute("multiple", "multiple");
+        attrBuilder.addUniqAttribute("multiple", "multiple");
       }
       fetcher.fetchField(FIELD_AUTOCOMPLETE_SEPARATOR).stream().findFirst()
-          .ifPresent(separator -> attrBuilder.addNonEmptyAttribute("data-separator", separator));
+          .ifPresent(separator -> attrBuilder.addUniqAttribute("data-separator", separator));
       getStructDataEditorService().getCellValueAsString(cellDoc, currDoc)
-          .ifPresent(docFN -> attrBuilder.addNonEmptyAttribute("data-value", docFN));
+          .ifPresent(docFN -> attrBuilder.addUniqAttribute("data-value", docFN));
     } catch (DocumentNotExistsException exc) {
       log.warn("cell doesn't exist '{}'", cellDocRef, exc);
     }

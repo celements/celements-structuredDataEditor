@@ -71,7 +71,7 @@ public abstract class AbstractTablePresentationType implements ITablePresentatio
         .addId(tableCfg.getCssId())
         .addCssClasses(getDefaultCssClass())
         .addCssClasses(tableCfg.getCssClasses())
-        .addNonEmptyAttribute("type", tableCfg.getType().name())
+        .addUniqAttribute("type", tableCfg.getType().name())
         .build());
     writeHeader(writer, tableDocRef, tableCfg);
     writer.openLevel("div", new DefaultAttributeBuilder()
