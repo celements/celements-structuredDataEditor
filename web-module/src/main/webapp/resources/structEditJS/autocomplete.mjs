@@ -151,13 +151,15 @@ class CelAutocompleteInitialiser {
   }
 
   #urlToNewElementEditorButtonClickHandler(event, selectElem) {
-    const buttonElem = event.target;
-    const urlToNewElementEditor = buttonElem.getAttribute('data-url');
-    console.debug('urlToNewElementEditorButtonClickHandler start', event, selectElem,
-      urlToNewElementEditor);
-    const theAddNewPopup = window.open(urlToNewElementEditor, '_blank', 'popup=true');
-    theAddNewPopup.addEventListener('message',
-      (ev) => this.#handleAddNewElementMessage(ev, selectElem));
+    const buttonElem = event.target.closest('.view_cel_buttonLink');
+    const urlToNewElementEditor = buttonElem?.dataset?.url;
+    if (urlToNewElementEditor) {
+      console.debug('urlToNewElementEditorButtonClickHandler start', event, selectElem,
+        urlToNewElementEditor);
+      const theAddNewPopup = window.open(urlToNewElementEditor, '_blank', 'popup=true');
+      theAddNewPopup.addEventListener('message',
+        (ev) => this.#handleAddNewElementMessage(ev, selectElem));
+    }
   }
 
   #getUrlToNewElementEditorButton(selectElem, urlToNewElementEditor) {
