@@ -153,7 +153,7 @@ class CelAutocompleteInitialiser {
   #urlToNewElementEditorButtonClickHandler(event, selectElem) {
     const buttonElem = event.target.closest('.view_cel_buttonLink');
     if (buttonElem) {
-      const urlToNewElementEditor = buttonElem.getAttribute('data-url');
+      const urlToNewElementEditor = buttonElem.dataset.url;
       console.debug('urlToNewElementEditorButtonClickHandler start', event, selectElem,
         urlToNewElementEditor);
       const theAddNewPopup = window.open(urlToNewElementEditor, '_blank', 'popup=true');
