@@ -21,6 +21,10 @@ package com.celements.structEditor.fields;
 
 import org.xwiki.component.annotation.Component;
 
+/**
+ * @deprecated since 5.10 instead use {@link TextAreaTagPageType}
+ */
+@Deprecated
 @Component(TextAreaFieldPageType.INPUT_FIELD_PAGETYPE_NAME)
 public class TextAreaFieldPageType extends AbstractStructFieldPageType {
 

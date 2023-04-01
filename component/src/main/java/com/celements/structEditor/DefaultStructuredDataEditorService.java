@@ -74,7 +74,6 @@ import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.BaseClass;
@@ -280,6 +279,14 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
+  public Optional<String> getRequestOrCellValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return getAttributeName(cellDoc, onDoc)
+        .flatMap(context::getRequestParam)
+        .map(Optional::of) // replace with #or in Java9+
+        .orElseGet(() -> getCellValueAsString(cellDoc, onDoc));
+  }
+
+  @Override
   public Optional<Date> getCellDateValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
     Object value = getCellValue(cellDoc, onDoc);
     if (value instanceof Date) {
@@ -320,12 +327,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       Function<XWikiDocument, String> valueGetter) {
     String value = null;
     if (onDoc != null) {
-      try {
-        onDoc = onDoc.getTranslatedDocument(context.getXWikiContext());
-      } catch (XWikiException exc) {
-        // is actually never thrown in #getTranslatedDocument
-        LOGGER.error("getTranslatedValue - [{}]", onDoc, exc);
-      }
+      onDoc = modelAccess.getDocumentOpt(onDoc.getDocumentReference(),
+          context.getLanguage().orElseGet(context::getDefaultLanguage))
+          .orElse(onDoc);
       value = Strings.emptyToNull(valueGetter.apply(onDoc).trim());
     }
     return value;
@@ -371,7 +375,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Optional<Integer> getNumberFromRequest() {
-    return Optional.ofNullable(Ints.tryParse(context.getRequestParameter("objNb").or("")));
+    return Optional.ofNullable(Ints.tryParse(context.getRequestParam("objNb").orElse("")));
   }
 
   private Optional<Integer> getNumberFromExecutionContext() {

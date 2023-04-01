@@ -66,7 +66,7 @@ public class OptionTagPageType extends AbstractStructFieldPageType {
           .map(rethrowFunction(modelAccess::getDocument))
           .ifPresent(selectCellDoc -> {
             Optional<String> optionValue = fetcher.fetchField(FIELD_VALUE).findFirst();
-            Optional<String> cellValue = getStructDataEditorService().getCellValueAsString(
+            Optional<String> cellValue = getStructDataEditorService().getRequestOrCellValue(
                 selectCellDoc, modelContext.getDocument().orElse(null));
             if ((cellValue.isPresent() && cellValue.equals(optionValue)) || (!cellValue.isPresent()
                 && fetcher.fetchField(FIELD_SELECTED).findFirst().orElse(false))) {

@@ -19,15 +19,19 @@
  */
 package com.celements.structEditor.fields;
 
+import java.util.Optional;
+
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.celements.cells.attribute.AttributeBuilder;
+import com.celements.model.access.exception.DocumentNotExistsException;
+import com.xpn.xwiki.doc.XWikiDocument;
 
-@Component(NumberTagPageType.PAGETYPE_NAME)
-public class NumberTagPageType extends InputTagPageType {
+@Component(InputTagPageType.PAGETYPE_NAME)
+public class InputTagPageType extends AbstractStructFieldPageType {
 
-  public static final String PAGETYPE_NAME = "NumberTag";
+  public static final String PAGETYPE_NAME = "InputTag";
 
   @Override
   public String getName() {
@@ -35,9 +39,30 @@ public class NumberTagPageType extends InputTagPageType {
   }
 
   @Override
+  protected String getViewTemplateName() {
+    return getName() + "View";
+  }
+
+  @Override
+  public Optional<String> tagName() {
+    return Optional.of("input");
+  }
+
+  @Override
   public void collectAttributes(AttributeBuilder attrBuilder, DocumentReference cellDocRef) {
-    super.collectAttributes(attrBuilder, cellDocRef);
-    attrBuilder.addUniqAttribute("type", "number");
+    if (!attrBuilder.getAttribute("type").isPresent()) {
+      attrBuilder.addUniqAttribute("type", "text");
+    }
+    try {
+      XWikiDocument cellDoc = modelAccess.getDocument(cellDocRef);
+      XWikiDocument onDoc = modelContext.getDocument().orElse(null);
+      getStructDataEditorService().getAttributeName(cellDoc, onDoc)
+          .ifPresent(name -> attrBuilder.addUniqAttribute("name", name));
+      getStructDataEditorService().getRequestOrCellValue(cellDoc, onDoc)
+          .ifPresent(value -> attrBuilder.addUniqAttribute("value", value));
+    } catch (DocumentNotExistsException exc) {
+      log.error("failed to add all attributes for '{}'", cellDocRef, exc);
+    }
   }
 
 }

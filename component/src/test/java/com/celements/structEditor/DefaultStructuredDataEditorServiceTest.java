@@ -20,7 +20,7 @@
 package com.celements.structEditor;
 
 import static com.celements.common.test.CelementsTestUtils.*;
-import static com.celements.structEditor.DefaultStructuredDataEditorService.*;
+import static com.celements.structEditor.StructuredDataEditorService.*;
 import static com.celements.structEditor.classes.StructuredDataEditorClass.*;
 import static com.google.common.base.Strings.*;
 import static java.util.stream.Collectors.*;
@@ -333,8 +333,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   }
 
   private void expectRequest(String nb) {
-    expect(getMock(ModelContext.class).getRequestParameter("objNb"))
-        .andReturn(com.google.common.base.Optional.fromNullable(emptyToNull(nb)))
+    expect(getMock(ModelContext.class).getRequestParam("objNb"))
+        .andReturn(Optional.ofNullable(emptyToNull(nb)))
         .once();
   }
 

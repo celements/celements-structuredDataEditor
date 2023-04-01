@@ -39,6 +39,10 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.xpn.xwiki.doc.XWikiDocument;
 
+/**
+ * @deprecated since 5.10 instead use {@link DateTimePageType}
+ */
+@Deprecated
 @Component(DateTimePickerPageType.PAGETYPE_NAME)
 public class DateTimePickerPageType extends AbstractStructFieldPageType {
 
