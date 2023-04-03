@@ -110,7 +110,7 @@ public class OptionTagPageTypeTest extends AbstractComponentTest {
     XWikiDocument selectCellDoc = new XWikiDocument(cellDocRef);
     expect(modelAccessMock.getDocument(selectCellDocRef)).andReturn(selectCellDoc);
     Optional<String> currentStoredValue = Optional.of(myTestValue);
-    expect(structDataEditorSrvMock.getCellValueAsString(selectCellDoc, currentPageDoc))
+    expect(structDataEditorSrvMock.getRequestOrCellValue(selectCellDoc, currentPageDoc))
         .andReturn(currentStoredValue);
     replayDefault();
     optionTagPT.collectAttributes(attributes, cellDocRef);

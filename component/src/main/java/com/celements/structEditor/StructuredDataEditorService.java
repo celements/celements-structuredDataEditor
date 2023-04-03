@@ -73,6 +73,10 @@ public interface StructuredDataEditorService {
   Optional<String> getCellValueAsString(@NotNull XWikiDocument cellDoc,
       @Nullable XWikiDocument onDoc);
 
+  @NotNull
+  Optional<String> getRequestOrCellValue(@NotNull XWikiDocument cellDoc,
+      @Nullable XWikiDocument onDoc);
+
   Optional<String> getDateFormatFromField(XWikiDocument cellDoc);
 
   @NotNull

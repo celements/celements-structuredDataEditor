@@ -21,7 +21,6 @@ package com.celements.structEditor;
 
 import static java.util.stream.Collectors.*;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,18 +37,27 @@ import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.script.service.ScriptService;
 
+import com.celements.cells.attribute.AttributeBuilder;
+import com.celements.cells.attribute.CellAttribute;
+import com.celements.cells.attribute.DefaultAttributeBuilder;
 import com.celements.common.MoreOptional;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
+import com.celements.pagetype.IPageTypeConfig;
 import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
 import com.celements.struct.SelectTagServiceRole;
 import com.celements.struct.edit.autocomplete.AutocompleteRole;
 import com.celements.structEditor.classes.SelectTagEditorClass;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
+import com.celements.structEditor.fields.TextAreaTagPageType;
+import com.celements.structEditor.fields.InputTagPageType;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.classes.PropertyClass;
+import com.xpn.xwiki.web.Utils;
+
+import one.util.streamex.StreamEx;
 
 @Component("structuredDataEditor")
 public class StructuredDataEditorScriptService implements ScriptService {
@@ -80,7 +88,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   }
 
   public String getAttributeNameForCurrentDoc(DocumentReference cellDocRef) {
-    return context.getCurrentDoc().toJavaUtil()
+    return context.getDocument()
         .map(onDoc -> getAttributeName(cellDocRef, onDoc))
         .orElse("");
   }
@@ -96,63 +104,61 @@ public class StructuredDataEditorScriptService implements ScriptService {
   }
 
   public Map<String, String> getTextAttributes(DocumentReference cellDocRef) {
-    return getFromCellDoc(cellDocRef, cellDoc -> {
-      Map<String, String> retMap = new LinkedHashMap<>();
-      retMap.put("type", "text");
-      addNameAttributeToMap(retMap, cellDoc);
-      retMap.put("value", context.getCurrentDoc().toJavaUtil()
-          .map(XWikiDocument::getTemplate).orElse(""));
-      return Optional.of(retMap);
-    }).orElseGet(LinkedHashMap::new);
+    return getAttributesAsMap(cellDocRef, InputTagPageType.PAGETYPE_NAME);
   }
 
   public Map<String, String> getTextAreaAttributes(DocumentReference cellDocRef) {
-    return getFromCellDoc(cellDocRef, cellDoc -> {
-      Map<String, String> retMap = new LinkedHashMap<>();
-      addNameAttributeToMap(retMap, cellDoc);
-      XWikiObjectFetcher fetcher = XWikiObjectFetcher.on(cellDoc);
-      fetcher.fetchField(TextAreaFieldEditorClass.FIELD_ROWS).stream()
-          .forEach(val -> retMap.put("rows", val.toString()));
-      fetcher.fetchField(TextAreaFieldEditorClass.FIELD_COLS).stream()
-          .forEach(val -> retMap.put("cols", val.toString()));
-      fetcher.fetchField(TextAreaFieldEditorClass.FIELD_IS_RICHTEXT).stream()
-          .forEach(val -> retMap.put("isRichtext", val.toString()));
-      return Optional.of(retMap);
-    }).orElseGet(LinkedHashMap::new);
+    return getAttributesAsMap(cellDocRef, TextAreaTagPageType.PAGETYPE_NAME);
+  }
+
+  private Map<String, String> getAttributesAsMap(DocumentReference cellDocRef, String pageType) {
+    AttributeBuilder builder = new DefaultAttributeBuilder();
+    if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
+      Utils.getComponent(IPageTypeConfig.class, pageType)
+          .collectAttributes(builder, cellDocRef);
+    }
+    return StreamEx.of(builder.build())
+        .mapToEntry(CellAttribute::getName, CellAttribute::getValue)
+        .flatMapValues(MoreOptional::stream)
+        .toMap();
   }
 
   public String getTextAreaContent(DocumentReference cellDocRef) {
-    return getFromCellDoc(cellDocRef, cellDoc -> XWikiObjectFetcher.on(cellDoc)
-        .fetchField(TextAreaFieldEditorClass.FIELD_VALUE).stream().findFirst())
-            .orElse("");
-  }
-
-  private void addNameAttributeToMap(Map<String, String> map, XWikiDocument cellDoc) {
-    service.getAttributeName(cellDoc, context.getCurrentDoc().orNull())
-        .ifPresent(val -> map.put("name", val));
+    return getFromCellDoc(cellDocRef, cellDoc -> service
+        .getRequestOrCellValue(cellDoc, context.getDocument().orElse(null))
+        .map(Optional::of) // replace with #or in Java9+
+        .orElseGet(() -> XWikiObjectFetcher.on(cellDoc)
+            .fetchField(TextAreaFieldEditorClass.FIELD_VALUE).findFirst()))
+                .orElse("");
   }
 
   public List<com.xpn.xwiki.api.Object> getObjectsForCell(DocumentReference cellDocRef) {
     return streamFromCellDoc(cellDocRef, cellDoc -> service
-        .streamXObjectsForCell(cellDoc, context.getCurrentDoc().orNull()))
+        .streamXObjectsForCell(cellDoc, context.getDocument().orElse(null)))
             .map(o -> new com.xpn.xwiki.api.Object(o, context.getXWikiContext()))
             .collect(toList());
   }
 
   public String getCellValueAsString(DocumentReference cellDocRef) {
     return getFromCellDoc(cellDocRef, cellDoc -> service
-        .getCellValueAsString(cellDoc, context.getCurrentDoc().orNull()))
+        .getCellValueAsString(cellDoc, context.getDocument().orElse(null)))
             .orElse("");
   }
 
   public String getCellValueFromRequest(DocumentReference cellDocRef) {
     String name = getAttributeNameForCurrentDoc(cellDocRef);
-    return context.getRequestParameter(name).toJavaUtil().orElse("");
+    return context.getRequestParam(name).orElse("");
+  }
+
+  public String getRequestOrCellValue(DocumentReference cellDocRef) {
+    return getFromCellDoc(cellDocRef, cellDoc -> service
+        .getRequestOrCellValue(cellDoc, context.getDocument().orElse(null)))
+            .orElse("");
   }
 
   public List<String> getCellListValue(DocumentReference cellDocRef) {
     return streamFromCellDoc(cellDocRef, cellDoc -> service
-        .getCellListValue(cellDoc, context.getCurrentDoc().orNull()).stream())
+        .getCellListValue(cellDoc, context.getDocument().orElse(null)).stream())
             .collect(toList());
   }
 
@@ -196,7 +202,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   }
 
   public Optional<String> getLangNameAttributeForCurrentDoc(DocumentReference cellDocRef) {
-    return getFromCellDoc(cellDocRef, cellDoc -> context.getCurrentDoc().toJavaUtil()
+    return getFromCellDoc(cellDocRef, cellDoc -> context.getDocument()
         .flatMap(onDoc -> service.getLangNameAttribute(cellDoc, onDoc)));
   }
 

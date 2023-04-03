@@ -160,16 +160,16 @@ public class DefaultAutocomplete implements AutocompleteRole {
   }
 
   protected final Optional<DocumentReference> getValueFromRequest(XWikiDocument cellDoc) {
-    Optional<DocumentReference> ret = context.getCurrentDoc().toJavaUtil()
+    Optional<DocumentReference> ret = context.getDocument()
         .flatMap(onDoc -> structEditService.getAttributeName(cellDoc, onDoc))
-        .flatMap(name -> context.getRequestParameter(name).toJavaUtil())
+        .flatMap(name -> context.getRequestParam(name))
         .flatMap(this::resolve);
     log.debug("getValueFromRequest - cellDoc [{}]: {}", cellDoc.getDocumentReference(), ret);
     return ret;
   }
 
   protected final Optional<DocumentReference> getValueOnDoc(XWikiDocument cellDoc) {
-    Optional<DocumentReference> ret = context.getCurrentDoc().toJavaUtil()
+    Optional<DocumentReference> ret = context.getDocument()
         .flatMap(onDoc -> structEditService.getCellValueAsString(cellDoc, onDoc))
         .flatMap(this::resolve);
     log.debug("getValueOnDoc - cellDoc [{}]: {}", cellDoc.getDocumentReference(), ret);

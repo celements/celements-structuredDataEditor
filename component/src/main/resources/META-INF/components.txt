@@ -10,6 +10,7 @@ com.celements.structEditor.classes.TextAreaFieldEditorClass
 com.celements.structEditor.fields.DateTimePickerPageType
 com.celements.structEditor.fields.DateTimePageType
 com.celements.structEditor.fields.FormFieldPageType
+com.celements.structEditor.fields.InputTagPageType
 com.celements.structEditor.fields.HiddenTagPageType
 com.celements.structEditor.fields.LabelTagPageType
 com.celements.structEditor.fields.LanguageSelectorPageType
@@ -22,6 +23,7 @@ com.celements.structEditor.fields.StructEditFieldTypeCategory
 com.celements.structEditor.fields.SubmitLinkPageType
 com.celements.structEditor.fields.TextFieldPageType
 com.celements.structEditor.fields.TextAreaFieldPageType
+com.celements.structEditor.fields.TextAreaTagPageType
 com.celements.structEditor.DefaultStructuredDataEditorService
 com.celements.structEditor.StructuredDataEditorPageType
 com.celements.structEditor.StructuredDataEditorNavigationConfigurator
