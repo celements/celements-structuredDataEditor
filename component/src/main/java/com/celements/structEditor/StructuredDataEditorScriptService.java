@@ -44,7 +44,6 @@ import com.celements.common.MoreOptional;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
-import com.celements.pagetype.java.DefaultPageTypeConfig;
 import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
@@ -115,8 +114,8 @@ public class StructuredDataEditorScriptService implements ScriptService {
     AttributeBuilder builder = new DefaultAttributeBuilder();
     if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
       try {
-        IJavaPageTypeRole pt = componentManager.lookup(IJavaPageTypeRole.class, pageType);
-        new DefaultPageTypeConfig(pt).collectAttributes(builder, cellDocRef);
+        componentManager.lookup(IJavaPageTypeRole.class, pageType)
+            .collectAttributes(builder, cellDocRef);
       } catch (ComponentLookupException exc) {}
     }
     return StreamEx.of(builder.build())
