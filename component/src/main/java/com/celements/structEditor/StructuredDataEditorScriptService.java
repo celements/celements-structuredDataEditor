@@ -44,18 +44,18 @@ import com.celements.common.MoreOptional;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
-import com.celements.pagetype.IPageTypeConfig;
+import com.celements.pagetype.java.DefaultPageTypeConfig;
+import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.celements.rights.access.EAccessLevel;
 import com.celements.rights.access.IRightsAccessFacadeRole;
 import com.celements.struct.SelectTagServiceRole;
 import com.celements.struct.edit.autocomplete.AutocompleteRole;
 import com.celements.structEditor.classes.SelectTagEditorClass;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
-import com.celements.structEditor.fields.TextAreaTagPageType;
 import com.celements.structEditor.fields.InputTagPageType;
+import com.celements.structEditor.fields.TextAreaTagPageType;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.classes.PropertyClass;
-import com.xpn.xwiki.web.Utils;
 
 import one.util.streamex.StreamEx;
 
@@ -66,10 +66,10 @@ public class StructuredDataEditorScriptService implements ScriptService {
       StructuredDataEditorScriptService.class);
 
   @Requirement
-  StructuredDataEditorService service;
+  private StructuredDataEditorService service;
 
   @Requirement
-  IModelAccessFacade modelAccess;
+  private IModelAccessFacade modelAccess;
 
   @Requirement
   private SelectTagServiceRole selectTagService;
@@ -114,8 +114,10 @@ public class StructuredDataEditorScriptService implements ScriptService {
   private Map<String, String> getAttributesAsMap(DocumentReference cellDocRef, String pageType) {
     AttributeBuilder builder = new DefaultAttributeBuilder();
     if (rightsAccess.hasAccessLevel(cellDocRef, EAccessLevel.VIEW)) {
-      Utils.getComponent(IPageTypeConfig.class, pageType)
-          .collectAttributes(builder, cellDocRef);
+      try {
+        IJavaPageTypeRole pt = componentManager.lookup(IJavaPageTypeRole.class, pageType);
+        new DefaultPageTypeConfig(pt).collectAttributes(builder, cellDocRef);
+      } catch (ComponentLookupException exc) {}
     }
     return StreamEx.of(builder.build())
         .mapToEntry(CellAttribute::getName, CellAttribute::getValue)
