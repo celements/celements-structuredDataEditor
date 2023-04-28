@@ -124,19 +124,17 @@ public class TableDocPresentationTypeTest extends AbstractComponentTest {
     for (XWikiDocument dataDoc : docs) {
       expect(mocks.get(IModelAccessFacade.class).getDocument(dataDoc.getDocumentReference()))
           .andReturn(dataDoc).anyTimes();
-      expect(
-          mocks.get(IModelAccessFacade.class).getOrCreateDocument(dataDoc.getDocumentReference()))
-              .andReturn(dataDoc).anyTimes();
+      expect(mocks.get(IModelAccessFacade.class).getOrCreateDocument(
+          dataDoc.getDocumentReference())).andReturn(dataDoc).anyTimes();
     }
     for (ColumnConfig col : table.getColumns()) {
-      expect(
-          mocks.get(VelocityService.class).evaluateVelocityText(same(tableDoc), eq(col.getTitle()),
-              anyObject(VelocityContextModifier.class))).andReturn(col.getTitle());
+      expect(mocks.get(VelocityService.class).evaluateVelocityText(
+          same(tableDoc), eq(col.getTitle()), anyObject(VelocityContextModifier.class)))
+              .andReturn(col.getTitle());
       for (XWikiDocument dataDoc : docs) {
-        expect(
-            mocks.get(VelocityService.class).evaluateVelocityText(same(dataDoc),
-                eq(col.getContent()),
-                anyObject(VelocityContextModifier.class))).andReturn(col.getContent());
+        expect(mocks.get(VelocityService.class).evaluateVelocityText(
+            same(dataDoc), eq(col.getContent()), anyObject(VelocityContextModifier.class)))
+                .andReturn(col.getContent());
       }
     }
   }
