@@ -24,13 +24,13 @@
   <parent>
     <groupId>com.celements</groupId>
     <artifactId>celementsweb</artifactId>
-    <version>5.9</version>
+    <version>6.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>structuredDataEditor-web</artifactId>
   <packaging>war</packaging>
   <name>Celements Structured Data Editor Web-Module</name>
-  <version>5.18-SNAPSHOT</version>
+  <version>6.0-SNAPSHOT</version>
   <description>	</description>
   <licenses>
     <license>
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-structuredDataEditor</artifactId>
-      <version>5.9</version>
+      <version>6.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <build>
