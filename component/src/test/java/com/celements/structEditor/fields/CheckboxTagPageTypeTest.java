@@ -39,17 +39,17 @@ import com.celements.structEditor.StructuredDataEditorService;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
 
-public class NumberTagPageTypeTest extends AbstractComponentTest {
+public class CheckboxTagPageTypeTest extends AbstractComponentTest {
 
-  private NumberTagPageType pageType;
+  private CheckboxTagPageType pageType;
   private StructuredDataEditorService structDataEditorSrvMock;
 
   @Before
   public void prepareTest() throws Exception {
     registerComponentMock(IModelAccessFacade.class);
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
-    pageType = (NumberTagPageType) Utils.getComponent(IJavaPageTypeRole.class,
-        NumberTagPageType.PAGETYPE_NAME);
+    pageType = (CheckboxTagPageType) Utils.getComponent(IJavaPageTypeRole.class,
+        CheckboxTagPageType.PAGETYPE_NAME);
     getContext().setDoc(new XWikiDocument(new DocumentReference(
         getContext().getDatabase(), "Content", "Current")));
   }
@@ -57,14 +57,14 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
   @Test
   public void test_getName() {
     replayDefault();
-    assertEquals("NumberTag", pageType.getName());
+    assertEquals("CheckboxTag", pageType.getName());
     verifyDefault();
   }
 
   @Test
   public void test_getViewTemplateName() {
     replayDefault();
-    assertEquals("NumberTagView", pageType.getViewTemplateName());
+    assertEquals("CheckboxTagView", pageType.getViewTemplateName());
     verifyDefault();
   }
 
@@ -84,17 +84,40 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
     expect(structDataEditorSrvMock.getAttributeName(same(cellDoc), same(getContext().getDoc())))
         .andReturn(Optional.of("Space.Class_1_field"));
     expect(structDataEditorSrvMock.getRequestOrCellValue(same(cellDoc),
-        same(getContext().getDoc()))).andReturn(Optional.of("3421"));
+        same(getContext().getDoc()))).andReturn(Optional.of("0"));
     AttributeBuilder attributes = new DefaultAttributeBuilder();
 
     replayDefault();
     pageType.collectAttributes(attributes, cellDoc.getDocumentReference());
     verifyDefault();
 
-    assertEquals(3, attributes.build().size());
-    assertAttribute(attributes, "type", "number");
+    assertEquals(4, attributes.build().size());
+    assertAttribute(attributes, "type", "checkbox");
     assertAttribute(attributes, "name", "Space.Class_1_field");
-    assertAttribute(attributes, "value", "3421");
+    assertAttribute(attributes, "value", "1");
+    assertAttribute(attributes, "data-unchecked-value", "0");
+  }
+
+  @Test
+  public void test_collectAttributes_checked() throws Exception {
+    XWikiDocument cellDoc = expectDoc(new DocumentReference(
+        getContext().getDatabase(), "Layout", "Cell"));
+    expect(structDataEditorSrvMock.getAttributeName(same(cellDoc), same(getContext().getDoc())))
+        .andReturn(Optional.of("Space.Class_1_field"));
+    expect(structDataEditorSrvMock.getRequestOrCellValue(same(cellDoc),
+        same(getContext().getDoc()))).andReturn(Optional.of("1"));
+    AttributeBuilder attributes = new DefaultAttributeBuilder();
+
+    replayDefault();
+    pageType.collectAttributes(attributes, cellDoc.getDocumentReference());
+    verifyDefault();
+
+    assertEquals(5, attributes.build().size());
+    assertAttribute(attributes, "type", "checkbox");
+    assertAttribute(attributes, "name", "Space.Class_1_field");
+    assertAttribute(attributes, "value", "1");
+    assertAttribute(attributes, "data-unchecked-value", "0");
+    assertAttribute(attributes, "checked", "");
   }
 
   @Test
@@ -109,8 +132,10 @@ public class NumberTagPageTypeTest extends AbstractComponentTest {
     pageType.collectAttributes(attributes, cellDocRef);
     verifyDefault();
 
-    assertEquals(1, attributes.build().size());
-    assertAttribute(attributes, "type", "number");
+    assertEquals(3, attributes.build().size());
+    assertAttribute(attributes, "type", "checkbox");
+    assertAttribute(attributes, "value", "1");
+    assertAttribute(attributes, "data-unchecked-value", "0");
   }
 
   private final XWikiDocument expectDoc(DocumentReference docRef)

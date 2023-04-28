@@ -113,7 +113,7 @@ public class InputTagPageTypeTest extends AbstractComponentTest {
     assertAttribute(attributes, "type", "text");
   }
 
-  private static final XWikiDocument expectDoc(DocumentReference docRef)
+  private final XWikiDocument expectDoc(DocumentReference docRef)
       throws DocumentNotExistsException {
     XWikiDocument doc = new XWikiDocument(docRef);
     doc.setNew(false);

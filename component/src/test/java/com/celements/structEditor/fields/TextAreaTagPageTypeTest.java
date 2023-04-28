@@ -120,7 +120,7 @@ public class TextAreaTagPageTypeTest extends AbstractComponentTest {
     assertAttribute(attributes, "class", "structEditTextArea");
   }
 
-  private static final XWikiDocument expectDoc(DocumentReference docRef)
+  private final XWikiDocument expectDoc(DocumentReference docRef)
       throws DocumentNotExistsException {
     XWikiDocument doc = new XWikiDocument(docRef);
     doc.setNew(false);
