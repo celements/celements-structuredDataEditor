@@ -4,5 +4,5 @@
 #end
 #set($xredirect = $escapetool.url($xredirect))
 #set($url = $services.url.getURL($rowdoc.documentReference, 'delete', "xredirect=${xredirect}"))
-#if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings icon-plus") #end
+#if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings halflings-remove") #end
 <a class="icon-link" href="$!url"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
