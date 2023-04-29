@@ -24,8 +24,6 @@ import static com.google.common.base.MoreObjects.*;
 import static com.google.common.base.Predicates.*;
 import static java.util.stream.Collectors.*;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -39,6 +37,7 @@ import org.xwiki.velocity.XWikiVelocityException;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
+import com.celements.common.MoreOptional;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.field.FieldAccessor;
@@ -53,7 +52,6 @@ import com.celements.velocity.VelocityContextModifier;
 import com.celements.velocity.VelocityService;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -104,10 +102,10 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
   }
 
   private String evaluateTableCellContent(XWikiDocument rowDoc, ColumnConfig colCfg) {
-    String content = evaluateColumnContentOrMacro(rowDoc, colCfg);
+    XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
+        colCfg.getTableConfig().getDocumentReference());
+    String content = evaluateColumnContentOrMacro(rowDoc, tableCfgDoc, colCfg);
     if (content.isEmpty() && !colCfg.getName().isEmpty()) {
-      XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
-          colCfg.getTableConfig().getDocumentReference());
       if (colCfg.getTableConfig().isHeaderMode()) {
         content = resolveTitleFromDictionary(tableCfgDoc, colCfg.getName());
       } else {
@@ -117,16 +115,17 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
     return content;
   }
 
-  private String evaluateColumnContentOrMacro(XWikiDocument rowDoc, ColumnConfig colCfg) {
+  private String evaluateColumnContentOrMacro(XWikiDocument rowDoc, XWikiDocument tableCfgDoc,
+      ColumnConfig colCfg) {
     String content = "";
     try {
       String text = colCfg.getContent().trim();
-      String macroName = "col_" + colCfg.getName() + ".vm";
       if (text.isEmpty() && !colCfg.getTableConfig().isHeaderMode()) {
-        for (Iterator<String> iter = resolvePossibleTableNames(context.getCurrentDoc().get())
-            .iterator(); (text.isEmpty() && iter.hasNext());) {
-          text = getMacroContent(STRUCT_TABLE_DIR, iter.next(), macroName);
-        }
+        String macroName = "col_" + colCfg.getName() + ".vm";
+        text = resolvePossibleTableNames(tableCfgDoc)
+            .map(name -> getMacroContent(STRUCT_TABLE_DIR, name, macroName))
+            .filter(String::isEmpty)
+            .findFirst().orElse("");
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
           rowDoc, colCfg)).trim();
@@ -157,14 +156,14 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
    *         1. struct layout space name defined by StructLayoutClass_layoutSpace
    *         2. table page type name
    */
-  List<String> resolvePossibleTableNames(XWikiDocument tableDoc) {
-    ImmutableList.Builder<String> tableNames = new ImmutableList.Builder<>();
-    structService.getStructLayoutSpaceRef(tableDoc)
-        .map(this::getFirstPartOfLayoutName).ifPresent(tableNames::add);
-    pageTypeResolver.resolvePageTypeReference(tableDoc).toJavaUtil()
-        .map(PageTypeReference::getConfigName).ifPresent(tableNames::add);
-    tableNames.add("");
-    return tableNames.build();
+  Stream<String> resolvePossibleTableNames(XWikiDocument tableCfgDoc) {
+    return Stream.of(
+        structService.getStructLayoutSpaceRef(tableCfgDoc)
+            .map(this::getFirstPartOfLayoutName),
+        pageTypeResolver.resolvePageTypeReference(tableCfgDoc).toJavaUtil()
+            .map(PageTypeReference::getConfigName),
+        Optional.of(""))
+        .flatMap(MoreOptional::stream);
   }
 
   private String getFirstPartOfLayoutName(SpaceReference layoutSpaceRef) {
