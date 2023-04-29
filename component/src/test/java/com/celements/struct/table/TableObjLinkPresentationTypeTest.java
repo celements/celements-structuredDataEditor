@@ -82,7 +82,7 @@ public class TableObjLinkPresentationTypeTest extends AbstractComponentTest {
     ICellWriter writer = new DivWriter();
     TableConfig table = getDummyTableConfig(Type.OBJLINK);
 
-    expectNoData(table, tableDoc);
+    expectNoData(getDefaultMocks(), table, tableDoc);
 
     replayDefault();
     presentationType.writeNodeContent(writer, tableDoc.getDocumentReference(), table);
@@ -100,7 +100,7 @@ public class TableObjLinkPresentationTypeTest extends AbstractComponentTest {
     List<XWikiDocument> rowDocs = ImmutableList.of(dataDoc1, dataDoc2);
 
     expectLinkObjs(table, rowDocs);
-    expectTableRender(table, tableDoc, rowDocs);
+    expectTableRender(getDefaultMocks(), table, tableDoc, rowDocs);
 
     replayDefault();
     presentationType.writeNodeContent(writer, tableDoc.getDocumentReference(), table);

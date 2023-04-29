@@ -40,6 +40,7 @@ import org.xwiki.velocity.XWikiVelocityException;
 import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
 import com.celements.common.test.AbstractComponentTest;
+import com.celements.common.test.CelDefaultMocks;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.navigation.presentation.IPresentationTypeRole;
 import com.celements.pagetype.service.IPageTypeResolverRole;
@@ -83,7 +84,7 @@ public class TableDocPresentationTypeTest extends AbstractComponentTest {
     TableConfig table = getDummyTableConfig(Type.DOC);
 
     expectLuceneSearch(table, ImmutableList.<DocumentReference>of(), 0);
-    expectNoData(table, tableDoc);
+    expectNoData(getDefaultMocks(), table, tableDoc);
 
     replayDefault();
     presentationType.writeNodeContent(writer, tableDoc.getDocumentReference(), table);
@@ -102,7 +103,7 @@ public class TableDocPresentationTypeTest extends AbstractComponentTest {
         dataDoc2.getDocumentReference());
 
     expectLuceneSearch(table, rowDocRefs, 0);
-    expectTableRender(table, tableDoc, ImmutableList.of(dataDoc1, dataDoc2));
+    expectTableRender(getDefaultMocks(), table, tableDoc, ImmutableList.of(dataDoc1, dataDoc2));
 
     replayDefault();
     presentationType.writeNodeContent(writer, tableDoc.getDocumentReference(), table);
@@ -118,21 +119,22 @@ public class TableDocPresentationTypeTest extends AbstractComponentTest {
         .replaceFirst("DOC", type.name());
   }
 
-  static void expectTableRender(TableConfig table, XWikiDocument tableDoc, List<XWikiDocument> docs)
-      throws Exception {
+  static void expectTableRender(CelDefaultMocks mocks, TableConfig table, XWikiDocument tableDoc,
+      List<XWikiDocument> docs) throws Exception {
     for (XWikiDocument dataDoc : docs) {
-      expect(getMock(IModelAccessFacade.class).getDocument(dataDoc.getDocumentReference()))
+      expect(mocks.get(IModelAccessFacade.class).getDocument(dataDoc.getDocumentReference()))
           .andReturn(dataDoc).anyTimes();
-      expect(getMock(IModelAccessFacade.class).getOrCreateDocument(dataDoc.getDocumentReference()))
-          .andReturn(dataDoc).anyTimes();
+      expect(mocks.get(IModelAccessFacade.class).getOrCreateDocument(
+          dataDoc.getDocumentReference())).andReturn(dataDoc).anyTimes();
     }
     for (ColumnConfig col : table.getColumns()) {
-      expect(getMock(VelocityService.class).evaluateVelocityText(same(tableDoc), eq(col.getTitle()),
-          anyObject(VelocityContextModifier.class))).andReturn(col.getTitle());
+      expect(mocks.get(VelocityService.class).evaluateVelocityText(
+          same(tableDoc), eq(col.getTitle()), anyObject(VelocityContextModifier.class)))
+              .andReturn(col.getTitle());
       for (XWikiDocument dataDoc : docs) {
-        expect(
-            getMock(VelocityService.class).evaluateVelocityText(same(dataDoc), eq(col.getContent()),
-                anyObject(VelocityContextModifier.class))).andReturn(col.getContent());
+        expect(mocks.get(VelocityService.class).evaluateVelocityText(
+            same(dataDoc), eq(col.getContent()), anyObject(VelocityContextModifier.class)))
+                .andReturn(col.getContent());
       }
     }
   }
@@ -144,7 +146,7 @@ public class TableDocPresentationTypeTest extends AbstractComponentTest {
     int offset = 123;
 
     expectLuceneSearch(table, ImmutableList.<DocumentReference>of(), offset);
-    expectNoData(table, tableDoc);
+    expectNoData(getDefaultMocks(), table, tableDoc);
     getContext().setRequest(createMockAndAddToDefault(XWikiRequest.class));
     expect(getContext().getRequest().get("offset")).andReturn(Integer.toString(offset));
 
@@ -191,11 +193,12 @@ public class TableDocPresentationTypeTest extends AbstractComponentTest {
         DocumentReference.class)).andReturn(result);
   }
 
-  static void expectNoData(TableConfig table, XWikiDocument tableDoc) throws Exception {
-    expectTableRender(table, tableDoc, ImmutableList.of());
+  static void expectNoData(CelDefaultMocks mocks, TableConfig table, XWikiDocument tableDoc)
+      throws Exception {
+    expectTableRender(mocks, table, tableDoc, ImmutableList.of());
     String value = "no data";
-    expect(getMock(XWikiMessageTool.class).get("struct_table_nodata")).andReturn(value);
-    expect(getMock(VelocityService.class).evaluateVelocityText(same(tableDoc), eq(value),
+    expect(mocks.get(XWikiMessageTool.class).get("struct_table_nodata")).andReturn(value);
+    expect(mocks.get(VelocityService.class).evaluateVelocityText(same(tableDoc), eq(value),
         anyObject(VelocityContextModifier.class))).andReturn(value);
   }
 
