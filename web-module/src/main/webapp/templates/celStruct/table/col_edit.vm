@@ -4,5 +4,5 @@
 #end
 #set($xredirect = $escapetool.url($xredirect))
 #set($url = $services.url.getURL($rowdoc.documentReference, 'edit', "xredirect=${xredirect}"))
-#if("$!iconEditCssClass" == '') #set($iconEditCssClass = "halflings icon-pencil") #end
+#if("$!iconEditCssClass" == '') #set($iconEditCssClass = "halflings halflings-pencil") #end
 <a class="icon-link" href="$!url"><i class="icon $!{iconEditCssClass}" title="edit"></i></a>
