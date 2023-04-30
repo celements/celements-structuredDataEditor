@@ -125,7 +125,7 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
             colCfg.getTableConfig().getDocumentReference());
         text = resolvePossibleTableNames(tableCfgDoc)
             .map(name -> getMacroContent(STRUCT_TABLE_DIR, name, macroName))
-            .filter(String::isEmpty)
+            .filter(not(String::isEmpty))
             .findFirst().orElse("");
       }
       content = velocityService.evaluateVelocityText(rowDoc, text, getVelocityContextModifier(
