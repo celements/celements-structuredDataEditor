@@ -102,10 +102,10 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
   }
 
   private String evaluateTableCellContent(XWikiDocument rowDoc, ColumnConfig colCfg) {
-    XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
-        colCfg.getTableConfig().getDocumentReference());
-    String content = evaluateColumnContentOrMacro(rowDoc, tableCfgDoc, colCfg);
+    String content = evaluateColumnContentOrMacro(rowDoc, colCfg);
     if (content.isEmpty() && !colCfg.getName().isEmpty()) {
+      XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
+          colCfg.getTableConfig().getDocumentReference());
       if (colCfg.getTableConfig().isHeaderMode()) {
         content = resolveTitleFromDictionary(tableCfgDoc, colCfg.getName());
       } else {
@@ -115,13 +115,14 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
     return content;
   }
 
-  private String evaluateColumnContentOrMacro(XWikiDocument rowDoc, XWikiDocument tableCfgDoc,
-      ColumnConfig colCfg) {
+  private String evaluateColumnContentOrMacro(XWikiDocument rowDoc, ColumnConfig colCfg) {
     String content = "";
     try {
       String text = colCfg.getContent().trim();
       if (text.isEmpty() && !colCfg.getTableConfig().isHeaderMode()) {
         String macroName = "col_" + colCfg.getName() + ".vm";
+        XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
+            colCfg.getTableConfig().getDocumentReference());
         text = resolvePossibleTableNames(tableCfgDoc)
             .map(name -> getMacroContent(STRUCT_TABLE_DIR, name, macroName))
             .filter(String::isEmpty)
