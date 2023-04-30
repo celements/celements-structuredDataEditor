@@ -20,6 +20,7 @@
 package com.celements.struct.table;
 
 import static com.celements.common.test.CelementsTestUtils.*;
+import static java.util.stream.Collectors.*;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
@@ -69,7 +70,8 @@ public class TableRowColumnPresentationTypeTest extends AbstractComponentTest {
     expectPageTypeRef("tableName");
 
     replayDefault();
-    assertEquals(Arrays.asList("tableName", ""), presentationType.resolvePossibleTableNames(doc));
+    assertEquals(Arrays.asList("tableName", ""), presentationType.resolvePossibleTableNames(doc)
+        .collect(toList()));
     verifyDefault();
   }
 
@@ -80,7 +82,8 @@ public class TableRowColumnPresentationTypeTest extends AbstractComponentTest {
     expectAbsentPageTypeRef();
 
     replayDefault();
-    assertEquals(Arrays.asList("layoutspace", ""), presentationType.resolvePossibleTableNames(doc));
+    assertEquals(Arrays.asList("layoutspace", ""), presentationType.resolvePossibleTableNames(doc)
+        .collect(toList()));
     verifyDefault();
   }
 
