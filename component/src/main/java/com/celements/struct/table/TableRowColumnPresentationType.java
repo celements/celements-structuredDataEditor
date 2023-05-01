@@ -121,9 +121,7 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
       String text = colCfg.getContent().trim();
       if (text.isEmpty() && !colCfg.getTableConfig().isHeaderMode()) {
         String macroName = "col_" + colCfg.getName() + ".vm";
-        XWikiDocument tableCfgDoc = modelAccess.getOrCreateDocument(
-            colCfg.getTableConfig().getDocumentReference());
-        text = resolvePossibleTableNames(tableCfgDoc)
+        text = resolvePossibleTableNames(colCfg.getTableConfig().getDocumentReference())
             .map(name -> getMacroContent(STRUCT_TABLE_DIR, name, macroName))
             .filter(not(String::isEmpty))
             .findFirst().orElse("");
@@ -157,14 +155,19 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
    *         1. struct layout space name defined by StructLayoutClass_layoutSpace
    *         2. table page type name
    */
-  Stream<String> resolvePossibleTableNames(XWikiDocument tableCfgDoc) {
+  Stream<String> resolvePossibleTableNames(DocumentReference tableDocRef) {
     return Stream.of(
-        structService.getStructLayoutSpaceRef(tableCfgDoc)
+        context.getDocument()
+            .flatMap(structService::getStructLayoutSpaceRef)
             .map(this::getFirstPartOfLayoutName),
-        pageTypeResolver.resolvePageTypeReference(tableCfgDoc).toJavaUtil()
+        context.getDocument()
+            .flatMap(doc -> pageTypeResolver.resolvePageTypeReference(doc).toJavaUtil())
             .map(PageTypeReference::getConfigName),
+        Optional.of(tableDocRef.getLastSpaceReference())
+            .map(this::getFirstPartOfLayoutName),
         Optional.of(""))
-        .flatMap(MoreOptional::stream);
+        .flatMap(MoreOptional::stream)
+        .distinct();
   }
 
   private String getFirstPartOfLayoutName(SpaceReference layoutSpaceRef) {
