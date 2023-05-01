@@ -70,7 +70,8 @@ public class TableRowColumnPresentationTypeTest extends AbstractComponentTest {
     expectPageTypeRef("tableName");
 
     replayDefault();
-    assertEquals(Arrays.asList("tableName", ""), presentationType.resolvePossibleTableNames(doc)
+    assertEquals(Arrays.asList("tableName", ""), presentationType
+        .resolvePossibleTableNames(doc.getDocumentReference())
         .collect(toList()));
     verifyDefault();
   }
@@ -82,7 +83,8 @@ public class TableRowColumnPresentationTypeTest extends AbstractComponentTest {
     expectAbsentPageTypeRef();
 
     replayDefault();
-    assertEquals(Arrays.asList("layoutspace", ""), presentationType.resolvePossibleTableNames(doc)
+    assertEquals(Arrays.asList("layoutspace", ""), presentationType
+        .resolvePossibleTableNames(doc.getDocumentReference())
         .collect(toList()));
     verifyDefault();
   }
