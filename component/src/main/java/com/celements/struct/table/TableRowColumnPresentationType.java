@@ -166,7 +166,8 @@ public class TableRowColumnPresentationType extends AbstractTableRowPresentation
         Optional.of(tableDocRef.getLastSpaceReference())
             .map(this::getFirstPartOfLayoutName),
         Optional.of(""))
-        .flatMap(MoreOptional::stream);
+        .flatMap(MoreOptional::stream)
+        .distinct();
   }
 
   private String getFirstPartOfLayoutName(SpaceReference layoutSpaceRef) {
