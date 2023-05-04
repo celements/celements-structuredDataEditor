@@ -3,7 +3,8 @@
   #set($newDocRef = $services.model.resolveDocument("$!newDocFn"))
   #if($services.modelAccess.exists($newDocRef))
     #set($query = $services.lucene.createQuery())
-    #set($devNull = $query.addRestriction($services.lucene.createDocRestriction("$!newDocFn")))
+    #set($devNull = $query.addRestriction($services.lucene.createRestriction('space', "${Q}$!newDocRef.parent.name${Q}")))
+    #set($devNull = $query.addRestriction($services.lucene.createRestriction('name', "${Q}$!newDocRef.name${Q}")))
     #set($results = $services.lucene.search("$query.getQueryString()", [], ['default','de']))
     #if($results.getResults().size() < 1)
       <p>$adminMsg.get('struct_table_new_entry_created_not_indexed')</p>
