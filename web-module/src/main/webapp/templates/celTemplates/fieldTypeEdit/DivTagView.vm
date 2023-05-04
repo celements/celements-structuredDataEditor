@@ -1,0 +1,3 @@
+<!-- DivTagView -->
+#set($cellDocRef = $celldoc.getDocumentReference())
+$services.structuredDataEditor.getCellValueAsString($cellDocRef)
