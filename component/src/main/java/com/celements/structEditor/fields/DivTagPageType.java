@@ -21,7 +21,7 @@ package com.celements.structEditor.fields;
 
 import java.util.Optional;
 
-import org.xwiki.component.annotation.Component;
+import org.springframework.stereotype.Component;
 
 @Component(DivTagPageType.PAGETYPE_NAME)
 public class DivTagPageType extends AbstractStructFieldPageType {
