@@ -34,15 +34,15 @@ import com.celements.pagetype.java.IJavaPageTypeRole;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.web.Utils;
 
-public class DivTagPageTypeTest extends AbstractComponentTest {
+public class DisplayFieldPageTypeTest extends AbstractComponentTest {
 
-  private DivTagPageType pageType;
+  private DisplayFieldPageType pageType;
 
   @Before
   public void prepareTest() throws Exception {
     registerComponentMock(IModelAccessFacade.class);
-    pageType = (DivTagPageType) Utils.getComponent(IJavaPageTypeRole.class,
-        DivTagPageType.PAGETYPE_NAME);
+    pageType = (DisplayFieldPageType) Utils.getComponent(IJavaPageTypeRole.class,
+        DisplayFieldPageType.PAGETYPE_NAME);
     getContext().setDoc(new XWikiDocument(new DocumentReference(
         getContext().getDatabase(), "Content", "Current")));
   }
@@ -50,14 +50,14 @@ public class DivTagPageTypeTest extends AbstractComponentTest {
   @Test
   public void test_getName() {
     replayDefault();
-    assertEquals("DivTag", pageType.getName());
+    assertEquals("DisplayField", pageType.getName());
     verifyDefault();
   }
 
   @Test
   public void test_getViewTemplateName() {
     replayDefault();
-    assertEquals("DivTagView", pageType.getViewTemplateName());
+    assertEquals("DisplayFieldView", pageType.getViewTemplateName());
     verifyDefault();
   }
 

@@ -23,10 +23,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-@Component(DivTagPageType.PAGETYPE_NAME)
-public class DivTagPageType extends AbstractStructFieldPageType {
+@Component(DisplayFieldPageType.PAGETYPE_NAME)
+public class DisplayFieldPageType extends AbstractStructFieldPageType {
 
-  public static final String PAGETYPE_NAME = "DivTag";
+  public static final String PAGETYPE_NAME = "DisplayField";
 
   @Override
   public String getName() {
