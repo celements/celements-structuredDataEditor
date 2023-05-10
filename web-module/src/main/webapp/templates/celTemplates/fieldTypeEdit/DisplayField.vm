@@ -1,6 +1,5 @@
-#set($cel_editobj_dict_prefix = 'cel_optionTagEditor_edit_' )
 #set($cel_embedded_editobj = true)
-#set($cel_editobj_classname = 'Celements.CellClass_tagname')
+#set($cel_editobj_classname = 'Celements.CellClass')
 #set($createIfNotExists = true)
 #set($cel_editobj_hasObjRemoveLink = false)
 #set($cel_editobj_externalForm = true)
