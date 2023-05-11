@@ -38,9 +38,4 @@ public class DisplayFieldPageType extends AbstractStructFieldPageType {
     return getName() + "View";
   }
 
-  @Override
-  public Optional<String> tagName() {
-    return Optional.of("div");
-  }
-
 }
