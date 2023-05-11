@@ -66,8 +66,7 @@ public class DisplayFieldPageTypeTest extends AbstractComponentTest {
     replayDefault();
     Optional<String> name = pageType.tagName();
     verifyDefault();
-    assertTrue(name.isPresent());
-    assertEquals("div", name.get());
+    assertFalse(name.isPresent());
   }
 
 }
