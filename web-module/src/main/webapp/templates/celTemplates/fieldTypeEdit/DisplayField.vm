@@ -1,0 +1,8 @@
+#set($cel_embedded_editobj = true)
+#set($cel_editobj_classname = 'Celements.CellClass')
+#set($createIfNotExists = true)
+#set($cel_editobj_hasObjRemoveLink = false)
+#set($cel_editobj_externalForm = true)
+#set($cel_editobj_properties = 'tagname')
+#set($cel_editobj_readonly_properties = '')
+#parse("celTemplates/ObjectEdit.vm")
