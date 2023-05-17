@@ -708,7 +708,7 @@
     },
 
 	_updateCelBootstrapSelect : function() {
-		[...this._formElem.querySelectorAll('select.celBootstrap')].map(selectElem => {
+		[...this._formElem.querySelectorAll('select.celBootstrap')].forEach(selectElem => {
 			[...selectElem.querySelectorAll('option[selected]')]
 				.forEach(opt => opt.removeAttribute('selected'));
 			[...selectElem.querySelectorAll('option')]
