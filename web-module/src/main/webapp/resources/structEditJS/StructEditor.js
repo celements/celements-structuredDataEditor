@@ -711,8 +711,9 @@
 		[...this._formElem.querySelectorAll('select.celBootstrap')].forEach(selectElem => {
 			[...selectElem.querySelectorAll('option[selected]')]
 				.forEach(opt => opt.removeAttribute('selected'));
+			const selectedValues = $j(selectElem).val() || [];
 			[...selectElem.querySelectorAll('option')]
-				.filter(opt => $j(selectElem).val()?.includes(opt.value))
+				.filter(opt => selectedValues.filter(Boolean).includes(opt.value))
 				.forEach(opt => opt.setAttribute('selected', ''));
 		});
 	},
