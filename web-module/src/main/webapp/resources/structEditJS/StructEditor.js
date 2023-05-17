@@ -708,12 +708,12 @@
     },
 
 	_updateCelBootstrapSelect : function() {
-		_formElem.querySelectorAll('select.ceBootstrap').map(selectElem => {
+		[...this._formElem.querySelectorAll('select.celBootstrap')].map(selectElem => {
 			[...selectElem.querySelectorAll('option[selected]')]
-				.map(opt => opt.removeAttribute('selected'));
+				.forEach(opt => opt.removeAttribute('selected'));
 			[...selectElem.querySelectorAll('option')]
-				.filter(opt => $j(temp1).val().includes(opt.value))
-				.map(opt => opt.setAttribute('selected', ''));
+				.filter(opt => $j(selectElem).val()?.includes(opt.value))
+				.forEach(opt => opt.setAttribute('selected', ''));
 		});
 	},
 
