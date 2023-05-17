@@ -707,6 +707,16 @@
       console.log('_updateTinyMCETextAreas: end ', formId);
     },
 
+	_updateCelMutliselects : function() {
+		_formElem.querySelectorAll('select.celMultiselect').map(selectElem => {
+			[...selectElem.querySelectorAll('option[selected]')]
+				.map(opt => opt.removeAttribute('selected'));
+			[...selectElem.querySelectorAll('option')]
+				.filter(opt => $j(temp1).val().includes(opt.value))
+				.map(opt => opt.writeAttribute('selected'));
+		});
+	},
+
     /**
      * submittable fields must have a name attribute and maynot be disabled
      * @param fieldElem
@@ -788,6 +798,7 @@
         } else {
           console.debug('isDirty before _updateTinyMCETextAreas');
           _me._updateTinyMCETextAreas();
+          _me._updateCelMutliselects();
           _me._formElem.getElements().each(function(elem) {
             if (_me._isSubmittableField(elem) && _me._isDirtyField(elem)) {
               console.log('isDirty first found dirty field: ', elem.name);
