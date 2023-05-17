@@ -707,8 +707,8 @@
       console.log('_updateTinyMCETextAreas: end ', formId);
     },
 
-	_updateCelMutliselects : function() {
-		_formElem.querySelectorAll('select.celMultiselect').map(selectElem => {
+	_updateCelBootstrapSelect : function() {
+		_formElem.querySelectorAll('select.ceBootstrap').map(selectElem => {
 			[...selectElem.querySelectorAll('option[selected]')]
 				.map(opt => opt.removeAttribute('selected'));
 			[...selectElem.querySelectorAll('option')]
@@ -798,7 +798,7 @@
         } else {
           console.debug('isDirty before _updateTinyMCETextAreas');
           _me._updateTinyMCETextAreas();
-          _me._updateCelMutliselects();
+          _me._updateCelBootstrapSelect();
           _me._formElem.getElements().each(function(elem) {
             if (_me._isSubmittableField(elem) && _me._isDirtyField(elem)) {
               console.log('isDirty first found dirty field: ', elem.name);
