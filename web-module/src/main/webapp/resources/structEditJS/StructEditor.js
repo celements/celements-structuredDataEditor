@@ -713,7 +713,7 @@
 				.map(opt => opt.removeAttribute('selected'));
 			[...selectElem.querySelectorAll('option')]
 				.filter(opt => $j(temp1).val().includes(opt.value))
-				.map(opt => opt.writeAttribute('selected'));
+				.map(opt => opt.setAttribute('selected', ''));
 		});
 	},
 
