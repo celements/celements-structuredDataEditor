@@ -709,12 +709,12 @@
 
 	_updateCelBootstrapSelect : function() {
 		[...this._formElem.querySelectorAll('select.celBootstrap')].forEach(selectElem => {
+      const selectedValues = $j(selectElem).multiselect('refresh').val() || [];
 			[...selectElem.querySelectorAll('option[selected]')]
-				.forEach(opt => opt.removeAttribute('selected'));
-			const selectedValues = $j(selectElem).val() || [];
+  			.forEach(opt => opt.removeAttribute('selected'));
 			[...selectElem.querySelectorAll('option')]
-				.filter(opt => selectedValues.filter(Boolean).includes(opt.value))
-				.forEach(opt => opt.setAttribute('selected', ''));
+        .filter(opt => selectedValues.filter(Boolean).includes(opt.value))
+        .forEach(opt => opt.setAttribute('selected', ''));
 		});
 	},
 
