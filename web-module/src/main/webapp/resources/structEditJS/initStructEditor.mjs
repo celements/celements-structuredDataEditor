@@ -18,27 +18,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-(function(window, undefined) {
-  "use strict";
+/**
+ * Initialize struct editors and register to initialize on contentChanged events.
+ */
 
-  /**
-   * Initialize struct editors and register to initialize on contentChanged events.
-   */
+const initStructEditorContentChangedHandler = function(event) {
+  const checkRoot = event.memo.htmlElem || document.body;
+  console.log('initStructEditorContentChangedHandler: run for ', checkRoot);
+  $(document.body).fire('structEdit:initStructEditor', { 'checkRoot' : checkRoot });
+  console.log('initStructEditorContentChangedHandler: finish for ', checkRoot);
+};
 
-  var initStructEditorContentChangedHandler = function(event) {
-    var checkRoot = event.memo.htmlElem || document.body;
-    console.log('initStructEditorContentChangedHandler: run for ', checkRoot);
-    $(document.body).fire('structEdit:initStructEditor', { 'checkRoot' : checkRoot });
-    console.log('initStructEditorContentChangedHandler: finish for ', checkRoot);
-  };
-  
-  window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
+window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
 
-  const onReady = callback => (document.readyState === 'loading')
-      ? document.addEventListener('DOMContentLoaded', callback)
-      : callback();
+const onReady = callback => (document.readyState === 'loading')
+    ? document.addEventListener('DOMContentLoaded', callback)
+    : callback();
 
-  onReady(() => window.celStructEditorManager.startEditorManager());
-  $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
-
-})(window);
+onReady(() => window.celStructEditorManager.startEditorManager());
+$(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
