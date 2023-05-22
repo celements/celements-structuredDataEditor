@@ -748,7 +748,7 @@ window.CELEMENTS.structEdit.FormDiffBuilder = Class.create({
     const formElements = formElem.elements;
     const dirtyFields = [...formdata.keys()].filter(key => 
       !formElements[key].classList.contains('celIgnoreDirty')
-      && !this._equalsParamValues(formdata.getAll(key), _initialValues[key]));
+      && !this._equalsParamValues(formdata.getAll(key), this._initialValues[key]));
     console.debug('_isDirtyField: dirtyFields found', dirtyFields);
     return dirtyFields.length > 0;
   },
