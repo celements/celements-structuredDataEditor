@@ -718,7 +718,7 @@ window.CELEMENTS.structEdit.FormDiffBuilder = Class.create({
     if (this.isValidFormId()) {
       const formdata = new FormData(document.getElementById(formId));
       const newInitialValues = {};
-      [...formdata.keys()].forEach(key => 
+      [...formdata.keys()].forEach(key => {
         newInitialValues[key] = new Set(formdata.getAll(key));
       });
       this._initialValues = Object.freeze(newInitialValues);
