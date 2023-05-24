@@ -752,9 +752,9 @@ window.CELEMENTS.structEdit.FormDiffBuilder = Class.create({
     return dirtyFields.length > 0;
   },
 
-  _equalsParamValues : function(arr1, arr2) {
-    return (arr1.length === arr2.length)
-      && arr1.every(val => arr2.includes(val));
+  _equalsParamValues : function(arr, set) {
+    return (arr.length === set.size)
+      && arr.every(val => set.has(val));
   },
 
   isDirty : function() {
