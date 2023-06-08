@@ -1,4 +1,6 @@
-#set($xredirect = "$!request.xredirect")
+#if ("$!xredirect" == '')
+  #set($xredirect = "$!request.xredirect")
+#end
 #if ("$!xredirect" == '')
   #set($xredirect = $services.url.getURL())
 #end
