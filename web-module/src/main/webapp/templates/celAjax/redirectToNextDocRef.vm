@@ -1,0 +1,34 @@
+#set($pageType = $request.get('pageType'))
+#if($services.pageType.getPageTypeConfig("$!pageType"))
+  #set($templateName = $request.get('templateName'))
+  #if("$!templateName" == '')
+    #set($templateName = $pageType)
+  #end
+  ## TODO vereinfachen: statt title überall prefix verwenden. variablen nur einmal auslesen.
+  ## &namingMode="random" -> getRandom
+  ## &prefix="Asdf" -> getTitled
+  ## &prefix= -> getUntitled
+  #set($namingMode = $request.get('namingMode'))
+  #if($namingMode == 'random')
+    #set($lengthOfRandomAlphanumeric = $request.get('lengthOfRandomAlphanumeric'))
+    #set($prefix = $request.get('prefix'))
+    ## TODO aus dem pageType(String) eine SpaceReference machen mit RefBuilder
+    #set($spaceRef = $pageType)
+    #set($newDocRef = $services.nextfreedoc.getNextRandomPageDocRef($spaceRef, $lengthOfRandomAlphanumeric, $prefix))
+  #elseif($namingMode == 'titled')
+    #set($spaceRef = $request.get('spaceRef'))
+    #set($title = $request.get('title'))
+    #set($newDocRef = $services.nextfreedoc.getNextTitledPageDocRef($spaceRef, $title))
+  #elseif($namingMode == 'untitled')
+    #set($spaceRef = $request.get('spaceRef'))
+    #set($newDocRef = $services.nextfreedoc.getNextUntitledPageDocRef($spaceRef))
+  #end
+  #set($createLink = $services.url.getURL($newDocRef, "edit"))
+  #if($request.debug == '1')
+    redirect: $createLink
+  #else
+    $response.sendRedirect("$!createLink")
+  #end
+#else
+  Invalid doc type: $!pageType
+#end
