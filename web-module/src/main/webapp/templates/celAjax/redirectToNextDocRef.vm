@@ -10,12 +10,19 @@
   #if($namingMode == 'random')
     #set($lengthOfRandomAlphanumeric = $request.get('lengthOfRandomAlphanumeric'))
     #set($newDocRef = $services.nextfreedoc.getNextRandomPageDocRef($spaceRef, $lengthOfRandomAlphanumeric, $prefix))
-  #elseif($prefix == '')
+  #elseif("$!prefix" == '')
     #set($newDocRef = $services.nextfreedoc.getNextUntitledPageDocRef($spaceRef))
   #else
     #set($newDocRef = $services.nextfreedoc.getNextTitledPageDocRef($spaceRef, $prefix))
   #end
-  #set($createLink = $services.url.getURL($newDocRef, "edit"))
+  #set($query = "&template=Templates.$!{templateName}")
+  #if("$!request.xredirect" != '')
+  #set($query = "$!{query}&xredirect=$!{request.xredirect}")
+  #end
+  #if("$!request.xcancel" != '')
+  #set($query = "$!{query}&xcancel=$!{request.xcancel}")
+  #end
+  #set($createLink = $services.url.getURL($newDocRef, "edit", $query))
   #if($request.debug == '1')
     redirect: $createLink
   #else
