@@ -162,24 +162,27 @@ window.CELEMENTS.structEdit.StructEditorManager = Class.create({
   _startFinished : undefined,
 
   initialize : function(buttonHandler) {
-    var _me = this;
-    _me._initStructEditorHandlerBind = _me._initStructEditorHandler.bind(_me);
-    _me._checkBeforeUnloadBind = _me._checkBeforeUnload.bind(_me);
-    _me._saveAllEditorsAsyncBind = _me.saveAllEditorsAsync.bind(_me);
-    window.onbeforeunload = _me._checkBeforeUnloadBind;
-    _me._buttonHandler = buttonHandler || new CELEMENTS.structEdit.CelementsButtonHandler();
-    _me._startFinished = false;
+    this._initStructEditorHandlerBind = this._initStructEditorHandler.bind(this);
+    this._checkBeforeUnloadBind = this._checkBeforeUnload.bind(this);
+    this._saveAllEditorsAsyncBind = this.saveAllEditorsAsync.bind(this);
+    window.onbeforeunload = this._checkBeforeUnloadBind;
+    this._buttonHandler = buttonHandler || new CELEMENTS.structEdit.CelementsButtonHandler();
+    this._startFinished = false;
+    document.body?.dispatchEvent(new CustomEvent('structEdit:finishedInitialize', {
+      'bubbles' : false,
+      'cancelable' : false,
+      'detail' : {
+        'structEditorManager' : this
+      }
+    }));
   },
 
   setRootElem : function(rootElem) {
-    var _me = this;
-    _me._rootElem = $(rootElem);
+    this._rootElem = $(rootElem);
   },
 
   getRootElem : function() {
-    var _me = this;
-    var rootElem = _me._rootElem || document.body;
-    return rootElem;
+    return this._rootElem || document.body;
   },
 
   registerListener : function() {
