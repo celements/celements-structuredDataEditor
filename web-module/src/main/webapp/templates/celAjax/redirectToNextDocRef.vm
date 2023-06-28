@@ -8,7 +8,7 @@
   #set($prefix = $request.get('prefix'))
   #set($spaceRef = $services.reference.create().space($pageType).build())
   #if($namingMode == 'random')
-    #set($lengthOfRandomAlphanumeric = $request.get('lengthOfRandomAlphanumeric'))
+     #set($lengthOfRandomAlphanumeric = $util.parseInt($request.get('lengthOfRandomAlphanumeric')))
     #set($newDocRef = $services.nextfreedoc.getNextRandomPageDocRef($spaceRef, $lengthOfRandomAlphanumeric, $prefix))
   #elseif("$!prefix" == '')
     #set($newDocRef = $services.nextfreedoc.getNextUntitledPageDocRef($spaceRef))
