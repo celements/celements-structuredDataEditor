@@ -1,8 +1,8 @@
 #set($pageType = $request.get('pageType'))
 #if($services.pageType.getPageTypeConfig("$!pageType"))
-  #set($templateName = $request.get('templateName'))
-  #if("$!templateName" == '')
-    #set($templateName = $pageType)
+  #set($template = $request.get('template'))
+  #if("$!template" == '')
+    #set($template = "celements2web:Templates.$pageType")
   #end
   #set($namingMode = $request.get('namingMode'))
   #set($prefix = $request.get('prefix'))
@@ -15,7 +15,7 @@
   #else
     #set($newDocRef = $services.nextfreedoc.getNextTitledPageDocRef($spaceRef, $prefix))
   #end
-  #set($query = "&template=Templates.$!{templateName}")
+  #set($query = "&template=$!{template}")
   #if("$!request.xredirect" != '')
   #set($query = "$!{query}&xredirect=$!{request.xredirect}")
   #end
