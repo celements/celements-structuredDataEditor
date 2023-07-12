@@ -42,14 +42,10 @@
   <scm>
     <connection>scm:git:git@github.com:celements/celements-structuredDataEditor.git</connection>
     <developerConnection>scm:git:git@github.com:celements/celements-structuredDataEditor.git</developerConnection>
-    <url>https://github.com/celements/celements-structuredDataEditor</url>
+    <url>https://github.com/celements/celements-structuredDataEditor/web-module</url>
     <tag>HEAD</tag>
   </scm>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
   <dependencies>
-    <!-- Add here all your dependencies -->
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-structuredDataEditor</artifactId>

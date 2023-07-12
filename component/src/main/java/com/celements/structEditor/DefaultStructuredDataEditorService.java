@@ -282,8 +282,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   public Optional<String> getRequestOrCellValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
     return getAttributeName(cellDoc, onDoc)
         .flatMap(context::getRequestParam)
-        .map(Optional::of) // replace with #or in Java9+
-        .orElseGet(() -> getCellValueAsString(cellDoc, onDoc));
+        .or(() -> getCellValueAsString(cellDoc, onDoc));
   }
 
   @Override
@@ -341,8 +340,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     Optional<ClassReference> classRef = getCellClassRef(cellDoc);
     if (classRef.isPresent() && (onDoc != null)) {
       XWikiObjectFetcher fetcher = newXObjFetcher(cellDoc, onDoc);
-      getContextDependentObjNb(cellDoc).map(Optional::of) // replace with Optional#or in Java9+
-          .orElseGet(() -> getNumberForMultilingual(cellDoc, onDoc))
+      getContextDependentObjNb(cellDoc)
+          .or(() -> getNumberForMultilingual(cellDoc, onDoc))
           .ifPresent(fetcher::filter);
       ret = fetcher.stream().findFirst();
     }
