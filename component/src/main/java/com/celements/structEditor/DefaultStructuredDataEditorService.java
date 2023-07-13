@@ -24,7 +24,7 @@ import static com.celements.common.MoreOptional.*;
 import static com.celements.common.MoreOptional.findFirstPresent;
 import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.StructuredDataEditorClass.*;
-import static com.google.common.base.Predicates.*;
+import static java.util.function.Predicate.*;
 import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
@@ -50,7 +50,6 @@ import org.xwiki.model.reference.ClassReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
 import com.celements.cells.CellRenderStrategy;
-import com.celements.common.MoreOptional;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.classes.ClassIdentity;
@@ -121,7 +120,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     List<String> nameParts = new ArrayList<>(3);
     getCellFieldName(cellDoc).ifPresent(fieldName -> {
       getCellClassRef(cellDoc).ifPresent(classRef -> {
-        nameParts.add(modelUtils.serializeRef(classRef));
+        nameParts.add(classRef.serialize());
         if (onDoc != null) {
           nameParts.add(Integer.toString(tryDetermineObjNb(cellDoc, onDoc)
               .orElseGet(() -> getCreateObjNb(cellDoc))));
@@ -156,7 +155,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Map<ClassReference, Map<String, Integer>> getCreateObjNbExecutionCache() {
-    return modelUtils.computeExecPropIfAbsent("struct_create_obj_nbs", HashMap::new);
+    return exec.getContext().computeIfAbsent("struct_create_obj_nbs", HashMap::new);
   }
 
   @Override
@@ -166,7 +165,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         resolveFormPrefix(cellDoc),
         getAttributeName(cellDoc, null),
         getOptionTagValue(cellDoc))
-        .flatMap(MoreOptional::stream)
+        .flatMap(Optional::stream)
         .collect(joining("_"));
     LOGGER.debug("getPrettyName: dictKey '{}' for cell '{}'", dictKey, cellDoc);
     prettyName = webUtils.getAdminMessageTool().get(dictKey);
@@ -367,15 +366,35 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   private Optional<Integer> getContextDependentObjNb(XWikiDocument cellDoc) {
     Optional<Integer> ret = findFirstPresent(
-        () -> getNumberFromRequest(),
+        () -> getNumberFromRequest(cellDoc),
         () -> getNumberFromExecutionContext(),
         () -> getNumberFromComputedField(cellDoc));
     LOGGER.debug("getContextDependentObjNb: got [{}] for [{}]", ret, cellDoc);
     return ret;
   }
 
-  private Optional<Integer> getNumberFromRequest() {
-    return Optional.ofNullable(Ints.tryParse(context.getRequestParam("objNb").orElse("")));
+  private Optional<Integer> getNumberFromRequest(XWikiDocument cellDoc) {
+    ClassReference classRef = getCellClassRef(cellDoc).orElseThrow(IllegalStateException::new);
+    return StreamEx.of("objNb")
+        .append(buildNumberRequestKey(classRef, EntryStream.empty()))
+        .append(buildNumberRequestKey(classRef, fetchKeyValues(cellDoc, LABELS_AND)))
+        .append(fetchKeyValues(cellDoc, LABELS_OR)
+            .mapKeyValue((key, val) -> buildNumberRequestKey(classRef, EntryStream.of(key, val))))
+        .map(context::getRequestParam)
+        .flatMap(Optional::stream)
+        .map(Ints::tryParse)
+        .filter(Objects::nonNull)
+        .findFirst();
+  }
+
+  public static String buildNumberRequestKey(ClassReference classRef,
+      EntryStream<String, Optional<String>> filter) {
+    String filterPart = filter.mapKeyValue((key, val) -> key.trim()
+        + (!key.isBlank() && val.isPresent() ? ":" : "")
+        + val.orElse(""))
+        .filter(not(String::isBlank))
+        .joining(",");
+    return "objNb_" + classRef.serialize() + (!filterPart.isEmpty() ? "_" : "") + filterPart;
   }
 
   private Optional<Integer> getNumberFromExecutionContext() {
@@ -391,7 +410,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   private Optional<Integer> getNumberFromComputedField(XWikiDocument cellDoc) {
     return XWikiObjectFetcher.on(cellDoc).filter(CLASS_REF).stream()
         .map(obj -> getVelocityFieldValue(obj, FIELD_COMPUTED_OBJ_NB))
-        .flatMap(MoreOptional::stream)
+        .flatMap(Optional::stream)
         .map(Ints::tryParse)
         .filter(Objects::nonNull)
         .findFirst();
@@ -460,7 +479,6 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
       Collection<String> labels) {
     return fetchKeyValues(cellDoc, labels).mapKeyValue(
         (key, val) -> (obj -> Objects.equals(xObjStrFieldAccessor.get(obj, key), val)));
-
   }
 
   EntryStream<String, Optional<String>> fetchKeyValues(XWikiDocument cellDoc,
@@ -470,12 +488,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return StreamEx.of(fetcher.stream()).mapToEntry(
         kvObj -> getVelocityFieldValue(kvObj, KeyValueClass.FIELD_KEY),
         kvObj -> getVelocityFieldValue(kvObj, KeyValueClass.FIELD_VALUE))
-        .flatMapKeys(MoreOptional::stream);
+        .flatMapKeys(Optional::stream);
   }
 
   private Optional<String> getVelocityFieldValue(BaseObject obj, ClassField<String> field) {
     Optional<String> value = xObjFieldAccessor.get(obj, field)
-        .flatMap(MoreOptional::asNonBlank);
+        .filter(not(String::isBlank));
     try {
       return value.map(rethrowFunction(text -> velocityService.evaluateVelocityText(text)));
     } catch (XWikiVelocityException exc) {
