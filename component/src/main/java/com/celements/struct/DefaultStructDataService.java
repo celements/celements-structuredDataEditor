@@ -102,8 +102,7 @@ public class DefaultStructDataService implements StructDataService, Initializabl
         .stream().findFirst();
     return structLayoutRef
         .filter(layoutService::existsLayout)
-        .map(Optional::of) // replace with #or in Java9+
-        .orElseGet(() -> RefBuilder.from(structLayoutRef.orElse(null))
+        .or(() -> RefBuilder.from(structLayoutRef.orElse(null))
             .with(getCentralWikiRef())
             .buildOpt(SpaceReference.class)
             .filter(layoutService::existsLayout));

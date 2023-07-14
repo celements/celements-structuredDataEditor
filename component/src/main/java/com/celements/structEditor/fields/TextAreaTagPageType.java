@@ -19,6 +19,7 @@
  */
 package com.celements.structEditor.fields;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.xwiki.component.annotation.Component;
@@ -28,7 +29,6 @@ import com.celements.cells.attribute.AttributeBuilder;
 import com.celements.model.access.exception.DocumentNotExistsException;
 import com.celements.model.object.xwiki.XWikiObjectFetcher;
 import com.celements.structEditor.classes.TextAreaFieldEditorClass;
-import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 @Component(TextAreaTagPageType.PAGETYPE_NAME)
@@ -65,7 +65,7 @@ public class TextAreaTagPageType extends AbstractStructFieldPageType {
       fetcher.fetchField(TextAreaFieldEditorClass.FIELD_COLS).findFirst()
           .ifPresent(cols -> attrBuilder.addUniqAttribute("cols", cols.toString()));
       if (fetcher.fetchField(TextAreaFieldEditorClass.FIELD_IS_RICHTEXT).findFirst().orElse(false)) {
-        attrBuilder.addCssClasses(ImmutableList.of("mceEditor", "tinyMCE", "tinyMCEV4"));
+        attrBuilder.addCssClasses(List.of("mceEditor", "tinyMCE", "tinyMCEV4"));
       }
     } catch (DocumentNotExistsException exc) {
       log.error("failed to add all attributes for '{}'", cellDocRef, exc);

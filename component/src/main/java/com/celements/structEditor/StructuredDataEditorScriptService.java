@@ -127,8 +127,7 @@ public class StructuredDataEditorScriptService implements ScriptService {
   public String getTextAreaContent(DocumentReference cellDocRef) {
     return getFromCellDoc(cellDocRef, cellDoc -> service
         .getRequestOrCellValue(cellDoc, context.getDocument().orElse(null))
-        .map(Optional::of) // replace with #or in Java9+
-        .orElseGet(() -> XWikiObjectFetcher.on(cellDoc)
+        .or(() -> XWikiObjectFetcher.on(cellDoc)
             .fetchField(TextAreaFieldEditorClass.FIELD_VALUE).findFirst()))
                 .orElse("");
   }

@@ -30,10 +30,6 @@ const initStructEditorContentChangedHandler = function(event) {
 };
 
 window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
+window.celStructEditorManager.startEditorManager();
 
-const onReady = callback => (document.readyState === 'loading')
-    ? document.addEventListener('DOMContentLoaded', callback)
-    : callback();
-
-onReady(() => window.celStructEditorManager.startEditorManager());
 $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
