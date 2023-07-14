@@ -45,6 +45,7 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.velocity.VelocityService;
 import com.celements.web.classes.KeyValueClass;
+import com.google.common.primitives.Ints;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -333,9 +334,13 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   }
 
   private void expectRequest(String nb) {
+    Optional<String> ret = Optional.ofNullable(emptyToNull(nb));
     expect(getMock(ModelContext.class).getRequestParam("objNb"))
-        .andReturn(Optional.ofNullable(emptyToNull(nb)))
-        .once();
+        .andReturn(ret);
+    if (Ints.tryParse(nb) == null) {
+      expect(getMock(ModelContext.class).getRequestParam("objNb_" + testClassRef.serialize()))
+          .andReturn(ret).atLeastOnce();
+    }
   }
 
   private void expectComputed(String text) throws XWikiVelocityException {
