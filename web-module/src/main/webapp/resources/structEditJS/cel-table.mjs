@@ -1,3 +1,5 @@
+import structManager from './initStructEditor.mjs?version=20230714';
+
 const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
 const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
 const START_CREATE_OBJ_NB = -2; // skip -1 in case it's already used statically in an editor
@@ -104,8 +106,6 @@ export class StructEntryHandler {
   }
 
   observeSave() {
-    const structManager = window.celStructEditorManager;
-    if (!structManager) return;
     structManager.isStartFinished()
       ? structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', event => this.#markReload(event))
       : structManager.celObserve('structEdit:finishedLoading', event => this.observeSave());

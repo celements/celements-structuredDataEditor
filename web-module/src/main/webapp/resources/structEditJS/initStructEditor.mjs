@@ -29,7 +29,10 @@ const initStructEditorContentChangedHandler = function(event) {
   console.log('initStructEditorContentChangedHandler: finish for ', checkRoot);
 };
 
-window.celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
-window.celStructEditorManager.startEditorManager();
+const celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
+celStructEditorManager.startEditorManager();
 
 $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
+
+window.celStructEditorManager = celStructEditorManager;
+export default celStructEditorManager;
