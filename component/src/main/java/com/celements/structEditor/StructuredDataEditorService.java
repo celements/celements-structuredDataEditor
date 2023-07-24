@@ -31,7 +31,6 @@ import javax.validation.constraints.NotNull;
 import org.xwiki.component.annotation.ComponentRole;
 import org.xwiki.model.reference.ClassReference;
 
-import com.google.common.collect.ImmutableSet;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.BaseClass;
@@ -40,8 +39,8 @@ import com.xpn.xwiki.objects.classes.PropertyClass;
 @ComponentRole
 public interface StructuredDataEditorService {
 
-  Set<String> LABELS_AND = ImmutableSet.of("struct-obj-filter", "struct-obj-filter-and");
-  Set<String> LABELS_OR = ImmutableSet.of("struct-obj-filter-or");
+  Set<String> LABELS_AND = Set.of("struct-obj-filter", "struct-obj-filter-and");
+  Set<String> LABELS_OR = Set.of("struct-obj-filter-or");
 
   @NotNull
   Optional<String> getAttributeName(@NotNull XWikiDocument cellDoc, @Nullable XWikiDocument onDoc);
