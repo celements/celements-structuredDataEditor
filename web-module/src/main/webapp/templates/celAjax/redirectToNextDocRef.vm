@@ -7,7 +7,7 @@
   #set($namingMode = $request.get('namingMode'))
   #set($prefix = $request.get('prefix'))
   #if($pageType == 'User')
-    #set($spaceRef = 'XWiki')
+    #set($spaceRef = $services.reference.create().space('XWiki').build())
   #else
     #set($spaceRef = $services.reference.create().space($pageType).build())
   #end
