@@ -22,6 +22,8 @@
  * Initialize struct editors and register to initialize on contentChanged events.
  */
 
+import './StructEditor.mjs';
+
 const initStructEditorContentChangedHandler = function(event) {
   const checkRoot = event.memo.htmlElem || document.body;
   console.log('initStructEditorContentChangedHandler: run for ', checkRoot);
