@@ -162,6 +162,12 @@ public class StructuredDataEditorScriptService implements ScriptService {
             .collect(toList());
   }
 
+  public Object getCellValue(DocumentReference cellDocRef) {
+    return getFromCellDoc(cellDocRef, cellDoc -> service
+        .getCellValue(cellDoc, context.getDocument().orElse(null)))
+            .orElse(null);
+  }
+
   public com.google.common.base.Optional<com.xpn.xwiki.api.PropertyClass> getCellPropertyClass(
       DocumentReference cellDocRef) {
     Optional<PropertyClass> propClass = getFromCellDoc(cellDocRef, service::getCellPropertyClass);

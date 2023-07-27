@@ -252,29 +252,19 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Override
   public Optional<String> getCellValueAsString(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    return Optional.ofNullable(getCellValue(cellDoc, onDoc))
+    return getCellValue(cellDoc, onDoc)
         .flatMap(value -> trySerializeForCustomClassField(cellDoc, value))
-        .map(Objects::toString)
         .filter(not(String::isEmpty));
   }
 
   @SuppressWarnings("unchecked")
-  private Optional<?> trySerializeForCustomClassField(XWikiDocument cellDoc, Object value) {
-    if (value instanceof String) {
-      return Optional.of(value);
-    }
-    ClassField<?> field = getCellClassField(cellDoc).orElse(null);
-    try {
-      if (field instanceof CustomClassField) {
-        return ((CustomClassField<Object>) field).serialize(value);
-      } else {
-        return Optional.ofNullable(value);
-      }
-    } catch (ClassCastException cce) {
-      LOGGER.warn("trySerializeForCustomClassField: unable to cast [{}] for [{}] on [{}]",
-          value, field, cellDoc.getDocumentReference());
-      return Optional.empty();
-    }
+  private Optional<String> trySerializeForCustomClassField(XWikiDocument cellDoc, Object value) {
+    return tryCast(value, String.class)
+        .or(() -> tryCast(getCellClassField(cellDoc).orElse(null), CustomClassField.class)
+            .filter(f -> f.getType().isAssignableFrom(value.getClass()))
+            .map(CustomClassField::serialize))
+        .or(() -> Optional.ofNullable(value)
+            .map(Objects::toString));
   }
 
   @Override
@@ -286,26 +276,21 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Override
   public Optional<Date> getCellDateValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    Object value = getCellValue(cellDoc, onDoc);
-    if (value instanceof Date) {
-      return Optional.of((Date) value);
-    }
-    return Optional.empty();
+    return getCellValue(cellDoc, onDoc)
+        .flatMap(tryCastOpt(Date.class));
   }
 
   @Override
   public List<String> getCellListValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    List<String> ret = new ArrayList<>();
-    Object value = getCellValue(cellDoc, onDoc);
-    if (value instanceof List) {
-      for (Object elem : (List<?>) value) {
-        ret.add(elem != null ? elem.toString() : "");
-      }
-    }
-    return ret;
+    return getCellValue(cellDoc, onDoc)
+        .flatMap(tryCastOpt(List.class))
+        .stream().<Object>flatMap(List::stream)
+        .map(elem -> (elem != null) ? elem.toString() : "")
+        .collect(toList());
   }
 
-  private Object getCellValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
+  @Override
+  public Optional<Object> getCellValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
     Optional<String> fieldName = getCellFieldName(cellDoc);
     Object value = null;
     if (fieldName.isPresent()) {
@@ -318,7 +303,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         value = getTranslatedValue(onDoc, XWikiDocument::getContent);
       }
     }
-    return value;
+    return Optional.ofNullable(value);
   }
 
   private String getTranslatedValue(XWikiDocument onDoc,
