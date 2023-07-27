@@ -1,4 +1,4 @@
-import structManager from './initStructEditor.mjs?version=20230714';
+import structManager from './StructEditor.mjs';
 
 const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
 const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
