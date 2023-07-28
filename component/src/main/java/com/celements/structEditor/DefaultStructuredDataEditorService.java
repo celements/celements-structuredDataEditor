@@ -281,10 +281,12 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public List<String> getCellListValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
-    return getCellValue(cellDoc, onDoc)
-        .flatMap(tryCastOpt(List.class))
-        .stream().<Object>flatMap(List::stream)
+    Collection<Object> values = getCellValue(cellDoc, onDoc)
+        .map(o -> tryCast(o, Collection.class).orElseGet(() -> List.of(o)))
+        .orElseGet(List::of);
+    return values.stream()
         .map(elem -> (elem != null) ? elem.toString() : "")
         .collect(toList());
   }
