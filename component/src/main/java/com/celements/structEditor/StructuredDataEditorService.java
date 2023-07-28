@@ -84,6 +84,9 @@ public interface StructuredDataEditorService {
   @NotNull
   List<String> getCellListValue(@NotNull XWikiDocument cellDoc, @Nullable XWikiDocument onDoc);
 
+  @NotNull
+  Optional<Object> getCellValue(@NotNull XWikiDocument cellDoc, @Nullable XWikiDocument onDoc);
+
   boolean hasEditField(@NotNull XWikiDocument cellDoc);
 
   boolean isMultilingual(@NotNull XWikiDocument cellDoc);

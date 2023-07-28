@@ -117,6 +117,40 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   }
 
   @Test
+  public void test_getCellValue_BooleanClass() throws Exception {
+    String fieldName = "myfield";
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
+    BaseObject structObj = createObj(cellDoc, CLASS_REF);
+    structObj.setStringValue(FIELD_EDIT_FIELD_CLASS.getName(), testClassRef.serialize());
+    structObj.setStringValue(FIELD_EDIT_FIELD_NAME.getName(), fieldName);
+    expectClass(testClassRef);
+    BaseObject obj1 = createObj(onDoc, testClassRef);
+    obj1.setIntValue(fieldName, 1);
+    expectRequest("");
+
+    replayDefault();
+    assertEquals(1, service.getCellValue(cellDoc, onDoc).orElse(null));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_getCellValueAsString_BooleanClass() throws Exception {
+    String fieldName = "myfield";
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
+    BaseObject structObj = createObj(cellDoc, CLASS_REF);
+    structObj.setStringValue(FIELD_EDIT_FIELD_CLASS.getName(), testClassRef.serialize());
+    structObj.setStringValue(FIELD_EDIT_FIELD_NAME.getName(), fieldName);
+    expectClass(testClassRef);
+    BaseObject obj1 = createObj(onDoc, testClassRef);
+    obj1.setIntValue(fieldName, 1);
+    expectRequest("");
+
+    replayDefault();
+    assertEquals("1", service.getCellValueAsString(cellDoc, onDoc).orElse(null));
+    verifyDefault();
+  }
+
+  @Test
   public void test_getXObjectInStructEditor_none() throws Exception {
     expectRequest("");
     expectComputed("");
