@@ -879,3 +879,18 @@ window.CELEMENTS.structEdit.CelementsFormSaver = Class.create({
 });
 CELEMENTS.structEdit.CelementsFormSaver.prototype = Object.extend(
     CELEMENTS.structEdit.CelementsFormSaver.prototype, CELEMENTS.mixins.Observable);
+    
+const initStructEditorContentChangedHandler = function(event) {
+  const checkRoot = event.memo.htmlElem || document.body;
+  console.log('initStructEditorContentChangedHandler: run for ', checkRoot);
+  $(document.body).fire('structEdit:initStructEditor', { 'checkRoot' : checkRoot });
+  console.log('initStructEditorContentChangedHandler: finish for ', checkRoot);
+};
+
+const celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
+celStructEditorManager.startEditorManager();
+
+$(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
+
+window.celStructEditorManager = celStructEditorManager;
+export default celStructEditorManager;
