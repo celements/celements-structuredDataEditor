@@ -19,15 +19,19 @@ export class StructEntryHandler {
     return this.#nextCreateObjectNb < START_CREATE_OBJ_NB;
   }
 
-  create(template, data) {
+  create(template, data, preInserter = (entry) => undefined) {
     const entry = this.#createEntry(template);
-    this.#rootElem.appendChild(entry);
-    requestAnimationFrame(() => entry.style.opacity = '1');
-    if (data) {
-      entry.dispatchEvent(new CustomEvent('celData:update', { detail: data }));
+    if (preInserter(entry) !== false) { // strictly false to skip insertion
+      this.#rootElem.appendChild(entry);
+      requestAnimationFrame(() => entry.style.opacity = '1');
+      if (data) {
+        entry.dispatchEvent(new CustomEvent('celData:update', { detail: data }));
+      }
+      entry.fire('celements:contentChanged', { 'htmlElem' : entry });
+      console.debug('create - new row in', this.#rootElem, ':', entry);
+    } else {
+      console.debug('create - skipped row in', this.#rootElem, ':', entry);
     }
-    entry.fire('celements:contentChanged', { 'htmlElem' : entry });
-    console.debug('create - new row in', this.#rootElem, ':', entry);
     return entry;
   }
 
@@ -105,6 +109,19 @@ export class StructEntryHandler {
     });
   }
 
+  observeOptionAdd(select, action) {
+    if (select && select.tagName === 'SELECT') {
+      new MutationObserver(mutations => mutations
+        .flatMap(record => [...record.addedNodes])
+        .filter(node => node.tagName === 'OPTION' && node.value)
+        .forEach(option => action(option)))
+        .observe(select, { childList: true });
+      console.debug('observeOptionAdd - on', select);
+    } else {
+      console.debug('observeOptionAdd - no select given', select);
+    }
+  }
+
   observeSave() {
     structManager.isStartFinished()
       ? structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', event => this.#markReload(event))
@@ -145,6 +162,33 @@ export class CelTable extends HTMLElement {
     this.querySelectorAll('a.struct_table_create')
       .forEach(link => this.#handler.observeClick(link,
         event => this.createEntry()));
+    if (this.getAttribute('type') === 'OBJLINK') {
+      this.#observeCreateForLinkType();
+    }
+  }
+
+  #observeCreateForLinkType() {
+    const select = this.querySelector('.struct_table_header select');
+    this.#handler.observeOptionAdd(select, option => {
+      const ref = option.value;
+      const data = {
+        value: ref,
+        name: option.textContent || ref,
+        url: '/' + ref.split(':')[ref.includes(':') ? 1 : 0].replace('.', '/')
+      };
+      this.createEntry(data, entry => {
+        // TODO return false if ref already exists in the table
+        entry.dataset.ref = ref;
+        // unable to inject cel-data value into input field value, thus manually inject it
+        const linkInput = entry.querySelector('input.struct_table_link_ref');
+        if (linkInput) {
+          linkInput.value = ref;
+        } else {
+          console.warn('link input missing for new entry', entry);
+        }
+      });
+      // TODO clear the select
+    });
   }
 
   #observeDelete(entry) {
@@ -153,8 +197,8 @@ export class CelTable extends HTMLElement {
         event => this.delete(event.target.closest('li'))));
   }
 
-  createEntry(data) {
-    const entry = this.#handler.create(this.template, data);
+  createEntry(data, preInserter) {
+    const entry = this.#handler.create(this.template, data, preInserter);
     this.#observeDelete(entry);
     return entry;
   }
