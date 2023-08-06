@@ -85,9 +85,10 @@ class CelAutocompleteInitialiser {
     document.querySelectorAll('.structAutocomplete:not(.initialised)').forEach(selectElem => {
       try {
         selectElem.classList.add('initialised');
-        $j(selectElem).select2(this.#buildSelect2Config(selectElem, language))
-        $j(selectElem).on('select2:unselect', (ev) => this.clearSelectOptions(ev));
-        console.debug('initAutocomplete: done', selectElem, language)
+        $j(selectElem).select2(this.#buildSelect2Config(selectElem, language));
+        $j(selectElem).on('select2:select', event => this.#onSelect(event));
+        $j(selectElem).on('select2:unselect', event => this.#onDeselect(event));
+        console.debug('initAutocomplete: done', selectElem, language);
       } catch (exc) {
         console.error('initAutocomplete: failed', selectElem, exc);
       }
@@ -131,8 +132,33 @@ class CelAutocompleteInitialiser {
     };
   }
 
-  clearSelectOptions(event) {
-    const selectElem = event.target;
+  #onSelect(select2event) {
+    const selectElem = select2event.target;
+    const data = select2event.params?.data ?? {};
+    const structEvent = new CustomEvent('structEdit:autocomplete:selected', { detail: data });
+    console.debug('dispatching', structEvent, 'on', selectElem);
+    selectElem.dispatchEvent(structEvent);
+    this.#setSelectedLink(selectElem, data.link);
+  }
+
+  #setSelectedLink(selectElem, link = '') {
+    const linkElems = selectElem.parentNode.querySelectorAll('a.struct_autocomplete_link');
+    [...linkElems].forEach(linkElem => {
+      console.debug('setSelectedLink [', link, '] on', linkElem, 'for', selectElem);
+      linkElem.href = link;
+    });
+  }
+
+  #onDeselect(select2event) {
+    const selectElem = select2event.target;
+    const data = select2event.params?.data ?? {};
+    const structEvent = new CustomEvent('structEdit:autocomplete:deselected', { detail: data });
+    console.debug('dispatching', structEvent, 'on', selectElem);
+    selectElem.dispatchEvent(structEvent);
+    this.#clearSelectOptions(selectElem);
+  }
+
+  #clearSelectOptions(selectElem) {
     console.debug('clearSelectOptions', selectElem);
     selectElem.innerHTML = '<option selected="selected" value="">delete</option>';
   }
@@ -213,8 +239,8 @@ class CelAutocompleteInitialiser {
           elem.text = elem.name;
           return elem;
       }).filter(elem => elem.html || elem.id && elem.text)
-      .concat([this.#createUrlToNewElementEditorButton(selectElem, response)]
-        .filter(Boolean)),
+        .concat([this.#createUrlToNewElementEditorButton(selectElem, response)]
+          .filter(Boolean)),
       pagination: {
         more: response.hasMore
       }

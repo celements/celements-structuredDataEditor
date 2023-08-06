@@ -40,7 +40,6 @@
   $!jsService.includeExtJsFile($extJsParam.setJsFile(':celJS/yui/button/button-min.js'))
   $!jsService.includeExtJsFile($extJsParam.setJsFile(':celJS/yui/container/container-min.js'))
   $!jsService.includeExtJsFile($extJsParam.setJsFile(':structEditJS/StructEditor.mjs'))
-  $!jsService.includeExtJsFile($extJsParam.setJsFile(':structEditJS/initStructEditor.mjs'))
   #set($lazyAdd = false)
   #parse("celMacros/includeCelementsRTE.vm")
 #end ## activateJsCheckUnsaved

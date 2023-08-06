@@ -109,19 +109,6 @@ export class StructEntryHandler {
     });
   }
 
-  observeOptionAdd(select, action) {
-    if (select && select.tagName === 'SELECT') {
-      new MutationObserver(mutations => mutations
-        .flatMap(record => [...record.addedNodes])
-        .filter(node => node.tagName === 'OPTION' && node.value)
-        .forEach(option => action(option)))
-        .observe(select, { childList: true });
-      console.debug('observeOptionAdd - on', select);
-    } else {
-      console.debug('observeOptionAdd - no select given', select);
-    }
-  }
-
   observeSave() {
     structManager.isStartFinished()
       ? structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', event => this.#markReload(event))
@@ -168,26 +155,21 @@ export class CelTable extends HTMLElement {
   }
 
   #observeCreateForLinkType() {
-    const select = this.querySelector('.struct_table_header select');
-    this.#handler.observeOptionAdd(select, option => {
-      const ref = option.value;
-      const data = {
-        value: ref,
-        name: option.textContent || ref,
-        url: '/' + ref.split(':')[ref.includes(':') ? 1 : 0].replace('.', '/')
-      };
+    const select = this.querySelector('.struct_table_header select.structAutocomplete');
+    select.addEventListener('structEdit:autocomplete:selected', event => {
+      const data = event.detail;
       this.createEntry(data, entry => {
         // TODO return false if ref already exists in the table
-        entry.dataset.ref = ref;
+        entry.dataset.ref = data.fullName;
         // unable to inject cel-data value into input field value, thus manually inject it
         const linkInput = entry.querySelector('input.struct_table_link_ref');
         if (linkInput) {
-          linkInput.value = ref;
+          linkInput.value = data.fullName;
         } else {
           console.warn('link input missing for new entry', entry);
         }
       });
-      // TODO clear the select
+      // TODO clear the autocomplete select
     });
   }
 

@@ -36,6 +36,7 @@ import com.celements.structEditor.StructuredDataEditorService;
 import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.celements.velocity.VelocityService;
+import com.celements.web.service.UrlService;
 import com.google.common.base.Strings;
 import com.xpn.xwiki.doc.XWikiDocument;
 
@@ -61,6 +62,9 @@ public class DefaultAutocomplete implements AutocompleteRole {
 
   @Requirement
   protected ModelUtils modelUtils;
+
+  @Requirement
+  protected UrlService urlService;
 
   @Override
   public String getName() {
@@ -89,6 +93,7 @@ public class DefaultAutocomplete implements AutocompleteRole {
     if (onDocRef != null) {
       jsonBuilder.addProperty("fullName", modelUtils.serializeRef(onDocRef));
       jsonBuilder.addProperty("name", displayNameForValue(onDocRef, cellDocRef));
+      jsonBuilder.addProperty("link", urlService.getURL(onDocRef));
       renderResultFromCell(cellDocRef, FIELD_RESULT_HTML, onDocRef)
           .ifPresent(html -> jsonBuilder.addProperty("html", html));
     }
