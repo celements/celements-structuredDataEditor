@@ -121,7 +121,7 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
     Capture<VelocityContextModifier> vContextModCpt = newCapture();
     expect(getMock(VelocityService.class).evaluateVelocityText(eq("velo"),
         capture(vContextModCpt))).andReturn("<div class=\"html\">some html</div>");
-    expect(getMock(UrlService.class).getURL(doc.getDocumentReference()))
+    expect(getMock(UrlService.class).getExternalURL(doc.getDocumentReference()))
         .andReturn("/space/target").once();
 
     replayDefault();

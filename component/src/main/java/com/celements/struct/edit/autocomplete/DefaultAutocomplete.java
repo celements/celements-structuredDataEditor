@@ -93,7 +93,7 @@ public class DefaultAutocomplete implements AutocompleteRole {
     if (onDocRef != null) {
       jsonBuilder.addProperty("fullName", modelUtils.serializeRef(onDocRef));
       jsonBuilder.addProperty("name", displayNameForValue(onDocRef, cellDocRef));
-      jsonBuilder.addProperty("link", urlService.getURL(onDocRef));
+      jsonBuilder.addProperty("link", urlService.getExternalURL(onDocRef));
       renderResultFromCell(cellDocRef, FIELD_RESULT_HTML, onDocRef)
           .ifPresent(html -> jsonBuilder.addProperty("html", html));
       extendJsonForValue(onDocRef, cellDocRef, jsonBuilder);
