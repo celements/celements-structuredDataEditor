@@ -1,4 +1,4 @@
-import structManager from './StructEditor.mjs?version=20230727';
+import structManager from './StructEditor.mjs?version=20230806';
 
 const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
 const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
@@ -156,10 +156,10 @@ export class CelTable extends HTMLElement {
 
   #observeCreateForLinkType() {
     const select = this.querySelector('.struct_table_header select.structAutocomplete');
-    select.addEventListener('structEdit:autocomplete:selected', event => {
+    select.addEventListener('structEdit:autocomplete:selecting', event => {
       const data = event.detail;
+      // TODO only call if fullName doesn't exist in the table already
       this.createEntry(data, entry => {
-        // TODO return false if ref already exists in the table
         entry.dataset.ref = data.fullName;
         // unable to inject cel-data value into input field value, thus manually inject it
         const linkInput = entry.querySelector('input.struct_table_link_ref');
@@ -169,7 +169,7 @@ export class CelTable extends HTMLElement {
           console.warn('link input missing for new entry', entry);
         }
       });
-      // TODO clear the autocomplete select
+      event.preventDefault(); // stop the selection
     });
   }
 

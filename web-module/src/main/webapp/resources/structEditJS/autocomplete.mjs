@@ -86,6 +86,7 @@ class CelAutocompleteInitialiser {
       try {
         selectElem.classList.add('initialised');
         $j(selectElem).select2(this.#buildSelect2Config(selectElem, language));
+        $j(selectElem).on('select2:selecting', event => this.#onSelecting(event));
         $j(selectElem).on('select2:select', event => this.#onSelect(event));
         $j(selectElem).on('select2:unselect', event => this.#onDeselect(event));
         console.debug('initAutocomplete: done', selectElem, language);
@@ -130,6 +131,18 @@ class CelAutocompleteInitialiser {
       templateResult: CelAutocompleteInitialiser.#renderTemplates.getTemplateSupplier(type),
       templateSelection: (data) => data.text || data.id
     };
+  }
+
+  #onSelecting(select2event) {
+    const selectElem = select2event.target;
+    const structEvent = new CustomEvent('structEdit:autocomplete:selecting', { 
+      detail: select2event.params?.data ?? {}, 
+      cancelable: true
+    });
+    if (!selectElem.dispatchEvent(structEvent)) {
+      console.debug('prevented', structEvent, 'on', selectElem);
+      select2event.preventDefault();
+    }
   }
 
   #onSelect(select2event) {
