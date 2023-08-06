@@ -1,4 +1,4 @@
-import { StructEntryHandler } from './cel-table.mjs?version=20221124'
+import { StructEntryHandler } from './cel-table.mjs?version=20230806'
 
 class CelStructObjectList extends HTMLUListElement {
 

@@ -2,4 +2,4 @@
 #set($cellDocRef = $celldoc.getDocumentReference())
 $!services.structData.renderTable($cellDocRef)
 $!services.javascript.addExtJSfileOnce(':celDynJS/celData/cel-data.mjs', 'file')
-$!services.javascript.addExtJSfileOnce(':structEditJS/cel-table.mjs', 'file')
+$!services.javascript.addExtJSfileOnce(':structEditJS/cel-table.mjs?version=20230806', 'file')
