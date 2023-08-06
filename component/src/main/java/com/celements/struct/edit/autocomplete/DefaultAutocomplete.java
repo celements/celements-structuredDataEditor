@@ -96,9 +96,18 @@ public class DefaultAutocomplete implements AutocompleteRole {
       jsonBuilder.addProperty("link", urlService.getURL(onDocRef));
       renderResultFromCell(cellDocRef, FIELD_RESULT_HTML, onDocRef)
           .ifPresent(html -> jsonBuilder.addProperty("html", html));
+      extendJsonForValue(onDocRef, cellDocRef, jsonBuilder);
     }
     jsonBuilder.closeDictionary();
     return jsonBuilder;
+  }
+
+  /**
+   * extension point: override to provide json extensions
+   */
+  protected void extendJsonForValue(DocumentReference onDocRef, DocumentReference cellDocRef,
+      JsonBuilder jsonBuilder) {
+    // nothing to extend by default
   }
 
   @Override
