@@ -22,6 +22,7 @@ import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.celements.structEditor.classes.SelectTagAutocompleteEditorClass;
 import com.celements.velocity.VelocityContextModifier;
 import com.celements.velocity.VelocityService;
+import com.celements.web.service.UrlService;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.web.Utils;
@@ -39,7 +40,7 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
   @Before
   public void prepare() throws Exception {
     registerComponentMocks(IModelAccessFacade.class, StructuredDataEditorService.class,
-        IWebSearchService.class, VelocityService.class);
+        IWebSearchService.class, VelocityService.class, UrlService.class);
     structMock = getMock(StructuredDataEditorService.class);
     getContext().setRequest(createMockAndAddToDefault(XWikiRequest.class));
     doc = new XWikiDocument(new DocumentReference("wiki", "space", "doc"));
@@ -120,11 +121,14 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
     Capture<VelocityContextModifier> vContextModCpt = newCapture();
     expect(getMock(VelocityService.class).evaluateVelocityText(eq("velo"),
         capture(vContextModCpt))).andReturn("<div class=\"html\">some html</div>");
+    expect(getMock(UrlService.class).getURL(doc.getDocumentReference()))
+        .andReturn("/space/target").once();
 
     replayDefault();
     String json = "{"
         + "\"fullName\" : \"wiki:space.doc\", "
         + "\"name\" : \"name\", "
+        + "\"link\" : \"/space/target\", "
         + "\"html\" : \"<div class=\\\"html\\\">some html</div>\""
         + "}";
     assertEquals(json, autocomplete.getJsonForValue(
