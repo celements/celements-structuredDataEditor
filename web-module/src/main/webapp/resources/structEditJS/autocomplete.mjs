@@ -139,6 +139,7 @@ class CelAutocompleteInitialiser {
       detail: select2event.params?.data ?? {}, 
       cancelable: true
     });
+    console.debug('dispatching', structEvent, 'on', selectElem);
     if (!selectElem.dispatchEvent(structEvent)) {
       console.debug('prevented', structEvent, 'on', selectElem);
       select2event.preventDefault();
@@ -151,15 +152,7 @@ class CelAutocompleteInitialiser {
     const structEvent = new CustomEvent('structEdit:autocomplete:selected', { detail: data });
     console.debug('dispatching', structEvent, 'on', selectElem);
     selectElem.dispatchEvent(structEvent);
-    this.#setSelectedLink(selectElem, data.link);
-  }
-
-  #setSelectedLink(selectElem, link = '') {
-    const linkElems = selectElem.parentNode.querySelectorAll('a.struct_autocomplete_link');
-    [...linkElems].forEach(linkElem => {
-      console.debug('setSelectedLink [', link, '] on', linkElem, 'for', selectElem);
-      linkElem.href = link;
-    });
+    selectElem.dispatchEvent(new CustomEvent('celData:update', { detail: data }));
   }
 
   #onDeselect(select2event) {
