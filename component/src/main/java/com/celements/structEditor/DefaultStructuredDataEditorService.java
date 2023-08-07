@@ -244,7 +244,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .flatMap(prop -> tryCast(prop, PropertyClass.class));
   }
 
-  private Optional<ClassField<?>> getCellClassField(XWikiDocument cellDoc) {
+  Optional<ClassField<?>> getCellClassField(XWikiDocument cellDoc) {
     return getCellClassRef(cellDoc)
         .flatMap(ClassIdentity::getClassDefinition)
         .flatMap(classDef -> classDef.getField(getCellFieldName(cellDoc).orElse("")));
@@ -258,7 +258,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   @SuppressWarnings("unchecked")
-  private Optional<String> trySerializeForCustomClassField(XWikiDocument cellDoc, Object value) {
+  Optional<String> trySerializeForCustomClassField(XWikiDocument cellDoc, Object value) {
     return tryCast(value, String.class)
         .or(() -> tryCast(getCellClassField(cellDoc).orElse(null), CustomClassField.class)
             .filter(f -> f.getType().isAssignableFrom(value.getClass()))
