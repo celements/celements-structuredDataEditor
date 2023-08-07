@@ -55,8 +55,10 @@ class AutocompleteTemplates {
 }
 
 class CelAutocompleteInitialiser {
+
   static #renderTemplates = new AutocompleteTemplates();
-  
+  static #emptyData = { id: '', text: '', fullName: '', name: '', link: '' }
+
   constructor() {
     this.#checkInitAutocomplete();
   }
@@ -161,6 +163,10 @@ class CelAutocompleteInitialiser {
     const structEvent = new CustomEvent('structEdit:autocomplete:deselected', { detail: data });
     console.debug('dispatching', structEvent, 'on', selectElem);
     selectElem.dispatchEvent(structEvent);
+    selectElem.dispatchEvent(new CustomEvent('celData:update', {
+      detail: CelAutocompleteInitialiser.#emptyData,
+      bubbles: true
+    }));
     this.#clearSelectOptions(selectElem);
   }
 
