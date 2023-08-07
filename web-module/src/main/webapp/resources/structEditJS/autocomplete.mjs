@@ -136,7 +136,7 @@ class CelAutocompleteInitialiser {
   #onSelecting(select2event) {
     const selectElem = select2event.target;
     const structEvent = new CustomEvent('structEdit:autocomplete:selecting', { 
-      detail: select2event.params?.data ?? {}, 
+      detail: select2event.params?.args?.data ?? {}, 
       cancelable: true
     });
     console.debug('dispatching', structEvent, 'on', selectElem);
@@ -152,7 +152,7 @@ class CelAutocompleteInitialiser {
     const structEvent = new CustomEvent('structEdit:autocomplete:selected', { detail: data });
     console.debug('dispatching', structEvent, 'on', selectElem);
     selectElem.dispatchEvent(structEvent);
-    selectElem.dispatchEvent(new CustomEvent('celData:update', { detail: data }));
+    selectElem.dispatchEvent(new CustomEvent('celData:update', { detail: data, bubbles: true }));
   }
 
   #onDeselect(select2event) {
