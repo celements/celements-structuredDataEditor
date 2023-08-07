@@ -156,7 +156,7 @@ export class CelTable extends HTMLElement {
 
   #observeCreateForLinkType() {
     const select = this.querySelector('.struct_table_header select.structAutocomplete');
-    select.addEventListener('structEdit:autocomplete:selecting', event => {
+    select.addEventListener('structEdit:autocomplete:selected', event => {
       const data = event.detail;
       // TODO only call if fullName doesn't exist in the table already
       this.createEntry(data, entry => {
@@ -169,7 +169,8 @@ export class CelTable extends HTMLElement {
           console.warn('link input missing for new entry', entry);
         }
       });
-      event.preventDefault(); // stop the selection
+      select.value = '';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
     });
   }
 
