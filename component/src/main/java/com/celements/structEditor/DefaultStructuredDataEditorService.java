@@ -262,7 +262,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
     return tryCast(value, String.class)
         .or(() -> tryCast(getCellClassField(cellDoc).orElse(null), CustomClassField.class)
             .filter(f -> f.getType().isAssignableFrom(value.getClass()))
-            .map(CustomClassField::serialize))
+            .flatMap(f -> f.serialize(value)))
         .or(() -> Optional.ofNullable(value)
             .map(Objects::toString));
   }
