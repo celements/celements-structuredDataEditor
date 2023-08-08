@@ -45,6 +45,7 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.velocity.VelocityService;
 import com.celements.web.classes.KeyValueClass;
+import com.celements.web.classes.oldcore.XWikiTagClass;
 import com.google.common.primitives.Ints;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -358,6 +359,19 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     assertObj(testClassRef, obj1.getNumber(), Optional.of(objs.get(0)));
     assertObj(testClassRef, obj2.getNumber(), Optional.of(objs.get(1)));
     assertObj(testClassRef, obj3.getNumber(), Optional.of(objs.get(2)));
+  }
+
+  @Test
+  public void test_trySerializeForCustomClassField() throws Exception {
+    BaseObject structObj = createObj(cellDoc, CLASS_REF);
+    structObj.setStringValue(FIELD_EDIT_FIELD_CLASS.getName(), XWikiTagClass.CLASS_REF.serialize());
+    structObj.setStringValue(FIELD_EDIT_FIELD_NAME.getName(), XWikiTagClass.FIELD_TAGS.getName());
+    List<String> value = List.of("A", "B");
+
+    replayDefault();
+    assertSame(XWikiTagClass.FIELD_TAGS, service.getCellClassField(cellDoc).orElse(null));
+    assertEquals("A|B", service.trySerializeForCustomClassField(cellDoc, value).orElse(null));
+    verifyDefault();
   }
 
   private void createKeyValue(XWikiDocument doc, String key, String value, Optional<String> label) {

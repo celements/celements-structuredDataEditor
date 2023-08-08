@@ -1,5 +1,10 @@
 <!-- TableView -->
 #set($cellDocRef = $celldoc.getDocumentReference())
 $!services.structData.renderTable($cellDocRef)
-$!services.javascript.addExtJSfileOnce(':celDynJS/celData/cel-data.mjs', 'file')
-$!services.javascript.addExtJSfileOnce(':structEditJS/cel-table.mjs', 'file')
+#set($services.javascript = $services.javascript)
+#set($extJsParam = $services.javascript.createDefaultExtJSParam())
+#set($extJsParam = $extJsParam.setQueryString('version=20230806'))
+#if($xwiki.getXWikiPreferenceAsInt("cel_activate_jsdefer", 0) == 1)
+  #set($extJsParam = $extJsParam.setLoadMode($services.javascript.getJsLoadMode('DEFER')))
+#end
+$!services.javascript.includeExtJsFile($extJsParam.setJsFile(':structEditJS/cel-table.mjs'))

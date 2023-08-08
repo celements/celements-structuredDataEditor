@@ -1,2 +1,2 @@
-#set($cellDocRef = $celldoc.getDocumentReference())
-$!services.structuredDataEditor.getTextAreaContent($cellDocRef)
+#set($cellDocRef = $celldoc.getDocumentReference())##
+$!services.structuredDataEditor.getTextAreaContent($cellDocRef)##

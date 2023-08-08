@@ -55,8 +55,10 @@ class AutocompleteTemplates {
 }
 
 class CelAutocompleteInitialiser {
+
   static #renderTemplates = new AutocompleteTemplates();
-  
+  static #emptyData = { id: '', text: '', fullName: '', name: '', link: '' }
+
   constructor() {
     this.#checkInitAutocomplete();
   }
@@ -85,9 +87,11 @@ class CelAutocompleteInitialiser {
     document.querySelectorAll('.structAutocomplete:not(.initialised)').forEach(selectElem => {
       try {
         selectElem.classList.add('initialised');
-        $j(selectElem).select2(this.#buildSelect2Config(selectElem, language))
-        $j(selectElem).on('select2:unselect', (ev) => this.clearSelectOptions(ev));
-        console.debug('initAutocomplete: done', selectElem, language)
+        $j(selectElem).select2(this.#buildSelect2Config(selectElem, language));
+        $j(selectElem).on('select2:selecting', event => this.#onSelecting(event));
+        $j(selectElem).on('select2:select', event => this.#onSelect(event));
+        $j(selectElem).on('select2:unselect', event => this.#onDeselect(event));
+        console.debug('initAutocomplete: done', selectElem, language);
       } catch (exc) {
         console.error('initAutocomplete: failed', selectElem, exc);
       }
@@ -131,8 +135,42 @@ class CelAutocompleteInitialiser {
     };
   }
 
-  clearSelectOptions(event) {
-    const selectElem = event.target;
+  #onSelecting(select2event) {
+    const selectElem = select2event.target;
+    const structEvent = new CustomEvent('structEdit:autocomplete:selecting', { 
+      detail: select2event.params?.args?.data ?? {}, 
+      cancelable: true
+    });
+    console.debug('dispatching', structEvent, 'on', selectElem);
+    if (!selectElem.dispatchEvent(structEvent)) {
+      console.debug('prevented', structEvent, 'on', selectElem);
+      select2event.preventDefault();
+    }
+  }
+
+  #onSelect(select2event) {
+    const selectElem = select2event.target;
+    const data = select2event.params?.data ?? {};
+    const structEvent = new CustomEvent('structEdit:autocomplete:selected', { detail: data });
+    console.debug('dispatching', structEvent, 'on', selectElem);
+    selectElem.dispatchEvent(structEvent);
+    selectElem.dispatchEvent(new CustomEvent('celData:update', { detail: data, bubbles: true }));
+  }
+
+  #onDeselect(select2event) {
+    const selectElem = select2event.target;
+    const data = select2event.params?.data ?? {};
+    const structEvent = new CustomEvent('structEdit:autocomplete:deselected', { detail: data });
+    console.debug('dispatching', structEvent, 'on', selectElem);
+    selectElem.dispatchEvent(structEvent);
+    selectElem.dispatchEvent(new CustomEvent('celData:update', {
+      detail: CelAutocompleteInitialiser.#emptyData,
+      bubbles: true
+    }));
+    this.#clearSelectOptions(selectElem);
+  }
+
+  #clearSelectOptions(selectElem) {
     console.debug('clearSelectOptions', selectElem);
     selectElem.innerHTML = '<option selected="selected" value="">delete</option>';
   }
@@ -213,8 +251,8 @@ class CelAutocompleteInitialiser {
           elem.text = elem.name;
           return elem;
       }).filter(elem => elem.html || elem.id && elem.text)
-      .concat([this.#createUrlToNewElementEditorButton(selectElem, response)]
-        .filter(Boolean)),
+        .concat([this.#createUrlToNewElementEditorButton(selectElem, response)]
+          .filter(Boolean)),
       pagination: {
         more: response.hasMore
       }

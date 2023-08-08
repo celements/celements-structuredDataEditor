@@ -1,4 +1,4 @@
-import structManager from './StructEditor.mjs?version=20230727';
+import structManager from './StructEditor.mjs?version=20230806';
 
 const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
 const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
@@ -109,19 +109,6 @@ export class StructEntryHandler {
     });
   }
 
-  observeOptionAdd(select, action) {
-    if (select && select.tagName === 'SELECT') {
-      new MutationObserver(mutations => mutations
-        .flatMap(record => [...record.addedNodes])
-        .filter(node => node.tagName === 'OPTION' && node.value)
-        .forEach(option => action(option)))
-        .observe(select, { childList: true });
-      console.debug('observeOptionAdd - on', select);
-    } else {
-      console.debug('observeOptionAdd - no select given', select);
-    }
-  }
-
   observeSave() {
     structManager.isStartFinished()
       ? structManager.celObserve('structEdit:saveAndContinueButtonSuccessful', event => this.#markReload(event))
@@ -168,26 +155,22 @@ export class CelTable extends HTMLElement {
   }
 
   #observeCreateForLinkType() {
-    const select = this.querySelector('.struct_table_header select');
-    this.#handler.observeOptionAdd(select, option => {
-      const ref = option.value;
-      const data = {
-        value: ref,
-        name: option.textContent || ref,
-        url: '/' + ref.split(':')[ref.includes(':') ? 1 : 0].replace('.', '/')
-      };
+    const select = this.querySelector('.struct_table_header select.structAutocomplete');
+    select.addEventListener('structEdit:autocomplete:selected', event => {
+      const data = event.detail;
+      // TODO only call if fullName doesn't exist in the table already
       this.createEntry(data, entry => {
-        // TODO return false if ref already exists in the table
-        entry.dataset.ref = ref;
+        entry.dataset.ref = data.fullName;
         // unable to inject cel-data value into input field value, thus manually inject it
         const linkInput = entry.querySelector('input.struct_table_link_ref');
         if (linkInput) {
-          linkInput.value = ref;
+          linkInput.value = data.fullName;
         } else {
           console.warn('link input missing for new entry', entry);
         }
       });
-      // TODO clear the select
+      select.value = '';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
     });
   }
 

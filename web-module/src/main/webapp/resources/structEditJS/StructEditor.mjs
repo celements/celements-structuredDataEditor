@@ -156,16 +156,14 @@ window.CELEMENTS.structEdit.StructEditorManager = Class.create({
   _rootElem : undefined,
   _allStructEditorMap : undefined,
   _initStructEditorHandlerBind : undefined,
-  _checkBeforeUnloadBind : undefined,
   _saveAllEditorsAsyncBind : undefined,
   _buttonHandler : undefined,
   _startFinished : undefined,
 
   initialize : function(buttonHandler) {
     this._initStructEditorHandlerBind = this._initStructEditorHandler.bind(this);
-    this._checkBeforeUnloadBind = this._checkBeforeUnload.bind(this);
     this._saveAllEditorsAsyncBind = this.saveAllEditorsAsync.bind(this);
-    window.onbeforeunload = this._checkBeforeUnloadBind;
+    window.onbeforeunload = event => this._checkBeforeUnload(event);
     this._buttonHandler = buttonHandler || new CELEMENTS.structEdit.CelementsButtonHandler();
     this._startFinished = false;
     document.body?.dispatchEvent(new CustomEvent('structEdit:finishedInitialize', {
@@ -291,9 +289,9 @@ window.CELEMENTS.structEdit.StructEditorManager = Class.create({
     }
    },
 
-   _checkBeforeUnload : function() {
-    var _me = this;
-    if (_me.hasDirtyEditors()) {
+   _checkBeforeUnload : function(event) {
+    if (this.hasDirtyEditors()) {
+      event.preventDefault();
       if (window.celMessages && window.celMessages.structEditor
           && window.celMessages.structEditor.unsavedChangesOnCloseMessage
           && (window.celMessages.structEditor.unsavedChangesOnCloseMessage != '')) {
@@ -887,10 +885,10 @@ const initStructEditorContentChangedHandler = function(event) {
   console.log('initStructEditorContentChangedHandler: finish for ', checkRoot);
 };
 
-const celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
-celStructEditorManager.startEditorManager();
-
-$(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
-
-window.celStructEditorManager = celStructEditorManager;
-export default celStructEditorManager;
+if (!window.celStructEditorManager) {
+  const celStructEditorManager = new CELEMENTS.structEdit.StructEditorManager();
+  celStructEditorManager.startEditorManager();
+  window.celStructEditorManager = celStructEditorManager;
+  $(document.body).observe("celements:contentChanged", initStructEditorContentChangedHandler);
+}
+export default window.celStructEditorManager;
