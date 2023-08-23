@@ -19,9 +19,8 @@
  */
 
 const versionTimeStamp = new Date().getTime();
-const curScriptElement = document.currentScript;
-const curScriptPath = curScriptElement.src.split('?')[0];
-const curScriptDir = curScriptPath.split('/').slice(0, -1).join('/') + '/';
+const curScriptPath = new URL(import.meta.url).pathname;
+const curScriptDir = curScriptPath.split('/').slice(0, -1).join('/');
 const EVENT_FIELD_CHANGED = 'celements:fieldChanged';
 
 const DATE_MARSHALLER_DE = Object.freeze({
@@ -365,7 +364,7 @@ class CelementsDateTimeField extends HTMLElement {
     this.#addCssFiles(this.shadowRoot, [
       '/file/resources/celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
       '/file/resources/celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css',
-      curScriptDir + 'celements-date-time-field.css'
+      curScriptDir + '/' + 'celements-date-time-field.css'
     ]);
     //HACK be sure to load the glyphicons-halflings.css in the html-page too.
     //HACK Because font-face will not work in shadow dom otherwise.
