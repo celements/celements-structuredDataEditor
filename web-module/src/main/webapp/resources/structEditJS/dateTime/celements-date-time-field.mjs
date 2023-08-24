@@ -534,7 +534,7 @@ class CelementsDateTimeField extends HTMLElement {
   }
 
   get name() {
-    return this.getAttribute('name') || null;
+    return this.getAttribute('name') || '';
   }
 
   set name(newValue) {
@@ -545,7 +545,7 @@ class CelementsDateTimeField extends HTMLElement {
    * format: "dd.MM.yyyy HH:mm"
    */
   get value() {
-    return this.getAttribute('value') || null;
+    return this.getAttribute('value') || '';
   }
 
   set value(newValue) {
