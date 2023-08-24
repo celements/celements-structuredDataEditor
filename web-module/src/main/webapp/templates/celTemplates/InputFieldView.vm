@@ -3,9 +3,10 @@
 #set($attrMap = $services.structuredDataEditor.getTextAttributes($cellDocRef))
 #parse('celMacros/struct/renderLabel.vm')
 #set($value = $services.structuredDataEditor.getRequestOrCellValue($cellDocRef))##
-<input value="$!xwiki.getFormEncoded($value)"##
-#foreach($attrEntry in $attrMap.entrySet())
- ${attrEntry.key}="$!xwiki.getFormEncoded($attrEntry.value)"##
+#if("$!value" != "")
+  #set($stfu = $attrMap.put("value", $value))
 #end
->
+<input #foreach($attrEntry in $attrMap.entrySet())##
+ ${attrEntry.key}="$!xwiki.getFormEncoded($attrEntry.value)"##
+#end>
 #parse('celMacros/struct/renderLangHiddenField.vm')
