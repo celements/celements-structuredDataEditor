@@ -723,6 +723,7 @@ class CelementsDateTimeField extends HTMLElement {
 
   fireUpdated() {
     this.celFire('celDateTime:updated', this.#collectInterdependenceData(this.isConnected));
+    this.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   #collectInterdependenceData(withValues = true) {
