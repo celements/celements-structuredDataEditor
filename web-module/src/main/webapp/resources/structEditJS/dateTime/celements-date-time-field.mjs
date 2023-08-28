@@ -127,6 +127,7 @@ class CelementsDateTimePicker {
     console.debug("#onChanged", this.value);
     if (this.validate()) {
       this.celFire(EVENT_FIELD_CHANGED, {
+        'target': this,
         'dateOrTimeFieldPicker': this,
         'newValue': this.value
       });
@@ -321,10 +322,18 @@ class CelementsDateTimeController {
     const config = this.#collectPickerConfig();
     console.debug('onAttributeChange', config);
     if (this.#inputDateField) {
+      const newValue = this.#dateTimeComponent.date || '';
+      if (this.#inputDateField.value !== newValue) {
+        this.#inputDateField.value = newValue;
+      }
       this.#inputDateField.pickerConfig = config;
       this.#inputDateField.validate();
     }
     if (this.#inputTimeField) {
+      const newValue = this.#dateTimeComponent.time || '';
+      if (this.#inputTimeField.value !== newValue) {
+        this.#inputTimeField.value = newValue;
+      }
       this.#inputTimeField.pickerConfig = config;
       this.#inputTimeField.validate();
     }
