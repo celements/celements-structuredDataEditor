@@ -1,7 +1,6 @@
 const versionTimeStamp = new Date().getTime();
-const curScriptElement = document.currentScript;
-const curScriptPath = curScriptElement.src.split('?')[0];
-const curScriptDir = curScriptPath.split('/').slice(0, -1).join('/') + '/';
+const curScriptPath = new URL(import.meta.url).pathname;
+const curScriptDir = curScriptPath.split('/').slice(0, -1).join('/');
 const EVENT_FIELD_CHANGED = 'celements:fieldChanged';
 
 const DATE_MARSHALLER_DE = Object.freeze({
@@ -108,6 +107,7 @@ class CelementsDateTimePicker {
     console.debug("#onChanged", this.value);
     if (this.validate()) {
       this.celFire(EVENT_FIELD_CHANGED, {
+        'target': this,
         'dateOrTimeFieldPicker': this,
         'newValue': this.value
       });
@@ -302,10 +302,18 @@ class CelementsDateTimeController {
     const config = this.#collectPickerConfig();
     console.debug('onAttributeChange', config);
     if (this.#inputDateField) {
+      const newValue = this.#dateTimeComponent.date || '';
+      if (this.#inputDateField.value !== newValue) {
+        this.#inputDateField.value = newValue;
+      }
       this.#inputDateField.pickerConfig = config;
       this.#inputDateField.validate();
     }
     if (this.#inputTimeField) {
+      const newValue = this.#dateTimeComponent.time || '';
+      if (this.#inputTimeField.value !== newValue) {
+        this.#inputTimeField.value = newValue;
+      }
       this.#inputTimeField.pickerConfig = config;
       this.#inputTimeField.validate();
     }
@@ -345,7 +353,7 @@ class CelementsDateTimeField extends HTMLElement {
     this.#addCssFiles(this.shadowRoot, [
       '/file/resources/celRes/images/glyphicons-halflings/css/glyphicons-halflings.css',
       '/file/resources/celJS/jquery%2Ddatetimepicker/jquery.datetimepicker.css',
-      curScriptDir + 'celements-date-time-field.css'
+      curScriptDir + '/' + 'celements-date-time-field.css'
     ]);
     //HACK be sure to load the glyphicons-halflings.css in the html-page too.
     //HACK Because font-face will not work in shadow dom otherwise.
@@ -514,11 +522,19 @@ class CelementsDateTimeField extends HTMLElement {
     this.#dateTimeFieldController.onAttributeChange();
   }
 
+  get name() {
+    return this.getAttribute('name') || '';
+  }
+
+  set name(newValue) {
+    this.setAttribute('name', newValue || '');
+  }
+
   /**
    * format: "dd.MM.yyyy HH:mm"
    */
   get value() {
-    return this.getAttribute('value') || null;
+    return this.getAttribute('value') || '';
   }
 
   set value(newValue) {
@@ -696,6 +712,7 @@ class CelementsDateTimeField extends HTMLElement {
 
   fireUpdated() {
     this.celFire('celDateTime:updated', this.#collectInterdependenceData(this.isConnected));
+    this.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   #collectInterdependenceData(withValues = true) {

@@ -19,6 +19,8 @@
  */
 package com.celements.struct.table;
 
+import static com.celements.cells.CellRenderStrategy.*;
+
 import java.util.stream.Stream;
 
 import org.xwiki.component.annotation.Component;
@@ -71,9 +73,11 @@ public class TableRowLayoutPresentationType extends AbstractTableRowPresentation
 
   private String renderRowLayout(DocumentReference rowDocRef, SpaceReference layout) {
     return new Contextualiser()
-        .withDoc(context.getCurrentDoc().toJavaUtil()
+        .withDoc(context.getDocument()
             .filter(doc -> doc.getDocumentReference().equals(rowDocRef))
             .orElseGet(() -> modelAccess.getOrCreateDocument(rowDocRef)))
+        // flags the cells as rendered repetitively, meaning e.g. id attributes should be omitted
+        .withExecContext(EXEC_CTX_KEY_REPETITIVE, true)
         .execute(() -> layoutService.renderPageLayout(layout));
   }
 

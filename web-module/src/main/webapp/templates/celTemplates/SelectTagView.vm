@@ -21,15 +21,21 @@
   #else
     #set($currentValues = [$services.structuredDataEditor.getCellValueAsString($cellDocRef)])
   #end
+  #set($possibleValues = [])
   #if($propClass.getType().equals('BooleanClass'))
     #set($textMap = {'0': "$!adminMsg.cel_no", '1': "$!adminMsg.cel_yes"})
-    #set($possibleValues = $textMap.keySet())
+    #set($stfu = $possibleValues.addAll($textMap.keySet()))
   #else
-    #set($possibleValues = $propClass.getListValues())
+    #set($stfu = $possibleValues.addAll($propClass.getListValues()))
     #set($textMap = $propClass.getMapValues())
     #foreach($key in $textMap.keySet())
       #set($stfu = $textMap.put($key, $textMap.get($key).getValue()))
     #end
+  #end
+  #foreach($value in $currentValues)
+    #if(!$possibleValues.contains($value))
+      #set($stfu = $possibleValues.add($value))
+    #end    
   #end
   #foreach($value in $possibleValues)
     #set($valueNoSpaces = $value.replaceAll(" ", "-"))
