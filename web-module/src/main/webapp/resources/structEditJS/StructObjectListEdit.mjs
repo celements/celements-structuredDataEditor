@@ -6,7 +6,7 @@ class CelStructObjectList extends HTMLUListElement {
 
   constructor() {
     super();
-    this.#handler = new StructEntryHandler(this, this.template,'struct_object_created');
+    this.#handler = new StructEntryHandler(this, this.template, 'struct_object_created');
   }
 
   get template() {

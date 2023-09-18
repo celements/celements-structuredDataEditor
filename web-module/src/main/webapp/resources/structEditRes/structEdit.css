@@ -46,13 +46,21 @@ input[type=number]::-webkit-inner-spin-button {
 .struct_table ul li.struct_table_row {
   display: flex;
   width: 100%;
+}
+
+/* animation */
+.struct_table ul > li.struct_table_row,
+ul.struct_object > li {
   transition: opacity .5s ease-out;
 }
-.struct_table ul li.struct_table_row_create,
-.struct_table ul li.struct_table_row_remove {
+.struct_table ul > li.cel-data-creating,
+.struct_table ul > li.cel-data-removing,
+ul.struct_object > li.cel-data-creating,
+ul.struct_object > li.cel-data-removing {
   opacity: 0;
 }
-.struct_table ul li.struct_table_row_remove {
+.struct_table ul > li.cel-data-removing,
+ul.struct_object > li.cel-data-removing {
   transition-timing-function: ease-in;
 }
 

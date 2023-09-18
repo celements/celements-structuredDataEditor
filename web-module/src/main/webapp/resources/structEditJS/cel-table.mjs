@@ -10,17 +10,12 @@ export class StructEntryHandler {
   #nextCreateObjectNb = START_CREATE_OBJ_NB;
   #rootElem;
   #renderer;
-  #cssClassCreated;
 
   constructor(rootElem, template, cssClassCreated) {
     this.#rootElem = rootElem;
     this.#renderer = new CelDataRenderer(rootElem, template)
       .withEntryRoot('li')
-      .withAnimation({
-        create: 'struct_table_row_create',
-        remove: 'struct_table_row_remove'
-      });
-    this.#cssClassCreated = cssClassCreated;
+      .withCssClasses({ entry: cssClassCreated });
   }
 
   hasCreatedEntry() {
@@ -32,7 +27,6 @@ export class StructEntryHandler {
       throw new TypeError('preInserter must be a function');
     }
     const entry = await this.#renderer.append(data || {}, entry => {
-      entry.classList.add(this.#cssClassCreated);
       this.#setObjectNb(entry);
       preInserter(entry);
     })[0]; // this renderer only creates one li entry 
@@ -66,8 +60,9 @@ export class StructEntryHandler {
       console.warn('delete - unable to extract field data from', entry);
     } else if (confirm(window.celMessages.structEditor.objectRemoveConfirm)) {
       fields.forEach(this.#markObjectAsDeleted);
-      const hide = !entry.classList.contains(this.#cssClassCreated);
-      this.#renderer.removeEntry(entry, hide);
+      fields.some(f => f.objNb >= 0)
+        ? this.#renderer.hideEntry(entry)
+        : this.#renderer.removeEntry(entry);
       console.debug('delete - removed:', entry);
     }
   }
