@@ -24,7 +24,6 @@ import static com.celements.common.MoreOptional.*;
 import static com.celements.common.MoreOptional.findFirstPresent;
 import static com.celements.common.lambda.LambdaExceptionUtil.*;
 import static com.celements.structEditor.classes.StructuredDataEditorClass.*;
-import static com.google.common.collect.ImmutableMap.*;
 import static java.util.function.Predicate.*;
 import static java.util.stream.Collectors.*;
 
@@ -78,7 +77,6 @@ import com.celements.web.classes.KeyValueClass;
 import com.celements.web.comparators.BaseObjectComparator;
 import com.celements.web.service.IWebUtilsService;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -495,20 +493,19 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Map<String, String> getPossibleValuesFromXClass(XWikiDocument cellDoc) {
+    var ret = new LinkedHashMap<String, String>();
     PropertyClass propClass = getCellPropertyClass(cellDoc).orElse(null);
     if (propClass instanceof BooleanClass) {
-      return ImmutableMap.of( // keeps insertion order
-          "0", webUtils.getAdminMessageTool().get("cel_no"),
-          "1", webUtils.getAdminMessageTool().get("cel_yes"));
+      ret.put("0", webUtils.getAdminMessageTool().get("cel_no"));
+      ret.put("1", webUtils.getAdminMessageTool().get("cel_yes"));
     } else if (propClass instanceof ListClass) {
       ListClass listClass = (ListClass) propClass;
       Map<String, ListItem> listItems = listClass.getMap(context.getXWikiContext());
-      return listClass.getList(context.getXWikiContext()).stream()
-          .collect(toImmutableMap(v -> v, v -> Optional.ofNullable(listItems.get(v))
-              .map(ListItem::getValue)
-              .orElse(null)));
+      for (var val : listClass.getList(context.getXWikiContext())) {
+        ret.put(val, Optional.ofNullable(listItems.get(val)).map(ListItem::getValue).orElse(null));
+      }
     }
-    return Map.of();
+    return ret;
   }
 
   XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
