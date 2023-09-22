@@ -21,29 +21,18 @@
   #else
     #set($currentValues = [$services.structuredDataEditor.getCellValueAsString($cellDocRef)])
   #end
-  #set($possibleValues = [])
-  #if($propClass.getType().equals('BooleanClass'))
-    #set($textMap = {'0': "$!adminMsg.cel_no", '1': "$!adminMsg.cel_yes"})
-    #set($stfu = $possibleValues.addAll($textMap.keySet()))
-  #else
-    #set($stfu = $possibleValues.addAll($propClass.getListValues()))
-    #set($textMap = $propClass.getMapValues())
-    #foreach($key in $textMap.keySet())
-      #set($stfu = $textMap.put($key, $textMap.get($key).getValue()))
+  #set($possibleValues = $services.structuredDataEditor.getCellPossibleValues($cellDocRef))
+  #foreach($value in $currentValues)
+    #if(("$!value" != '') && !$possibleValues.containsKey($value))
+      #set($stfu = $possibleValues.put($value, ''))
     #end
   #end
-  #foreach($value in $currentValues)
-    #if(!$possibleValues.contains($value))
-      #set($stfu = $possibleValues.add($value))
-    #end    
-  #end
-  #foreach($value in $possibleValues)
-    #set($valueNoSpaces = $value.replaceAll(" ", "-"))
-    #set($dictKey = "$!services.structuredDataEditor.getAttributeName($cellDocRef)_$!valueNoSpaces")
+  #foreach($value in $possibleValues.keySet())
+    #set($dictKey = "$!services.structuredDataEditor.getAttributeName($cellDocRef)_$!{value.replaceAll(' ', '-')}")
     #set($text = $adminMsg.get($dictKey))
     #if("$!text" == "$!dictKey")
       #if($isSuperAdmin)<!-- missing dict key: $!dictKey -->#end
-      #set($text = $textMap.get($value))
+      #set($text = $possibleValues.get($value).trim())
     #end
     <option value="$!xwiki.getFormEncoded($value)" #if($currentValues.contains($value)) selected #end>
     #if("$!text" != "")$!{text}#else$!{value}#end

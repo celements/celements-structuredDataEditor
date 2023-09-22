@@ -212,9 +212,15 @@ public class StructuredDataEditorScriptService implements ScriptService {
         .flatMap(onDoc -> service.getLangNameAttribute(cellDoc, onDoc)));
   }
 
+  public Map<String, String> getCellPossibleValues(DocumentReference cellDocRef) {
+    return getFromCellDoc(cellDocRef, cellDoc -> Optional
+        .of(service.getCellPossibleValues(cellDoc)))
+            .orElse(Map.of());
+  }
+
   private <T> Optional<T> getFromCellDoc(DocumentReference cellDocRef,
       Function<XWikiDocument, Optional<T>> func) {
-    return streamFromCellDoc(cellDocRef, func.andThen(MoreOptional::stream))
+    return streamFromCellDoc(cellDocRef, func.andThen(Optional::stream))
         .findFirst();
   }
 

@@ -21,6 +21,7 @@ package com.celements.structEditor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -94,5 +95,8 @@ public interface StructuredDataEditorService {
   @NotNull
   Optional<String> getLangNameAttribute(@NotNull XWikiDocument cellDoc,
       @Nullable XWikiDocument onDoc);
+
+  @NotNull
+  Map<String, String> getCellPossibleValues(@NotNull XWikiDocument cellDoc);
 
 }

@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +41,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +69,9 @@ import com.celements.pagetype.service.IPageTypeResolverRole;
 import com.celements.structEditor.classes.FormFieldEditorClass;
 import com.celements.structEditor.classes.OptionTagEditorClass;
 import com.celements.structEditor.classes.StructuredDataEditorClass;
+import com.celements.tag.CelTag;
+import com.celements.tag.CelTagService;
+import com.celements.tag.classdefs.CelTagClass;
 import com.celements.velocity.VelocityService;
 import com.celements.web.classes.KeyValueClass;
 import com.celements.web.comparators.BaseObjectComparator;
@@ -76,7 +82,10 @@ import com.google.common.primitives.Ints;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.BaseClass;
+import com.xpn.xwiki.objects.classes.BooleanClass;
 import com.xpn.xwiki.objects.classes.DateClass;
+import com.xpn.xwiki.objects.classes.ListClass;
+import com.xpn.xwiki.objects.classes.ListItem;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 
 import one.util.streamex.EntryStream;
@@ -114,6 +123,9 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
 
   @Requirement(XObjectStringFieldAccessor.NAME)
   protected StringFieldAccessor<BaseObject> xObjStrFieldAccessor;
+
+  @Inject
+  private CelTagService celTagService;
 
   @Override
   public Optional<String> getAttributeName(XWikiDocument cellDoc, XWikiDocument onDoc) {
@@ -449,6 +461,51 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .flatMap(prop -> getAttributeName(cellDoc, onDoc)
             .flatMap(attrName -> getCellFieldName(cellDoc)
                 .map(fieldName -> attrName.replace(fieldName, prop.getName()))));
+  }
+
+  @Override
+  public Map<String, String> getCellPossibleValues(XWikiDocument cellDoc) {
+    return determineTagType(cellDoc)
+        .map(this::getPossibleValuesByTagType)
+        .orElseGet(() -> getPossibleValuesFromXClass(cellDoc));
+  }
+
+  private Optional<String> determineTagType(XWikiDocument cellDoc) {
+    if (getCellClassField(cellDoc).filter(CelTagClass.FIELD_TAGS::equals).isEmpty()) {
+      return Optional.empty(); // celldoc not configured to CelTagClass.FIELD_TAGS
+    }
+    // the tag type is configured in KeyValueClass
+    return fetchKeyValues(cellDoc, Sets.union(LABELS_AND, LABELS_OR))
+        .filterKeys(CelTagClass.FIELD_TYPE.getName()::equals)
+        .values().flatMap(Optional::stream)
+        .findFirst();
+  }
+
+  private Map<String, String> getPossibleValuesByTagType(String tagType) {
+    String lang = webUtils.getAdminLanguage();
+    return celTagService.streamTags(tagType)
+        .sorted(CelTag.CMP_DEFAULT.apply(lang))
+        .filter(tag -> tag.hasScope(context.getWikiRef()))
+        .mapToEntry(CelTag::getName, tag -> tag.getAncestorsAndThis()
+            .map(t -> t.getPrettyName(lang).orElse(null))
+            .joining(" &#x27A4; "))
+        .toCustomMap(LinkedHashMap::new);
+  }
+
+  private Map<String, String> getPossibleValuesFromXClass(XWikiDocument cellDoc) {
+    var ret = new LinkedHashMap<String, String>();
+    PropertyClass propClass = getCellPropertyClass(cellDoc).orElse(null);
+    if (propClass instanceof BooleanClass) {
+      ret.put("0", webUtils.getAdminMessageTool().get("cel_no"));
+      ret.put("1", webUtils.getAdminMessageTool().get("cel_yes"));
+    } else if (propClass instanceof ListClass) {
+      ListClass listClass = (ListClass) propClass;
+      Map<String, ListItem> listItems = listClass.getMap(context.getXWikiContext());
+      for (var val : listClass.getList(context.getXWikiContext())) {
+        ret.put(val, Optional.ofNullable(listItems.get(val)).map(ListItem::getValue).orElse(null));
+      }
+    }
+    return ret;
   }
 
   XWikiObjectFetcher newXObjFetcher(XWikiDocument cellDoc, XWikiDocument onDoc) {
