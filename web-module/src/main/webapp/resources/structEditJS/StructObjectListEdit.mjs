@@ -1,4 +1,4 @@
-import { StructEntryHandler } from './cel-table.mjs?version=20230806'
+import { StructEntryHandler } from './cel-table.mjs?version=20230922'
 
 class CelStructObjectList extends HTMLUListElement {
 
@@ -6,7 +6,7 @@ class CelStructObjectList extends HTMLUListElement {
 
   constructor() {
     super();
-    this.#handler = new StructEntryHandler(this, 'struct_object_created');
+    this.#handler = new StructEntryHandler(this, this.template, 'struct_object_created');
   }
 
   get template() {
@@ -32,8 +32,8 @@ class CelStructObjectList extends HTMLUListElement {
         event => this.delete(event.target.closest('li'))));
   }
 
-  createEntry(data) {
-    const entry = this.#handler.create(this.template, data);
+  async createEntry(data) {
+    const entry = await this.#handler.create(data);
     this.#observeDelete(entry);
     return entry;
   }

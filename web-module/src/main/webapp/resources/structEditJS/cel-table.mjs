@@ -1,4 +1,5 @@
 import structManager from './StructEditor.mjs?version=20230806';
+import CelDataRenderer from '/file/resources/celDynJS/celData/cel-data-renderer.mjs?ver=20230806'
 
 const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
 const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
@@ -8,50 +9,38 @@ export class StructEntryHandler {
 
   #nextCreateObjectNb = START_CREATE_OBJ_NB;
   #rootElem;
-  #cssClassCreated;
+  #renderer;
 
-  constructor(rootElem, cssClassCreated) {
+  constructor(rootElem, template, cssClassCreated) {
     this.#rootElem = rootElem;
-    this.#cssClassCreated = cssClassCreated;
+    this.#renderer = new CelDataRenderer(rootElem, template)
+      .withEntryRoot('li')
+      .withCssClasses({ entry: cssClassCreated });
   }
 
   hasCreatedEntry() {
     return this.#nextCreateObjectNb < START_CREATE_OBJ_NB;
   }
 
-  create(template, data, preInserter = (entry) => undefined) {
-    const entry = this.#createEntry(template);
-    if (preInserter(entry) !== false) { // strictly false to skip insertion
-      this.#rootElem.appendChild(entry);
-      requestAnimationFrame(() => entry.style.opacity = '1');
-      if (data) {
-        entry.dispatchEvent(new CustomEvent('celData:update', { detail: data }));
-      }
-      entry.fire('celements:contentChanged', { 'htmlElem' : entry });
-      console.debug('create - new row in', this.#rootElem, ':', entry);
-    } else {
-      console.debug('create - skipped row in', this.#rootElem, ':', entry);
+  async create(data, preInserter = (entry) => undefined) {
+    if (typeof preInserter !== 'function') {
+      throw new TypeError('preInserter must be a function');
     }
+    const entry = await this.#renderer.append(data || {}, entry => {
+      this.#setObjectNb(entry);
+      preInserter(entry);
+    })[0]; // this renderer only creates one li entry 
+    console.debug('create - new row in', this.#rootElem, ':', entry);
     return entry;
   }
 
-  #createEntry(template) {
-    const fragment = template?.content.cloneNode(true);
-    let entry = fragment?.firstElementChild;
-    if (fragment?.childElementCount != 1 || entry?.tagName !== 'LI') {
-      entry = document.createElement('li');
-      entry.appendChild(fragment);
-    }
-    entry.classList.add(this.#cssClassCreated);
-    entry.style.opacity = '0';
-    entry.style.transition = 'opacity .5s ease-out';
+  #setObjectNb(entry) {
     const objectNb = this.#nextCreateObjectNb;
     if (this.#setObjectNbIn(entry, FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
       this.#setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
       this.#setObjectNbIn(entry, 'label', 'for', objectNb);
       this.#nextCreateObjectNb--;
     }
-    return entry;
   }
 
   #setObjectNbIn(entry, selector, key, objectNb) {
@@ -71,11 +60,9 @@ export class StructEntryHandler {
       console.warn('delete - unable to extract field data from', entry);
     } else if (confirm(window.celMessages.structEditor.objectRemoveConfirm)) {
       fields.forEach(this.#markObjectAsDeleted);
-      entry.style.transition = 'opacity .4s ease-in';
-      requestAnimationFrame(() => entry.style.opacity = '0');
-      entry.addEventListener('transitionend', entry.classList.contains(this.#cssClassCreated)
-          ? () => entry.remove()
-          : () => entry.style.display = 'none');
+      fields.some(f => f.objNb >= 0)
+        ? this.#renderer.hideEntry(entry)
+        : this.#renderer.removeEntry(entry);
       console.debug('delete - removed:', entry);
     }
   }
@@ -127,7 +114,7 @@ export class CelTable extends HTMLElement {
 
   constructor() {
     super();
-    this.#handler = new StructEntryHandler(this.#dataList, 'struct_table_created');
+    this.#handler = new StructEntryHandler(this.#dataList, this.template, 'struct_table_created');
   }
 
   get template() {
@@ -180,8 +167,8 @@ export class CelTable extends HTMLElement {
         event => this.delete(event.target.closest('li'))));
   }
 
-  createEntry(data, preInserter) {
-    const entry = this.#handler.create(this.template, data, preInserter);
+  async createEntry(data, preInserter) {
+    const entry = await this.#handler.create(data, preInserter);
     this.#observeDelete(entry);
     return entry;
   }
