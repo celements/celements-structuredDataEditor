@@ -320,9 +320,9 @@ class CelementsDateTimeController {
   }
 
   #updateComponentValuesFromInput() {
-    console.debug("#updateComponentValuesFromInput", this.#dateTimeComponent.value);
-    this.#dateTimeComponent.date = this.#inputDateField?.value;
-    this.#dateTimeComponent.time = this.#inputTimeField?.value;
+    const date = this.#inputDateField?.value;
+    const time = this.#inputTimeField?.value;
+    this.#dateTimeComponent.setDateAndTime(date, time);
   }
 
 }
@@ -545,8 +545,15 @@ class CelementsDateTimeField extends HTMLElement {
     return this.value?.split(' ').filter(Boolean) || [];
   }
 
-  #setValueParts(...parts) {
-    this.value = parts.filter(Boolean).join(' ');
+  setDateAndTime(newDate, newTime) {
+    const valueParts = [
+      this.hasDateField() ? (newDate || this.defaultDate || '') : '',
+      this.hasTimeField() ? (newTime || this.defaultTime || '00:00') : ''
+    ]
+    const newValue = valueParts.filter(Boolean).join(' ');
+    if (this.value !== newValue) {
+      this.value = newValue;
+    }
   }
 
   get date() {
@@ -556,9 +563,7 @@ class CelementsDateTimeField extends HTMLElement {
   }
 
   set date(newValue) {
-    if (this.hasDateField()) {
-      this.#setValueParts(newValue || this.defaultDate || '', this.time);
-    }
+    this.setDateAndTime(newValue, this.time);
   }
 
   get time() {
@@ -568,9 +573,7 @@ class CelementsDateTimeField extends HTMLElement {
   }
 
   set time(newValue) {
-    if (this.hasTimeField()) {
-      this.#setValueParts(this.date, newValue || this.defaultTime || '00:00');
-    }
+    this.setDateAndTime(this.date, newValue);
   }
 
   /**
