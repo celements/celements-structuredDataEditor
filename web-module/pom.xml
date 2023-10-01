@@ -30,7 +30,7 @@
   <artifactId>structuredDataEditor-web</artifactId>
   <packaging>war</packaging>
   <name>Celements Structured Data Editor Web-Module</name>
-  <version>6.1-SNAPSHOT</version>
+  <version>6.2-SNAPSHOT</version>
   <description>	</description>
   <licenses>
     <license>
@@ -49,7 +49,7 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-structuredDataEditor</artifactId>
-      <version>6.1-SNAPSHOT</version>
+      <version>6.1</version>
     </dependency>
   </dependencies>
   <build>
