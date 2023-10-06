@@ -3,11 +3,15 @@ import CelDataRenderer from '/file/resources/celDynJS/celData/cel-data-renderer.
 
 const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];
 const REGEX_OBJ_NB = /^(.+_)(-1)(_.*)?$/; // name="Space.Class_-1_field"
-const START_CREATE_OBJ_NB = -2; // skip -1 in case it's already used statically in an editor
 
 export class StructEntryHandler {
 
-  #nextCreateObjectNb = START_CREATE_OBJ_NB;
+   /**
+   * global number counter for new objects created from struct tables. skip high numbers in case
+   * they are already used by other form fields not managed by this class.
+   */
+  static nextCreateObjectNb = -100;
+
   #rootElem;
   #renderer;
 
@@ -19,7 +23,8 @@ export class StructEntryHandler {
   }
 
   hasCreatedEntry() {
-    return this.#nextCreateObjectNb < START_CREATE_OBJ_NB;
+    const entrySelector = `li.${this.#renderer.cssClasses.entry.join('.')}`;
+    return this.#rootElem.querySelectorAll(entrySelector).length > 0;
   }
 
   async create(data, preInserter = (entry) => undefined) {
@@ -35,11 +40,11 @@ export class StructEntryHandler {
   }
 
   #setObjectNb(entry) {
-    const objectNb = this.#nextCreateObjectNb;
+    const objectNb = StructEntryHandler.nextCreateObjectNb;
     if (this.#setObjectNbIn(entry, FORM_ELEM_TAGS.join(','), 'name', objectNb)) {
       this.#setObjectNbIn(entry, '.cel_cell', 'id', objectNb);
       this.#setObjectNbIn(entry, 'label', 'for', objectNb);
-      this.#nextCreateObjectNb--;
+      StructEntryHandler.nextCreateObjectNb--;
     }
   }
 
