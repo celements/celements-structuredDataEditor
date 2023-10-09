@@ -154,7 +154,7 @@ class CelAutocompleteInitialiser {
     const structEvent = new CustomEvent('structEdit:autocomplete:selected', { detail: data });
     console.debug('dispatching', structEvent, 'on', selectElem);
     selectElem.dispatchEvent(structEvent);
-    selectElem.dispatchEvent(new CustomEvent('celData:update', { detail: data, bubbles: true }));
+    selectElem.dispatchEvent(new CustomEvent('celData:update', { detail: { data: data}, bubbles: true }));
   }
 
   #onDeselect(select2event) {
@@ -164,7 +164,7 @@ class CelAutocompleteInitialiser {
     console.debug('dispatching', structEvent, 'on', selectElem);
     selectElem.dispatchEvent(structEvent);
     selectElem.dispatchEvent(new CustomEvent('celData:update', {
-      detail: CelAutocompleteInitialiser.#emptyData,
+      detail: { data: CelAutocompleteInitialiser.#emptyData },
       bubbles: true
     }));
     this.#clearSelectOptions(selectElem);
