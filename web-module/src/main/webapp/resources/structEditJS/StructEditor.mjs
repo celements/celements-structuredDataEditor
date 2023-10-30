@@ -798,17 +798,27 @@ window.CELEMENTS.structEdit.CelementsFormSaver = Class.create({
     _me._saveCallback = saveCallback;
   },
 
-  _saveAndContinueAjax : function(formName, handler) {
+  _saveAndContinueAjax : function(formName, options) {
     var _me = this;
-    if(document.forms[formName]) {
-      document.forms[formName].select('textarea.mceEditor').each(function(formfield) {
-         console.log('textarea save tinymce: ', formfield.name, tinyMCE.get(formfield.id).save());
-         formfield.value = tinyMCE.get(formfield.id).save();
-       });
-       $(formName).request(handler);
-     } else {
-       console.error('form not found: ', formName);
-     }
+    const form = document.forms[formName];
+    if (form) {
+      form.querySelectorAll('textarea.mceEditor').forEach(textarea => {
+        console.debug('textarea save tinymce: ', textarea);
+        textarea.value = tinyMCE.get(textarea.id).save();
+      });
+      options.parameters = options.parameters || {};
+      // submit enabled select fields without selections
+      [...form.querySelectorAll('select')]
+        .filter(select => select.name && !select.disabled && select.value === '')
+        .forEach(select => options.parameters[select.name] = select.dataset.unselectedValue || '');
+      // submit unchecked checkboxes and radio buttons
+      [...form.querySelectorAll('input[type="checkbox"], input[type="radio"]')]
+        .filter(input => input.name && !input.disabled && !input.checked)
+        .forEach(input => options.parameters[input.name] = input.dataset.uncheckedValue || '');
+      $(formName).request(options);
+    } else {
+      console.error('form not found: ', formName);
+    }
    },
 
    _handleSaveAjaxJsonResponse : function(formId, jsonResponse) {
