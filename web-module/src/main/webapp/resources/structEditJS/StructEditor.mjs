@@ -798,9 +798,8 @@ window.CELEMENTS.structEdit.CelementsFormSaver = Class.create({
     _me._saveCallback = saveCallback;
   },
 
-  _saveAndContinueAjax : function(formName, options) {
-    var _me = this;
-    const form = document.forms[formName];
+  _saveAndContinueAjax : function(formId, options) {
+    const form = document.forms[formId];
     if (form) {
       form.querySelectorAll('textarea.mceEditor').forEach(textarea => {
         console.debug('textarea save tinymce: ', textarea);
@@ -815,9 +814,9 @@ window.CELEMENTS.structEdit.CelementsFormSaver = Class.create({
       [...form.querySelectorAll('input[type="checkbox"], input[type="radio"]')]
         .filter(input => input.name && !input.disabled && !input.checked)
         .forEach(input => options.parameters[input.name] = input.dataset.uncheckedValue || '');
-      $(formName).request(options);
+      form.request(options);
     } else {
-      console.error('form not found: ', formName);
+      console.error('form not found: ', formId);
     }
    },
 

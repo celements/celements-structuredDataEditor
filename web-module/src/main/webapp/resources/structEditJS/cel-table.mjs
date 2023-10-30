@@ -1,4 +1,4 @@
-import structManager from './StructEditor.mjs?version=20230806';
+import structManager from './StructEditor.mjs?version=20231030';
 import CelDataRenderer from '/file/resources/celDynJS/celData/cel-data-renderer.mjs?ver=20231026'
 
 const FORM_ELEM_TAGS = ['input', 'select', 'textarea', 'cel-input-date', 'cel-input-time', 'cel-input-date-time'];

@@ -3,7 +3,7 @@
 $!services.structData.renderTable($cellDocRef)
 #set($services.javascript = $services.javascript)
 #set($extJsParam = $services.javascript.createDefaultExtJSParam())
-#set($extJsParam = $extJsParam.setQueryString('version=20231006'))
+#set($extJsParam = $extJsParam.setQueryString('version=20231030'))
 #if($xwiki.getXWikiPreferenceAsInt("cel_activate_jsdefer", 0) == 1)
   #set($extJsParam = $extJsParam.setLoadMode($services.javascript.getJsLoadMode('DEFER')))
 #end
