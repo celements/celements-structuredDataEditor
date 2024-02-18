@@ -120,29 +120,25 @@ window.CELEMENTS.structEdit.CelementsButtonHandler = Class.create({
   },
 
   _saveClickHandler : function(event) {
-    var _me = this;
     event.stop();
-    _me._editorManager.saveAndContinue(function(jsonResponses, failed) {
+    this._editorManager.saveAndContinue((jsonResponses, failed) => {
       console.log('saveClickHandler saveAndContinue callback ', jsonResponses, failed);
       if (!failed) {
-        //remove template in url query after creating document in inline mode
-        try {
-          if (window.location.search.match(/\&?template=[^\&]+/)) {
-            window.onbeforeunload = null;
-            window.location.search = _me._urlFactory.deleteParamsFromURL();
-          }
-        } catch (err) {
-          console.error('_saveClickHandler: error in saveAndContinue callback ', err);
-        }
-        const saveEvent = _me._editorManager.celFire(
-          'structEdit:saveAndContinueButtonSuccessful', { jsonResponses });
-        if ((saveEvent.detail || saveEvent.memo).reload) {
+        const saveEvent = this._editorManager.celFire('structEdit:saveAndContinueButtonSuccessful',
+          { jsonResponses });
+        if (window.location.search.match(/\&?template=[^\&]+/)) {
+          console.log('saveClickHandler: reload without template in url query', saveEvent);
+          window.onbeforeunload = null;
+          window.location.search = this._urlFactory.deleteParamsFromURL();
+        } else if ((saveEvent.detail || saveEvent.memo).reload) {
           console.log('saveClickHandler: reload flag set', saveEvent);
           window.onbeforeunload = null;
-          window.location.reload();
+          window.location.reload()
+        } else {
+          console.log('saveClickHandler: no reload', saveEvent);
         }
       } else {
-        _me._editorManager.celFire('structEdit:saveAndContinueButtonFailed', { jsonResponses });
+        this._editorManager.celFire('structEdit:saveAndContinueButtonFailed', { jsonResponses });
       }
     });
   }
