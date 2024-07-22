@@ -5,6 +5,14 @@
   #set($xredirect = $services.url.getURL())
 #end
 #set($xredirect = $escapetool.url($xredirect))
-#set($url = $services.url.getURL($rowdoc.documentReference, 'delete', "xredirect=${xredirect}"))
+#set($query = "xredirect=${xredirect}")
+#if("$!xcancel" == '')
+  #set($xcancel = "$!request.xcancel")
+#end
+#if ($xcancel &&"$!xcancel" !='')
+  #set($xcancel = $escapetool.url($xcancel))
+  #set($query = "${query}&xcancel=${xcancel}")
+#end
+#set($url = $services.url.getURL($rowdoc.documentReference, 'delete', $query))
 #if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings icon-plus") #end
 <a class="icon-link" href="$!url"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
