@@ -9,7 +9,7 @@
 #if("$!xcancel" == '')
   #set($xcancel = "$!request.xcancel")
 #end
-#if($xcancel &&"$!xcancel" !='')
+#if("$!xcancel" !='')
   #set($xcancel = $escapetool.url($xcancel))
   #set($query = "${query}&xcancel=${xcancel}")
 #end
