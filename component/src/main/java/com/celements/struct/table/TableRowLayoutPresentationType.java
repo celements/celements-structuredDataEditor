@@ -19,7 +19,7 @@
  */
 package com.celements.struct.table;
 
-import static com.celements.cells.CellRenderStrategy.*;
+import static com.celements.cells.div.CellRenderStrategy.*;
 
 import java.util.stream.Stream;
 

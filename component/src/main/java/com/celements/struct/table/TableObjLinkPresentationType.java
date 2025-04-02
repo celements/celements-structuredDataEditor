@@ -19,7 +19,7 @@
  */
 package com.celements.struct.table;
 
-import static com.celements.cells.CellRenderStrategy.*;
+import static com.celements.cells.AbstractRenderStrategy.*;
 import static java.util.Comparator.*;
 
 import java.util.Comparator;
