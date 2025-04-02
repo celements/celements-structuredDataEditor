@@ -19,7 +19,7 @@
  */
 package com.celements.struct.table;
 
-import static com.celements.cells.div.CellRenderStrategy.*;
+import static com.celements.cells.AbstractRenderStrategy.*;
 import static com.celements.common.test.CelementsTestUtils.*;
 import static com.celements.struct.table.TableDocPresentationTypeTest.*;
 import static com.celements.struct.table.TableObjLinkPresentationType.*;
@@ -36,8 +36,8 @@ import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.model.reference.WikiReference;
 
-import com.celements.cells.div.DivWriter;
 import com.celements.cells.ICellWriter;
+import com.celements.cells.div.DivWriter;
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.util.ModelUtils;
