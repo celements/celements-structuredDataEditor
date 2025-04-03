@@ -19,3 +19,17 @@ xwiki.log
 hs_err_pid*
 
 .vscode
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+/target
+/.classpath
+/.project
+/.settings
+/xwiki.log*
+/src/main/java/META-INF
+/.apt_generated/
+/.apt_generated_tests/

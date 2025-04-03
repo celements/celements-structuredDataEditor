@@ -24,23 +24,23 @@
   <parent>
     <groupId>com.celements</groupId>
     <artifactId>celements</artifactId>
-    <version>6.1</version>
+    <version>6.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-structuredDataEditor</artifactId>
-  <version>6.3-SNAPSHOT</version>
+  <version>6.4-SNAPSHOT</version>
   <description>Celements structured data editor</description>
   <dependencies>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-model</artifactId>
-      <version>6.2</version>
+      <version>6.3</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-core</artifactId>
-      <version>6.7</version>
+      <version>6.12</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -54,6 +54,12 @@
       <artifactId>celements-tag</artifactId>
       <version>6.2</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.celements</groupId>
+      <artifactId>celements-layout</artifactId>
+      <version>6.2</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <scm>

@@ -52,7 +52,7 @@ import org.xwiki.context.Execution;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
-import com.celements.cells.CellRenderStrategy;
+import com.celements.cells.div.CellRenderStrategy;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.classes.ClassIdentity;

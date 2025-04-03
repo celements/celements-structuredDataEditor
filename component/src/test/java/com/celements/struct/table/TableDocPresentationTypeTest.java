@@ -37,8 +37,8 @@ import org.junit.Test;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
-import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
+import com.celements.cells.div.DivWriter;
 import com.celements.common.test.AbstractComponentTest;
 import com.celements.common.test.CelDefaultMocks;
 import com.celements.model.access.IModelAccessFacade;

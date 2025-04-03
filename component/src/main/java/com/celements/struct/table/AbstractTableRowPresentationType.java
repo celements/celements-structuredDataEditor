@@ -31,9 +31,9 @@ import org.xwiki.model.reference.ClassReference;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 
-import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
 import com.celements.cells.attribute.DefaultAttributeBuilder;
+import com.celements.cells.div.DivWriter;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
 import com.celements.model.util.ModelUtils;

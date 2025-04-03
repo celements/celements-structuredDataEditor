@@ -34,8 +34,8 @@ import org.xwiki.component.annotation.Requirement;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.script.service.ScriptService;
 
-import com.celements.cells.DivWriter;
 import com.celements.cells.ICellWriter;
+import com.celements.cells.div.DivWriter;
 import com.celements.javascript.JavaScriptExternalFilesClass;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.context.ModelContext;
