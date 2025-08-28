@@ -52,8 +52,8 @@ public class TextAreaTagPageTypeTest extends AbstractComponentTest {
     structDataEditorSrvMock = registerComponentMock(StructuredDataEditorService.class);
     pageType = (TextAreaTagPageType) Utils.getComponent(IJavaPageTypeRole.class,
         TextAreaTagPageType.PAGETYPE_NAME);
-    getContext().setDoc(new XWikiDocument(new DocumentReference(
-        getContext().getDatabase(), "Content", "Current")));
+    getXContext().setDoc(new XWikiDocument(new DocumentReference(
+        getXContext().getDatabase(), "Content", "Current")));
   }
 
   @Test
