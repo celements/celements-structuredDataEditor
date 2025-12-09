@@ -45,7 +45,7 @@ public class TableConfig implements PresentationNodeData {
   private Type type = Type.DOC;
   private String query = "";
   private List<String> sortFields = ImmutableList.of();
-  private int resultLimit = 0;
+  private int resultLimit = -1;
   private String cssId = "";
   private List<String> cssClasses = ImmutableList.of();
   private SpaceReference rowLayout;
@@ -89,7 +89,7 @@ public class TableConfig implements PresentationNodeData {
   }
 
   public void setResultLimit(Integer resultLimit) {
-    this.resultLimit = firstNonNull(resultLimit, 0);
+    this.resultLimit = firstNonNull(resultLimit, -1);
   }
 
   public String getCssId() {
