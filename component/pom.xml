@@ -24,48 +24,48 @@
   <parent>
     <groupId>com.celements</groupId>
     <artifactId>celements</artifactId>
-    <version>6.6</version>
+    <version>7.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-structuredDataEditor</artifactId>
-  <version>6.5-SNAPSHOT</version>
+  <version>7.0-SNAPSHOT</version>
   <description>Celements structured data editor</description>
   <dependencies>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-model</artifactId>
-      <version>6.6</version>
+      <version>7.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-core</artifactId>
-      <version>6.14</version>
+      <version>7.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-search</artifactId>
-      <version>6.3</version>
+      <version>7.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-tag</artifactId>
-      <version>6.5</version>
+      <version>7.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
    <!-- test dependencies -->
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-layout</artifactId>
-      <version>6.4</version>
+      <version>7.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-spring-security</artifactId>
-      <version>6.0</version>
+      <version>7.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
