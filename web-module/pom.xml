@@ -59,7 +59,16 @@
     <plugins>
       <plugin>
         <groupId>com.jarslab.maven</groupId>
-        <artifactId>babel-maven-plugin</artifactId>
+	<artifactId>babel-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>js-transpile</id>
+            <configuration>
+              <babelSrc>${project.basedir}/babel-jslib/babel.min.js</babelSrc>
+              <targetDir>${project.basedir}/target/${project.build.finalName}/resources/</targetDir>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
