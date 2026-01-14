@@ -69,7 +69,7 @@ ul.struct_object > li.cel-data-removing {
 }
 
 .struct_table.border ul.struct_table_data li.struct_table_row {
-  border-color: #888;
+  border-color: #ccc;
   border-top: 1px solid;
   border-right: 1px solid;
   border-left: 1px solid;
@@ -114,7 +114,7 @@ ul.struct_object > li.cel-data-removing {
 
 .struct_table.border ul.struct_table_data .struct_table_cell.edit,
 .struct_table.border ul.struct_table_data .struct_table_cell.delete {
-  border-color: #888;
+  border-color: #ccc;
   border-left: 1px solid;
 }
 
@@ -220,7 +220,7 @@ ul.struct_object > li.cel-data-removing {
 .select2-container .cel_button .view_cel_buttonLink {
   float: none;
   width: 170px;
-  border: 1px solid #9fb0cd;
+  border: 1px solid #ccc;
   margin-right: 5px;
   margin-bottom: 5px;
   padding: 3px;
