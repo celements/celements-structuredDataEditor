@@ -168,11 +168,14 @@ public class DefaultAutocomplete implements AutocompleteRole {
    */
   protected Stream<Supplier<Optional<DocumentReference>>> getValueSuppliers(XWikiDocument cellDoc) {
     return Stream.of(
-        () -> getValueFromRequest(cellDoc),
         () -> getValueOnDoc(cellDoc),
         () -> getDefaultValue(cellDoc));
   }
 
+  /**
+   * @deprecated incorporated in {@link #getValueOnDoc(XWikiDocument)}
+   */
+  @Deprecated(since = "7.0")
   protected final Optional<DocumentReference> getValueFromRequest(XWikiDocument cellDoc) {
     Optional<DocumentReference> ret = context.getDocument()
         .flatMap(onDoc -> structEditService.getAttributeName(cellDoc, onDoc))

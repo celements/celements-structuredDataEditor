@@ -19,7 +19,6 @@
  */
 package com.celements.struct.table;
 
-import static com.google.common.base.MoreObjects.*;
 import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 
@@ -89,7 +88,7 @@ public class TableConfig implements PresentationNodeData {
   }
 
   public void setResultLimit(Integer resultLimit) {
-    this.resultLimit = firstNonNull(resultLimit, -1);
+    this.resultLimit = (resultLimit != null) && (resultLimit > 0) ? resultLimit : -1;
   }
 
   public String getCssId() {

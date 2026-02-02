@@ -19,8 +19,6 @@
  */
 package com.celements.struct;
 
-import static java.util.stream.Collectors.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -88,7 +86,7 @@ public class DefaultStructDataService implements StructDataService, Initializabl
         .map(tableConverter).findFirst();
     tableCfg.ifPresent(cfg -> {
       List<ColumnConfig> columns = XWikiObjectFetcher.on(cellDoc).filter(columnClass).stream()
-          .map(columnConverter).collect(toList());
+          .map(columnConverter).toList();
       cfg.setColumns(columns);
     });
     LOGGER.info("loadTableConfig: for '{}' got '{}'", cellDoc, tableCfg);

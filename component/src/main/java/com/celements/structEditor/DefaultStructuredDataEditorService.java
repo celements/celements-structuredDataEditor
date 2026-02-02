@@ -52,7 +52,7 @@ import org.xwiki.context.Execution;
 import org.xwiki.model.reference.ClassReference;
 import org.xwiki.velocity.XWikiVelocityException;
 
-import com.celements.cells.div.CellRenderStrategy;
+import com.celements.cells.AbstractRenderStrategy;
 import com.celements.model.access.IModelAccessFacade;
 import com.celements.model.classes.ClassDefinition;
 import com.celements.model.classes.ClassIdentity;
@@ -158,16 +158,17 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
    */
   private int getCreateObjNb(XWikiDocument cellDoc) {
     ClassReference classRef = getCellClassRef(cellDoc).orElseThrow(IllegalStateException::new);
-    Map<String, Integer> objNbs = getCreateObjNbExecutionCache()
-        .computeIfAbsent(classRef, ref -> new HashMap<>());
+    Map<String, Integer> objNbs = getCreateObjNbExecutionCache(classRef);
     String keyValueId = fetchKeyValues(cellDoc, Sets.union(LABELS_AND, LABELS_OR))
         .mapKeyValue((key, val) -> key + ":" + val.orElse(""))
         .joining(",");
     return objNbs.computeIfAbsent(keyValueId, key -> -(1 + objNbs.size()));
   }
 
-  private Map<ClassReference, Map<String, Integer>> getCreateObjNbExecutionCache() {
-    return exec.getContext().computeIfAbsent("struct_create_obj_nbs", HashMap::new);
+  private Map<String, Integer> getCreateObjNbExecutionCache(ClassReference classRef) {
+    Map<ClassReference, Map<String, Integer>> objNbCache = exec.getContext()
+        .computeIfAbsent("struct_create_obj_nbs", HashMap::new);
+    return objNbCache.computeIfAbsent(classRef, ref -> new HashMap<>());
   }
 
   @Override
@@ -197,8 +198,7 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   @Override
   public Optional<String> getDateFormatFromField(XWikiDocument cellDoc) {
     Optional<PropertyClass> field = getCellPropertyClass(cellDoc);
-    if (field.isPresent() && (field.get() instanceof DateClass)) {
-      DateClass dateField = (DateClass) field.get();
+    if (field.isPresent() && (field.get() instanceof DateClass dateField)) {
       return Optional.ofNullable(dateField.getDateFormat());
     }
     return Optional.empty();
@@ -300,11 +300,31 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
         .orElseGet(List::of);
     return values.stream()
         .map(elem -> (elem != null) ? elem.toString() : "")
-        .collect(toList());
+        .toList();
   }
 
   @Override
   public Optional<Object> getCellValue(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    List<String> requestValues = getValuesFromRequest(cellDoc, onDoc);
+    if (requestValues.isEmpty()) {
+      return getCellValueOnDoc(cellDoc, onDoc);
+    } else if (requestValues.size() == 1) {
+      return Optional.of(requestValues.get(0));
+    } else {
+      return Optional.of(requestValues);
+    }
+  }
+
+  private List<String> getValuesFromRequest(XWikiDocument cellDoc, XWikiDocument onDoc) {
+    return getAttributeName(cellDoc, onDoc)
+        .flatMap(name -> context.request()
+            .flatMap(r -> Optional.ofNullable(r.getParameterValues(name))))
+        .map(Stream::of).orElse(Stream.empty())
+        .filter(Objects::nonNull)
+        .toList();
+  }
+
+  private Optional<Object> getCellValueOnDoc(XWikiDocument cellDoc, XWikiDocument onDoc) {
     Optional<String> fieldName = getCellFieldName(cellDoc);
     Object value = null;
     if (fieldName.isPresent()) {
@@ -396,8 +416,8 @@ public class DefaultStructuredDataEditorService implements StructuredDataEditorS
   }
 
   private Optional<Integer> getNumberFromExecutionContext() {
-    return Stream.of("objNb", CellRenderStrategy.EXEC_CTX_KEY_OBJ_NB,
-        CellRenderStrategy.EXEC_CTX_KEY_GLOBAL_OBJ_NB)
+    return Stream.of("objNb", AbstractRenderStrategy.EXEC_CTX_KEY_OBJ_NB,
+        AbstractRenderStrategy.EXEC_CTX_KEY_GLOBAL_OBJ_NB)
         .map(exec.getContext()::getProperty)
         .map(Objects::toString)
         .map(Ints::tryParse)
