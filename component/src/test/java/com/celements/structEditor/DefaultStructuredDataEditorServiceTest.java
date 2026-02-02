@@ -19,7 +19,6 @@
  */
 package com.celements.structEditor;
 
-import static com.celements.common.test.CelementsTestUtils.*;
 import static com.celements.structEditor.StructuredDataEditorService.*;
 import static com.celements.structEditor.classes.StructuredDataEditorClass.*;
 import static com.google.common.base.Strings.*;
@@ -47,7 +46,6 @@ import com.celements.velocity.VelocityService;
 import com.celements.web.classes.KeyValueClass;
 import com.celements.web.classes.oldcore.XWikiTagClass;
 import com.google.common.primitives.Ints;
-import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.BaseClass;
@@ -59,7 +57,6 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
   private DefaultStructuredDataEditorService service;
   private XWikiDocument cellDoc;
   private IModelAccessFacade modelAccessMock;
-  private XWikiContext context;
   private String wikiName;
   private ClassReference testClassRef;
 
@@ -70,13 +67,15 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     service = (DefaultStructuredDataEditorService) Utils.getComponent(
         StructuredDataEditorService.class);
     modelAccessMock = getMock(IModelAccessFacade.class);
-    context = getContext();
-    wikiName = context.getDatabase();
+    wikiName = getXContext().getDatabase();
     testClassRef = new ClassReference("Celements", "TestXClassName");
     cellDoc = new XWikiDocument(new DocumentReference(wikiName, "layout", "cell"));
-    getContext().setRequest(createMockAndAddToDefault(XWikiRequest.class));
+    getXContext().setRequest(createDefaultMock(XWikiRequest.class));
     expect(getMock(ModelContext.class).getWikiRef())
         .andReturn(new WikiReference(wikiName)).anyTimes();
+    getXContext().setRequest(createDefaultMock(XWikiRequest.class));
+    expect(getMock(ModelContext.class).request())
+        .andReturn(Optional.of(getXContext().getRequest())).anyTimes();
   }
 
   @Test
@@ -127,10 +126,31 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     expectClass(testClassRef);
     BaseObject obj1 = createObj(onDoc, testClassRef);
     obj1.setIntValue(fieldName, 1);
-    expectRequest("");
+    expectRequestObjNb("");
+    expect(getXContext().getRequest().getParameterValues(
+        testClassRef.serialize() + "_" + 0 + "_" + fieldName))
+            .andReturn(new String[] {});
 
     replayDefault();
     assertEquals(1, service.getCellValue(cellDoc, onDoc).orElse(null));
+    verifyDefault();
+  }
+
+  @Test
+  public void test_getCellValue_fromRequest() throws Exception {
+    String fieldName = "myfield";
+    XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
+    BaseObject structObj = createObj(cellDoc, CLASS_REF);
+    structObj.setStringValue(FIELD_EDIT_FIELD_CLASS.getName(), testClassRef.serialize());
+    structObj.setStringValue(FIELD_EDIT_FIELD_NAME.getName(), fieldName);
+    expectRequestObjNb("");
+    String value = "asdf";
+    expect(getXContext().getRequest().getParameterValues(
+        testClassRef.serialize() + "_" + -1 + "_" + fieldName))
+            .andReturn(new String[] { value }).atLeastOnce();
+
+    replayDefault();
+    assertEquals(value, service.getCellValue(cellDoc, onDoc).orElse(null));
     verifyDefault();
   }
 
@@ -144,7 +164,10 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     expectClass(testClassRef);
     BaseObject obj1 = createObj(onDoc, testClassRef);
     obj1.setIntValue(fieldName, 1);
-    expectRequest("");
+    expectRequestObjNb("");
+    expect(getXContext().getRequest().getParameterValues(
+        testClassRef.serialize() + "_" + 0 + "_" + fieldName))
+            .andReturn(new String[] {});
 
     replayDefault();
     assertEquals("1", service.getCellValueAsString(cellDoc, onDoc).orElse(null));
@@ -153,8 +176,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_none() throws Exception {
-    expectRequest("");
-    expectComputed("");
+    expectRequestObjNb("");
+    expectComputedObjNb("");
     expectMultilingual("");
 
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
@@ -169,8 +192,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_default() throws Exception {
-    expectRequest("");
-    expectComputed("");
+    expectRequestObjNb("");
+    expectComputedObjNb("");
     expectMultilingual("");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     expectClass(testClassRef);
@@ -186,7 +209,7 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_request() throws Exception {
-    expectRequest("1");
+    expectRequestObjNb("1");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     DocumentReference classDocRef = expectClass(testClassRef).getDocumentReference();
     createObj(onDoc, testClassRef);
@@ -203,8 +226,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_request_invalid() throws Exception {
-    expectRequest("asdf");
-    expectComputed("");
+    expectRequestObjNb("asdf");
+    expectComputedObjNb("");
     expectMultilingual("");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     expectClass(testClassRef);
@@ -220,9 +243,9 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_computed() throws Exception {
-    expectRequest("");
+    expectRequestObjNb("");
     int expNb = 1;
-    expectComputed(Integer.toString(expNb));
+    expectComputedObjNb(Integer.toString(expNb));
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     expectClass(testClassRef);
     createObj(onDoc, testClassRef);
@@ -237,9 +260,9 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_computed_invalid() throws Exception {
-    expectRequest("");
+    expectRequestObjNb("");
     String text = "invalid";
-    expectComputed(text);
+    expectComputedObjNb(text);
     expectMultilingual("");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     expectClass(testClassRef);
@@ -255,8 +278,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_lang() throws Exception {
-    expectRequest("");
-    expectComputed("");
+    expectRequestObjNb("");
+    expectComputedObjNb("");
     expectMultilingual("de");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     expectClass(testClassRef);
@@ -273,8 +296,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_lang_noObjWithLang() throws Exception {
-    expectRequest("");
-    expectComputed("");
+    expectRequestObjNb("");
+    expectComputedObjNb("");
     expectMultilingual("de");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     expectClass(testClassRef);
@@ -291,8 +314,8 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
 
   @Test
   public void test_getXObjectInStructEditor_multilingual_defaultLang() throws Exception {
-    expectRequest("");
-    expectComputed("");
+    expectRequestObjNb("");
+    expectComputedObjNb("");
     expectMultilingual(true, "");
     XWikiDocument onDoc = new XWikiDocument(new DocumentReference(wikiName, "some", "doc"));
     expect(getMock(ModelContext.class).getDefaultLanguage(onDoc.getDocumentReference()))
@@ -381,17 +404,17 @@ public class DefaultStructuredDataEditorServiceTest extends AbstractComponentTes
     kvObj1.setStringValue("value", value);
   }
 
-  private void expectRequest(String nb) {
+  private void expectRequestObjNb(String nb) {
     Optional<String> ret = Optional.ofNullable(emptyToNull(nb));
     expect(getMock(ModelContext.class).getRequestParam("objNb"))
-        .andReturn(ret);
+        .andReturn(ret).atLeastOnce();
     if (Ints.tryParse(nb) == null) {
       expect(getMock(ModelContext.class).getRequestParam("objNb_" + testClassRef.serialize()))
           .andReturn(ret).atLeastOnce();
     }
   }
 
-  private void expectComputed(String text) throws XWikiVelocityException {
+  private void expectComputedObjNb(String text) throws XWikiVelocityException {
     text = emptyToNull(text);
     createObj(cellDoc, CLASS_REF)
         .setStringValue(FIELD_COMPUTED_OBJ_NB.getName(), text);

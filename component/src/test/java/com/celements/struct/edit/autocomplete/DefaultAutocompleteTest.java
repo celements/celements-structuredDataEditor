@@ -42,10 +42,10 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
     registerComponentMocks(IModelAccessFacade.class, StructuredDataEditorService.class,
         IWebSearchService.class, VelocityService.class, UrlService.class);
     structMock = getMock(StructuredDataEditorService.class);
-    getContext().setRequest(createMockAndAddToDefault(XWikiRequest.class));
+    getXContext().setRequest(createMockAndAddToDefault(XWikiRequest.class));
     doc = new XWikiDocument(new DocumentReference("wiki", "space", "doc"));
-    getContext().setDoc(doc);
-    cellDoc = new XWikiDocument(new DocumentReference(getContext().getDatabase(),
+    getXContext().setDoc(doc);
+    cellDoc = new XWikiDocument(new DocumentReference(getXContext().getDatabase(),
         "LayoutSpace", "SomeAutocomplete"));
     expect(getMock(IModelAccessFacade.class).getOrCreateDocument(cellDoc.getDocumentReference()))
         .andReturn(cellDoc).anyTimes();
@@ -83,7 +83,7 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   @Test
   public void test_displayNameForValue_title() throws Exception {
-    getContext().setLanguage("en");
+    getXContext().setLanguage("en");
     doc.setTitle("name");
     expect(getMock(IModelAccessFacade.class).getOrCreateDocument(doc.getDocumentReference(), "en"))
         .andReturn(doc).once();
@@ -113,7 +113,7 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   @Test
   public void test_getJsonForValue() throws Exception {
-    getContext().setLanguage("fr");
+    getXContext().setLanguage("fr");
     doc.setTitle("name");
     expect(getMock(IModelAccessFacade.class).getOrCreateDocument(doc.getDocumentReference(), "fr"))
         .andReturn(doc).once();
@@ -148,27 +148,17 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   @Test
   public void test_getSelectedValue_noContextDoc() throws Exception {
-    getContext().setDoc(null);
+    getXContext().setDoc(null);
     replayDefault();
     assertFalse(autocomplete.getSelectedValue(cellDoc.getDocumentReference()).isPresent());
     verifyDefault();
   }
 
   @Test
-  public void test_getSelectedValue_fromRequest() throws Exception {
-    expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.of("key"));
-    expect(getContext().getRequest().get("key")).andReturn(getUtils().serializeRef(selectedDocRef));
-
-    replayDefault();
-    assertEquals(selectedDocRef, autocomplete.getSelectedValue(cellDoc.getDocumentReference())
-        .orElse(null));
-    verifyDefault();
-  }
-
-  @Test
   public void test_getValueFromRequest() throws Exception {
     expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.of("key"));
-    expect(getContext().getRequest().get("key")).andReturn(getUtils().serializeRef(selectedDocRef));
+    expect(getXContext().getRequest().get("key"))
+        .andReturn(getUtils().serializeRef(selectedDocRef));
 
     replayDefault();
     assertEquals(selectedDocRef, autocomplete.getValueFromRequest(cellDoc).orElse(null));
@@ -178,7 +168,7 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
   @Test
   public void test_getValueFromRequest_noValueOnDoc() throws Exception {
     expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.of("key"));
-    expect(getContext().getRequest().get("key")).andReturn("");
+    expect(getXContext().getRequest().get("key")).andReturn("");
 
     replayDefault();
     assertFalse(autocomplete.getValueFromRequest(cellDoc).isPresent());
@@ -196,7 +186,6 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   @Test
   public void test_getSelectedValue_onDoc() throws Exception {
-    expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.empty());
     expect(structMock.getCellValueAsString(same(cellDoc), same(doc)))
         .andReturn(Optional.of(getUtils().serializeRef(selectedDocRef)));
 
@@ -227,7 +216,6 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   @Test
   public void test_getSelectedValue_defaultValue() throws Exception {
-    expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.empty());
     expect(structMock.getCellValueAsString(same(cellDoc), same(doc))).andReturn(Optional.empty());
     addCellDocValue(OptionTagEditorClass.FIELD_VALUE, getUtils().serializeRef(selectedDocRef));
 
@@ -263,7 +251,6 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   @Test
   public void test_getSelectedValue_none() throws Exception {
-    expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.empty());
     expect(structMock.getCellValueAsString(same(cellDoc), same(doc))).andReturn(Optional.empty());
 
     replayDefault();
@@ -273,7 +260,6 @@ public class DefaultAutocompleteTest extends AbstractComponentTest {
 
   @Test
   public void test_getSelectedValue_unresolvable() throws Exception {
-    expect(structMock.getAttributeName(same(cellDoc), same(doc))).andReturn(Optional.empty());
     expect(structMock.getCellValueAsString(same(cellDoc), same(doc)))
         .andReturn(Optional.of("asdf"));
 
