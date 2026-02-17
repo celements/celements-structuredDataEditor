@@ -15,4 +15,4 @@
 #end
 #set($url = $services.url.getURL($rowdoc.documentReference, 'delete', $query))
 #if("$!iconCreateCssClass" == '') #set($iconCreateCssClass = "halflings icon-plus") #end
-<a class="icon-link" href="$!url"><i class="icon $!{iconDeleteCssClass}" title="delete"></i></a>
+<a class="icon-link" href="$!url"><i class="icon $!{iconDeleteCssClass}" title="$adminMsg.get('cel_struct_col_delete')"></i></a>
