@@ -1,0 +1,20 @@
+$jsonBuilder.openDictionary('structEditor')
+
+  $jsonBuilder.addProperty('unsavedChangesOnCloseMessage', "$!adminMsg.get('cel_tm_unsavedChangesOnCloseMessage')")
+  $jsonBuilder.addProperty('savingDialogWarningHeader', "$!adminMsg.get('cel_tm_saving_dialog_warning_header')")
+  $jsonBuilder.addProperty('savingDialogMessage', "$!adminMsg.get('cel_tm_saving_dialog_unsaved_changes')")
+  $jsonBuilder.addProperty('savingDialogButtonCancel', "$!adminMsg.get('cel_cancel')")
+  $jsonBuilder.addProperty('savingDialogButtonSave', "$!adminMsg.get('cel_tm_saving_dialog_button_save')")
+  $jsonBuilder.addProperty('savingDialogButtonDoNotSave', "$!adminMsg.get('cel_tm_saving_dialog_button_donotsave')")
+  $jsonBuilder.addProperty('savingDialogHeader', "$!adminMsg.get('cel_tm_saving_dialog_header')")
+  $jsonBuilder.addProperty('savingFailed', "$!adminMsg.get('cel_tm_saving_failed')")
+  $jsonBuilder.addProperty('savingFailedDialogHeader', "$!adminMsg.get('cel_tm_saving_failed_dialog_header')")
+  $jsonBuilder.addProperty('savingFailedDialogText', "$!adminMsg.get('cel_tm_saving_failed_dialog_text')")
+  $jsonBuilder.addProperty('objectRemoveConfirm', "$!adminMsg.get('cel_objectedit_removeobject')?")
+
+  $jsonBuilder.openDictionary('autocomplete')
+    $jsonBuilder.addProperty('placeholder_default', "$!adminMsg.cel_struct_autocomplete_placeholder_default")
+    $jsonBuilder.addProperty('UrlToNewElementEditorButtonText_default', "$!adminMsg.cel_struct_autocomplete_UrlToNewElementEditorButtonText_default")
+  $jsonBuilder.closeDictionary()
+
+$jsonBuilder.closeDictionary()
