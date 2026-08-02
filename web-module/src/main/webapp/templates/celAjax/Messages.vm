@@ -1,6 +1,0 @@
-#set($jsonBuilder = $services.celementsweb.getNewJSONBuilder())
-$jsonBuilder.openDictionary()
-#parse('celMessages/general/celements.vm')
-#parse('celMessages/general/structured-data-editor.vm')
-$jsonBuilder.closeDictionary()
-$jsonBuilder.getJSON()
