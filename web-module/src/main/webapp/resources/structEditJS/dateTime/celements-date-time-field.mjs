@@ -92,6 +92,7 @@ class CelementsDateTimePicker {
 
   openPicker(event) {
     event?.stop();
+    if (this.htmlElem.disabled) return;
     this.#openPickerNow = true;
     $j(this.htmlElem).trigger('open');
   }
@@ -293,8 +294,9 @@ class CelementsDateTimeController {
   }
 
   #onDateTimeChange() {
+    const oldValue = this.#dateTimeComponent.value;
     this.#updateComponentValuesFromInput();
-    this.#dateTimeComponent.fireUpdated();
+    this.#dateTimeComponent.fireUpdated(this.#dateTimeComponent.value !== oldValue);
   }
 
   onAttributeChange() {
@@ -431,7 +433,7 @@ class CelementsDateTimeField extends HTMLElement {
       // observe being hailed by existing components upon connection
       this.celObserve('celDateTime:hail', this.#handleHailingBind);
       this.fire('celDateTime:connected');
-      this.fireUpdated();
+      this.fireUpdated(false);
     }
   }
 
@@ -443,7 +445,7 @@ class CelementsDateTimeField extends HTMLElement {
 
   #disconnectInterdependence() {
     if (this.#connectedWrapper) {
-      this.fireUpdated();
+      this.fireUpdated(false);
       this.celFire('celDateTime:disconnected', { target: this });
       this.celStopObserving('celDateTime:hail', this.#handleHailingBind);
       this.#connectedWrapper.stopObserving('celDateTime:connected', this.#handleConnectionBind);
@@ -482,7 +484,7 @@ class CelementsDateTimeField extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['name', 'value', 'min-date', 'min-time', 'max-date', 'max-time', 'placeholder-date', 'placeholder-time'];
+    return ['name', 'value', 'disabled', 'min-date', 'min-time', 'max-date', 'max-time', 'placeholder-date', 'placeholder-time'];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -495,6 +497,11 @@ class CelementsDateTimeField extends HTMLElement {
         this.#hiddenInputElem.setAttribute(name, newValue);
         this.timePart.dataset.min = this.minTime || '';
         this.timePart.dataset.max = this.maxTime || '';
+        break;
+      case 'disabled':
+        this.datePart.disabled = this.disabled;
+        this.timePart.disabled = this.disabled;
+        this.#hiddenInputElem.disabled = this.disabled;
         break;
       case 'min-date':
         this.datePart.dataset.min = this.minDate || '';
@@ -528,6 +535,14 @@ class CelementsDateTimeField extends HTMLElement {
 
   set name(newValue) {
     this.setAttribute('name', newValue || '');
+  }
+
+  get disabled() {
+    return this.hasAttribute('disabled');
+  }
+
+  set disabled(disabled) {
+    this.toggleAttribute('disabled', disabled);
   }
 
   /**
@@ -713,9 +728,9 @@ class CelementsDateTimeField extends HTMLElement {
     }
   }
 
-  fireUpdated() {
+  fireUpdated(fireChange = true) {
     this.celFire('celDateTime:updated', this.#collectInterdependenceData(this.isConnected));
-    this.dispatchEvent(new Event('change', { bubbles: true }));
+    if (fireChange) this.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   #collectInterdependenceData(withValues = true) {
