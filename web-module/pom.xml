@@ -7,7 +7,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>structuredDataEditor-web</artifactId>
-  <version>7.2-SNAPSHOT</version>
+  <version>7.2</version>
   <packaging>war</packaging>
   <name>Celements Structured Data Editor Web-Module</name>
   <description>	</description>
@@ -22,7 +22,7 @@
     <connection>scm:git:git@github.com:celements/celements-structuredDataEditor.git</connection>
     <developerConnection>scm:git:git@github.com:celements/celements-structuredDataEditor.git</developerConnection>
     <url>https://github.com/celements/celements-structuredDataEditor/web-module</url>
-    <tag>HEAD</tag>
+    <tag>structuredDataEditor-web-7.2</tag>
   </scm>
   <dependencies>
     <dependency>
